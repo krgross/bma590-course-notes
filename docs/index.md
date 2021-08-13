@@ -12,11 +12,3 @@ github-repo: rstudio/bookdown-demo
 description: "Course notes for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021."
 ---
 
-
-```r
-install.packages("bookdown")
-# or the development version
-# devtools::install_github("rstudio/bookdown")
-```
-
-
