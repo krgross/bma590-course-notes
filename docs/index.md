@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 Course Notes"
 author: "Kevin Gross"
-date: "2021-08-12"
+date: "2021-08-13"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book

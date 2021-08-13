@@ -1,0 +1,83 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# MLEs for tadpole predation data
+
+```{r}
+library(emdbook)
+data("ReedfrogFuncresp")
+
+# rename something shorter
+
+frog <- ReedfrogFuncresp
+rm(ReedfrogFuncresp)
+
+summary(frog)
+head(frog)
+
+plot(Killed ~ Initial, data = frog)
+
+```
+
+At this point in class we had a brief discussion of the search path, which you can find in R using the command
+
+```{r}
+search()
+```
+Back to the tadpole data:
+
+```{r}
+# negative log-likelihood, for use with optim
+
+frog.neg.ll <- function(params){
+  
+  a <- params[1]
+  h <- params[2]
+  
+  prob.vals <- a / (1 + a * h * frog$Initial)
+  
+  ll.vals <- dbinom(frog$Killed, size = frog$Initial, prob = prob.vals, log = TRUE)
+  neg.ll <- -1 * sum(ll.vals)
+  
+  return(neg.ll)
+}
+
+# find MLEs with optim
+
+frog.mle <- optim(par = c(0.5, 1/40),
+                  fn  = frog.neg.ll)
+frog.mle
+
+# note the warnings
+
+a.mle <- frog.mle$par[1]
+h.mle <- frog.mle$par[2]
+
+# add a line to our plot to show the fitted curve
+
+plot(Killed ~ Initial, data = frog)
+
+init.values <- seq(from = min(frog$Initial), to = max(frog$Initial), length = 100)
+pred.values <- a.mle * init.values / (1 + a.mle * h.mle * init.values)
+
+lines(x = init.values, y = pred.values, col = "red")
+
+# plot negative likelihood contours
+
+a.vals <- seq(from = 0.3, to = 0.75, by = 0.01)
+h.vals <- seq(from = 0.001, to = 0.03, by = 0.001)
+
+ll.vals <- matrix(nrow = length(a.vals), ncol = length(h.vals))
+
+for (i.a in 1:length(a.vals)) {
+  for(i.h in 1:length(h.vals)) {
+    ll.vals[i.a, i.h] <- frog.neg.ll(c(a.vals[i.a], h.vals[i.h]))
+  }
+}
+
+contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
+        xlab = "a", ylab = "h")
+
+points(x = a.mle, y = h.mle, col = "red")
+```
