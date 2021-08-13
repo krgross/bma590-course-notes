@@ -8,7 +8,7 @@ documentclass: book
 bibliography: [bma590.bib]
 biblio-style: apalike
 link-citations: yes
-github-repo: rstudio/bookdown-demo
+github-repo: krgross/bma590-course-notes
 description: "Course notes for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021."
 ---
 
