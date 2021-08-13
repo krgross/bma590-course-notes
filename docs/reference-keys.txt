@@ -1,0 +1,5 @@
+introduction-to-likelihood
+a-likelihood-with-a-single-parameter-horse-kick-data
+calculate-and-plot-the-log-likelihood-function
+find-the-mle-numerically-using-optimize
+myxomatosis-data

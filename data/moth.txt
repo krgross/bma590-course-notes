@@ -1,0 +1,15 @@
+location distance morph placed removed
+sp 0 light 56 17
+sp 0 dark 56 14
+ef 7.2 light 80 28
+ef 7.2 dark 80 20
+ha 24.1 light 52 18
+ha 24.1 dark 52 22
+lo 30.2 light 60 9
+lo 30.2 dark 60 16
+ll 36.4 light 60 16
+ll 36.4 dark 60 23
+pw 41.5 light 84 20
+pw 41.5 dark 84 40
+cm 51.2 light 92 24
+cm 51.2 dark 92 39

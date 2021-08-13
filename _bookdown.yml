@@ -1,0 +1,8 @@
+book_filename: "bookdown-demo"
+language:
+  ui:
+    chapter_name: "Chapter "
+delete_merged_file: true
+new_session: yes  # for Knit - and - Merge compilation, as opposed to Merge - and - Knit.  See setion 1.4 of Yihui's book.
+output_dir: "docs"  # to publish directly to GH pages
+# rmd_files: ["index.Rmd", "abstract.Rmd", "intro.Rmd"]  # use if i want to start chapter files with something other than numbers
