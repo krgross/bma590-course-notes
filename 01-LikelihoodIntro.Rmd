@@ -1,4 +1,4 @@
-# Introduction to likelihood
+# Maximum likelihood estimation
 
 ## A very simple example with a single observation
 
@@ -85,7 +85,6 @@ ll.vals <- double(length = length(lambda.vals))
 
 # use a loop to find the log-likelihood for each value in lambda.vals
 for (i.lambda in 1:length(lambda.vals)) {
-  
   ll.vals[i.lambda] <- horse.ll(lambda.vals[i.lambda])
 }
 ```
@@ -103,7 +102,7 @@ Bolker's book illustrates numerical optimization using the `optim` function.  Th
 (horse.mle <- optimize(f = horse.ll, interval = c(0.1, 2), maximum = TRUE))
 ```
 
-The `optimize` function returns a 'list'.  A list is an R object that contains components of different types. The numerically calculated MLE is $\hat{lambda} \approx 0.7$.  The 'objective' component of \texttt{horse.mle} gives the value of the log-likelihood at that point.
+The `optimize` function returns a 'list'.  A list is an R object that contains components of different types. The numerically calculated MLE is $\hat{\lambda} \approx 0.7$.  The 'objective' component of \texttt{horse.mle} gives the value of the log-likelihood at that point.
 
 ## Myxomatosis data
 
@@ -126,6 +125,7 @@ Out of curiosity, let's make a scatterplot of the titer vs.\ the day
 ```{r}
 with(myxo, plot(titer ~ day))
 ```
+
 For the sake of this example, we will ignore the apparent (and unsurprising) relationship between titer and day, and instead will consider only the titer data.  We will regard these data as a random sample from a normal distribution.  For the sake of illustration, we will estimate the mean and variance of the normal distribution using the `optim` function in R.
 
 First, we write a function to calculate the log likelihood.
@@ -138,7 +138,7 @@ myxo.ll <- function(m, v){
   return(ll)
 }
 ```
-Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.\footnote{It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the {\em invarance property} of MLEs.}
+Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.  (It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the {\em invarance property} of MLEs.)
 
 We can use our function to calculate the likelihood for any choice of mean and variance.  For example, let's try $\mu = 6$ and $\sigma^2 = 1$.
 ```{r}

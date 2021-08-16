@@ -1,7 +1,0 @@
-h1:introduction-to-likelihood Introduction to likelihood
-h2:a-very-simple-example-with-a-single-observation A very simple example with a single observation
-h2:horse-kick-data Horse-kick data
-h3:calculate-and-plot-the-log-likelihood-function Calculate and plot the log-likelihood function
-h3:find-the-mle-numerically-using-optimize Find the MLE numerically using 
-h2:myxomatosis-data Myxomatosis data
-

@@ -1,4 +1,4 @@
-introduction-to-likelihood
+maximum-likelihood-estimation
 a-very-simple-example-with-a-single-observation
 horse-kick-data
 calculate-and-plot-the-log-likelihood-function
