@@ -1,5 +1,5 @@
 --- 
-title: "BMA / ST 590 Course Notes"
+title: "Computing companion for BMA / ST 590, Fall 2021"
 author: "Kevin Gross"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
@@ -9,6 +9,6 @@ bibliography: [bma590.bib]
 biblio-style: apalike
 link-citations: yes
 github-repo: krgross/bma590-course-notes
-description: "Course notes for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021."
+description: "Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021."
 ---
 

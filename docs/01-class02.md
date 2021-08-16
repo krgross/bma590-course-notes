@@ -1,8 +1,48 @@
 # Introduction to likelihood
 
-## A likelihood with a single parameter: Horse-kick data
+## A very simple example with a single observation
 
-First import the data.  Note that the pathname used here is specific to the file directory that was used to create this file.  The pathname that you use will likely differ.
+Suppose we observe a single observation from a Poisson distribution.  Suppose that observation is $X=2$.  We can use the `dpois` function to evaluate the likelihood for this single observation.  For example, we can evaluate the likelihood at $\lambda = 1.5$:
+
+```r
+dpois(x = 2, lambda = 1.5)
+```
+
+```
+## [1] 0.2510214
+```
+Or we could evaluate the likelihood at $\lambda = 2$ or $\lambda = 2.5$:
+
+```r
+dpois(x = 2, lambda = c(2, 2.5))
+```
+
+```
+## [1] 0.2706706 0.2565156
+```
+Now let's evaluate the likelihood at a sequence of $\lambda$ values:
+
+```r
+lambda.vals <- seq(from = 0, to = 5, by = 0.01)
+my.lhood <- dpois(x = 2, lambda = lambda.vals)
+plot(lambda.vals, my.lhood, xlab = expression(lambda), ylab = "Likelihood", type = "l")
+```
+
+<img src="01-class02_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+We might guess that the likelihood is maximized at $\lambda = 2$.  We'd be right.
+
+```r
+plot(lambda.vals, my.lhood, xlab = expression(lambda), ylab = "Likelihood", type = "l")
+abline(v = 2, col = "red")
+```
+
+<img src="01-class02_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+
+## Horse-kick data
+
+Most real data sets contain more than a single observation.  Here is a data set that we can use to illustrate maximum likelihood estimation with a single parameter.  Famously, Ladislaus van Bortkewitsch (1868 - 1931) piblished how many members of the Prussiam army were killed by horse kicks in each of 20 years, for each of 14 army corps.  As a caveat, these data are often used to illustrate the Poisson distribution, as we will use them.  They match the Poisson distribution more neatly than we might expect for most data sets.
+
+First import the data.  Note that the path name used here is specific to the file directory that was used to create this file.  The path name that you use will likely differ.
 
 ```r
 horse <- read.table("data/horse.txt", header = TRUE)
@@ -52,6 +92,19 @@ tail(horse)
 ## 279 1893   C15      0
 ## 280 1894   C15      0
 ```
+Another useful function to keep in mind is the `str' function which tells you about the [str]ucture of an R object:
+
+```r
+str(horse)
+```
+
+```
+## 'data.frame':	280 obs. of  3 variables:
+##  $ year  : int  1875 1876 1877 1878 1879 1880 1881 1882 1883 1884 ...
+##  $ corps : chr  "GC" "GC" "GC" "GC" ...
+##  $ deaths: int  0 2 2 1 0 0 1 1 0 3 ...
+```
+
 Let's plot a histogram of the values:
 
 ```r
@@ -61,7 +114,7 @@ hist(horse$deaths,
                   by = 1))
 ```
 
-<img src="01-class02_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<img src="01-class02_files/figure-html/unnamed-chunk-10-1.png" width="672" />
 
 ### Calculate and plot the log-likelihood function
 
@@ -69,9 +122,9 @@ Create a function that calculates the log-likelihood for a value of $\lambda$:
 
 
 ```r
-horse.ll <- function(lambda){
+horse.ll <- function(lam){
   
-  ll.vals <- dpois(x = horse$deaths, lambda = lambda, log = TRUE)
+  ll.vals <- dpois(x = horse$deaths, lambda = lam, log = TRUE)
   ll <- sum(ll.vals)
   
   return(ll)
@@ -87,12 +140,12 @@ horse.ll(1)
 ## [1] -328.2462
 ```
 
-Let's calculate the log-likelihood for many values of $\lambda$, in preparation for making a plot.  We'll use a loop here, and not worry about vectorization.
+Let's calculate the log-likelihood for many values of $\lambda$, in preparation for making a plot.  We'll use a loop here, and not worry about vectorization.  
 
 
 ```r
 # create a vector of lambda values using the 'seq'uence command
-lambda.vals <- seq(from = 0.1, to = 2.0, by = 0.01)  
+lambda.vals <- seq(from = 0.01, to = 2.0, by = 0.01)  
 
 # create an empty vector to store the values of the log-likelihood
 ll.vals <- double(length = length(lambda.vals))  
@@ -111,21 +164,14 @@ plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "log likelihood", type = "l"
 abline(v = 0.7, col = "red")
 ```
 
-<img src="01-class02_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<img src="01-class02_files/figure-html/unnamed-chunk-14-1.png" width="672" />
 
 ### Find the MLE numerically using 'optimize'
 
-Note that Bolker's book illustrates numerical optimization using the 'optim' function.  The R documentation recommends using 'optimize' for one-dimensional optimization, and 'optim' for optimizing a function in several dimensions.  So, we will use 'optimize' here.
-
-
-```r
-horse.mle <- optimize(f = horse.ll, interval = c(0.1, 2), maximum = TRUE)
-```
-
-The 'optimize' function returns a 'list'.  A list is an R object that contains components of different types.  We can see all the components of this list by printing it.
+Bolker's book illustrates numerical optimization using the `optim` function.  The R documentation recommends using `optimize` for one-dimensional optimization, and `optim` for optimizing a function in several dimensions.  So, we will use `optimize` here.  We will enclose the entire call to `optimize` in parentheses so that the output is dumped to the command line in addition to being stored as `horse.mle`.
 
 ```r
-horse.mle 
+(horse.mle <- optimize(f = horse.ll, interval = c(0.1, 2), maximum = TRUE))
 ```
 
 ```
@@ -135,11 +181,12 @@ horse.mle
 ## $objective
 ## [1] -314.1545
 ```
-So the numerically calculated MLE is $\hat{lambda} \approx 0.7$.  The 'objective' component of \texttt{horse.mle} gives the value of the log-likelihood at that point.
+
+The `optimize` function returns a 'list'.  A list is an R object that contains components of different types. The numerically calculated MLE is $\hat{lambda} \approx 0.7$.  The 'objective' component of \texttt{horse.mle} gives the value of the log-likelihood at that point.
 
 ## Myxomatosis data
 
-The myxomatosis data are in Bolker's library 'emdbook'.  First load the library.  If the library is not found, you will first have to download and install the library on your computer, using the Packages tab in RStudio.
+The myxomatosis data are in Bolker's library `emdbook`.  First load the library.  If the library is not found, you will first have to download and install the library on your computer, using the Packages tab in RStudio.  The call to `data` loads the particular myxomatosis data set that we want into memory.
 
 ```r
 library(emdbook)
@@ -196,8 +243,8 @@ Out of curiosity, let's make a scatterplot of the titer vs.\ the day
 with(myxo, plot(titer ~ day))
 ```
 
-<img src="01-class02_files/figure-html/unnamed-chunk-15-1.png" width="672" />
-For the sake of this example, we will ignore the apparent (and unsurprising) relationship between titer and day, and instead will consider only the titer data.  We will regard these data as a random sample from a normal distribution.  For the sake of illustration, we will estimate the mean and variance of the normal distribution using the \texttt{optim} function in R.
+<img src="01-class02_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+For the sake of this example, we will ignore the apparent (and unsurprising) relationship between titer and day, and instead will consider only the titer data.  We will regard these data as a random sample from a normal distribution.  For the sake of illustration, we will estimate the mean and variance of the normal distribution using the `optim` function in R.
 
 First, we write a function to calculate the log likelihood.
 
@@ -210,7 +257,7 @@ myxo.ll <- function(m, v){
   return(ll)
 }
 ```
-Note that R's function for the pdf of a normal distribution --- \texttt{dnorm} --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.\footnote{It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the {\em invarance property} of MLEs.}
+Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.\footnote{It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the {\em invarance property} of MLEs.}
 
 We can use our function to calculate the likelihood for any choice of mean and variance.  For example, let's try $\mu = 6$ and $\sigma^2 = 1$.
 
@@ -221,7 +268,7 @@ myxo.ll(m = 6, v = 1)
 ```
 ## [1] -47.91229
 ```
-We want to maximize the likelihood using \texttt{optim}.  Unfortuantely, \texttt{optim} is a little finicky.  To use \texttt{optim}, we have to re-write our function \texttt{myxo.ll} so that the parameters to be estimated are passed to the function as a single vector.  Also, by default, \texttt{optim} performs minimization instead of maximization.  We can change this behavior when we call \texttt{optim}.  Alternatively, we can just re-define the function to return the negative log likelihood.  
+We want to maximize the likelihood using `optim`.  Unfortuantely, `optim` is a little finicky.  To use `optim`, we have to re-write our function `myxo.ll` so that the parameters to be estimated are passed to the function as a single vector.  Also, by default, `optim` performs minimization instead of maximization.  We can change this behavior when we call `optim`.  Alternatively, we can just re-define the function to return the negative log likelihood.  
 
 ```r
 myxo.neg.ll <- function(pars){
@@ -235,12 +282,11 @@ myxo.neg.ll <- function(pars){
   return(-ll)
 }
 ```
-Now we can use \texttt{optim}:
+Now we can use `optim`:
 
 ```r
-myxo.mle <- optim(par = c(7, 1),  # starting values, just a ballpark guess 
-                  fn  = myxo.neg.ll)
-myxo.mle
+(myxo.mle <- optim(par = c(7, 1),  # starting values, just a ballpark guess 
+                  fn  = myxo.neg.ll))
 ```
 
 ```
@@ -278,7 +324,7 @@ var.mle
 ## [1] 0.8572684
 ```
 
-Compare this to the answer given by \texttt{optim}, and to the more usual calculation of
+Compare this to the answer given by `optim`, and to the more usual calculation of
 
 ```r
 var.usual <- ss / (n - 1)
@@ -318,4 +364,4 @@ contour(x = m.vals, y = v.vals, z = ll.vals, nlevels = 100,
 points(x = myxo.mle$par[1], y = myxo.mle$par[2], col = "red")
 ```
 
-<img src="01-class02_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+<img src="01-class02_files/figure-html/unnamed-chunk-26-1.png" width="672" />
