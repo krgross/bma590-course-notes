@@ -61,12 +61,10 @@ hist(horse$deaths,
 Create a function that calculates the log-likelihood for a value of $\lambda$:
 
 ```{r}
-horse.ll <- function(lam){
+horse.ll <- function(my.lambda){
   
-  ll.vals <- dpois(x = horse$deaths, lambda = lam, log = TRUE)
-  ll <- sum(ll.vals)
-  
-  return(ll)
+  ll.vals <- dpois(x = horse$deaths, lambda = my.lambda, log = TRUE)
+  sum(ll.vals)
 }
 ```
 We can use this function to calculate the log-likelihood for any value of $\lambda$, such as $\lambda = 1$:
@@ -133,9 +131,7 @@ First, we write a function to calculate the log likelihood.
 myxo.ll <- function(m, v){
 
   ll.vals <- dnorm(myxo$titer, mean = m, sd = sqrt(v), log = TRUE)
-  ll <- sum(ll.vals)
-  
-  return(ll)
+  sum(ll.vals)
 }
 ```
 Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.  (It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the {\em invarance property} of MLEs.)
@@ -152,9 +148,7 @@ myxo.neg.ll <- function(pars){
   v <- pars[2]
   
   ll.vals <- dnorm(myxo$titer, mean = m, sd = sqrt(v), log = TRUE)
-  ll <- sum(ll.vals)
-  
-  return(-ll)
+  -sum(ll.vals)
 }
 ```
 Now we can use `optim`:
