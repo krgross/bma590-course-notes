@@ -4,3 +4,4 @@ horse-kick-data
 calculate-and-plot-the-log-likelihood-function
 find-the-mle-numerically-using-optimize
 myxomatosis-data
+tadpole-data
