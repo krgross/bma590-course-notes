@@ -219,7 +219,7 @@ head(MyxoTiter_sum)
 ## 5     1   3 6.612
 ## 6     1   3 6.810
 ```
-Extract the subset of the data that corresponds to the ``grade 1'' viral strain.
+Extract the subset of the data that corresponds to the "grade 1" viral strain.
 
 ```r
 myxo <- subset(MyxoTiter_sum, grade == 1)
@@ -311,19 +311,20 @@ Let's verify this by calculating the same quantity at the command line:
 residuals <- with(myxo, titer - mean(titer))
 ss <- sum(residuals^2)
 n <- length(myxo$titer)
-var.mle <- ss / n
-var.mle
+ss / n
 ```
 
 ```
 ## [1] 0.8572684
 ```
 
-Compare this to the answer given by `optim`, and to the more usual calculation of
+Compare this to the answer given by `var`, and to the more usual calculation of the variance as
+$$
+s^2 = \frac{\sum_i (x_i - \bar{x})}{n-1}.
+$$
 
 ```r
-var.usual <- ss / (n - 1)
-var.usual
+(var.usual <- ss / (n - 1))
 ```
 
 ```
@@ -338,28 +339,52 @@ var(myxo$titer)
 ## [1] 0.8902403
 ```
 
-Make a contour plot of the likelihood surface.
+One main take-home of this example is that when we use maximum likelihood to estimate variances for normally distributed data, the MLE is biased low.  In other words, it underestimates the true variance.  When we study hierarchical models later in the semester, we will regularly find ourselves estimating variances for normally distributed effects, and will have to deal with the consequences of the fact that the MLEs of these variances are biased low.
+
+For models with 2 parameters, we can visualize the likelihood surface with a contour plot.  To do so, the first step is to define a lattice of values at which we want to calculate the log-likelihood.  We'll do so by defining vectors for $\mu$ and $\sigma^2$:
 
 ```r
 m.vals <- seq(from = 6, to = 8, by = 0.05)
 v.vals <- seq(from = 0.3, to = 2.5, by = 0.05)
+```
 
+Here is some fancy R code that shows this lattice.  Don't worry about how this plot is created, as it isn't critical for what follows.
+
+```r
+plot(rep(m.vals, length(v.vals)), rep(v.vals, rep(length(m.vals), length(v.vals))),
+     xlab = expression(mu),
+     ylab = expression(sigma^2))
+```
+
+<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+
+Now we will define the matrix that will store the values of the log-likelihood for each combination of $\mu$ and $\sigma^2$ in the lattice shown above.
+
+```r
 ll.vals <- matrix(nrow = length(m.vals), ncol = length(v.vals))
+```
 
+Next, we will write a nested loop that cycles through the lattice points, calculates the log-likelihood for each, and stores the value of the log likelihood in the matrix `ll.vals` that we just created.
+
+```r
 for (i.m in 1:length(m.vals)) {
   for(i.v in 1:length(v.vals)) {
     ll.vals[i.m, i.v] <- myxo.ll(m = m.vals[i.m], v = v.vals[i.v])
   }
 }
+```
 
+Now we will use the `contour` function to build the contour plot, and then add a red dot for the MLE.
+
+```r
 contour(x = m.vals, y = v.vals, z = ll.vals, nlevels = 100,
-        xlab = "mean", ylab = "variance")
+        xlab = expression(mu), ylab = expression(sigma^2))
 
 # show the MLE
 points(x = myxo.mle$par[1], y = myxo.mle$par[2], col = "red")
 ```
 
-<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 ## Tadpole data
 
@@ -411,7 +436,7 @@ head(frog)
 plot(Killed ~ Initial, data = frog)
 ```
 
-<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 Following Bolker, we'll assume that the number of individuals killed takes a binomial distribution, where the number of trials equals the initial tadpole density, and the probability that a tadpole is killed is given by the expression
 $$
@@ -485,7 +510,7 @@ pred.values <- a.mle * init.values / (1 + a.mle * h.mle * init.values)
 lines(x = init.values, y = pred.values, col = "red")
 ```
 
-<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 Finally, we'll plot the likelihood contours.
 
@@ -509,6 +534,6 @@ contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
 points(x = a.mle, y = h.mle, col = "red")
 ```
 
-<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="01-LikelihoodIntro_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 
 Note that, in contrast to the Myxomatosis data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes.  We'll reflect on the implications of this shape in the next section.

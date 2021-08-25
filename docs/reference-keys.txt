@@ -5,3 +5,7 @@ calculate-and-plot-the-log-likelihood-function
 find-the-mle-numerically-using-optimize
 myxomatosis-data
 tadpole-data
+beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function
+confidence-intervals-for-single-parameters
+confidence-regions-profile-likelihoods-and-associated-univariate-intervals
+locally-quadratic-approximations-to-confidence-intervals-and-regions
