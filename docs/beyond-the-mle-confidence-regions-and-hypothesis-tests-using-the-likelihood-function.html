@@ -24,7 +24,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2021-08-25" />
+<meta name="date" content="2021-08-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -149,6 +149,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.1" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#confidence-intervals-for-single-parameters"><i class="fa fa-check"></i><b>2.1</b> Confidence intervals for single parameters</a></li>
 <li class="chapter" data-level="2.2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#confidence-regions-profile-likelihoods-and-associated-univariate-intervals"><i class="fa fa-check"></i><b>2.2</b> Confidence regions, profile likelihoods, and associated univariate intervals</a></li>
 <li class="chapter" data-level="2.3" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#locally-quadratic-approximations-to-confidence-intervals-and-regions"><i class="fa fa-check"></i><b>2.3</b> Locally quadratic approximations to confidence intervals and regions</a></li>
+<li class="chapter" data-level="2.4" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#comparing-models-likelihood-ratio-test-and-aic"><i class="fa fa-check"></i><b>2.4</b> Comparing models: Likelihood ratio test and AIC</a></li>
 </ul></li>
 </ul>
 
@@ -558,6 +559,279 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb118-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb118-1" aria-hidden="true" tabindex="-1"></a>(ci.approx <span class="ot">&lt;-</span> a.mle <span class="sc">+</span> <span class="fu">qnorm</span>(<span class="fu">c</span>(<span class="fl">0.025</span>, .<span class="dv">975</span>)) <span class="sc">*</span> a.se)</span></code></pre></div>
 <pre><code>## [1] 0.3865830 0.6651283</code></pre>
 <p>Recall that the 95% confidence interval we calculated by the profile likelihood was <span class="math inline">\((0.402, 0.682)\)</span>. So the quadratic approximation has gotten the width of the interval more or less correct, but it has fared less at capturing the asymmetry of the interval.</p>
+</div>
+<div id="comparing-models-likelihood-ratio-test-and-aic" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> Comparing models: Likelihood ratio test and AIC</h2>
+<p>Obtaining a parsimonious statistical description of data often requires arbitrating between competing model fits. Likelihood provides two tools for comparing models: likelihood ratio tests (LRTs) and information criteria. Of the latter, the best known information criterion is due to Akaike, and takes the name AIC. (Akaike didn’t name AIC after himself; he used AIC to refer to “An information criterion.” In his honor, the acronym is now largely taken to stand for “Akaike’s information criterion.”)</p>
+<p>LRTs and information criteria have complementary strengths and weaknesses. LRTs are direct, head-to-head comparisons of nested models. By “nested,” we mean that one model can be obtained as a special case of the other. The “reduced,” or less flexible (and thus more parsimonious) model plays the role of the null hypothesis, and the “full,” or more flexible (and thus less parsimonious) model plays the role of the alternative hypothesis. The LRT then formally evaluates whether the improvement in fit offered by the full model is statistically significant, that is, greater than what we would expect merely by chance.</p>
+<p>On the other hand, information criteria provide a penalized goodness-of-fit measure that can be used to compare many models at once. Information criteria produce a ranking of model fits, and thus a best-fitting model. The downside to information criteria is that there are no hard and fast guidelines to determine when one model provides a significantly better fit than another. The properties of information criteria are also less well understood than the properties of LRTs.</p>
+<p>To illustrate both, we will use the study of cone production by fir trees studied in <span class="math inline">\(\S\)</span> 6.6 of Bolker. These data are originally from work by Dodd and Silvertown. The data are much richer than we will examine here. Like Bolker, we will focus on whether the relationship between tree size (as measured by diameter at breast height, or dbh) and the number of cones produces differs between populations that “have experienced wave-like die-offs” and those that have not.</p>
+<p>First some preparatory work to import and assemble the data:</p>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb120-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(emdbook)</span>
+<span id="cb120-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;FirDBHFec&quot;</span>)</span>
+<span id="cb120-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-4" aria-hidden="true" tabindex="-1"></a><span class="co"># give the data a simpler name</span></span>
+<span id="cb120-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-6" aria-hidden="true" tabindex="-1"></a>fir <span class="ot">&lt;-</span> FirDBHFec</span>
+<span id="cb120-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(FirDBHFec)</span>
+<span id="cb120-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-9" aria-hidden="true" tabindex="-1"></a>fir <span class="ot">&lt;-</span> fir[, <span class="fu">c</span>(<span class="st">&quot;WAVE_NON&quot;</span>, <span class="st">&quot;DBH&quot;</span>, <span class="st">&quot;TOTCONES&quot;</span>)]  <span class="co"># select just the variables we want</span></span>
+<span id="cb120-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb120-11" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fir)</span></code></pre></div>
+<pre><code>##  WAVE_NON      DBH            TOTCONES    
+##  n:166    Min.   : 3.200   Min.   :  0.0  
+##  w:205    1st Qu.: 6.400   1st Qu.: 14.0  
+##           Median : 7.600   Median : 36.0  
+##           Mean   : 8.169   Mean   : 49.9  
+##           3rd Qu.: 9.700   3rd Qu.: 66.0  
+##           Max.   :17.400   Max.   :297.0  
+##           NA&#39;s   :26       NA&#39;s   :114</code></pre>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb122-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(fir) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;wave&quot;</span>, <span class="st">&quot;dbh&quot;</span>, <span class="st">&quot;cones&quot;</span>)  <span class="co"># rename the variables</span></span>
+<span id="cb122-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb122-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-3" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of the incomplete records</span></span>
+<span id="cb122-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb122-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-5" aria-hidden="true" tabindex="-1"></a>fir <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(fir)</span>
+<span id="cb122-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb122-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-7" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb122-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb122-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cones <span class="sc">~</span> dbh, <span class="at">data =</span> fir, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">main =</span> <span class="st">&quot;wave&quot;</span>)</span>
+<span id="cb122-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-10" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(cones <span class="sc">~</span> dbh, <span class="at">data =</span> <span class="fu">subset</span>(fir, wave <span class="sc">==</span> <span class="st">&quot;w&quot;</span>))</span>
+<span id="cb122-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb122-12"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cones <span class="sc">~</span> dbh, <span class="at">data =</span> fir, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">main =</span> <span class="st">&quot;non-wave&quot;</span>)</span>
+<span id="cb122-13"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb122-13" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(cones <span class="sc">~</span> dbh, <span class="at">data =</span> <span class="fu">subset</span>(fir, wave <span class="sc">==</span> <span class="st">&quot;n&quot;</span>))</span></code></pre></div>
+<p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="co"># any non-integral responses?</span></span>
+<span id="cb123-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb123-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb123-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb123-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(fir, <span class="fu">table</span>(cones <span class="sc">==</span> <span class="fu">round</span>(cones)))  <span class="co"># illustrate the use of &#39;with&#39;</span></span></code></pre></div>
+<pre><code>## 
+## FALSE  TRUE 
+##     6   236</code></pre>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb125-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="co"># round the non-integral values</span></span>
+<span id="cb125-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb125-2" aria-hidden="true" tabindex="-1"></a>fir<span class="sc">$</span>cones <span class="ot">&lt;-</span> <span class="fu">round</span>(fir<span class="sc">$</span>cones)</span>
+<span id="cb125-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb125-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb125-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb125-4" aria-hidden="true" tabindex="-1"></a><span class="co"># check</span></span>
+<span id="cb125-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb125-5" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(fir, <span class="fu">table</span>(cones <span class="sc">==</span> <span class="fu">round</span>(cones)))</span></code></pre></div>
+<pre><code>## 
+## TRUE 
+##  242</code></pre>
+<p>Like Bolker, we will assume that the average number of cones produced (<span class="math inline">\(\mu\)</span>) has a power-law relationship with tree dbh (<span class="math inline">\(x\)</span>). We will also assume that the actual number of cones produced (<span class="math inline">\(Y\)</span>) takes a negative binomial distribution with size-dependent mean and overdispersion parameter <span class="math inline">\(k\)</span>. That is, our model is
+<span class="math display">\[\begin{align*}
+\mu(x) &amp; = a x ^ b \\
+Y &amp; \sim \mbox{NB}(\mu(x), k) 
+\end{align*}\]</span></p>
+<p>To head in a slightly different direction from Bolker, we will compare two models. In the first, or reduced, model the same parameters will prevail for both wave and non-wave populations. Thus this model has three parameters: <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(k\)</span>. In the second, or full, model, we will allow the <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> parameters to differ between the wave and non-wave populations. (We will continue to assume a common <span class="math inline">\(k\)</span> for both population types.) Using subscripts on <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> to distinguish population types, the full model then has 5 parameters: <span class="math inline">\(a_w\)</span>, <span class="math inline">\(a_n\)</span>, <span class="math inline">\(b_w\)</span>, <span class="math inline">\(b_n\)</span>, and <span class="math inline">\(k\)</span>. We’ll fit the reduced model first. To do so, we’ll use the <code>dnbinom</code> function in R, in which the <span class="math inline">\(k\)</span> parameter is located in the formal argument “size.”</p>
+<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-1" aria-hidden="true" tabindex="-1"></a>fir.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(parms, x, y){</span>
+<span id="cb127-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-2" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb127-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-3" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> parms[<span class="dv">1</span>]</span>
+<span id="cb127-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-4" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> parms[<span class="dv">2</span>]</span>
+<span id="cb127-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-5" aria-hidden="true" tabindex="-1"></a>  k <span class="ot">&lt;-</span> parms[<span class="dv">3</span>]</span>
+<span id="cb127-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-6" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb127-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-7" aria-hidden="true" tabindex="-1"></a>  my.mu <span class="ot">&lt;-</span> a <span class="sc">*</span> x<span class="sc">^</span>b</span>
+<span id="cb127-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-8" aria-hidden="true" tabindex="-1"></a>  ll.values <span class="ot">&lt;-</span> <span class="fu">dnbinom</span>(y, <span class="at">size =</span> k, <span class="at">mu =</span> my.mu, <span class="at">log =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb127-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb127-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-10" aria-hidden="true" tabindex="-1"></a>  neg.ll <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.values)</span>
+<span id="cb127-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(neg.ll)</span>
+<span id="cb127-12"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Note a subtle difference here. In preparation for fitting this same model to different subsets of the data, the function <code>fir.neg.ll</code> has formal arguments that receive the values of the <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> variables. In the call to <code>optim</code>, we can supply those additional values as subsequent arguments in the <code>optim</code> function, as illustrated below.</p>
+<div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb128-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit reduced model</span></span>
+<span id="cb128-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb128-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb128-3" aria-hidden="true" tabindex="-1"></a>(fir.reduced <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">f   =</span> fir.neg.ll,</span>
+<span id="cb128-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb128-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">par =</span> <span class="fu">c</span>(<span class="at">a =</span> <span class="dv">1</span>, <span class="at">b =</span> <span class="dv">1</span>, <span class="at">k =</span> <span class="dv">1</span>),</span>
+<span id="cb128-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb128-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">x   =</span> fir<span class="sc">$</span>dbh,</span>
+<span id="cb128-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb128-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y   =</span> fir<span class="sc">$</span>cones))</span></code></pre></div>
+<pre><code>## $par
+##         a         b         k 
+## 0.3041425 2.3190142 1.5033525 
+## 
+## $value
+## [1] 1136.015
+## 
+## $counts
+## function gradient 
+##      134       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL</code></pre>
+<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb130-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb130-1" aria-hidden="true" tabindex="-1"></a>a.mle <span class="ot">&lt;-</span> fir.reduced<span class="sc">$</span>par[<span class="dv">1</span>]</span>
+<span id="cb130-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb130-2" aria-hidden="true" tabindex="-1"></a>b.mle <span class="ot">&lt;-</span> fir.reduced<span class="sc">$</span>par[<span class="dv">2</span>]</span>
+<span id="cb130-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb130-3" aria-hidden="true" tabindex="-1"></a>k.mle <span class="ot">&lt;-</span> fir.reduced<span class="sc">$</span>par[<span class="dv">3</span>]</span></code></pre></div>
+<p>Make a plot of the reduced model fit, with both populations pooled together:</p>
+<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb131-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-1" aria-hidden="true" tabindex="-1"></a>dbh.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(fir<span class="sc">$</span>dbh), <span class="at">to =</span> <span class="fu">max</span>(fir<span class="sc">$</span>dbh), <span class="at">length =</span> <span class="dv">100</span>)</span>
+<span id="cb131-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-2" aria-hidden="true" tabindex="-1"></a>fit.vals <span class="ot">&lt;-</span> <span class="fu">double</span>(<span class="at">length =</span> <span class="fu">length</span>(dbh.vals))</span>
+<span id="cb131-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb131-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq</span>(<span class="at">along =</span> dbh.vals)) {</span>
+<span id="cb131-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-5" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb131-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-6" aria-hidden="true" tabindex="-1"></a>  fit.vals[i] <span class="ot">&lt;-</span> a.mle <span class="sc">*</span> dbh.vals[i] <span class="sc">^</span> b.mle  </span>
+<span id="cb131-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb131-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb131-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-9" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))  <span class="co"># don&#39;t break the next figure into two panels</span></span>
+<span id="cb131-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-10" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(fir, <span class="fu">plot</span>(cones <span class="sc">~</span> dbh))  <span class="co"># plot the data points</span></span>
+<span id="cb131-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb131-11" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(fit.vals <span class="sc">~</span> dbh.vals, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)  </span></code></pre></div>
+<p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<p>Now fit the full model with separate values of <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> for each population:</p>
+<div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-1" aria-hidden="true" tabindex="-1"></a>fir.neg.ll.full <span class="ot">&lt;-</span> <span class="cf">function</span>(parms) {</span>
+<span id="cb132-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-3" aria-hidden="true" tabindex="-1"></a>  a.w <span class="ot">&lt;-</span> parms[<span class="dv">1</span>]</span>
+<span id="cb132-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-4" aria-hidden="true" tabindex="-1"></a>  b.w <span class="ot">&lt;-</span> parms[<span class="dv">2</span>]</span>
+<span id="cb132-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-6" aria-hidden="true" tabindex="-1"></a>  a.n <span class="ot">&lt;-</span> parms[<span class="dv">3</span>]</span>
+<span id="cb132-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-7" aria-hidden="true" tabindex="-1"></a>  b.n <span class="ot">&lt;-</span> parms[<span class="dv">4</span>]</span>
+<span id="cb132-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-9" aria-hidden="true" tabindex="-1"></a>  k   <span class="ot">&lt;-</span> parms[<span class="dv">5</span>]</span>
+<span id="cb132-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-11" aria-hidden="true" tabindex="-1"></a>  wave    <span class="ot">&lt;-</span> <span class="fu">subset</span>(fir, wave <span class="sc">==</span> <span class="st">&quot;w&quot;</span>)</span>
+<span id="cb132-12"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-12" aria-hidden="true" tabindex="-1"></a>  nonwave <span class="ot">&lt;-</span> <span class="fu">subset</span>(fir, wave <span class="sc">==</span> <span class="st">&quot;n&quot;</span>) </span>
+<span id="cb132-13"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-14"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># note how we call fir.neg.ll here, but each time only</span></span>
+<span id="cb132-15"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># passing a subset of the data</span></span>
+<span id="cb132-16"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-17"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-17" aria-hidden="true" tabindex="-1"></a>  neg.ll.wave     <span class="ot">&lt;-</span> <span class="fu">fir.neg.ll</span>(<span class="at">parms =</span> <span class="fu">c</span>(<span class="at">a =</span> a.w, <span class="at">b =</span> b.w, <span class="at">k =</span> k),</span>
+<span id="cb132-18"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-18" aria-hidden="true" tabindex="-1"></a>                                <span class="at">x     =</span> wave<span class="sc">$</span>dbh,</span>
+<span id="cb132-19"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-19" aria-hidden="true" tabindex="-1"></a>                                <span class="at">y     =</span> wave<span class="sc">$</span>cones)</span>
+<span id="cb132-20"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-21"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-21" aria-hidden="true" tabindex="-1"></a>  neg.ll.nonwave  <span class="ot">&lt;-</span> <span class="fu">fir.neg.ll</span>(<span class="at">parms =</span> <span class="fu">c</span>(<span class="at">a =</span> a.n, <span class="at">b =</span> b.n, <span class="at">k =</span> k),</span>
+<span id="cb132-22"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-22" aria-hidden="true" tabindex="-1"></a>                                <span class="at">x     =</span> nonwave<span class="sc">$</span>dbh,</span>
+<span id="cb132-23"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-23" aria-hidden="true" tabindex="-1"></a>                                <span class="at">y     =</span> nonwave<span class="sc">$</span>cones)</span>
+<span id="cb132-24"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-25"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-25" aria-hidden="true" tabindex="-1"></a>  total.ll <span class="ot">&lt;-</span> neg.ll.wave <span class="sc">+</span> neg.ll.nonwave</span>
+<span id="cb132-26"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb132-27"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(total.ll)</span>
+<span id="cb132-28"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb132-29"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb132-30"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-30" aria-hidden="true" tabindex="-1"></a>(fir.full <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">f      =</span> fir.neg.ll.full,</span>
+<span id="cb132-31"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb132-31" aria-hidden="true" tabindex="-1"></a>                  <span class="at">par    =</span> <span class="fu">c</span>(<span class="at">a.w =</span> <span class="dv">1</span>, <span class="at">b.w =</span> <span class="dv">1</span>, <span class="at">a.n =</span> <span class="dv">1</span>, <span class="at">b.n =</span> <span class="dv">1</span>, <span class="at">k =</span> <span class="dv">1</span>)))</span></code></pre></div>
+<pre><code>## $par
+##       a.w       b.w       a.n       b.n         k 
+## 0.4136414 2.1417941 0.2874122 2.3550753 1.5083974 
+## 
+## $value
+## [1] 1135.677
+## 
+## $counts
+## function gradient 
+##      502       NA 
+## 
+## $convergence
+## [1] 1
+## 
+## $message
+## NULL</code></pre>
+<p>Let’s make a plot to show the different fits.</p>
+<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-1" aria-hidden="true" tabindex="-1"></a>a.w.mle <span class="ot">&lt;-</span> fir.full<span class="sc">$</span>par[<span class="dv">1</span>]</span>
+<span id="cb134-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-2" aria-hidden="true" tabindex="-1"></a>b.w.mle <span class="ot">&lt;-</span> fir.full<span class="sc">$</span>par[<span class="dv">2</span>]</span>
+<span id="cb134-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-3" aria-hidden="true" tabindex="-1"></a>a.n.mle <span class="ot">&lt;-</span> fir.full<span class="sc">$</span>par[<span class="dv">3</span>]</span>
+<span id="cb134-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-4" aria-hidden="true" tabindex="-1"></a>b.n.mle <span class="ot">&lt;-</span> fir.full<span class="sc">$</span>par[<span class="dv">4</span>]</span>
+<span id="cb134-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb134-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-8" aria-hidden="true" tabindex="-1"></a><span class="co"># wave populations</span></span>
+<span id="cb134-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-10" aria-hidden="true" tabindex="-1"></a>fit.vals.wave <span class="ot">&lt;-</span> fit.vals.non <span class="ot">&lt;-</span> <span class="fu">double</span>(<span class="at">length =</span> <span class="fu">length</span>(dbh.vals))</span>
+<span id="cb134-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-12"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cones <span class="sc">~</span> dbh, <span class="at">data =</span> fir, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">main =</span> <span class="st">&quot;wave&quot;</span>)</span>
+<span id="cb134-13"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-13" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(cones <span class="sc">~</span> dbh, <span class="at">data =</span> <span class="fu">subset</span>(fir, wave <span class="sc">==</span> <span class="st">&quot;w&quot;</span>))</span>
+<span id="cb134-14"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-15"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq</span>(<span class="at">along =</span> dbh.vals)) {</span>
+<span id="cb134-16"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-16" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb134-17"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-17" aria-hidden="true" tabindex="-1"></a>  fit.vals.wave[i] <span class="ot">&lt;-</span> a.w.mle <span class="sc">*</span> dbh.vals[i] <span class="sc">^</span> b.w.mle  </span>
+<span id="cb134-18"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb134-19"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-20"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-20" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(fit.vals.wave <span class="sc">~</span> dbh.vals, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)  </span>
+<span id="cb134-21"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-22"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-22" aria-hidden="true" tabindex="-1"></a><span class="co"># non-wave populations</span></span>
+<span id="cb134-23"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-24"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-24" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cones <span class="sc">~</span> dbh, <span class="at">data =</span> fir, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">main =</span> <span class="st">&quot;non-wave&quot;</span>)</span>
+<span id="cb134-25"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-25" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(cones <span class="sc">~</span> dbh, <span class="at">data =</span> <span class="fu">subset</span>(fir, wave <span class="sc">==</span> <span class="st">&quot;n&quot;</span>))</span>
+<span id="cb134-26"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-27"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-27" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq</span>(<span class="at">along =</span> dbh.vals)) {</span>
+<span id="cb134-28"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-28" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb134-29"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-29" aria-hidden="true" tabindex="-1"></a>  fit.vals.non[i] <span class="ot">&lt;-</span> a.n.mle <span class="sc">*</span> dbh.vals[i] <span class="sc">^</span> b.n.mle  </span>
+<span id="cb134-30"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb134-31"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-32"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb134-32" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(fit.vals.non <span class="sc">~</span> dbh.vals, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)  </span></code></pre></div>
+<p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<p>Note that to compute the negative log likelihood for the full model, we compute the negative log likelihood for each population separately, and then sum the two negative log likelihoods. We can see the justification for doing so by writing out the log likelihood function explicitly:
+<span class="math display">\[\begin{eqnarray*}
+\ln L(a_w, a_n, b_w, b_n, k; \mathbf{y}) &amp; = &amp; \ln \prod_{i \in \left\{w, n \right\}} \prod_{j=1}^{n_i} f(y_{ij}; a_w, a_n, b_w, b_n, k) \\
+&amp; = &amp; \sum_{i \in \left\{w, n \right\}} \sum_{j=1}^{n_i} \ln  f(y_{ij}; a_w, a_n, b_w, b_n, k) \\
+&amp; = &amp; \sum_{j=1}^{n_w} \ln  f(y_{w,j}; a_w, b_w, k) + \sum_{j=1}^{n_n} \ln  f(y_{2, n}; a_n, b_n, k)
+\end{eqnarray*}\]</span></p>
+<p>Now conduct the likelihood ratio test:</p>
+<div class="sourceCode" id="cb135"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb135-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb135-1" aria-hidden="true" tabindex="-1"></a>(lrt.stat <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (fir.reduced<span class="sc">$</span>value <span class="sc">-</span> fir.full<span class="sc">$</span>value))  <span class="co"># compute the likelihood ratio test statistic</span></span></code></pre></div>
+<pre><code>## [1] 0.6762567</code></pre>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb137-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb137-1" aria-hidden="true" tabindex="-1"></a>(lrt.pvalue <span class="ot">&lt;-</span> <span class="fu">pchisq</span>(<span class="at">q =</span> lrt.stat, <span class="at">df =</span> <span class="dv">2</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>))  <span class="co"># calculate the p-vlaue</span></span></code></pre></div>
+<pre><code>## [1] 0.7131037</code></pre>
+<p>The LRT suggests that the full model does not provide a significantly better fit than the reduced model (<span class="math inline">\(\chi^2_2 = 0.676\)</span>, <span class="math inline">\(p=0.71\)</span>). In other words, there is no evidence that the two population types have different relationships between tree size and avearage fecundity.</p>
+<p>Now compare AIC values for the two models. Because we have already done the LRT, this AIC comparison is for illustration.</p>
+<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb139-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb139-1" aria-hidden="true" tabindex="-1"></a>(aic.reduced <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> fir.reduced<span class="sc">$</span>value <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## [1] 2278.03</code></pre>
+<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb141-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb141-1" aria-hidden="true" tabindex="-1"></a>(aic.full    <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> fir.full<span class="sc">$</span>value    <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> <span class="dv">5</span>)</span></code></pre></div>
+<pre><code>## [1] 2281.354</code></pre>
+<div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb143-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb143-1" aria-hidden="true" tabindex="-1"></a>(delta.aic   <span class="ot">&lt;-</span> aic.full <span class="sc">-</span> aic.reduced) </span></code></pre></div>
+<pre><code>## [1] 3.323743</code></pre>
+<p>The reduced model is AIC-best, although the <span class="math inline">\(\Delta AIC\)</span> is only moderately large.</p>
+<p>We can also fit a Poisson model to these data. Because we have ruled out the need for different models for the two population type, we fit a Poisson model to the data with the two populations pooled together.</p>
+<div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb145-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-1" aria-hidden="true" tabindex="-1"></a>fir.neg.ll.pois <span class="ot">&lt;-</span> <span class="cf">function</span>(parms, x, y){</span>
+<span id="cb145-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb145-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-3" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> parms[<span class="dv">1</span>]</span>
+<span id="cb145-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-4" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> parms[<span class="dv">2</span>]</span>
+<span id="cb145-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb145-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-6" aria-hidden="true" tabindex="-1"></a>  my.mu <span class="ot">&lt;-</span> a <span class="sc">*</span> x<span class="sc">^</span>b</span>
+<span id="cb145-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-7" aria-hidden="true" tabindex="-1"></a>  ll.values <span class="ot">&lt;-</span> <span class="fu">dpois</span>(y, <span class="at">lambda =</span> my.mu, <span class="at">log =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb145-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb145-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-9" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.values)</span>
+<span id="cb145-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb145-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb145-12"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-12" aria-hidden="true" tabindex="-1"></a>(fir.pois <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">f   =</span> fir.neg.ll.pois,</span>
+<span id="cb145-13"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-13" aria-hidden="true" tabindex="-1"></a>                  <span class="at">par =</span> <span class="fu">c</span>(<span class="at">a =</span> <span class="dv">1</span>, <span class="at">b =</span> <span class="dv">1</span>),</span>
+<span id="cb145-14"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-14" aria-hidden="true" tabindex="-1"></a>                  <span class="at">x   =</span> fir<span class="sc">$</span>dbh,</span>
+<span id="cb145-15"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb145-15" aria-hidden="true" tabindex="-1"></a>                  <span class="at">y   =</span> fir<span class="sc">$</span>cones))</span></code></pre></div>
+<pre><code>## $par
+##         a         b 
+## 0.2613297 2.3883860 
+## 
+## $value
+## [1] 3161.832
+## 
+## $counts
+## function gradient 
+##      115       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL</code></pre>
+<div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb147-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb147-1" aria-hidden="true" tabindex="-1"></a>a.mle.pois <span class="ot">&lt;-</span> fir.pois<span class="sc">$</span>par[<span class="dv">1</span>]</span>
+<span id="cb147-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb147-2" aria-hidden="true" tabindex="-1"></a>b.mle.pois <span class="ot">&lt;-</span> fir.pois<span class="sc">$</span>par[<span class="dv">2</span>]</span></code></pre></div>
+<p>Calculate the AIC for this model:</p>
+<div class="sourceCode" id="cb148"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb148-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb148-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate AIC</span></span>
+<span id="cb148-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb148-2" aria-hidden="true" tabindex="-1"></a>(aic.pois <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> fir.pois<span class="sc">$</span>value <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> <span class="dv">2</span>)</span></code></pre></div>
+<pre><code>## [1] 6327.664</code></pre>
+<p>Whoa! The AIC suggests the negative binomial model is an overwhelmingly better fit.</p>
+<p>Finally, make a plot to compare the two fits:</p>
+<div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb150-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(fir, <span class="fu">plot</span>(cones <span class="sc">~</span> dbh))</span>
+<span id="cb150-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb150-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-3" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(fit.vals <span class="sc">~</span> dbh.vals, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)  <span class="co"># plot the fit from the NegBin model</span></span>
+<span id="cb150-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb150-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-5" aria-hidden="true" tabindex="-1"></a><span class="do">## calculate and plot the fit for the Poisson model</span></span>
+<span id="cb150-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-6" aria-hidden="true" tabindex="-1"></a>fit.vals.pois <span class="ot">&lt;-</span> <span class="fu">double</span>(<span class="at">length =</span> <span class="fu">length</span>(dbh.vals))</span>
+<span id="cb150-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb150-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq</span>(<span class="at">along =</span> dbh.vals)) {</span>
+<span id="cb150-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb150-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-10" aria-hidden="true" tabindex="-1"></a>  fit.vals.pois[i] <span class="ot">&lt;-</span> a.mle.pois <span class="sc">*</span> dbh.vals[i] <span class="sc">^</span> b.mle.pois  </span>
+<span id="cb150-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb150-12"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb150-13"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(fit.vals.pois <span class="sc">~</span> dbh.vals, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb150-14"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-14" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="at">x =</span> <span class="dv">4</span>, <span class="at">y =</span> <span class="dv">280</span>, </span>
+<span id="cb150-15"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">leg =</span> <span class="fu">c</span>(<span class="st">&quot;Neg Bin&quot;</span>, <span class="st">&quot;Poisson&quot;</span>),</span>
+<span id="cb150-16"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>),</span>
+<span id="cb150-17"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="dv">16</span>,</span>
+<span id="cb150-18"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">bty =</span> <span class="st">&quot;n&quot;</span>)</span></code></pre></div>
+<p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
 
 </div>
 </div>

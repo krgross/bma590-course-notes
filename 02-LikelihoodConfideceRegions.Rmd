@@ -353,3 +353,251 @@ Let's use the (approximate) standard error of $\hat{a}$ to calculate an (approxi
 (ci.approx <- a.mle + qnorm(c(0.025, .975)) * a.se)
 ```
 Recall that the 95\% confidence interval we calculated by the profile likelihood was $(0.402, 0.682)$.  So the quadratic approximation has gotten the width of the interval more or less correct, but it has fared less at capturing the asymmetry of the interval.
+
+## Comparing models: Likelihood ratio test and AIC
+
+Obtaining a parsimonious statistical description of data often requires arbitrating between competing model fits.  Likelihood provides two tools for comparing models: likelihood ratio tests (LRTs) and information criteria.  Of the latter, the best known information criterion is due to Akaike, and takes the name AIC.  (Akaike didn't name AIC after himself; he used AIC to refer to "An information criterion".  In his honor, the acronym is now largely taken to stand for "Akaike's information criterion".)
+
+LRTs and information criteria have complementary strengths and weaknesses.  LRTs are direct, head-to-head comparisons of nested models.  By "nested", we mean that one model can be obtained as a special case of the other.  The "reduced", or less flexible (and thus more parsimonious) model plays the role of the null hypothesis, and the "full", or more flexible (and thus less parsimonious) model plays the role of the alternative hypothesis.  The LRT then formally evaluates whether the improvement in fit offered by the full model is statistically significant, that is, greater than what we would expect merely by chance.  
+
+On the other hand, information criteria provide a penalized goodness-of-fit measure that can be used to compare many models at once.  Information criteria produce a ranking of model fits, and thus a best-fitting model.  The downside to information criteria is that there are no hard and fast guidelines to determine when one model provides a significantly better fit than another. The properties of information criteria are also less well understood than the properties of LRTs.
+
+To illustrate both, we will use the study of cone production by fir trees studied in $\S$ 6.6 of Bolker.  These data are originally from work by Dodd and Silvertown.  The data are much richer than we will examine here.  Like Bolker, we will focus on whether the relationship between tree size (as measured by diameter at breast height, or dbh) and the number of cones produces differs between populations that "have experienced wave-like die-offs" and those that have not.
+
+First some preparatory work to import and assemble the data:
+
+```{r}
+require(emdbook)
+data("FirDBHFec")
+
+# give the data a simpler name
+
+fir <- FirDBHFec
+rm(FirDBHFec)
+
+fir <- fir[, c("WAVE_NON", "DBH", "TOTCONES")]  # select just the variables we want
+
+summary(fir)
+
+names(fir) <- c("wave", "dbh", "cones")  # rename the variables
+
+# get rid of the incomplete records
+
+fir <- na.omit(fir)
+
+par(mfrow = c(1, 2))
+
+plot(cones ~ dbh, data = fir, type = "n", main = "wave")
+points(cones ~ dbh, data = subset(fir, wave == "w"))
+
+plot(cones ~ dbh, data = fir, type = "n", main = "non-wave")
+points(cones ~ dbh, data = subset(fir, wave == "n"))
+
+# any non-integral responses?
+
+with(fir, table(cones == round(cones)))  # illustrate the use of 'with'
+
+# round the non-integral values
+fir$cones <- round(fir$cones)
+
+# check
+with(fir, table(cones == round(cones)))
+```
+
+Like Bolker, we will assume that the average number of cones produced ($\mu$) has a power-law relationship with tree dbh ($x$).  We will also assume that the actual number of cones produced ($Y$) takes a negative binomial distribution with size-dependent mean and overdispersion parameter $k$.  That is, our model is
+\begin{align*}
+\mu(x) & = a x ^ b \\
+Y & \sim \mbox{NB}(\mu(x), k) 
+\end{align*}
+
+To head in a slightly different direction from Bolker, we will compare two models.  In the first, or reduced, model the same parameters will prevail for both wave and non-wave populations.  Thus this model has three parameters: $a$, $b$, and $k$.  In the second, or full, model, we will allow the $a$ and $b$ parameters to differ between the wave and non-wave populations.  (We will continue to assume a common $k$ for both population types.)  Using subscripts on $a$ and $b$ to distinguish population types, the full model then has 5 parameters: $a_w$, $a_n$, $b_w$, $b_n$, and $k$.  We'll fit the reduced model first.  To do so, we'll use the `dnbinom` function in R, in which the $k$ parameter is located in the formal argument "size".
+
+```{r}
+fir.neg.ll <- function(parms, x, y){
+ 
+  a <- parms[1]
+  b <- parms[2]
+  k <- parms[3]
+   
+  my.mu <- a * x^b
+  ll.values <- dnbinom(y, size = k, mu = my.mu, log = TRUE)
+  
+  neg.ll <- -1 * sum(ll.values)
+  return(neg.ll)
+}
+```
+
+Note a subtle difference here.  In preparation for fitting this same model to different subsets of the data, the function `fir.neg.ll` has formal arguments that receive the values of the $x$ and $y$ variables.  In the call to `optim`, we can supply those additional values as subsequent arguments in the `optim` function, as illustrated below. 
+
+```{r}
+# fit reduced model
+
+(fir.reduced <- optim(f   = fir.neg.ll,
+                      par = c(a = 1, b = 1, k = 1),
+                      x   = fir$dbh,
+                      y   = fir$cones))
+
+a.mle <- fir.reduced$par[1]
+b.mle <- fir.reduced$par[2]
+k.mle <- fir.reduced$par[3]
+```
+Make a plot of the reduced model fit, with both populations pooled together:
+```{r}
+dbh.vals <- seq(from = min(fir$dbh), to = max(fir$dbh), length = 100)
+fit.vals <- double(length = length(dbh.vals))
+
+for (i in seq(along = dbh.vals)) {
+ 
+  fit.vals[i] <- a.mle * dbh.vals[i] ^ b.mle  
+}
+
+par(mfrow = c(1, 1))  # don't break the next figure into two panels
+with(fir, plot(cones ~ dbh))  # plot the data points
+lines(fit.vals ~ dbh.vals, col = "blue")  
+```
+
+Now fit the full model with separate values of $a$ and $b$ for each population:
+```{r}
+fir.neg.ll.full <- function(parms) {
+  
+  a.w <- parms[1]
+  b.w <- parms[2]
+  
+  a.n <- parms[3]
+  b.n <- parms[4]
+  
+  k   <- parms[5]
+  
+  wave    <- subset(fir, wave == "w")
+  nonwave <- subset(fir, wave == "n") 
+  
+  # note how we call fir.neg.ll here, but each time only
+  # passing a subset of the data
+  
+  neg.ll.wave     <- fir.neg.ll(parms = c(a = a.w, b = b.w, k = k),
+                                x     = wave$dbh,
+                                y     = wave$cones)
+  
+  neg.ll.nonwave  <- fir.neg.ll(parms = c(a = a.n, b = b.n, k = k),
+                                x     = nonwave$dbh,
+                                y     = nonwave$cones)
+  
+  total.ll <- neg.ll.wave + neg.ll.nonwave
+  
+  return(total.ll)
+}
+
+(fir.full <- optim(f      = fir.neg.ll.full,
+                  par    = c(a.w = 1, b.w = 1, a.n = 1, b.n = 1, k = 1)))
+```
+Let's make a plot to show the different fits.
+
+```{r}
+a.w.mle <- fir.full$par[1]
+b.w.mle <- fir.full$par[2]
+a.n.mle <- fir.full$par[3]
+b.n.mle <- fir.full$par[4]
+
+par(mfrow = c(1, 2))
+
+# wave populations
+
+fit.vals.wave <- fit.vals.non <- double(length = length(dbh.vals))
+
+plot(cones ~ dbh, data = fir, type = "n", main = "wave")
+points(cones ~ dbh, data = subset(fir, wave == "w"))
+
+for (i in seq(along = dbh.vals)) {
+ 
+  fit.vals.wave[i] <- a.w.mle * dbh.vals[i] ^ b.w.mle  
+}
+
+lines(fit.vals.wave ~ dbh.vals, col = "blue")  
+
+# non-wave populations
+
+plot(cones ~ dbh, data = fir, type = "n", main = "non-wave")
+points(cones ~ dbh, data = subset(fir, wave == "n"))
+
+for (i in seq(along = dbh.vals)) {
+ 
+  fit.vals.non[i] <- a.n.mle * dbh.vals[i] ^ b.n.mle  
+}
+
+lines(fit.vals.non ~ dbh.vals, col = "red")  
+```
+
+Note that to compute the negative log likelihood for the full model, we compute the negative log likelihood for each population separately, and then sum the two negative log likelihoods.  We can see the justification for doing so by writing out the log likelihood function explicitly:
+\begin{eqnarray*}
+\ln L(a_w, a_n, b_w, b_n, k; \mathbf{y}) & = & \ln \prod_{i \in \left\{w, n \right\}} \prod_{j=1}^{n_i} f(y_{ij}; a_w, a_n, b_w, b_n, k) \\
+& = & \sum_{i \in \left\{w, n \right\}} \sum_{j=1}^{n_i} \ln  f(y_{ij}; a_w, a_n, b_w, b_n, k) \\
+& = & \sum_{j=1}^{n_w} \ln  f(y_{w,j}; a_w, b_w, k) + \sum_{j=1}^{n_n} \ln  f(y_{2, n}; a_n, b_n, k)
+\end{eqnarray*}
+
+Now conduct the likelihood ratio test:
+
+```{r}
+(lrt.stat <- 2 * (fir.reduced$value - fir.full$value))  # compute the likelihood ratio test statistic
+
+(lrt.pvalue <- pchisq(q = lrt.stat, df = 2, lower.tail = FALSE))  # calculate the p-vlaue
+```
+The LRT suggests that the full model does not provide a significantly better fit than the reduced model ($\chi^2_2 = 0.676$, $p=0.71$).  In other words, there is no evidence that the two population types have different relationships between tree size and avearage fecundity.
+
+Now compare AIC values for the two models.  Because we have already done the LRT, this AIC comparison is for illustration.
+```{r}
+(aic.reduced <- 2 * fir.reduced$value + 2 * 3)
+(aic.full    <- 2 * fir.full$value    + 2 * 5)
+(delta.aic   <- aic.full - aic.reduced) 
+```
+The reduced model is AIC-best, although the $\Delta AIC$ is only moderately large.
+
+We can also fit a Poisson model to these data.  Because we have ruled out the need for different models for the two population type, we fit a Poisson model to the data with the two populations pooled together.
+
+```{r}
+fir.neg.ll.pois <- function(parms, x, y){
+  
+  a <- parms[1]
+  b <- parms[2]
+  
+  my.mu <- a * x^b
+  ll.values <- dpois(y, lambda = my.mu, log = TRUE)
+  
+  -1 * sum(ll.values)
+}
+
+(fir.pois <- optim(f   = fir.neg.ll.pois,
+                  par = c(a = 1, b = 1),
+                  x   = fir$dbh,
+                  y   = fir$cones))
+
+a.mle.pois <- fir.pois$par[1]
+b.mle.pois <- fir.pois$par[2]
+```
+Calculate the AIC for this model:
+```{r}
+# calculate AIC
+(aic.pois <- 2 * fir.pois$value + 2 * 2)
+```
+Whoa!  The AIC suggests the negative binomial model is an overwhelmingly better fit.
+
+Finally, make a plot to compare the two fits:
+```{r}
+with(fir, plot(cones ~ dbh))
+
+lines(fit.vals ~ dbh.vals, col = "blue")  # plot the fit from the NegBin model
+
+## calculate and plot the fit for the Poisson model
+fit.vals.pois <- double(length = length(dbh.vals))
+
+for (i in seq(along = dbh.vals)) {
+  
+  fit.vals.pois[i] <- a.mle.pois * dbh.vals[i] ^ b.mle.pois  
+}
+
+lines(fit.vals.pois ~ dbh.vals, col = "red")
+legend(x = 4, y = 280, 
+       leg = c("Neg Bin", "Poisson"),
+       col = c("blue", "red"),
+       pch = 16,
+       bty = "n")
+```
