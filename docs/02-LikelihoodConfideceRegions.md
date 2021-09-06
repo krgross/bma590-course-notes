@@ -140,7 +140,7 @@ rm(list = ls())
 ```
 Thus, the 95\% CI for $\lambda$ is $(0.607, 0.803)$.
 
-## Confidence regions, profile likelihoods, and associated univariate intervals
+## Confidence regions, profile likelihoods, and associated univariate intervals{#two-param-mle}
 
 With a 2-parameter model, we can plot a confidence region directly.  First some housekeeping to get started:
 
@@ -994,3 +994,216 @@ legend(x = 4, y = 280,
 ```
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+
+## Transformable constraints
+
+So far, we have not thought much about the numerical optimization routines that R uses to find MLEs.  If time allowed, we really should think more deeply about how these routines work.  Indeed, Bolker devotes an entire chapter (his chapter 7) to numerical optimization.  Because time is short, we won't go that deeply into understanding these methods now, although Bolker's chapter is worth a read if you are so inclined.  
+
+There is one topic that deserves more of our attention, which is the issue of constriants on the allowable parameter space.  (Bolker touches on this in his $\S$ 7.4.5.)  Many times, we write down models with parameters that only make biological sense in a certain range.  For example, in the fir data, we know that the parameter $a$ (the average cone production for trees of size $x = 1$) must be positive.  We also know that $k$, the overdispersion parameter in the negative binomial model, must also be positive.  However, most numerical optimization routines are not terribly well suited to optimizing over a constrained space.  (The presence of constraints is one of the reasons why it is important to initiate numerical optimization routines with reasonalbe starting values.)  One exception is the "L-BFGS-B" method, available in `optim`, which will permit so-called rectangular constraints.  An alternative approach that will work with any numerical optimization scheme is to transform the constraints away.  That is, transform the parameterization to a new scale that is unconstrained.  Because of the invariance principle of MLEs, these transformations won't change the MLEs that we eventually find, as long as the MLEs are not on the edge of the original, constrained space.
+
+To illustrate, consider the fir data again, and consider the negative-binomial model fit to the entire data set, ignoring differences between wave vs.\ non-wave populations.  To transform away the constraints on $a$ and $k$, re-parameterize the model in terms of the logs of both parameters.  That is, define
+\begin{align*}
+a^* & = \ln (a) \\
+k^* & = \ln (k) \\
+\end{align*}
+so that the model is now
+\begin{align*}
+\mu(x) & = \exp(a^*) \times x ^ b \\
+Y & \sim \mbox{NB}(\mu(x), \exp(k^*)) 
+\end{align*}
+Fitting proceeds in the usual way:
+
+```r
+fir.neg.ll <- function(parms, x, y){
+  
+  a <- exp(parms[1])
+  b <- parms[2]
+  k <- exp(parms[3])
+  
+  my.mu <- a * x^b
+  ll.values <- dnbinom(y, size = k, mu = my.mu, log = TRUE)
+  
+  -1 * sum(ll.values)
+}
+
+(fir.reduced <- optim(f   = fir.neg.ll,
+                      par = c(a = 0, b = 1, k = 0),
+                      x   = fir$dbh,
+                      y   = fir$cones))
+```
+
+```
+## $par
+##          a          b          k 
+## -1.1914367  2.3195050  0.4074672 
+## 
+## $value
+## [1] 1136.015
+## 
+## $counts
+## function gradient 
+##      158       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+```
+
+Back-transforming to the original scale recovers the previous MLEs:
+
+```r
+(a.mle <- exp(fir.reduced$par[1]))
+```
+
+```
+##         a 
+## 0.3037845
+```
+
+```r
+(b.mle <- fir.reduced$par[2])
+```
+
+```
+##        b 
+## 2.319505
+```
+
+```r
+(k.mle <- exp(fir.reduced$par[3]))
+```
+
+```
+##        k 
+## 1.503006
+```
+
+The constraint issue also explains why we received warnings from R when we first found the MLEs for the tadpole predation data in Section \@ref(two-param-mle).
+
+Another example that one frequently encounters in ecology are parameters that are constrained to lie between 0 and 1, such as a survival probability.  A logit (or log odds) transformation will eliminate the constraints on a parameter that lies between 0 and 1.  
+
+<!-- Finally, one might also encounter parameters whose sum must lie between 0 and 1.  For example, in size-based demographic modeling, it is common to describe the demographic fates of individuals in a particular age or size class by two parameters --- survival without growth (say) and survival with growth.  Writing these two parameters as  -->
+
+## The negative binomial distriution, revisited
+
+The negative binomial distribution is a funny distribution that is frequently misunderstood by ecologists.  In ecology, the negative binomial distribution is typically parameterized by the distribution's mean (which we typically write as $\mu$) and the "overdispersion parameter", almost always written as $k$.  In this parameterization, if $X$ has a negative binomial distribution with mean $\mu$ and overdispersion parameter $k$, then the variance of $X$ is
+$$
+Var(X) = \mu + \frac{\mu^2}{k}
+$$
+Thus, for fixed $\mu$, the variance increases as $k$ decreases.  As $k$ gets large, the variance approaches $\mu$, and the negative binomial distribution approaches a Poisson distribution.
+
+There are a few occasions in ecology where the overdispersion parameter $k$ has a mechanistic interpretation.  In all other cases, though, $k$ is merely a phenomenological descriptor that captures the relationship between the mean and variance for one particular value of $\mu$.  The error that most ecologists make is to assume that a single value of $k$ should prevail across several values of $\mu$.  If $k$ is phenomenological, there is no reason that $k$ should remain fixed as $\mu$ changes.  The fit to the fir data exemplifies this error, as so far we have assumed that one value of $k$ must prevail across all sizes of trees.  By assuming that $k$ is fixed, we impose a relationship on the data where the variance must increase quadratically as the mean increases.  This may be a reasonable model for the relationship between the variance and the mean, or it may not be. 
+
+Instead of assuming $k$ constant, another equally viable approach might be to assume that $k$ is a linear function of $\mu$.  In other words, We might set $k = \kappa \mu$ for some value of $\kappa$.  In this case, for a given mean $\mu$, the variance would be $\mu + \frac{\mu^2}{\kappa \mu} = \mu \left(1 + \frac{1}{\kappa}\right)$, so that the variance would increase linearly as the mean increases.  We can try fitting this alternative model to the fir tree data, again pooling wave and non-wave populations together.
+
+```r
+fir.alt.neg.ll <- function(parms, x, y){
+  
+  a <- exp(parms[1])
+  b <- parms[2]
+  k <- exp(parms[3])
+  
+  my.mu <- a * x^b
+  ll.values <- dnbinom(y, size = k * my.mu, mu = my.mu, log = TRUE)
+  
+  -1 * sum(ll.values)
+}
+
+(fir.alt <- optim(f   = fir.alt.neg.ll,
+                  par = c(a = 0, b = 1, k = 0),
+                  x   = fir$dbh,
+                  y   = fir$cones))
+```
+
+```
+## $par
+##         a         b         k 
+## -1.008373  2.243545 -3.278311 
+## 
+## $value
+## [1] 1128.403
+## 
+## $counts
+## function gradient 
+##      182       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+```
+
+```r
+(a.mle.alt <- exp(fir.alt$par[1]))
+```
+
+```
+##         a 
+## 0.3648121
+```
+
+```r
+(b.mle.alt <- fir.alt$par[2])
+```
+
+```
+##        b 
+## 2.243545
+```
+
+```r
+(k.mle.alt <- exp(fir.alt$par[3]))
+```
+
+```
+##          k 
+## 0.03769186
+```
+
+If we compare the fits graphically, the alternative model doesn't generate a dramatically different fit for the relationship between the average cone production and tree size:
+
+```r
+fit.vals.alt <- double(length = length(dbh.vals))
+
+for (i in seq(along = dbh.vals)) {
+  
+  fit.vals.alt[i] <- a.mle.alt * dbh.vals[i] ^ b.mle.alt  
+}
+
+with(fir, plot(cones ~ dbh))
+lines(fit.vals ~ dbh.vals, col = "blue")
+lines(fit.vals.alt ~ dbh.vals, col = "red")
+legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alternate"))
+```
+
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+
+However, the two models imply very different relationships between the variance in cone production and tree size.  Let's look at the implied relationship between the standard deviation of cone production and tree size:
+
+```r
+mu.vals <- seq(from = 0, to = max(fit.vals), length = 100)
+
+sd.vals.nb1 <- sqrt(mu.vals + mu.vals ^ 2 / k.mle)
+sd.vals.nb2 <- sqrt(mu.vals * (1 + 1 / k.mle.alt))
+
+plot(mu.vals, sd.vals.nb1, xlab = "mean", ylab = "SD", type = "l", col = "blue")
+lines(mu.vals, sd.vals.nb2, col = "red")
+legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alternate"))
+```
+
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+
+We can calculate the AIC for this alternate parameterization as well:
+
+```r
+(aic.alt <- 2 * fir.alt$value + 2 * 3)
+```
+
+```
+## [1] 2262.805
+```
+Recall that the AIC value for the original fit was 2278.0.  Thus the model with the alternative parameterization is considerably better by AIC.
+
