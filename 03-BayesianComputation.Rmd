@@ -67,6 +67,13 @@ diff.in.pdf <- function(x){
 
 ```
 
+We might also ask questions like: What is the posterior probability that $\lambda > 2/3$?  These caluclations are straightforward in a Bayesian context, and they make full sense.
+```{r}
+pgamma(2/3, shape = 196.01, rate = 280.01, lower.tail = FALSE)
+```
+
+Thus we would say that there is a `r round(pgamma(2/3, shape = 196.01, rate = 280.01, lower.tail = FALSE), 3)` posterior probability that $\lambda > 2/3$.
+
 As an illustration, note that if we had begun with a more informative prior --- say, a gamma distribution with shape parameter $a = 50$ and rate parameter = $100$ --- then the posterior would have been more of a compromise between the prior and the information in the data:
 
 ```{r}
@@ -91,7 +98,7 @@ We'll use JAGS through R, using the library `r2jags`.  Here is JAGS code to appr
 require(R2jags)
 ```
 
-```{r cache = TRUE}
+```{r}
 horse.model <- function() {
   
   for (j in 1:J) {             # J = 280, number of data points
@@ -125,10 +132,7 @@ Let's take a look at some summary statistics of the fit
 print(jagsfit)
 ```
 
-The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot to inspect convergence visually, but beware that visual assessment of convergence is prone to error:
-```{r}
-traceplot(jagsfit)
-```
+The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot using `traceplot` to inspect convergence visually, but beware that visual assessment of convergence is prone to error
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
 ```{r}
@@ -235,3 +239,105 @@ library(RColorBrewer)
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
 with(jagsfit$BUGSoutput$sims.list, hexbinplot(b0 ~ b1, colramp = rf))
 ```
+
+## Stan
+
+Stan is a separate program based on Hamiltonian Monte Carlo.  Stan can be accesses through R using the `rstan` library.
+
+We'll start by looking at how to use `rstan` to estimate $\lambda$ for the horse-kick data using vague priors.  `rstan` requires that a Stan program be prepared as a text file and stored locally.  To fit the horse-kick data, we'll use the Stan program listed here.  This program is saved as the file `horse.stan`.
+```stan
+//
+// This Stan program defines a simple model, with a
+// vector of values 'y' modeled as Poisson distributed
+// with mean 'lambda'.
+//
+
+// The input data is a vector 'y' of length 'N'.
+data {
+  int<lower=1> N; // number of data points
+  int<lower=0> y[N]; // data vector
+}
+
+// The parameters accepted by the model. 
+parameters {
+  real<lower=0> lambda;
+}
+
+// The model to be estimated. We model the output
+// 'y' to be Poisson distributed with mean 'lambda'
+// and a gamme prior on lambda.
+model {
+  // prior
+  lambda ~ gamma(0.01, 0.01);
+  
+  // data model
+  y ~ poisson(lambda);
+}
+```
+
+```{r message = FALSE}
+require(rstan)
+options(mc.cores = parallel::detectCores())
+```
+
+```{r cache = TRUE}
+horse.dat <- list(N = nrow(horse),
+                  y = horse$deaths)
+
+stan.fit <- stan(file = 'stan/horse.stan', data = horse.dat)
+```
+
+Apparently this warning is not particularly problematic.  We can have a look at the fit by asking to `print` it:
+```{r}
+print(stan.fit)
+```
+
+Next, we'll use Stan to fit the linear regression model.  Again, we need to write a Stan program that R will call. The Stan program for the regression model is shown below.
+
+```stan
+//
+// This Stan program fits a simple regression model.
+//
+
+// The input data is a vector 'y' of length 'N'.
+data {
+  int<lower=0> N; // number of data points
+  vector[N] y;    // vector of responses
+  vector[N] x;    // vector of predictors
+}
+
+// The parameters accepted by the model. 
+parameters {
+  real b0;              // intercept
+  real b1;              // slope
+  real<lower=0> sigma;  // SD of residual errors
+}
+
+// The model to be estimated. 
+model {
+  // priors
+  b0 ~ normal(0, 10);
+  b1 ~ normal(0, 10);
+  sigma ~ inv_gamma(0.01, 0.01);
+  
+  // data model
+  y ~ normal(b0 + b1 * x, sigma);
+}
+```
+
+```{r cache = TRUE}
+cricket.dat <- list(N = nrow(cricket),
+                    y = cricket$chirps,
+                    x = cricket$temp.ctr)
+
+stan.fit <- stan(file = 'stan/cricket.stan', data = cricket.dat)
+print(stan.fit)
+```
+
+We can make a plot of the posterior samples using `pairs`:
+```{r}
+pairs(stan.fit, pars = c("b0", "b1", "sigma"))
+```
+
+
+

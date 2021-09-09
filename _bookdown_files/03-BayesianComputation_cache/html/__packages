@@ -5,3 +5,6 @@ R2jags
 lattice
 hexbin
 RColorBrewer
+StanHeaders
+ggplot2
+rstan

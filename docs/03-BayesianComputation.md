@@ -98,6 +98,18 @@ diff.in.pdf <- function(x){
 ## [1] 0.6031732 0.7988576
 ```
 
+We might also ask questions like: What is the posterior probability that $\lambda > 2/3$?  These caluclations are straightforward in a Bayesian context, and they make full sense.
+
+```r
+pgamma(2/3, shape = 196.01, rate = 280.01, lower.tail = FALSE)
+```
+
+```
+## [1] 0.7434032
+```
+
+Thus we would say that there is a 0.743 posterior probability that $\lambda > 2/3$.
+
 As an illustration, note that if we had begun with a more informative prior --- say, a gamma distribution with shape parameter $a = 50$ and rate parameter = $100$ --- then the posterior would have been more of a compromise between the prior and the information in the data:
 
 
@@ -112,7 +124,7 @@ legend("topleft", leg = c("prior", "posterior"),
        lty = c("dashed", "solid"))
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 
 ## JAGS in R
 
@@ -216,28 +228,22 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpumPenH/model1e302a1a490b.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp6j4Ult/model3e8287b3912.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.700   0.050   0.605   0.665   0.699   0.733   0.800 1.001  3800
-## deviance 629.306   1.405 628.310 628.413 628.770 629.640 633.274 1.005  1900
+## lambda     0.699   0.048   0.608   0.667   0.698   0.732   0.795 1.001  3800
+## deviance 629.247   1.334 628.310 628.405 628.731 629.542 633.140 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 1.0 and DIC = 630.3
+## pD = 0.9 and DIC = 630.1
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
-The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot to inspect convergence visually, but beware that visual assessment of convergence is prone to error:
-
-```r
-traceplot(jagsfit)
-```
-
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-10-1.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-10-2.png" width="672" />
+The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot using `traceplot` to inspect convergence visually, but beware that visual assessment of convergence is prone to error
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
 
@@ -475,3 +481,144 @@ with(jagsfit$BUGSoutput$sims.list, hexbinplot(b0 ~ b1, colramp = rf))
 ```
 
 <img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+
+## Stan
+
+Stan is a separate program based on Hamiltonian Monte Carlo.  Stan can be accesses through R using the `rstan` library.
+
+We'll start by looking at how to use `rstan` to estimate $\lambda$ for the horse-kick data using vague priors.  `rstan` requires that a Stan program be prepared as a text file and stored locally.  To fit the horse-kick data, we'll use the Stan program listed here.  This program is saved as the file `horse.stan`.
+```stan
+//
+// This Stan program defines a simple model, with a
+// vector of values 'y' modeled as Poisson distributed
+// with mean 'lambda'.
+//
+
+// The input data is a vector 'y' of length 'N'.
+data {
+  int<lower=1> N; // number of data points
+  int<lower=0> y[N]; // data vector
+}
+
+// The parameters accepted by the model. 
+parameters {
+  real<lower=0> lambda;
+}
+
+// The model to be estimated. We model the output
+// 'y' to be Poisson distributed with mean 'lambda'
+// and a gamme prior on lambda.
+model {
+  // prior
+  lambda ~ gamma(0.01, 0.01);
+  
+  // data model
+  y ~ poisson(lambda);
+}
+```
+
+
+```r
+require(rstan)
+options(mc.cores = parallel::detectCores())
+```
+
+
+```r
+horse.dat <- list(N = nrow(horse),
+                  y = horse$deaths)
+
+stan.fit <- stan(file = 'stan/horse.stan', data = horse.dat)
+```
+
+Apparently this warning is not particularly problematic.  We can have a look at the fit by asking to `print` it:
+
+```r
+print(stan.fit)
+```
+
+```
+## Inference for Stan model: horse.
+## 4 chains, each with iter=2000; warmup=1000; thin=1; 
+## post-warmup draws per chain=1000, total post-warmup draws=4000.
+## 
+##           mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
+## lambda    0.70    0.00 0.05    0.61    0.67    0.70    0.73    0.80  1515    1
+## lp__   -266.41    0.02 0.71 -268.43 -266.57 -266.12 -265.96 -265.92  1997    1
+## 
+## Samples were drawn using NUTS(diag_e) at Wed Sep 08 21:52:31 2021.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).
+```
+
+Next, we'll use Stan to fit the linear regression model.  Again, we need to write a Stan program that R will call. The Stan program for the regression model is shown below.
+
+```stan
+//
+// This Stan program fits a simple regression model.
+//
+
+// The input data is a vector 'y' of length 'N'.
+data {
+  int<lower=0> N; // number of data points
+  vector[N] y;    // vector of responses
+  vector[N] x;    // vector of predictors
+}
+
+// The parameters accepted by the model. 
+parameters {
+  real b0;              // intercept
+  real b1;              // slope
+  real<lower=0> sigma;  // SD of residual errors
+}
+
+// The model to be estimated. 
+model {
+  // priors
+  b0 ~ normal(0, 10);
+  b1 ~ normal(0, 10);
+  sigma ~ inv_gamma(0.01, 0.01);
+  
+  // data model
+  y ~ normal(b0 + b1 * x, sigma);
+}
+```
+
+
+```r
+cricket.dat <- list(N = nrow(cricket),
+                    y = cricket$chirps,
+                    x = cricket$temp.ctr)
+
+stan.fit <- stan(file = 'stan/cricket.stan', data = cricket.dat)
+print(stan.fit)
+```
+
+```
+## Inference for Stan model: cricket.
+## 4 chains, each with iter=2000; warmup=1000; thin=1; 
+## post-warmup draws per chain=1000, total post-warmup draws=4000.
+## 
+##        mean se_mean   sd   2.5%   25%   50%   75% 97.5% n_eff Rhat
+## b0    16.64    0.00 0.26  16.11 16.48 16.65 16.81 17.15  3194    1
+## b1     0.21    0.00 0.04   0.13  0.19  0.21  0.24  0.29  3357    1
+## sigma  1.02    0.00 0.21   0.70  0.87  0.99  1.14  1.54  2103    1
+## lp__  -8.96    0.03 1.26 -12.28 -9.56 -8.68 -8.02 -7.51  1354    1
+## 
+## Samples were drawn using NUTS(diag_e) at Wed Sep 08 22:19:07 2021.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).
+```
+
+We can make a plot of the posterior samples using `pairs`:
+
+```r
+pairs(stan.fit, pars = c("b0", "b1", "sigma"))
+```
+
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+
+
+
