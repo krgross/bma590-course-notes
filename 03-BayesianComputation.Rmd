@@ -1,0 +1,237 @@
+# Bayesian computation
+
+This chapter of the computing companion will focus solely on the computing aspects of Bayesian computation in R.  See the course notes or relevant sections of Bolker for the underlying theory.
+
+The landscape of computing tools available to fit Bayesian models is fluid.  Here, we will look at three tools currently available: `R2jags`, which is based on the JAGS (Just Another Gibbs Sampler) platform, `rstan`, which is based on the computer program Stan (itself based on Hamiltonian Monte Carlo, or HMC), and the recent `rstanarm`, which seeks to put much of the computational details in the background.  (The "arm" portion of the name `rstanarm` is an acronym for applied regression modeling.)  
+
+Throughout, we will be working with two data sets: the horse kick data (again), and a data set that details how the rate at which a cricket chirps depends on the air temperature.  The horse kick data are useful in this context because a Gamma distribution is a conjugate prior for Poisson data.  Thus, if we use a Gamma prior, then we know the posterior exactly.  Therefore, we can compare the approximations provided by stochastic sampling schemes to the known posterior.  The cricket data set will be used as an example of a simple linear regression, even though the data hint that the actual relationship between temperature and the rate of chirping is nonlinear.
+
+## Computations with conjugate priors
+
+Suppose that we observe an iid random sample $X_1, \ldots, X_n$ from a Poisson distribution with unknown parameter $\lambda$.  (This is the setting for the horse-kick data.)  If we place a Gamma prior with shape parameter $a$ and rate parameter $r$ on $\lambda$, then the posterior distribution is also Gamma with shape parameter $a + \sum_n X_n$ and rate parameter $r + n$.  In other words,
+\begin{align*}
+\lambda & \sim \mbox{Gamma}(a, r) \\
+X_1, \ldots, X_n & \sim \mbox{Pois}(\lambda) \\
+\lambda | X_1, \ldots, X_n & \sim \mbox{Gamma}(a + \sum_n X_n, r + n) \\
+\end{align*}
+
+In the horse kick data, $\sum_n x_n = 196$ and $n = 280$.  Suppose we start with the vague Gamma prior $a=.01$, $r = .01$ on $\lambda$.  This prior has mean $a/r = 1$ and variance $a/r^2 = 100$.  The posterior distribution for $\lambda$ is then a Gamma with shape parameter $a = 196.01$ and rate parameter $280.01$.  We can plot it:
+
+```{r}
+horse <- read.table("data/horse.txt", 
+                    header = TRUE,
+                    stringsAsFactors = TRUE)
+
+l.vals <- seq(from = 0, to = 2, length = 200)
+plot(l.vals, dgamma(l.vals, shape = 196.01, rate = 280.01), type = "l", 
+     xlab = expression(lambda), ylab = "")
+lines(l.vals, dgamma(l.vals, shape = .01, rate = .01), lty = "dashed")
+
+abline(v = 0.7, col = "red")
+
+legend("topleft", leg = c("prior", "posterior"), 
+       lty = c("dashed", "solid"))
+
+```
+
+The red line shows the MLE, which is displaced slightly from the posterior mode.
+
+As a point estimate, we might consider any of the following.  The posterior mean can be found exactly as $a/r$ = `r round(196.01 /280.01, 5)`.  Alternatively, we might consider the posterior median
+```{r}
+qgamma(0.5, shape = 196.01, rate = 280.01)
+```
+
+Finally, we might conisder the posterior mode:
+```{r}
+optimize(f = function(x) dgamma(x, shape = 196.01, rate = 280.01), interval = c(0.5, 1), maximum = TRUE)
+```
+
+To find a 95\% confidence interval, we might consider the central 95\% interval:
+```{r}
+qgamma(c(0.025, 0.975), shape = 196.01, rate = 280.01)
+```
+
+A 95\% highest posterior density (HPD) interval takes a bit more work:
+```{r}
+diff.in.pdf <- function(x){
+  
+  upper <- qgamma(p = x, shape = 196.01, rate = 280.01)
+  lower <- qgamma(p = x - .95, shape = 196.01, rate = 280.01)
+  
+  dgamma(upper, shape = 196.01, rate = 280.01) - dgamma(lower, shape = 196.01, rate = 280.01)
+}
+
+(upper.qtile <- uniroot(diff.in.pdf, interval = c(0.95, 1))$root)
+
+(hpd.ci <- qgamma(p = c(upper.qtile - .95, upper.qtile), shape = 196.01, rate = 280.01))
+
+```
+
+As an illustration, note that if we had begun with a more informative prior --- say, a gamma distribution with shape parameter $a = 50$ and rate parameter = $100$ --- then the posterior would have been more of a compromise between the prior and the information in the data:
+
+```{r}
+plot(l.vals, dgamma(l.vals, shape = 196 + 50, rate = 100 + 280), type = "l", 
+     xlab = expression(lambda), ylab = "")
+lines(l.vals, dgamma(l.vals, shape = 50, rate = 100), lty = "dashed")
+
+abline(v = 0.7, col = "red")
+
+legend("topleft", leg = c("prior", "posterior"), 
+       lty = c("dashed", "solid"))
+
+```
+
+## JAGS in R
+
+All of the computational tools that we will examine in this section involve some form of stochastic sampling from the posterior.  This computing companion will largely use the default settings, though in real practice the analyst will often have to do considerable work adjusting the settings to obtain a satisfactory approximation.
+
+We'll use JAGS through R, using the library `r2jags`.  Here is JAGS code to approximate the posterior to $\lambda$ for the horse kick data, using the vague prior.
+
+```{r}
+require(R2jags)
+```
+
+```{r cache = TRUE}
+horse.model <- function() {
+  
+  for (j in 1:J) {             # J = 280, number of data points
+    y[j] ~ dpois (lambda)      # data model:  the likelihood      
+  }
+  
+  lambda ~ dgamma (0.01, 0.01) # prior 
+                               # note that BUGS / JAGS parameterizes 
+                               # gamma by shape, rate
+}
+
+jags.data <- list(y = horse$deaths, J = length(horse$deaths))
+
+jags.params <- c("lambda")
+
+jags.inits <- function(){
+  list("lambda" = rgamma(0.01, 0.01))
+}
+
+jagsfit <- jags(data               = jags.data, 
+                inits              = jags.inits, 
+                parameters.to.save = jags.params,
+                model.file         = horse.model,
+                n.chains           = 3,
+                n.iter             = 5000)
+
+```
+
+Let's take a look at some summary statistics of the fit
+```{r}
+print(jagsfit)
+```
+
+The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot to inspect convergence visually, but beware that visual assessment of convergence is prone to error:
+```{r}
+traceplot(jagsfit)
+```
+
+We can also use the `lattice` package to construct smoothed estimates of the posterior density:
+```{r}
+require(lattice)
+jagsfit.mcmc <- as.mcmc(jagsfit)
+densityplot(jagsfit.mcmc)
+```
+
+For a more involved example, let's take a look at the simple regression fit to the cricket data.  First, we'll make a plot of the data and fit a SLR model by least squares.  
+```{r}
+cricket <- read.table("data/cricket.txt", header = TRUE)
+
+cricket.slr <- lm(chirps ~ temperature, data = cricket)
+summary(cricket.slr)
+
+plot(chirps ~ temperature, data = cricket)
+abline(cricket.slr)
+```
+
+Now we'll fit the same model in JAGS, using vague priors for all model parameters
+```{r cache = TRUE}
+cricket.model <- function() {
+  
+  for (j in 1:J) {             # J = number of data points
+    
+    y[j] ~ dnorm (mu[j], tau)  # data model:  the likelihood 
+                               # note that BUGS / JAGS uses precision
+                               # instead of variance
+    
+    mu[j] <- b0 + b1 * x[j]    # compute the mean for each observation
+  }
+  
+  b0 ~ dnorm (0.0, 1E-6)       # prior for intercept
+  b1 ~ dnorm (0.0, 1E-6)       # prior for slope
+  tau ~ dgamma (0.01, 0.01)    # prior for tau
+                               # note that BUGS / JAGS parameterizes 
+                               # gamma by shape, rate
+  
+  sigma <- pow(tau, -1/2)      # the SD of the residaul errors
+}
+
+jags.data <- list(y = cricket$chirps, 
+                  x = cricket$temperature,
+                  J = nrow(cricket))
+
+jags.params <- c("b0", "b1", "tau", "sigma")
+
+jags.inits <- function(){
+  list("b0" = rnorm(1), "b1" = rnorm(1), "tau" = runif(1))
+}
+
+jagsfit <- jags(data               = jags.data, 
+                inits              = jags.inits, 
+                parameters.to.save = jags.params,
+                model.file         = cricket.model,
+                n.chains           = 3,
+                n.iter             = 5000)
+
+print(jagsfit)
+traceplot(jagsfit)
+```
+The traces for the intercept aren't great, but we haven't centered the predictor either.  In the usual way, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
+
+```{r}
+library(hexbin)
+library(RColorBrewer)
+rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
+with(jagsfit$BUGSoutput$sims.list, hexbinplot(b0 ~ b1, colramp = rf))
+```
+
+
+
+We could make life easier on ourselves by centering the predictor and trying again:
+
+```{r cache = TRUE}
+cricket$temp.ctr <- cricket$temperature - mean(cricket$temperature)
+
+jags.data <- list(y = cricket$chirps, 
+                  x = cricket$temp.ctr,
+                  J = nrow(cricket))
+
+jags.params <- c("b0", "b1", "tau", "sigma")
+
+jags.inits <- function(){
+  list("b0" = rnorm(1), "b1" = rnorm(1), "tau" = runif(1))
+}
+
+jagsfit <- jags(data               = jags.data, 
+                inits              = jags.inits, 
+                parameters.to.save = jags.params,
+                model.file         = cricket.model,
+                n.chains           = 3,
+                n.iter             = 5000)
+
+print(jagsfit)
+traceplot(jagsfit)
+```
+
+The posteriors for the intercept and slope are now uncorrelated:
+
+```{r}
+library(hexbin)
+library(RColorBrewer)
+rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
+with(jagsfit$BUGSoutput$sims.list, hexbinplot(b0 ~ b1, colramp = rf))
+```
