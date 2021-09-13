@@ -228,18 +228,18 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp6j4Ult/model3e8287b3912.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqCr2sA/model104cc016b3b.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.699   0.048   0.608   0.667   0.698   0.732   0.795 1.001  3800
-## deviance 629.247   1.334 628.310 628.405 628.731 629.542 633.140 1.001  3800
+## lambda     0.701    0.05   0.607   0.668   0.699   0.735   0.800 1.003   810
+## deviance 629.293    1.40 628.310 628.408 628.757 629.625 633.275 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 0.9 and DIC = 630.1
+## pD = 1.0 and DIC = 630.3
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -341,10 +341,6 @@ jagsfit <- jags(data               = jags.data,
 ```
 
 ```
-## module glm loaded
-```
-
-```
 ## Compiling model graph
 ##    Resolving undeclared variables
 ##    Allocating nodes
@@ -361,21 +357,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpaALYhr/modele205b6f45ab.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqCr2sA/model104c66fc5517.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.267   3.350 -6.904 -2.385 -0.289  1.802  6.401 1.001  3800
-## b1         0.211   0.042  0.128  0.185  0.212  0.238  0.293 1.001  3800
-## sigma      1.037   0.229  0.704  0.877  1.000  1.155  1.596 1.001  3800
-## tau        1.056   0.421  0.392  0.749  1.000  1.300  2.019 1.001  3800
-## deviance  42.940   2.773 39.796 40.925 42.243 44.144 50.139 1.002  2200
+## b0        -0.258   3.449 -6.935 -2.501 -0.261  1.918  6.483 1.001  3800
+## b1         0.211   0.043  0.127  0.184  0.212  0.239  0.295 1.001  3800
+## sigma      1.036   0.223  0.700  0.881  0.999  1.153  1.582 1.001  3000
+## tau        1.052   0.411  0.399  0.752  1.002  1.288  2.042 1.001  3000
+## deviance  42.928   2.812 39.793 40.933 42.197 44.111 50.587 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.8 and DIC = 46.8
+## pD = 4.0 and DIC = 46.9
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -384,6 +380,7 @@ traceplot(jagsfit)
 ```
 
 <img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-1.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-2.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-3.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-4.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-5.png" width="672" />
+
 The traces for the intercept aren't great, but we haven't centered the predictor either.  In the usual way, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
 
@@ -398,12 +395,23 @@ library(hexbin)
 ```r
 library(RColorBrewer)
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
-with(jagsfit$BUGSoutput$sims.list, hexbinplot(b0 ~ b1, colramp = rf))
+with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 ```
 
 <img src="03-BayesianComputation_files/figure-html/unnamed-chunk-14-1.png" width="672" />
 
+If we want to estimate the posterior correlation of the intercept and the slope, we can do so by accessing the MCMC samples.  For an rjags object, the samples are stored in `BUGSoutput$sims.list`.
 
+```r
+with(jagsfit$BUGSoutput$sims.list, cor(b0, b1))
+```
+
+```
+##            [,1]
+## [1,] -0.9967823
+```
+
+Thus we estimate that the intercept and slope have a posterior correlation of -0.997.
 
 We could make life easier on ourselves by centering the predictor and trying again:
 
@@ -446,21 +454,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpaALYhr/modele20767654a1.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqCr2sA/model104c3f023e41.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.656   0.279 16.097 16.484 16.653 16.830 17.217 1.001  3800
-## b1         0.212   0.042  0.130  0.185  0.211  0.238  0.297 1.002  1200
-## sigma      1.038   0.224  0.712  0.879  1.002  1.158  1.570 1.001  3800
-## tau        1.050   0.415  0.406  0.745  0.996  1.295  1.974 1.001  3800
-## deviance  42.933   2.711 39.823 40.945 42.249 44.175 50.133 1.001  3800
+## b0        16.653   0.276 16.100 16.482 16.648 16.831 17.209 1.001  3800
+## b1         0.211   0.042  0.128  0.185  0.212  0.238  0.297 1.001  3800
+## sigma      1.031   0.217  0.708  0.876  0.998  1.151  1.540 1.001  2600
+## tau        1.059   0.411  0.422  0.755  1.005  1.304  1.997 1.001  2600
+## deviance  42.895   2.678 39.802 40.934 42.181 44.133 49.873 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.7 and DIC = 46.6
+## pD = 3.6 and DIC = 46.5
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -468,7 +476,7 @@ print(jagsfit)
 traceplot(jagsfit)
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-15-1.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-15-2.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-15-3.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-15-4.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-15-5.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-1.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-2.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-3.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-4.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-5.png" width="672" />
 
 The posteriors for the intercept and slope are now uncorrelated:
 
@@ -477,148 +485,323 @@ The posteriors for the intercept and slope are now uncorrelated:
 library(hexbin)
 library(RColorBrewer)
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
-with(jagsfit$BUGSoutput$sims.list, hexbinplot(b0 ~ b1, colramp = rf))
+with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
-## Stan
+```r
+with(jagsfit$BUGSoutput$sims.list, cor(b0, b1))
+```
 
-Stan is a separate program based on Hamiltonian Monte Carlo.  Stan can be accesses through R using the `rstan` library.
+```
+##            [,1]
+## [1,] 0.02335981
+```
 
-We'll start by looking at how to use `rstan` to estimate $\lambda$ for the horse-kick data using vague priors.  `rstan` requires that a Stan program be prepared as a text file and stored locally.  To fit the horse-kick data, we'll use the Stan program listed here.  This program is saved as the file `horse.stan`.
-```stan
-//
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as Poisson distributed
-// with mean 'lambda'.
-//
+## rstanarm
 
-// The input data is a vector 'y' of length 'N'.
-data {
-  int<lower=1> N; // number of data points
-  int<lower=0> y[N]; // data vector
-}
+The `rstanarm` package is a recent set of routines that seeks to provide a user-friendly front end to Bayesian analysis with Stan. Specifically, `rstanarm` provides functions for fitting standard statistical models that are meant to mimic the analogous fitting functions in R.  For example, the basic routine for fitting linear models in R is `lm`; `rstanarm` provides a function `stan_lm` that strives to have the same functionality and interface as `lm`, albeit using Stan "under the hood" to generate Bayesian inference.  (That said, the main workhorse function in `rstanarm` for model fitting is `stan_glm`, which attempts to mimic the native R function `glm` for fitting generalized linear models.  Separately, the developers of `rstanarm` have taken the not unreasonable stance that generalized linear models should supplant general linear models as the analyst's default approach to model fitting.)
 
-// The parameters accepted by the model. 
-parameters {
-  real<lower=0> lambda;
-}
+To provide functionality that is similar to R's native model-fitting routines, the functions in `rstanarm` make a number of operational decisions behind the scenes.  Most notably, the model fitting routines in `rstanarm` will select default priors and default HMC parameters.  While these defaults can always be modified by the analyst, the implementation of software that chooses priors by default is radical.  First, the developers of `rstanarm` have their own particular view about what the role of the prior should be in data analysis.  While their view is a considered one, by no means does it reflect a consensus that extends beyond the developers of the software.  If you use `rstanarm`'s routines out of the box, you are accepting this view as your own if you do not specify the priors yourself.  Second, as best I understand, the methods by which `rstanarm` chooses default priors still appear to be in some flux.  That means that future versions of `rstanarm` may supply different default priors than those that are supplied today.  As a result, the behavior of `rstanarm` today may differ from its behavior tomorrow, if you use the default priors.
 
-// The model to be estimated. We model the output
-// 'y' to be Poisson distributed with mean 'lambda'
-// and a gamme prior on lambda.
-model {
-  // prior
-  lambda ~ gamma(0.01, 0.01);
-  
-  // data model
-  y ~ poisson(lambda);
-}
+All that said, here is how you might use `rstanarm` most simply to fit the two working examples in this chapter.  We'll begin by fitting the horse-kick data:
+
+```r
+require(rstanarm)
+```
+
+```
+## Loading required package: rstanarm
+```
+
+```
+## Loading required package: Rcpp
+```
+
+```
+## This is rstanarm version 2.21.1
+```
+
+```
+## - See https://mc-stan.org/rstanarm/articles/priors for changes to default priors!
+```
+
+```
+## - Default priors may change, so it's safest to specify priors, even if equivalent to the defaults.
+```
+
+```
+## - For execution on a local, multicore CPU with excess RAM we recommend calling
+```
+
+```
+##   options(mc.cores = parallel::detectCores())
 ```
 
 
 ```r
-require(rstan)
-options(mc.cores = parallel::detectCores())
-```
-
-
-```r
-horse.dat <- list(N = nrow(horse),
-                  y = horse$deaths)
-
-stan.fit <- stan(file = 'stan/horse.stan', data = horse.dat)
-```
-
-Apparently this warning is not particularly problematic.  We can have a look at the fit by asking to `print` it:
-
-```r
-print(stan.fit)
+stanarm.horse.fit <- stan_glm(deaths ~ 1, data = horse, family = poisson, seed = 1)
 ```
 
 ```
-## Inference for Stan model: horse.
-## 4 chains, each with iter=2000; warmup=1000; thin=1; 
-## post-warmup draws per chain=1000, total post-warmup draws=4000.
 ## 
-##           mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
-## lambda    0.70    0.00 0.05    0.61    0.67    0.70    0.73    0.80  1515    1
-## lp__   -266.41    0.02 0.71 -268.43 -266.57 -266.12 -265.96 -265.92  1997    1
+## SAMPLING FOR MODEL 'count' NOW (CHAIN 1).
+## Chain 1: 
+## Chain 1: Gradient evaluation took 0 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
+## Chain 1: Adjust your expectations accordingly!
+## Chain 1: 
+## Chain 1: 
+## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 1: 
+## Chain 1:  Elapsed Time: 0.238 seconds (Warm-up)
+## Chain 1:                0.228 seconds (Sampling)
+## Chain 1:                0.466 seconds (Total)
+## Chain 1: 
 ## 
-## Samples were drawn using NUTS(diag_e) at Wed Sep 08 21:52:31 2021.
-## For each parameter, n_eff is a crude measure of effective sample size,
-## and Rhat is the potential scale reduction factor on split chains (at 
-## convergence, Rhat=1).
+## SAMPLING FOR MODEL 'count' NOW (CHAIN 2).
+## Chain 2: 
+## Chain 2: Gradient evaluation took 0 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
+## Chain 2: Adjust your expectations accordingly!
+## Chain 2: 
+## Chain 2: 
+## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 2: 
+## Chain 2:  Elapsed Time: 0.221 seconds (Warm-up)
+## Chain 2:                0.259 seconds (Sampling)
+## Chain 2:                0.48 seconds (Total)
+## Chain 2: 
+## 
+## SAMPLING FOR MODEL 'count' NOW (CHAIN 3).
+## Chain 3: 
+## Chain 3: Gradient evaluation took 0 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
+## Chain 3: Adjust your expectations accordingly!
+## Chain 3: 
+## Chain 3: 
+## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 3: 
+## Chain 3:  Elapsed Time: 0.233 seconds (Warm-up)
+## Chain 3:                0.258 seconds (Sampling)
+## Chain 3:                0.491 seconds (Total)
+## Chain 3: 
+## 
+## SAMPLING FOR MODEL 'count' NOW (CHAIN 4).
+## Chain 4: 
+## Chain 4: Gradient evaluation took 0 seconds
+## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
+## Chain 4: Adjust your expectations accordingly!
+## Chain 4: 
+## Chain 4: 
+## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 4: 
+## Chain 4:  Elapsed Time: 0.283 seconds (Warm-up)
+## Chain 4:                0.277 seconds (Sampling)
+## Chain 4:                0.56 seconds (Total)
+## Chain 4:
 ```
 
-Next, we'll use Stan to fit the linear regression model.  Again, we need to write a Stan program that R will call. The Stan program for the regression model is shown below.
-
-```stan
-//
-// This Stan program fits a simple regression model.
-//
-
-// The input data is a vector 'y' of length 'N'.
-data {
-  int<lower=0> N; // number of data points
-  vector[N] y;    // vector of responses
-  vector[N] x;    // vector of predictors
-}
-
-// The parameters accepted by the model. 
-parameters {
-  real b0;              // intercept
-  real b1;              // slope
-  real<lower=0> sigma;  // SD of residual errors
-}
-
-// The model to be estimated. 
-model {
-  // priors
-  b0 ~ normal(0, 10);
-  b1 ~ normal(0, 10);
-  sigma ~ inv_gamma(0.01, 0.01);
-  
-  // data model
-  y ~ normal(b0 + b1 * x, sigma);
-}
-```
+The model formula ("deaths ~ 1") requires a bit of explanation.  Essentially, we are fitting a regression model that only includes an intercept.  In R, the way to fit a model with only an intercept is to include a "1" on the right-hand side of the model formula.  The call to `stan_glm` is meant to mimic the call Here we have supplied the random number seed for the HMC sampling.  Let's take a look:
 
 
 ```r
-cricket.dat <- list(N = nrow(cricket),
-                    y = cricket$chirps,
-                    x = cricket$temp.ctr)
-
-stan.fit <- stan(file = 'stan/cricket.stan', data = cricket.dat)
-print(stan.fit)
+print(stanarm.horse.fit, digits = 3)
 ```
 
 ```
-## Inference for Stan model: cricket.
-## 4 chains, each with iter=2000; warmup=1000; thin=1; 
-## post-warmup draws per chain=1000, total post-warmup draws=4000.
+## stan_glm
+##  family:       poisson [log]
+##  formula:      deaths ~ 1
+##  observations: 280
+##  predictors:   1
+## ------
+##             Median MAD_SD
+## (Intercept) -0.355  0.073
 ## 
-##        mean se_mean   sd   2.5%   25%   50%   75% 97.5% n_eff Rhat
-## b0    16.64    0.00 0.26  16.11 16.48 16.65 16.81 17.15  3194    1
-## b1     0.21    0.00 0.04   0.13  0.19  0.21  0.24  0.29  3357    1
-## sigma  1.02    0.00 0.21   0.70  0.87  0.99  1.14  1.54  2103    1
-## lp__  -8.96    0.03 1.26 -12.28 -9.56 -8.68 -8.02 -7.51  1354    1
-## 
-## Samples were drawn using NUTS(diag_e) at Wed Sep 08 22:19:07 2021.
-## For each parameter, n_eff is a crude measure of effective sample size,
-## and Rhat is the potential scale reduction factor on split chains (at 
-## convergence, Rhat=1).
+## ------
+## * For help interpreting the printed output see ?print.stanreg
+## * For info on the priors used see ?prior_summary.stanreg
 ```
 
-We can make a plot of the posterior samples using `pairs`:
+The parameter labeled (Intercept) is $\log(\lambda)$.
+
+Now we'll fit the simple regression to the cricket data:
+
 
 ```r
-pairs(stan.fit, pars = c("b0", "b1", "sigma"))
+stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaussian, seed = 1)
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+```
+## 
+## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 1).
+## Chain 1: 
+## Chain 1: Gradient evaluation took 0 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
+## Chain 1: Adjust your expectations accordingly!
+## Chain 1: 
+## Chain 1: 
+## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 1: 
+## Chain 1:  Elapsed Time: 0.08 seconds (Warm-up)
+## Chain 1:                0.091 seconds (Sampling)
+## Chain 1:                0.171 seconds (Total)
+## Chain 1: 
+## 
+## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 2).
+## Chain 2: 
+## Chain 2: Gradient evaluation took 0 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
+## Chain 2: Adjust your expectations accordingly!
+## Chain 2: 
+## Chain 2: 
+## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 2: 
+## Chain 2:  Elapsed Time: 0.081 seconds (Warm-up)
+## Chain 2:                0.063 seconds (Sampling)
+## Chain 2:                0.144 seconds (Total)
+## Chain 2: 
+## 
+## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 3).
+## Chain 3: 
+## Chain 3: Gradient evaluation took 0 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
+## Chain 3: Adjust your expectations accordingly!
+## Chain 3: 
+## Chain 3: 
+## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 3: 
+## Chain 3:  Elapsed Time: 0.062 seconds (Warm-up)
+## Chain 3:                0.064 seconds (Sampling)
+## Chain 3:                0.126 seconds (Total)
+## Chain 3: 
+## 
+## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 4).
+## Chain 4: 
+## Chain 4: Gradient evaluation took 0 seconds
+## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
+## Chain 4: Adjust your expectations accordingly!
+## Chain 4: 
+## Chain 4: 
+## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 4: 
+## Chain 4:  Elapsed Time: 0.071 seconds (Warm-up)
+## Chain 4:                0.058 seconds (Sampling)
+## Chain 4:                0.129 seconds (Total)
+## Chain 4:
+```
 
+```r
+print(stanarm.cricket.fit, digits = 3)
+```
 
+```
+## stan_glm
+##  family:       gaussian [identity]
+##  formula:      chirps ~ temp.ctr
+##  observations: 15
+##  predictors:   2
+## ------
+##             Median MAD_SD
+## (Intercept) 16.648  0.257
+## temp.ctr     0.210  0.041
+## 
+## Auxiliary parameter(s):
+##       Median MAD_SD
+## sigma 1.008  0.198 
+## 
+## ------
+## * For help interpreting the printed output see ?print.stanreg
+## * For info on the priors used see ?prior_summary.stanreg
+```
 

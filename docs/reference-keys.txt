@@ -15,4 +15,4 @@ the-negative-binomial-distriution-revisited
 bayesian-computation
 computations-with-conjugate-priors
 jags-in-r
-stan
+rstanarm

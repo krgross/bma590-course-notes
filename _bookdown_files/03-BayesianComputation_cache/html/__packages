@@ -8,3 +8,5 @@ RColorBrewer
 StanHeaders
 ggplot2
 rstan
+Rcpp
+rstanarm

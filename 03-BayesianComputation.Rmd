@@ -153,7 +153,7 @@ abline(cricket.slr)
 ```
 
 Now we'll fit the same model in JAGS, using vague priors for all model parameters
-```{r cache = TRUE}
+```{r}
 cricket.model <- function() {
   
   for (j in 1:J) {             # J = number of data points
@@ -194,20 +194,26 @@ jagsfit <- jags(data               = jags.data,
 print(jagsfit)
 traceplot(jagsfit)
 ```
+
 The traces for the intercept aren't great, but we haven't centered the predictor either.  In the usual way, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
 ```{r}
 library(hexbin)
 library(RColorBrewer)
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
-with(jagsfit$BUGSoutput$sims.list, hexbinplot(b0 ~ b1, colramp = rf))
+with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 ```
 
+If we want to estimate the posterior correlation of the intercept and the slope, we can do so by accessing the MCMC samples.  For an rjags object, the samples are stored in `BUGSoutput$sims.list`.
+```{r}
+with(jagsfit$BUGSoutput$sims.list, cor(b0, b1))
+```
 
+Thus we estimate that the intercept and slope have a posterior correlation of `r round(with(jagsfit$BUGSoutput$sims.list, cor(b0, b1)), 3)`.
 
 We could make life easier on ourselves by centering the predictor and trying again:
 
-```{r cache = TRUE}
+```{r}
 cricket$temp.ctr <- cricket$temperature - mean(cricket$temperature)
 
 jags.data <- list(y = cricket$chirps, 
@@ -237,107 +243,37 @@ The posteriors for the intercept and slope are now uncorrelated:
 library(hexbin)
 library(RColorBrewer)
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
-with(jagsfit$BUGSoutput$sims.list, hexbinplot(b0 ~ b1, colramp = rf))
+with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
+with(jagsfit$BUGSoutput$sims.list, cor(b0, b1))
 ```
 
-## Stan
+## rstanarm
 
-Stan is a separate program based on Hamiltonian Monte Carlo.  Stan can be accesses through R using the `rstan` library.
+The `rstanarm` package is a recent set of routines that seeks to provide a user-friendly front end to Bayesian analysis with Stan. Specifically, `rstanarm` provides functions for fitting standard statistical models that are meant to mimic the analogous fitting functions in R.  For example, the basic routine for fitting linear models in R is `lm`; `rstanarm` provides a function `stan_lm` that strives to have the same functionality and interface as `lm`, albeit using Stan "under the hood" to generate Bayesian inference.  (That said, the main workhorse function in `rstanarm` for model fitting is `stan_glm`, which attempts to mimic the native R function `glm` for fitting generalized linear models.  Separately, the developers of `rstanarm` have taken the not unreasonable stance that generalized linear models should supplant general linear models as the analyst's default approach to model fitting.)
 
-We'll start by looking at how to use `rstan` to estimate $\lambda$ for the horse-kick data using vague priors.  `rstan` requires that a Stan program be prepared as a text file and stored locally.  To fit the horse-kick data, we'll use the Stan program listed here.  This program is saved as the file `horse.stan`.
-```stan
-//
-// This Stan program defines a simple model, with a
-// vector of values 'y' modeled as Poisson distributed
-// with mean 'lambda'.
-//
+To provide functionality that is similar to R's native model-fitting routines, the functions in `rstanarm` make a number of operational decisions behind the scenes.  Most notably, the model fitting routines in `rstanarm` will select default priors and default HMC parameters.  While these defaults can always be modified by the analyst, the implementation of software that chooses priors by default is radical.  First, the developers of `rstanarm` have their own particular view about what the role of the prior should be in data analysis.  While their view is a considered one, by no means does it reflect a consensus that extends beyond the developers of the software.  If you use `rstanarm`'s routines out of the box, you are accepting this view as your own if you do not specify the priors yourself.  Second, as best I understand, the methods by which `rstanarm` chooses default priors still appear to be in some flux.  That means that future versions of `rstanarm` may supply different default priors than those that are supplied today.  As a result, the behavior of `rstanarm` today may differ from its behavior tomorrow, if you use the default priors.
 
-// The input data is a vector 'y' of length 'N'.
-data {
-  int<lower=1> N; // number of data points
-  int<lower=0> y[N]; // data vector
-}
-
-// The parameters accepted by the model. 
-parameters {
-  real<lower=0> lambda;
-}
-
-// The model to be estimated. We model the output
-// 'y' to be Poisson distributed with mean 'lambda'
-// and a gamme prior on lambda.
-model {
-  // prior
-  lambda ~ gamma(0.01, 0.01);
-  
-  // data model
-  y ~ poisson(lambda);
-}
-```
-
-```{r message = FALSE}
-require(rstan)
-options(mc.cores = parallel::detectCores())
+All that said, here is how you might use `rstanarm` most simply to fit the two working examples in this chapter.  We'll begin by fitting the horse-kick data:
+```{r}
+require(rstanarm)
 ```
 
 ```{r cache = TRUE}
-horse.dat <- list(N = nrow(horse),
-                  y = horse$deaths)
-
-stan.fit <- stan(file = 'stan/horse.stan', data = horse.dat)
+stanarm.horse.fit <- stan_glm(deaths ~ 1, data = horse, family = poisson, seed = 1)
 ```
 
-Apparently this warning is not particularly problematic.  We can have a look at the fit by asking to `print` it:
+The model formula ("deaths ~ 1") requires a bit of explanation.  Essentially, we are fitting a regression model that only includes an intercept.  In R, the way to fit a model with only an intercept is to include a "1" on the right-hand side of the model formula.  The call to `stan_glm` is meant to mimic the call Here we have supplied the random number seed for the HMC sampling.  Let's take a look:
+
 ```{r}
-print(stan.fit)
+print(stanarm.horse.fit, digits = 3)
 ```
 
-Next, we'll use Stan to fit the linear regression model.  Again, we need to write a Stan program that R will call. The Stan program for the regression model is shown below.
+The parameter labeled (Intercept) is $\log(\lambda)$.
 
-```stan
-//
-// This Stan program fits a simple regression model.
-//
-
-// The input data is a vector 'y' of length 'N'.
-data {
-  int<lower=0> N; // number of data points
-  vector[N] y;    // vector of responses
-  vector[N] x;    // vector of predictors
-}
-
-// The parameters accepted by the model. 
-parameters {
-  real b0;              // intercept
-  real b1;              // slope
-  real<lower=0> sigma;  // SD of residual errors
-}
-
-// The model to be estimated. 
-model {
-  // priors
-  b0 ~ normal(0, 10);
-  b1 ~ normal(0, 10);
-  sigma ~ inv_gamma(0.01, 0.01);
-  
-  // data model
-  y ~ normal(b0 + b1 * x, sigma);
-}
-```
+Now we'll fit the simple regression to the cricket data:
 
 ```{r cache = TRUE}
-cricket.dat <- list(N = nrow(cricket),
-                    y = cricket$chirps,
-                    x = cricket$temp.ctr)
-
-stan.fit <- stan(file = 'stan/cricket.stan', data = cricket.dat)
-print(stan.fit)
+stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaussian, seed = 1)
+print(stanarm.cricket.fit, digits = 3)
 ```
-
-We can make a plot of the posterior samples using `pairs`:
-```{r}
-pairs(stan.fit, pars = c("b0", "b1", "sigma"))
-```
-
-
 
