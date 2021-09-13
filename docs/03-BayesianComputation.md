@@ -228,22 +228,56 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqCr2sA/model104cc016b3b.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpkNru5X/model22904ae71ca7.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.701    0.05   0.607   0.668   0.699   0.735   0.800 1.003   810
-## deviance 629.293    1.40 628.310 628.408 628.757 629.625 633.275 1.001  3800
+## lambda     0.700   0.051   0.604   0.665   0.699   0.734   0.803 1.001  2500
+## deviance 629.364   1.522 628.311 628.421 628.785 629.696 633.562 1.004  2400
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 1.0 and DIC = 630.3
+## pD = 1.2 and DIC = 630.5
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
-The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot using `traceplot` to inspect convergence visually, but beware that visual assessment of convergence is prone to error
+The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot using `traceplot` to inspect convergence visually, but beware that visual assessment of convergence is prone to error.
+
+For an rjags object, the raw MCMC samples are stored in `BUGSoutput$sims.list`.  Sometimes it is helpful to analyze these samples directly.  For example, with these samples we  can estimate other posterior quantities, such as the posterior median of $\lambda$, or generate a 95\% central posterior confidence interval directly:
+
+```r
+mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
+summary(mcmc.output)
+```
+
+```
+##     deviance         lambda      
+##  Min.   :628.3   Min.   :0.5365  
+##  1st Qu.:628.4   1st Qu.:0.6647  
+##  Median :628.8   Median :0.6992  
+##  Mean   :629.4   Mean   :0.6999  
+##  3rd Qu.:629.7   3rd Qu.:0.7337  
+##  Max.   :644.2   Max.   :0.9188
+```
+
+```r
+median(mcmc.output$lambda)
+```
+
+```
+## [1] 0.6991852
+```
+
+```r
+quantile(mcmc.output$lambda, c(.025, .975))
+```
+
+```
+##      2.5%     97.5% 
+## 0.6036116 0.8028820
+```
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
 
@@ -260,7 +294,7 @@ jagsfit.mcmc <- as.mcmc(jagsfit)
 densityplot(jagsfit.mcmc)
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-12-1.png" width="672" />
 
 For a more involved example, let's take a look at the simple regression fit to the cricket data.  First, we'll make a plot of the data and fit a SLR model by least squares.  
 
@@ -297,7 +331,7 @@ plot(chirps ~ temperature, data = cricket)
 abline(cricket.slr)
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-1.png" width="672" />
 
 Now we'll fit the same model in JAGS, using vague priors for all model parameters
 
@@ -357,21 +391,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqCr2sA/model104c66fc5517.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpkNru5X/model229040922cb7.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.258   3.449 -6.935 -2.501 -0.261  1.918  6.483 1.001  3800
-## b1         0.211   0.043  0.127  0.184  0.212  0.239  0.295 1.001  3800
-## sigma      1.036   0.223  0.700  0.881  0.999  1.153  1.582 1.001  3000
-## tau        1.052   0.411  0.399  0.752  1.002  1.288  2.042 1.001  3000
-## deviance  42.928   2.812 39.793 40.933 42.197 44.111 50.587 1.001  3800
+## b0        -0.269   3.364 -6.743 -2.470 -0.280  1.859  6.430 1.001  3800
+## b1         0.211   0.042  0.129  0.185  0.212  0.239  0.293 1.001  3800
+## sigma      1.031   0.224  0.706  0.876  0.995  1.147  1.549 1.001  3700
+## tau        1.063   0.415  0.417  0.760  1.009  1.305  2.005 1.001  3700
+## deviance  42.888   2.715 39.827 40.925 42.204 44.055 49.855 1.002  1500
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 4.0 and DIC = 46.9
+## pD = 3.7 and DIC = 46.6
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -379,7 +413,7 @@ print(jagsfit)
 traceplot(jagsfit)
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-1.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-2.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-3.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-4.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-13-5.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-14-1.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-14-2.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-14-3.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-14-4.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-14-5.png" width="672" />
 
 The traces for the intercept aren't great, but we haven't centered the predictor either.  In the usual way, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
@@ -398,17 +432,41 @@ rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
 with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-15-1.png" width="672" />
 
-If we want to estimate the posterior correlation of the intercept and the slope, we can do so by accessing the MCMC samples.  For an rjags object, the samples are stored in `BUGSoutput$sims.list`.
+We can estimate the posterior correlation between the intercept and the slope by accessing the raw MCMC samples  
 
 ```r
-with(jagsfit$BUGSoutput$sims.list, cor(b0, b1))
+mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
+summary(mcmc.output)
 ```
 
 ```
-##            [,1]
-## [1,] -0.9967823
+##        b0                 b1             deviance         sigma       
+##  Min.   :-14.6988   Min.   :0.03208   Min.   :39.57   Min.   :0.5708  
+##  1st Qu.: -2.4700   1st Qu.:0.18505   1st Qu.:40.93   1st Qu.:0.8755  
+##  Median : -0.2801   Median :0.21158   Median :42.20   Median :0.9954  
+##  Mean   : -0.2686   Mean   :0.21137   Mean   :42.89   Mean   :1.0308  
+##  3rd Qu.:  1.8588   3rd Qu.:0.23852   3rd Qu.:44.05   3rd Qu.:1.1474  
+##  Max.   : 13.7429   Max.   :0.39724   Max.   :64.34   Max.   :3.0699  
+##       tau        
+##  Min.   :0.1061  
+##  1st Qu.:0.7596  
+##  Median :1.0092  
+##  Mean   :1.0631  
+##  3rd Qu.:1.3046  
+##  Max.   :3.0692
+```
+
+```r
+cor(mcmc.output[, -c(3:4)])
+```
+
+```
+##                b0           b1          tau
+## b0   1.000000e+00 -0.996634026 2.176845e-05
+## b1  -9.966340e-01  1.000000000 1.487399e-03
+## tau  2.176845e-05  0.001487399 1.000000e+00
 ```
 
 Thus we estimate that the intercept and slope have a posterior correlation of -0.997.
@@ -454,21 +512,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqCr2sA/model104c3f023e41.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpkNru5X/model2290450834ec.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.653   0.276 16.100 16.482 16.648 16.831 17.209 1.001  3800
-## b1         0.211   0.042  0.128  0.185  0.212  0.238  0.297 1.001  3800
-## sigma      1.031   0.217  0.708  0.876  0.998  1.151  1.540 1.001  2600
-## tau        1.059   0.411  0.422  0.755  1.005  1.304  1.997 1.001  2600
-## deviance  42.895   2.678 39.802 40.934 42.181 44.133 49.873 1.001  3800
+## b0        16.651   0.275 16.102 16.475 16.653 16.832 17.179 1.003   780
+## b1         0.211   0.042  0.128  0.186  0.211  0.238  0.298 1.002  3800
+## sigma      1.035   0.221  0.702  0.877  1.002  1.150  1.563 1.001  3800
+## tau        1.053   0.412  0.409  0.756  0.995  1.301  2.030 1.001  3800
+## deviance  42.911   2.737 39.769 40.911 42.180 44.247 50.021 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.6 and DIC = 46.5
+## pD = 3.7 and DIC = 46.7
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -476,7 +534,7 @@ print(jagsfit)
 traceplot(jagsfit)
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-1.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-2.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-3.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-4.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-16-5.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-17-1.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-17-2.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-17-3.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-17-4.png" width="672" /><img src="03-BayesianComputation_files/figure-html/unnamed-chunk-17-5.png" width="672" />
 
 The posteriors for the intercept and slope are now uncorrelated:
 
@@ -488,15 +546,18 @@ rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
 with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 ```
 
-<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+<img src="03-BayesianComputation_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 
 ```r
-with(jagsfit$BUGSoutput$sims.list, cor(b0, b1))
+mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
+cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##            [,1]
-## [1,] 0.02335981
+##               b0           b1          tau
+## b0   1.000000000 -0.004609648  0.006585541
+## b1  -0.004609648  1.000000000 -0.004604030
+## tau  0.006585541 -0.004604030  1.000000000
 ```
 
 ## rstanarm
@@ -566,9 +627,9 @@ stanarm.horse.fit <- stan_glm(deaths ~ 1, data = horse, family = poisson, seed =
 ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.238 seconds (Warm-up)
-## Chain 1:                0.228 seconds (Sampling)
-## Chain 1:                0.466 seconds (Total)
+## Chain 1:  Elapsed Time: 0.234 seconds (Warm-up)
+## Chain 1:                0.227 seconds (Sampling)
+## Chain 1:                0.461 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'count' NOW (CHAIN 2).
@@ -591,9 +652,9 @@ stanarm.horse.fit <- stan_glm(deaths ~ 1, data = horse, family = poisson, seed =
 ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.221 seconds (Warm-up)
-## Chain 2:                0.259 seconds (Sampling)
-## Chain 2:                0.48 seconds (Total)
+## Chain 2:  Elapsed Time: 0.213 seconds (Warm-up)
+## Chain 2:                0.279 seconds (Sampling)
+## Chain 2:                0.492 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'count' NOW (CHAIN 3).
@@ -616,9 +677,9 @@ stanarm.horse.fit <- stan_glm(deaths ~ 1, data = horse, family = poisson, seed =
 ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.233 seconds (Warm-up)
-## Chain 3:                0.258 seconds (Sampling)
-## Chain 3:                0.491 seconds (Total)
+## Chain 3:  Elapsed Time: 0.205 seconds (Warm-up)
+## Chain 3:                0.265 seconds (Sampling)
+## Chain 3:                0.47 seconds (Total)
 ## Chain 3: 
 ## 
 ## SAMPLING FOR MODEL 'count' NOW (CHAIN 4).
@@ -641,9 +702,9 @@ stanarm.horse.fit <- stan_glm(deaths ~ 1, data = horse, family = poisson, seed =
 ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 4: 
-## Chain 4:  Elapsed Time: 0.283 seconds (Warm-up)
-## Chain 4:                0.277 seconds (Sampling)
-## Chain 4:                0.56 seconds (Total)
+## Chain 4:  Elapsed Time: 0.194 seconds (Warm-up)
+## Chain 4:                0.254 seconds (Sampling)
+## Chain 4:                0.448 seconds (Total)
 ## Chain 4:
 ```
 
@@ -700,9 +761,9 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.08 seconds (Warm-up)
-## Chain 1:                0.091 seconds (Sampling)
-## Chain 1:                0.171 seconds (Total)
+## Chain 1:  Elapsed Time: 0.11 seconds (Warm-up)
+## Chain 1:                0.095 seconds (Sampling)
+## Chain 1:                0.205 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 2).
@@ -725,9 +786,9 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.081 seconds (Warm-up)
-## Chain 2:                0.063 seconds (Sampling)
-## Chain 2:                0.144 seconds (Total)
+## Chain 2:  Elapsed Time: 0.089 seconds (Warm-up)
+## Chain 2:                0.073 seconds (Sampling)
+## Chain 2:                0.162 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 3).
@@ -750,9 +811,9 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.062 seconds (Warm-up)
-## Chain 3:                0.064 seconds (Sampling)
-## Chain 3:                0.126 seconds (Total)
+## Chain 3:  Elapsed Time: 0.065 seconds (Warm-up)
+## Chain 3:                0.065 seconds (Sampling)
+## Chain 3:                0.13 seconds (Total)
 ## Chain 3: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 4).
@@ -776,8 +837,8 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 4: 
 ## Chain 4:  Elapsed Time: 0.071 seconds (Warm-up)
-## Chain 4:                0.058 seconds (Sampling)
-## Chain 4:                0.129 seconds (Total)
+## Chain 4:                0.061 seconds (Sampling)
+## Chain 4:                0.132 seconds (Total)
 ## Chain 4:
 ```
 

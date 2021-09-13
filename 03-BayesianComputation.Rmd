@@ -132,7 +132,15 @@ Let's take a look at some summary statistics of the fit
 print(jagsfit)
 ```
 
-The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot using `traceplot` to inspect convergence visually, but beware that visual assessment of convergence is prone to error
+The Rhat values suggest that our chains have converged, as we might hope for such a simple model.  We can generate a trace plot using `traceplot` to inspect convergence visually, but beware that visual assessment of convergence is prone to error.
+
+For an rjags object, the raw MCMC samples are stored in `BUGSoutput$sims.list`.  Sometimes it is helpful to analyze these samples directly.  For example, with these samples we  can estimate other posterior quantities, such as the posterior median of $\lambda$, or generate a 95\% central posterior confidence interval directly:
+```{r}
+mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
+summary(mcmc.output)
+median(mcmc.output$lambda)
+quantile(mcmc.output$lambda, c(.025, .975))
+```
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
 ```{r}
@@ -204,9 +212,11 @@ rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
 with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 ```
 
-If we want to estimate the posterior correlation of the intercept and the slope, we can do so by accessing the MCMC samples.  For an rjags object, the samples are stored in `BUGSoutput$sims.list`.
+We can estimate the posterior correlation between the intercept and the slope by accessing the raw MCMC samples  
 ```{r}
-with(jagsfit$BUGSoutput$sims.list, cor(b0, b1))
+mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
+summary(mcmc.output)
+cor(mcmc.output[, -c(3:4)])
 ```
 
 Thus we estimate that the intercept and slope have a posterior correlation of `r round(with(jagsfit$BUGSoutput$sims.list, cor(b0, b1)), 3)`.
@@ -244,7 +254,9 @@ library(hexbin)
 library(RColorBrewer)
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
 with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
-with(jagsfit$BUGSoutput$sims.list, cor(b0, b1))
+
+mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
+cor(mcmc.output[, -c(3:4)])
 ```
 
 ## rstanarm
