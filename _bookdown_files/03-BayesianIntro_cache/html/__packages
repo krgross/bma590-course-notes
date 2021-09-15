@@ -1,0 +1,9 @@
+base
+coda
+rjags
+R2jags
+lattice
+hexbin
+RColorBrewer
+Rcpp
+rstanarm

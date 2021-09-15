@@ -203,7 +203,56 @@ print(jagsfit)
 traceplot(jagsfit)
 ```
 
-The traces for the intercept aren't great, but we haven't centered the predictor either.  In the usual way, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
+One of the merits of the Bayesian approach is that the posterior samples provide an immediate tool for propagating uncertainty to (possibly derived) quantities of interest.  First, we need to access the raw MCMC samples:
+```{r}
+mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
+summary(mcmc.output)
+```
+
+We can summarize the uncertainty in the regression fit graphically by randomly sampling a subset of these samples (say, 100 of them) and using them to plot a collection of regression lines:
+```{r}
+plot(chirps ~ temperature, data = cricket, type = "n")
+# we'll add the points later so that they lie on top of the lines,
+# instead of the other way around
+
+subset.samples <- sample(nrow(mcmc.output), size = 100)
+
+for(i in subset.samples) {
+  
+  with(mcmc.output, abline(a = b0[i], b = b1[i], col = "deepskyblue", lwd = 0.25))
+}
+
+with(cricket, points(chirps ~ temperature))
+```
+
+We can also propagate the uncertainty to estimate, say, the posterior distribution for the value of the regression line when the temperature is 85 F.  This quantifies the uncertainty in the average number of chirps at this temperature.  (We can think of it as a vertical slice through the above plot.)
+
+```{r}
+avg.chirps.85 <- with(mcmc.output, b0 + b1 * 85)
+summary(avg.chirps.85)
+quantile(avg.chirps.85, probs = c(.025, 0.975))
+```
+
+We could use the `density` function to get a quick idea of the shape of the distribution:
+```{r}
+plot(density(avg.chirps.85))
+```
+
+Thus, we might say that the posterior mean for the average number of chirps at 85 F is `r round(mean(avg.chirps.85), 2)`, and a central 95\% credible interval is (`r round(quantile(avg.chirps.85, probs = c(.025, 0.975)), 2)`).
+
+Finally, we can use the posterior samples to estimate the uncertainty in a future observation.  When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution.  The posterior predictive distribution must also include the error around the regression line.  We can estimate the posterior predictive distribution as follows.  Suppose we denote sample $i$ from the posterior as $\beta_{0, i}$, $\beta_{1, i}$, and $\sigma_i$.  Then for each posterior sample we will generate a new hypothetical observation $y_i^\star$ by sampling from a Gaussian distribution with mean equal to $\beta_{0,i} + \beta_{1,i} x $ and standard deviation $\sigma_i$, where $x = 85$.  The distribution of the $y_i^*$'s then gives the posterior predictive distribution that we seek.
+```{r}
+n.sims <- nrow(mcmc.output)
+new.errors <- with(mcmc.output, rnorm(n.sims, mean = 0, sd = sigma))
+new.chirps.85 <- with(mcmc.output, b0 + b1 * 85) + new.errors
+plot(density(new.chirps.85))
+summary(new.chirps.85)
+quantile(new.chirps.85, probs = c(.025, 0.975))
+```
+
+Thus, the posterior predictive distribution has a central 95\% credible interval of (`r round(quantile(new.chirps.85, probs = c(.025, 0.975)), 2)`).
+
+Although it hasn't caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
 ```{r}
 library(hexbin)
@@ -214,8 +263,6 @@ with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 
 We can estimate the posterior correlation between the intercept and the slope by accessing the raw MCMC samples  
 ```{r}
-mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
-summary(mcmc.output)
 cor(mcmc.output[, -c(3:4)])
 ```
 
@@ -225,7 +272,9 @@ We could make life easier on ourselves by centering the predictor and trying aga
 
 ```{r}
 cricket$temp.ctr <- cricket$temperature - mean(cricket$temperature)
+```
 
+```{r}
 jags.data <- list(y = cricket$chirps, 
                   x = cricket$temp.ctr,
                   J = nrow(cricket))
@@ -265,27 +314,41 @@ The `rstanarm` package is a recent set of routines that seeks to provide a user-
 
 To provide functionality that is similar to R's native model-fitting routines, the functions in `rstanarm` make a number of operational decisions behind the scenes.  Most notably, the model fitting routines in `rstanarm` will select default priors and default HMC parameters.  While these defaults can always be modified by the analyst, the implementation of software that chooses priors by default is radical.  First, the developers of `rstanarm` have their own particular view about what the role of the prior should be in data analysis.  While their view is a considered one, by no means does it reflect a consensus that extends beyond the developers of the software.  If you use `rstanarm`'s routines out of the box, you are accepting this view as your own if you do not specify the priors yourself.  Second, as best I understand, the methods by which `rstanarm` chooses default priors still appear to be in some flux.  That means that future versions of `rstanarm` may supply different default priors than those that are supplied today.  As a result, the behavior of `rstanarm` today may differ from its behavior tomorrow, if you use the default priors.
 
-All that said, here is how you might use `rstanarm` most simply to fit the two working examples in this chapter.  We'll begin by fitting the horse-kick data:
+All that said, here is how you might use `rstanarm` to fit the simple regression to the cricket data:
 ```{r}
 require(rstanarm)
 ```
 
 ```{r cache = TRUE}
-stanarm.horse.fit <- stan_glm(deaths ~ 1, data = horse, family = poisson, seed = 1)
-```
-
-The model formula ("deaths ~ 1") requires a bit of explanation.  Essentially, we are fitting a regression model that only includes an intercept.  In R, the way to fit a model with only an intercept is to include a "1" on the right-hand side of the model formula.  The call to `stan_glm` is meant to mimic the call Here we have supplied the random number seed for the HMC sampling.  Let's take a look:
-
-```{r}
-print(stanarm.horse.fit, digits = 3)
-```
-
-The parameter labeled (Intercept) is $\log(\lambda)$.
-
-Now we'll fit the simple regression to the cricket data:
-
-```{r cache = TRUE}
 stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaussian, seed = 1)
+```
+
+Note that `rstanarm` has made a variety of decisions about how many chains to run, how long to run them, etc.  We can obtain a summary of the model fit by the `print` command:
+```{r} 
 print(stanarm.cricket.fit, digits = 3)
 ```
+
+There are a few parts of this output that deserve comment.  First, this summary reports the posterior median of the parameters instead of the posterior mean.  Second, the authors of `rstanarm` have made the curious decision to replace the posterior standard deviation (itself the Bayesian counterpart to the frequentist's standard error) with someting they call "MAD SD".  This takes a bit of explanation.  The "MAD" part stands for median absolute deviation.  It is the median of the absolute deviations of the posterior samples from the posterior median.  In other words, if we have a generic parameter $\theta$ and label its posterior samples as $\theta_1, \theta_2, \ldots, \theta_n$, then the MAD of $\theta$ is
+
+$$
+\mathrm{median}_i(| \theta_i - \mathrm{median}_i(\theta_i) |)
+$$
+
+According to the authors of `rstanarm`, "Because we are so used to working with standard deviations, when we compute the median absolute deviation, we then rescale it by multiplying by 1.483, which reproduces the standard deviation in the special case of the normal distribution.  We call this the mad sd."  In other words, the MAD SD is a measure of posterior uncertainty that is meant to be comparable to the posterior standard deviation.  (The authors of `rstanarm` clearly must think this is a more desirable estimate of the posterior uncertainty than the posterior standard deviation; though their reasoning here is not immediately clear to me.)
+
+<!-- See p 73 of Gelman "Regression and other stories" -->
+
+If we want to compute our own summary statistics, we can extract the MCMC samples from the `stam_glm` fit using the `as.matrix` command:
+
+```{r}
+mcmc.sims <- as.matrix(stanarm.cricket.fit)
+summary(mcmc.sims)
+```
+
+We might, for example, then use this output to find the posterior standard deviation of each of the parameters:
+```{r}
+apply(mcmc.sims, 2, sd)
+```
+
+Compare these values to the posterior standard deviations reported in the JAGS fit.
 
