@@ -228,12 +228,12 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp0K5b7M/model1f38522543f8.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIhN7xD/model2ae873711515.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
-##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.700   0.050   0.606   0.665   0.698   0.733   0.802 1.001  3800
-## deviance 629.316   1.409 628.310 628.420 628.777 629.637 633.421 1.004  1800
+##          mu.vect sd.vect   2.5%     25%     50%     75%   97.5%  Rhat n.eff
+## lambda     0.702   0.051   0.61   0.666   0.700   0.736   0.805 1.001  3400
+## deviance 629.328   1.421 628.31 628.421 628.802 629.658 633.018 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
@@ -254,12 +254,12 @@ summary(mcmc.output)
 
 ```
 ##     deviance         lambda      
-##  Min.   :628.3   Min.   :0.5321  
-##  1st Qu.:628.4   1st Qu.:0.6654  
-##  Median :628.8   Median :0.6979  
-##  Mean   :629.3   Mean   :0.6999  
-##  3rd Qu.:629.6   3rd Qu.:0.7334  
-##  Max.   :641.8   Max.   :0.8736
+##  Min.   :628.3   Min.   :0.5361  
+##  1st Qu.:628.4   1st Qu.:0.6660  
+##  Median :628.8   Median :0.7003  
+##  Mean   :629.3   Mean   :0.7018  
+##  3rd Qu.:629.7   3rd Qu.:0.7363  
+##  Max.   :643.9   Max.   :0.9162
 ```
 
 ```r
@@ -267,7 +267,7 @@ median(mcmc.output$lambda)
 ```
 
 ```
-## [1] 0.6979089
+## [1] 0.7002739
 ```
 
 ```r
@@ -276,7 +276,7 @@ quantile(mcmc.output$lambda, c(.025, .975))
 
 ```
 ##      2.5%     97.5% 
-## 0.6058927 0.8019820
+## 0.6098168 0.8047007
 ```
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
@@ -391,21 +391,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp0K5b7M/model1f387a9113a7.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIhN7xD/model2ae87d2b4e1.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.414   3.428 -7.335 -2.577 -0.368  1.791  6.308 1.001  2400
-## b1         0.213   0.043  0.129  0.186  0.212  0.240  0.300 1.001  3100
-## sigma      1.033   0.225  0.699  0.878  0.998  1.154  1.582 1.001  2600
-## tau        1.063   0.427  0.400  0.751  1.004  1.298  2.045 1.001  2600
-## deviance  43.003   2.686 39.832 41.013 42.338 44.314 50.089 1.003  1700
+## b0        -0.303   3.331 -7.038 -2.395 -0.284  1.824  6.338 1.001  3500
+## b1         0.212   0.041  0.130  0.185  0.211  0.238  0.296 1.001  3500
+## sigma      1.037   0.225  0.712  0.877  0.999  1.152  1.577 1.001  3800
+## tau        1.049   0.406  0.402  0.753  1.002  1.299  1.972 1.001  3800
+## deviance  42.855   2.695 39.794 40.893 42.124 44.040 50.001 1.001  2400
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.6 and DIC = 46.6
+## pD = 3.6 and DIC = 46.5
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -415,7 +415,8 @@ traceplot(jagsfit)
 
 <img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-1.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-2.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-3.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-4.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-5.png" width="672" />
 
-One of the merits of the Bayesian approach is that the posterior samples provide an immediate tool for propagating uncertainty to (possibly derived) quantities of interest.  First, we need to access the raw MCMC samples:
+The output of the `print` function gives the quantiles that one would use to calculate a 95\% central credible interval.  To find a HPD credible interval, we can use the `HPDinterval` function in the `coda` library.  The `coda` library contains a variety of routines for post-processing of MCMC ouput.  If we simply pass the `jagsfit` object to the `HPDinterval` function, it will return an HPD interval for each of the three chains.  This isn't what we want, so we'll extract the raw MCMC samples first, and then coerce them to a data frame.
+
 
 ```r
 mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
@@ -424,22 +425,39 @@ summary(mcmc.output)
 
 ```
 ##        b0                 b1             deviance         sigma       
-##  Min.   :-14.5371   Min.   :0.03865   Min.   :39.57   Min.   :0.5278  
-##  1st Qu.: -2.5770   1st Qu.:0.18568   1st Qu.:41.01   1st Qu.:0.8776  
-##  Median : -0.3678   Median :0.21239   Median :42.34   Median :0.9981  
-##  Mean   : -0.4135   Mean   :0.21323   Mean   :43.00   Mean   :1.0330  
-##  3rd Qu.:  1.7914   3rd Qu.:0.24047   3rd Qu.:44.31   3rd Qu.:1.1541  
-##  Max.   : 14.4840   Max.   :0.38240   Max.   :59.92   Max.   :2.3359  
+##  Min.   :-15.0250   Min.   :0.07469   Min.   :39.59   Min.   :0.5569  
+##  1st Qu.: -2.3952   1st Qu.:0.18523   1st Qu.:40.89   1st Qu.:0.8774  
+##  Median : -0.2839   Median :0.21133   Median :42.12   Median :0.9988  
+##  Mean   : -0.3035   Mean   :0.21181   Mean   :42.85   Mean   :1.0370  
+##  3rd Qu.:  1.8238   3rd Qu.:0.23806   3rd Qu.:44.04   3rd Qu.:1.1522  
+##  Max.   : 11.9887   Max.   :0.39265   Max.   :61.91   Max.   :2.6513  
 ##       tau        
-##  Min.   :0.1833  
-##  1st Qu.:0.7508  
-##  Median :1.0039  
-##  Mean   :1.0630  
-##  3rd Qu.:1.2983  
-##  Max.   :3.5895
+##  Min.   :0.1423  
+##  1st Qu.:0.7532  
+##  Median :1.0023  
+##  Mean   :1.0493  
+##  3rd Qu.:1.2991  
+##  Max.   :3.2242
 ```
 
-We can summarize the uncertainty in the regression fit graphically by randomly sampling a subset of these samples (say, 100 of them) and using them to plot a collection of regression lines:
+Now we'll coerce the data frame `mcmc.output` to an MCMC object, and pass it to `HPDinterval`:
+
+```r
+HPDinterval(as.mcmc(mcmc.output))
+```
+
+```
+##               lower      upper
+## b0       -6.7501396  6.4959023
+## b1        0.1250951  0.2895274
+## deviance 39.5854566 48.3316672
+## sigma     0.6855284  1.4947301
+## tau       0.3556199  1.8689200
+## attr(,"Probability")
+## [1] 0.9498667
+```
+
+One of the merits of the Bayesian approach is that the posterior samples provide an immediate tool for propagating uncertainty to (possibly derived) quantities of interest.  We can summarize the uncertainty in the regression fit graphically by randomly sampling a subset of these samples (say, 100 of them) and using them to plot a collection of regression lines:
 
 ```r
 plot(chirps ~ temperature, data = cricket, type = "n")
@@ -456,7 +474,7 @@ for(i in subset.samples) {
 with(cricket, points(chirps ~ temperature))
 ```
 
-<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
 We can also propagate the uncertainty to estimate, say, the posterior distribution for the value of the regression line when the temperature is 85 F.  This quantifies the uncertainty in the average number of chirps at this temperature.  (We can think of it as a vertical slice through the above plot.)
 
@@ -468,7 +486,7 @@ summary(avg.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   16.39   17.48   17.70   17.71   17.95   18.94
+##   16.55   17.47   17.70   17.70   17.91   19.24
 ```
 
 ```r
@@ -477,7 +495,7 @@ quantile(avg.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 17.01610 18.40964
+## 17.02892 18.38369
 ```
 
 We could use the `density` function to get a quick idea of the shape of the distribution:
@@ -486,9 +504,9 @@ We could use the `density` function to get a quick idea of the shape of the dist
 plot(density(avg.chirps.85))
 ```
 
-<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
-Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.71, and a central 95\% credible interval is (17.02, 18.41).
+Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95\% credible interval is (17.03, 18.38).
 
 Finally, we can use the posterior samples to estimate the uncertainty in a future observation.  When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution.  The posterior predictive distribution must also include the error around the regression line.  We can estimate the posterior predictive distribution as follows.  Suppose we denote sample $i$ from the posterior as $\beta_{0, i}$, $\beta_{1, i}$, and $\sigma_i$.  Then for each posterior sample we will generate a new hypothetical observation $y_i^\star$ by sampling from a Gaussian distribution with mean equal to $\beta_{0,i} + \beta_{1,i} x $ and standard deviation $\sigma_i$, where $x = 85$.  The distribution of the $y_i^*$'s then gives the posterior predictive distribution that we seek.
 
@@ -499,7 +517,7 @@ new.chirps.85 <- with(mcmc.output, b0 + b1 * 85) + new.errors
 plot(density(new.chirps.85))
 ```
 
-<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
 ```r
 summary(new.chirps.85)
@@ -507,7 +525,7 @@ summary(new.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   13.01   17.01   17.69   17.71   18.40   23.05
+##   12.71   16.99   17.70   17.69   18.41   21.75
 ```
 
 ```r
@@ -516,10 +534,10 @@ quantile(new.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 15.63216 19.95041
+## 15.43882 19.87444
 ```
 
-Thus, the posterior predictive distribution has a central 95\% credible interval of (15.63, 19.95).
+Thus, the posterior predictive distribution has a central 95\% credible interval of (15.44, 19.87).
 
 Although it hasn't caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
@@ -538,7 +556,7 @@ rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
 with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 ```
 
-<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-21-1.png" width="672" />
 
 We can estimate the posterior correlation between the intercept and the slope by accessing the raw MCMC samples  
 
@@ -547,10 +565,10 @@ cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##              b0          b1         tau
-## b0   1.00000000 -0.99675038  0.03865307
-## b1  -0.99675038  1.00000000 -0.03923285
-## tau  0.03865307 -0.03923285  1.00000000
+##               b0          b1          tau
+## b0   1.000000000 -0.99661219  0.008295821
+## b1  -0.996612186  1.00000000 -0.010014049
+## tau  0.008295821 -0.01001405  1.000000000
 ```
 
 Thus we estimate that the intercept and slope have a posterior correlation of -0.997.
@@ -599,21 +617,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp0K5b7M/model1f387d9b317c.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIhN7xD/model2ae870936607.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.660   0.268 16.127 16.487 16.658 16.832 17.181 1.002  1800
-## b1         0.212   0.043  0.129  0.184  0.212  0.238  0.297 1.001  3300
-## sigma      1.033   0.221  0.707  0.878  1.001  1.143  1.567 1.001  3800
-## tau        1.055   0.406  0.407  0.765  0.999  1.298  1.999 1.001  3800
-## deviance  42.826   2.743 39.793 40.870 42.092 44.039 49.841 1.001  3800
+## b0        16.653   0.269 16.125 16.481 16.654 16.824 17.176 1.001  3800
+## b1         0.212   0.042  0.128  0.185  0.212  0.240  0.295 1.003  3800
+## sigma      1.029   0.215  0.707  0.878  1.000  1.145  1.520 1.001  3800
+## tau        1.059   0.408  0.433  0.763  1.001  1.298  2.000 1.001  3800
+## deviance  42.831   2.672 39.834 40.907 42.177 43.937 50.069 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.8 and DIC = 46.6
+## pD = 3.6 and DIC = 46.4
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -621,7 +639,7 @@ print(jagsfit)
 traceplot(jagsfit)
 ```
 
-<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-23-1.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-23-2.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-23-3.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-23-4.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-23-5.png" width="672" />
+<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-1.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-2.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-3.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-4.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-5.png" width="672" />
 
 The posteriors for the intercept and slope are now uncorrelated:
 
@@ -633,7 +651,7 @@ rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
 with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 ```
 
-<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-1.png" width="672" />
+<img src="03-BayesianIntro_files/figure-html/unnamed-chunk-25-1.png" width="672" />
 
 ```r
 mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
@@ -641,10 +659,10 @@ cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##               b0          b1          tau
-## b0   1.000000000 -0.01125716  0.001300672
-## b1  -0.011257161  1.00000000 -0.016517831
-## tau  0.001300672 -0.01651783  1.000000000
+##               b0         b1          tau
+## b0   1.000000000 0.01221741 -0.007651327
+## b1   0.012217410 1.00000000  0.018132692
+## tau -0.007651327 0.01813269  1.000000000
 ```
 
 ## rstanarm
@@ -714,9 +732,9 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.048 seconds (Warm-up)
-## Chain 1:                0.055 seconds (Sampling)
-## Chain 1:                0.103 seconds (Total)
+## Chain 1:  Elapsed Time: 0.148 seconds (Warm-up)
+## Chain 1:                0.214 seconds (Sampling)
+## Chain 1:                0.362 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 2).
@@ -739,9 +757,9 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.051 seconds (Warm-up)
-## Chain 2:                0.041 seconds (Sampling)
-## Chain 2:                0.092 seconds (Total)
+## Chain 2:  Elapsed Time: 0.175 seconds (Warm-up)
+## Chain 2:                0.113 seconds (Sampling)
+## Chain 2:                0.288 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 3).
@@ -764,9 +782,9 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.039 seconds (Warm-up)
-## Chain 3:                0.041 seconds (Sampling)
-## Chain 3:                0.08 seconds (Total)
+## Chain 3:  Elapsed Time: 0.139 seconds (Warm-up)
+## Chain 3:                0.129 seconds (Sampling)
+## Chain 3:                0.268 seconds (Total)
 ## Chain 3: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 4).
@@ -789,9 +807,9 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 4: 
-## Chain 4:  Elapsed Time: 0.045 seconds (Warm-up)
-## Chain 4:                0.036 seconds (Sampling)
-## Chain 4:                0.081 seconds (Total)
+## Chain 4:  Elapsed Time: 0.171 seconds (Warm-up)
+## Chain 4:                0.125 seconds (Sampling)
+## Chain 4:                0.296 seconds (Total)
 ## Chain 4:
 ```
 
@@ -849,7 +867,7 @@ summary(mcmc.sims)
 ##  Max.   :17.68   Max.   :0.36177   Max.   :2.3400
 ```
 
-We might, for example, then use this output to find the posterior standard deviation of each of the parameters:
+We might, for example, then use this output to find the posterior standard deviation of each of the parameters, or to find central 95\% credible intervals:
 
 ```r
 apply(mcmc.sims, 2, sd)
@@ -860,5 +878,15 @@ apply(mcmc.sims, 2, sd)
 ##  0.27003507  0.04262539  0.22262375
 ```
 
-Compare these values to the posterior standard deviations reported in the JAGS fit.
+```r
+apply(mcmc.sims, 2, function(x) quantile(x, c(0.025, 0.975)))
+```
 
+```
+##        parameters
+##         (Intercept)  temp.ctr     sigma
+##   2.5%     16.10111 0.1240071 0.7171401
+##   97.5%    17.17942 0.2906848 1.5816217
+```
+
+Compare these values to the posterior standard deviations and 95\% central credible intervals reported in the JAGS fit.
