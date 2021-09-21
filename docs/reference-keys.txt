@@ -16,3 +16,7 @@ bayesian-computation
 computations-with-conjugate-priors
 jags-in-r
 rstanarm
+smooth-regression
+lowess-smoothers
+splines
+additive-models

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 4 Smooth regression | Computing companion for BMA / ST 590, Fall 2021</title>
+  <meta name="description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 4 Smooth regression | Computing companion for BMA / ST 590, Fall 2021" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  <meta name="github-repo" content="krgross/bma590-course-notes" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 4 Smooth regression | Computing companion for BMA / ST 590, Fall 2021" />
+  
+  <meta name="twitter:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  
+
+<meta name="author" content="Kevin Gross" />
+
+
+<meta name="date" content="2021-09-20" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="bayesian-computation.html"/>
+
+<script src="libs/header-attrs-2.9/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html"><i class="fa fa-check"></i><b>1</b> Maximum likelihood estimation</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#a-very-simple-example-with-a-single-observation"><i class="fa fa-check"></i><b>1.1</b> A very simple example with a single observation</a></li>
+<li class="chapter" data-level="1.2" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#horse-kick-data"><i class="fa fa-check"></i><b>1.2</b> Horse-kick data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#calculate-and-plot-the-log-likelihood-function"><i class="fa fa-check"></i><b>1.2.1</b> Calculate and plot the log-likelihood function</a></li>
+<li class="chapter" data-level="1.2.2" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#find-the-mle-numerically-using-optimize"><i class="fa fa-check"></i><b>1.2.2</b> Find the MLE numerically using ‘optimize’</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#myxomatosis-data"><i class="fa fa-check"></i><b>1.3</b> Myxomatosis data</a></li>
+<li class="chapter" data-level="1.4" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><i class="fa fa-check"></i><b>2</b> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#confidence-intervals-for-single-parameters"><i class="fa fa-check"></i><b>2.1</b> Confidence intervals for single parameters</a></li>
+<li class="chapter" data-level="2.2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#two-param-mle"><i class="fa fa-check"></i><b>2.2</b> Confidence regions, profile likelihoods, and associated univariate intervals</a></li>
+<li class="chapter" data-level="2.3" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#locally-quadratic-approximations-to-confidence-intervals-and-regions"><i class="fa fa-check"></i><b>2.3</b> Locally quadratic approximations to confidence intervals and regions</a></li>
+<li class="chapter" data-level="2.4" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#comparing-models-likelihood-ratio-test-and-aic"><i class="fa fa-check"></i><b>2.4</b> Comparing models: Likelihood ratio test and AIC</a></li>
+<li class="chapter" data-level="2.5" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#transformable-constraints"><i class="fa fa-check"></i><b>2.5</b> Transformable constraints</a></li>
+<li class="chapter" data-level="2.6" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#the-negative-binomial-distriution-revisited"><i class="fa fa-check"></i><b>2.6</b> The negative binomial distriution, revisited</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="bayesian-computation.html"><a href="bayesian-computation.html"><i class="fa fa-check"></i><b>3</b> Bayesian computation</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="bayesian-computation.html"><a href="bayesian-computation.html#computations-with-conjugate-priors"><i class="fa fa-check"></i><b>3.1</b> Computations with conjugate priors</a></li>
+<li class="chapter" data-level="3.2" data-path="bayesian-computation.html"><a href="bayesian-computation.html#jags-in-r"><i class="fa fa-check"></i><b>3.2</b> JAGS in R</a></li>
+<li class="chapter" data-level="3.3" data-path="bayesian-computation.html"><a href="bayesian-computation.html#rstanarm"><i class="fa fa-check"></i><b>3.3</b> rstanarm</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="smooth-regression.html"><a href="smooth-regression.html"><i class="fa fa-check"></i><b>4</b> Smooth regression</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="smooth-regression.html"><a href="smooth-regression.html#lowess-smoothers"><i class="fa fa-check"></i><b>4.1</b> Lo(w)ess smoothers</a></li>
+<li class="chapter" data-level="4.2" data-path="smooth-regression.html"><a href="smooth-regression.html#splines"><i class="fa fa-check"></i><b>4.2</b> Splines</a></li>
+<li class="chapter" data-level="4.3" data-path="smooth-regression.html"><a href="smooth-regression.html#additive-models"><i class="fa fa-check"></i><b>4.3</b> Additive models</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Computing companion for BMA / ST 590, Fall 2021</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="smooth-regression" class="section level1" number="4">
+<h1><span class="header-section-number">Chapter 4</span> Smooth regression</h1>
+<div id="lowess-smoothers" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Lo(w)ess smoothers</h2>
+<p>We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set. These data can be found by visiting the webpage for the book ``Mixed Effects Models and Extensions in Ecology with R’’ by Zuur et al. (2009). A link to this webpage appears on the course website.</p>
+<div class="sourceCode" id="cb264"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb264-1"><a href="smooth-regression.html#cb264-1" aria-hidden="true" tabindex="-1"></a><span class="do">## download the data from the book&#39;s website</span></span>
+<span id="cb264-2"><a href="smooth-regression.html#cb264-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb264-3"><a href="smooth-regression.html#cb264-3" aria-hidden="true" tabindex="-1"></a>isit <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/ISIT.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb264-4"><a href="smooth-regression.html#cb264-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb264-5"><a href="smooth-regression.html#cb264-5" aria-hidden="true" tabindex="-1"></a><span class="do">## extract the data from station 16</span></span>
+<span id="cb264-6"><a href="smooth-regression.html#cb264-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb264-7"><a href="smooth-regression.html#cb264-7" aria-hidden="true" tabindex="-1"></a>st16 <span class="ot">&lt;-</span> <span class="fu">subset</span>(isit, Station <span class="sc">==</span> <span class="dv">16</span>)</span>
+<span id="cb264-8"><a href="smooth-regression.html#cb264-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb264-9"><a href="smooth-regression.html#cb264-9" aria-hidden="true" tabindex="-1"></a><span class="do">## retain just the variables that we want, and rename</span></span>
+<span id="cb264-10"><a href="smooth-regression.html#cb264-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb264-11"><a href="smooth-regression.html#cb264-11" aria-hidden="true" tabindex="-1"></a>st16 <span class="ot">&lt;-</span> st16[, <span class="fu">c</span>(<span class="st">&quot;SampleDepth&quot;</span>, <span class="st">&quot;Sources&quot;</span>)]</span>
+<span id="cb264-12"><a href="smooth-regression.html#cb264-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(st16) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;depth&quot;</span>, <span class="st">&quot;sources&quot;</span>)</span>
+<span id="cb264-13"><a href="smooth-regression.html#cb264-13" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Fit a loess smoother using the factory settings:</p>
+<div class="sourceCode" id="cb265"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb265-1"><a href="smooth-regression.html#cb265-1" aria-hidden="true" tabindex="-1"></a>st16.lo <span class="ot">&lt;-</span> <span class="fu">loess</span>(sources <span class="sc">~</span> depth, <span class="at">data =</span> st16)</span>
+<span id="cb265-2"><a href="smooth-regression.html#cb265-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(st16.lo)</span></code></pre></div>
+<pre><code>## Call:
+## loess(formula = sources ~ depth, data = st16)
+## 
+## Number of Observations: 51 
+## Equivalent Number of Parameters: 4.33 
+## Residual Standard Error: 4.18 
+## Trace of smoother matrix: 4.73  (exact)
+## 
+## Control settings:
+##   span     :  0.75 
+##   degree   :  2 
+##   family   :  gaussian
+##   surface  :  interpolate      cell = 0.2
+##   normalize:  TRUE
+##  parametric:  FALSE
+## drop.square:  FALSE</code></pre>
+<p>Plot the fit, this takes a little work</p>
+<div class="sourceCode" id="cb267"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb267-1"><a href="smooth-regression.html#cb267-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
+<span id="cb267-2"><a href="smooth-regression.html#cb267-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
+<span id="cb267-3"><a href="smooth-regression.html#cb267-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
+<span id="cb267-4"><a href="smooth-regression.html#cb267-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb267-5"><a href="smooth-regression.html#cb267-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> st16.lo,</span>
+<span id="cb267-6"><a href="smooth-regression.html#cb267-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> depth.vals,</span>
+<span id="cb267-7"><a href="smooth-regression.html#cb267-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb267-8"><a href="smooth-regression.html#cb267-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb267-9"><a href="smooth-regression.html#cb267-9" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))</span>
+<span id="cb267-10"><a href="smooth-regression.html#cb267-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb267-11"><a href="smooth-regression.html#cb267-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb267-12"><a href="smooth-regression.html#cb267-12" aria-hidden="true" tabindex="-1"></a><span class="co"># add 95% error bars</span></span>
+<span id="cb267-13"><a href="smooth-regression.html#cb267-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x   =</span> depth.vals, </span>
+<span id="cb267-14"><a href="smooth-regression.html#cb267-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">y   =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> st16.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> st16.fit<span class="sc">$</span>df),</span>
+<span id="cb267-15"><a href="smooth-regression.html#cb267-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb267-16"><a href="smooth-regression.html#cb267-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb267-17"><a href="smooth-regression.html#cb267-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb267-18"><a href="smooth-regression.html#cb267-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x   =</span> depth.vals, </span>
+<span id="cb267-19"><a href="smooth-regression.html#cb267-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">y   =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> st16.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> st16.fit<span class="sc">$</span>df),</span>
+<span id="cb267-20"><a href="smooth-regression.html#cb267-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb267-21"><a href="smooth-regression.html#cb267-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Examine the residuals:</p>
+<div class="sourceCode" id="cb268"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb268-1"><a href="smooth-regression.html#cb268-1" aria-hidden="true" tabindex="-1"></a><span class="do">## see what the fit returns; maybe the residuals are already there</span></span>
+<span id="cb268-2"><a href="smooth-regression.html#cb268-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb268-3"><a href="smooth-regression.html#cb268-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(st16.lo)  <span class="co"># they are!</span></span></code></pre></div>
+<pre><code>##  [1] &quot;n&quot;         &quot;fitted&quot;    &quot;residuals&quot; &quot;enp&quot;       &quot;s&quot;         &quot;one.delta&quot;
+##  [7] &quot;two.delta&quot; &quot;trace.hat&quot; &quot;divisor&quot;   &quot;robust&quot;    &quot;pars&quot;      &quot;kd&quot;       
+## [13] &quot;call&quot;      &quot;terms&quot;     &quot;xnames&quot;    &quot;x&quot;         &quot;y&quot;         &quot;weights&quot;</code></pre>
+<div class="sourceCode" id="cb270"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb270-1"><a href="smooth-regression.html#cb270-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.lo<span class="sc">$</span>residuals <span class="sc">~</span> st16<span class="sc">$</span>depth)</span>
+<span id="cb270-2"><a href="smooth-regression.html#cb270-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Let’s look at how changing the span changes the fit. We’ll write a custom function to fit a LOESS curve, and then call the function with various values for the span.</p>
+<div class="sourceCode" id="cb271"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb271-1"><a href="smooth-regression.html#cb271-1" aria-hidden="true" tabindex="-1"></a>PlotLoessFit <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, <span class="at">return.fit =</span> <span class="cn">FALSE</span>, ...){</span>
+<span id="cb271-2"><a href="smooth-regression.html#cb271-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb271-3"><a href="smooth-regression.html#cb271-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Caluclates a loess fit with the &#39;loess&#39; function, and makes a plot</span></span>
+<span id="cb271-4"><a href="smooth-regression.html#cb271-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb271-5"><a href="smooth-regression.html#cb271-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Args:</span></span>
+<span id="cb271-6"><a href="smooth-regression.html#cb271-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   x: predictor</span></span>
+<span id="cb271-7"><a href="smooth-regression.html#cb271-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   y: response</span></span>
+<span id="cb271-8"><a href="smooth-regression.html#cb271-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   return.fit: logical</span></span>
+<span id="cb271-9"><a href="smooth-regression.html#cb271-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   ...: Optional arguments to loess</span></span>
+<span id="cb271-10"><a href="smooth-regression.html#cb271-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb271-11"><a href="smooth-regression.html#cb271-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Returns:</span></span>
+<span id="cb271-12"><a href="smooth-regression.html#cb271-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   the loess fit</span></span>
+<span id="cb271-13"><a href="smooth-regression.html#cb271-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb271-14"><a href="smooth-regression.html#cb271-14" aria-hidden="true" tabindex="-1"></a>  my.lo <span class="ot">&lt;-</span> <span class="fu">loess</span>(y <span class="sc">~</span> x, ...)</span>
+<span id="cb271-15"><a href="smooth-regression.html#cb271-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb271-16"><a href="smooth-regression.html#cb271-16" aria-hidden="true" tabindex="-1"></a>  x.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(x), <span class="at">to =</span> <span class="fu">max</span>(x), <span class="at">length =</span> <span class="dv">100</span>)</span>
+<span id="cb271-17"><a href="smooth-regression.html#cb271-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb271-18"><a href="smooth-regression.html#cb271-18" aria-hidden="true" tabindex="-1"></a>  my.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> my.lo,</span>
+<span id="cb271-19"><a href="smooth-regression.html#cb271-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> x.vals,</span>
+<span id="cb271-20"><a href="smooth-regression.html#cb271-20" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb271-21"><a href="smooth-regression.html#cb271-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb271-22"><a href="smooth-regression.html#cb271-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(x, y)</span>
+<span id="cb271-23"><a href="smooth-regression.html#cb271-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x =</span> x.vals, <span class="at">y =</span> my.fit<span class="sc">$</span>fit, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb271-24"><a href="smooth-regression.html#cb271-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb271-25"><a href="smooth-regression.html#cb271-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x   =</span> x.vals, </span>
+<span id="cb271-26"><a href="smooth-regression.html#cb271-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">y   =</span> my.fit<span class="sc">$</span>fit <span class="sc">+</span> my.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> my.fit<span class="sc">$</span>df),</span>
+<span id="cb271-27"><a href="smooth-regression.html#cb271-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb271-28"><a href="smooth-regression.html#cb271-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb271-29"><a href="smooth-regression.html#cb271-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb271-30"><a href="smooth-regression.html#cb271-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x   =</span> x.vals, </span>
+<span id="cb271-31"><a href="smooth-regression.html#cb271-31" aria-hidden="true" tabindex="-1"></a>        <span class="at">y   =</span> my.fit<span class="sc">$</span>fit <span class="sc">-</span> my.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> my.fit<span class="sc">$</span>df),</span>
+<span id="cb271-32"><a href="smooth-regression.html#cb271-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb271-33"><a href="smooth-regression.html#cb271-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb271-34"><a href="smooth-regression.html#cb271-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb271-35"><a href="smooth-regression.html#cb271-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (return.fit) {</span>
+<span id="cb271-36"><a href="smooth-regression.html#cb271-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(my.lo)</span>
+<span id="cb271-37"><a href="smooth-regression.html#cb271-37" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb271-38"><a href="smooth-regression.html#cb271-38" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Now we’ll call the function several times, each time chanigng the value of the <code>span</code> argument to the <code>loess</code> function:</p>
+<div class="sourceCode" id="cb272"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb272-1"><a href="smooth-regression.html#cb272-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.5</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<div class="sourceCode" id="cb273"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb273-1"><a href="smooth-regression.html#cb273-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.25</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<div class="sourceCode" id="cb274"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb274-1"><a href="smooth-regression.html#cb274-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.1</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-3.png" width="672" /></p>
+<p>Let’s try a loess fit with a locally linear regression:</p>
+<div class="sourceCode" id="cb275"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb275-1"><a href="smooth-regression.html#cb275-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.25</span>, <span class="at">degree =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="splines" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Splines</h2>
+<p>We’ll first fit and plot a smoothing spline.</p>
+<div class="sourceCode" id="cb276"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb276-1"><a href="smooth-regression.html#cb276-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span></code></pre></div>
+<pre><code>## Loading required package: nlme</code></pre>
+<pre><code>## This is mgcv 1.8-35. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+<div class="sourceCode" id="cb279"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb279-1"><a href="smooth-regression.html#cb279-1" aria-hidden="true" tabindex="-1"></a>st16.spline <span class="ot">&lt;-</span> <span class="fu">gam</span>(sources <span class="sc">~</span> <span class="fu">s</span>(depth), <span class="at">data =</span> st16)</span>
+<span id="cb279-2"><a href="smooth-regression.html#cb279-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.spline, <span class="at">se =</span> <span class="cn">TRUE</span>)  <span class="co"># note that the plot does not include the intercept</span></span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Note that the plot includes only the portion of the model attributable to the covariate effect. By definition, the fit has effectively subtracted out the mean. Let’s take a look at the information produced by a call to <code>summary</code>:</p>
+<div class="sourceCode" id="cb280"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb280-1"><a href="smooth-regression.html#cb280-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(st16.spline)</span></code></pre></div>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## sources ~ s(depth)
+## 
+## Parametric coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  12.4771     0.3921   31.82   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##            edf Ref.df     F p-value    
+## s(depth) 8.813   8.99 158.2  &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =  0.966   Deviance explained = 97.2%
+## GCV = 9.7081  Scale est. = 7.8402    n = 51</code></pre>
+<p>Make a plot that includes both the points and the fit</p>
+<div class="sourceCode" id="cb282"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb282-1"><a href="smooth-regression.html#cb282-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))  </span>
+<span id="cb282-2"><a href="smooth-regression.html#cb282-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb282-3"><a href="smooth-regression.html#cb282-3" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st16.spline, </span>
+<span id="cb282-4"><a href="smooth-regression.html#cb282-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
+<span id="cb282-5"><a href="smooth-regression.html#cb282-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb282-6"><a href="smooth-regression.html#cb282-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb282-7"><a href="smooth-regression.html#cb282-7" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit)</span>
+<span id="cb282-8"><a href="smooth-regression.html#cb282-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb282-9"><a href="smooth-regression.html#cb282-9" aria-hidden="true" tabindex="-1"></a><span class="do">## add +/- 2 SE following Zuur; this is only approximate.</span></span>
+<span id="cb282-10"><a href="smooth-regression.html#cb282-10" aria-hidden="true" tabindex="-1"></a><span class="do">## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 9.81 = 41.19 df</span></span>
+<span id="cb282-11"><a href="smooth-regression.html#cb282-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb282-12"><a href="smooth-regression.html#cb282-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb282-13"><a href="smooth-regression.html#cb282-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>Find the AIC for the smoothing spline fit:</p>
+<div class="sourceCode" id="cb283"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb283-1"><a href="smooth-regression.html#cb283-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(st16.spline)</span></code></pre></div>
+<pre><code>## [1] 260.4811</code></pre>
+<p>Here’s a small detail. Notice that the syntax of the call to <code>predict</code> is slightly different when making a prediction for a <code>loess</code> object vs. making a prediction for a <code>gam</code> object (which the spline fit is). For a call to <code>predict</code> with a <code>loess</code> object, the new predictor values can be provided in the form of a vector. So, we were able to use</p>
+<div class="sourceCode" id="cb285"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb285-1"><a href="smooth-regression.html#cb285-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
+<span id="cb285-2"><a href="smooth-regression.html#cb285-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
+<span id="cb285-3"><a href="smooth-regression.html#cb285-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
+<span id="cb285-4"><a href="smooth-regression.html#cb285-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb285-5"><a href="smooth-regression.html#cb285-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> st16.lo,</span>
+<span id="cb285-6"><a href="smooth-regression.html#cb285-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> depth.vals,</span>
+<span id="cb285-7"><a href="smooth-regression.html#cb285-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>However, for a call to <code>predict</code> with a <code>gam</code> object, the new predictor values must be provided in the form of a new data frame, with variable names that match the variables in the <code>gam</code> model. So, to get predicted values for the spline fit, we needed to use the more cumbersome</p>
+<div class="sourceCode" id="cb286"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb286-1"><a href="smooth-regression.html#cb286-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
+<span id="cb286-2"><a href="smooth-regression.html#cb286-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
+<span id="cb286-3"><a href="smooth-regression.html#cb286-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
+<span id="cb286-4"><a href="smooth-regression.html#cb286-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb286-5"><a href="smooth-regression.html#cb286-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st16.spline, </span>
+<span id="cb286-6"><a href="smooth-regression.html#cb286-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
+<span id="cb286-7"><a href="smooth-regression.html#cb286-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="additive-models" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Additive models</h2>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="bayesian-computation.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
