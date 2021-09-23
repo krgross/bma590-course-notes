@@ -4,7 +4,7 @@
 setwd("C:/Users/krgross/Documents/GitHub/bma590-course-notes/")
 ```
 
-## Lo(w)ess smoothers
+## Loess smoothers
 
 We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set.  These data can be found by visiting the webpage for the book ``Mixed Effects Models and Extensions in Ecology with R'' by Zuur et al. (2009).  A link to this webpage appears on the course website.
 
@@ -230,4 +230,123 @@ st16.fit <- predict(st16.spline,
                     se      = TRUE)
 ```
 
-## Additive models
+## Generalized additive models (GAMs)
+
+Generalized additive models replace the usual linear terms that appear in multiple regression models with splines.  That is, suppose we seek to model the relationship between a response $y$ and two predictors, $x_1$ and $x_2$.  A standard regression model without polynomial effects or interactions would be written as 
+$$
+y = \beta_0 + \beta_1 x_1 +\beta_2 x_2 + \varepsilon
+$$
+where $\varepsilon$ is assumed to be an iid Gaussian random variate with variance $\sigma^2_\varepsilon$.  This is an additive model, in the sense that the combined effects of the two predictors equal the sum of their individual effects.  
+
+A generalized additive model (GAM) replaces the individual regression terms with splines.  Continuing with the generic example, a GAM would instead model the effects of the two predictors as
+$$
+y = \beta_0 + s(x_1) +s(x_2) + \varepsilon
+$$
+where $s(\cdot)$ represents a spline.  We continue to assume that, conditional on the covariate effects, the responses are normally distributed with constant variance $\sigma^2_\varepsilon$.  
+
+We will illustrate additive modeling using the bird data found in Appendix A of Zuur et al. (2009).  Zuur et al. report that these data originally appeared in Loyn (1987) and were featured in Quinn & Keough (2002)'s text.  Zuur et al. describe these data in the following way:
+
+"Forest bird densities were measured in 56 forest patches in south-eastern Victoria, Australia. The aim of the study was to relate bird densities to six habitat variables; size of the forest patch, distance to the nearest patch, distance to the nearest larger patch, mean altitude of the patch, year of isolation by clearing, and an index of stock grazing history (1 = light, 5 = intensive)."
+
+We first read the data and perform some light exploratory analysis and housekeeping.
+
+```{r}
+rm(list = ls())
+require(mgcv)
+
+bird <- read.table("data/Loyn.txt", head = T)
+
+summary(bird)
+
+# get rid of the 'Site' variable; it is redundant with the row label
+
+bird <- bird[, -1]
+
+# log-transform area, distance, ldistance, to remove right-skew
+
+bird$L.AREA <- log(bird$AREA)
+bird$L.DIST <- log(bird$DIST)
+bird$L.LDIST <- log(bird$LDIST)
+
+# change YR.ISOL to years since isolation (study was published in 1987)
+
+bird$YR.ISOL <- 1987 - bird$YR.ISOL
+
+# keep the only the variables we want
+
+bird <- bird[, c("ABUND", "L.AREA", "L.DIST", "L.LDIST", "YR.ISOL", "ALT", "GRAZE")]
+summary(bird)
+```
+
+Our first attempt at a GAM will entertain smoothing splines for all of the continuous predictors in the model.  We will use a linear term for GRAZE because there are too few unique values to support a smooth term:
+```{r}
+bird.gam1 <- mgcv::gam(ABUND ~ s(L.AREA) + s(L.DIST) + s(L.LDIST) + s(YR.ISOL) + GRAZE + s(ALT), data = bird)
+
+summary(bird.gam1)
+```
+
+The output reports the partial regression coefficient for the lone quantitative predictor GRAZE, and approximate significance tests for the smooth terms for each of the other predictors.  We can visualize these smooth terms with a call to `plot`:
+```{r}
+plot(bird.gam1)
+```
+
+In the interest of time, we take a casual approach to variable selection here.  We'll drop smooth terms that are clearly not significant to obtain:
+```{r}
+bird.gam2 <- mgcv::gam(ABUND ~ s(L.AREA) + GRAZE, data = bird)
+summary(bird.gam2)
+plot(bird.gam2)
+```
+
+Note that the GRAZE variable is currently treated as a numerical predictor.  We'll try fitting a model with GRAZE as a factor.  First we'll create a new variable that treats GRAZE as a factor.  We'll use the `summary` command to confirm that the new variable fGRAZE is indeed a factor.
+```{r}
+bird$fGRAZE <- as.factor(bird$GRAZE)
+summary(bird)
+```
+
+Now we'll proceed to fit the model
+```{r}
+bird.gam3 <- gam(ABUND ~ s(L.AREA) + fGRAZE, data = bird)
+plot(bird.gam3)
+summary(bird.gam3)
+```
+
+To formally compare the models with GRAZE as a numerical vs.\ categorical predictor, we'll have to use AIC.  We can't use an $F$-test here because we have used smoothing splines to capture the effect of L.AREA.  Thus, the models are not nested.  (If we had used regression splines for L.AREA, then the models would have been nested.)  We can extract the AICs for these models by a simple call to the `AIC` function.
+
+```{r}
+AIC(bird.gam2)
+AIC(bird.gam3)
+```
+
+<!-- Compare the design matrices for these two models (only the first few rows of each matrix are shown in this transcript): -->
+<!-- ```{r} -->
+<!-- head(model.matrix(bird.gam3)) -->
+<!-- head(model.matrix(bird.gam4)) -->
+<!-- ``` -->
+We can see the contrasts used to incorporate the factor fGRAZE in the model by a call to `contrasts`:
+```{r}
+with(bird, contrasts(fGRAZE))
+```
+
+The output here is somewhat opaque because the levels of fGRAZE are 1, 2, $\ldots$, 5.  The output of the call to `contrasts` shows each of the newly created indicator variables as a column.  For example, the first column shows that the predictor named `fGRAZE2` takes the value of 1 when the variable fGRAZE equals 2, and is 0 otherwise.
+
+Fit an additive model with only a smooth effect of L.AREA, in order to show residuals vs.\ GRAZE:
+```{r}
+bird.gam4 <- gam(ABUND ~ s(L.AREA), data = bird)
+
+plot(x = bird$GRAZE, y = bird.gam4$residuals)
+abline(h = 0, lty = "dashed")
+```
+
+Both the plot and the model output suggest that the effect of grazing is primarily due to lower bird abundance in the most heavily grazed category.
+
+To conclude, we'll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE.  In this case, we have to use regression splines for the smooth effect of L.AREA.  We'll use regression "splines" without any internal knots, (which are actually not splines at all, just a cubic trend) because the effect of log area seems to be reasonably well captured by a cubic trend anyway:
+```{r}
+bird.gam5 <- gam(ABUND ~ s(L.AREA, k = 4, fx = TRUE) + GRAZE, data = bird)
+bird.gam6 <- gam(ABUND ~ s(L.AREA, k = 4, fx = TRUE) + fGRAZE, data = bird)
+
+anova(bird.gam5, bird.gam6, test = "F")  
+```
+
+Both AIC and the $F$-test suggest that the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE ($F_{3,48} = 3.38, p = 0.026$).
+
+As a final note, Zuur et al. (p.550) observe that "the non-linear L.AREA effect is mainly due to two large patches. It would be useful to sample more of this type of patch in the future."  (Note the rug plots in any of the plots of the area effect above.)

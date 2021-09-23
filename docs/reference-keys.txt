@@ -17,6 +17,6 @@ computations-with-conjugate-priors
 jags-in-r
 rstanarm
 smooth-regression
-lowess-smoothers
+loess-smoothers
 splines
-additive-models
+generalized-additive-models-gams
