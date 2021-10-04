@@ -20,3 +20,4 @@ smooth-regression
 loess-smoothers
 splines
 generalized-additive-models-gams
+generalized-least-squares

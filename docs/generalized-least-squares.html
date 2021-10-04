@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 5 Generalized Least Squares | Computing companion for BMA / ST 590, Fall 2021</title>
+  <meta name="description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 5 Generalized Least Squares | Computing companion for BMA / ST 590, Fall 2021" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  <meta name="github-repo" content="krgross/bma590-course-notes" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 5 Generalized Least Squares | Computing companion for BMA / ST 590, Fall 2021" />
+  
+  <meta name="twitter:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  
+
+<meta name="author" content="Kevin Gross" />
+
+
+<meta name="date" content="2021-10-04" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="smooth-regression.html"/>
+
+<script src="libs/header-attrs-2.9/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html"><i class="fa fa-check"></i><b>1</b> Maximum likelihood estimation</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#a-very-simple-example-with-a-single-observation"><i class="fa fa-check"></i><b>1.1</b> A very simple example with a single observation</a></li>
+<li class="chapter" data-level="1.2" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#horse-kick-data"><i class="fa fa-check"></i><b>1.2</b> Horse-kick data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#calculate-and-plot-the-log-likelihood-function"><i class="fa fa-check"></i><b>1.2.1</b> Calculate and plot the log-likelihood function</a></li>
+<li class="chapter" data-level="1.2.2" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#find-the-mle-numerically-using-optimize"><i class="fa fa-check"></i><b>1.2.2</b> Find the MLE numerically using ‘optimize’</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#myxomatosis-data"><i class="fa fa-check"></i><b>1.3</b> Myxomatosis data</a></li>
+<li class="chapter" data-level="1.4" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><i class="fa fa-check"></i><b>2</b> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#confidence-intervals-for-single-parameters"><i class="fa fa-check"></i><b>2.1</b> Confidence intervals for single parameters</a></li>
+<li class="chapter" data-level="2.2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#two-param-mle"><i class="fa fa-check"></i><b>2.2</b> Confidence regions, profile likelihoods, and associated univariate intervals</a></li>
+<li class="chapter" data-level="2.3" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#locally-quadratic-approximations-to-confidence-intervals-and-regions"><i class="fa fa-check"></i><b>2.3</b> Locally quadratic approximations to confidence intervals and regions</a></li>
+<li class="chapter" data-level="2.4" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#comparing-models-likelihood-ratio-test-and-aic"><i class="fa fa-check"></i><b>2.4</b> Comparing models: Likelihood ratio test and AIC</a></li>
+<li class="chapter" data-level="2.5" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#transformable-constraints"><i class="fa fa-check"></i><b>2.5</b> Transformable constraints</a></li>
+<li class="chapter" data-level="2.6" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#the-negative-binomial-distriution-revisited"><i class="fa fa-check"></i><b>2.6</b> The negative binomial distriution, revisited</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="bayesian-computation.html"><a href="bayesian-computation.html"><i class="fa fa-check"></i><b>3</b> Bayesian computation</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="bayesian-computation.html"><a href="bayesian-computation.html#computations-with-conjugate-priors"><i class="fa fa-check"></i><b>3.1</b> Computations with conjugate priors</a></li>
+<li class="chapter" data-level="3.2" data-path="bayesian-computation.html"><a href="bayesian-computation.html#jags-in-r"><i class="fa fa-check"></i><b>3.2</b> JAGS in R</a></li>
+<li class="chapter" data-level="3.3" data-path="bayesian-computation.html"><a href="bayesian-computation.html#rstanarm"><i class="fa fa-check"></i><b>3.3</b> rstanarm</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="smooth-regression.html"><a href="smooth-regression.html"><i class="fa fa-check"></i><b>4</b> Smooth regression</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="smooth-regression.html"><a href="smooth-regression.html#loess-smoothers"><i class="fa fa-check"></i><b>4.1</b> Loess smoothers</a></li>
+<li class="chapter" data-level="4.2" data-path="smooth-regression.html"><a href="smooth-regression.html#splines"><i class="fa fa-check"></i><b>4.2</b> Splines</a></li>
+<li class="chapter" data-level="4.3" data-path="smooth-regression.html"><a href="smooth-regression.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html"><i class="fa fa-check"></i><b>5</b> Generalized Least Squares</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Computing companion for BMA / ST 590, Fall 2021</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="generalized-least-squares" class="section level1" number="5">
+<h1><span class="header-section-number">Chapter 5</span> Generalized Least Squares</h1>
+<p>We will illustrate generalized least squares (GLS) using a data set that gives the percentage of male births for four countries (Canada, Denmark, the Netherlands, and the US) for several decades in the late twentieth century. The data were originally reported in Davis et al., JAMA 279:1018–1023 (1998). The data set that we will work with was scraped from this publication by Ramsey and Schafer for their book “The Statistical Sleuth” (2e, 2002). The data can be found as the data set ‘ex0726’ in the r library ‘sleuth2.’ We will begin by reading the data and performing some housekeeping.</p>
+<div class="sourceCode" id="cb315"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb315-1"><a href="generalized-least-squares.html#cb315-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--------------------</span></span>
+<span id="cb315-2"><a href="generalized-least-squares.html#cb315-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Ex 07.26 from the Statistical Sleuth, 2e</span></span>
+<span id="cb315-3"><a href="generalized-least-squares.html#cb315-3" aria-hidden="true" tabindex="-1"></a><span class="co">#--------------------</span></span>
+<span id="cb315-4"><a href="generalized-least-squares.html#cb315-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb315-5"><a href="generalized-least-squares.html#cb315-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Sleuth2)</span></code></pre></div>
+<pre><code>## Warning: package &#39;Sleuth2&#39; was built under R version 4.1.1</code></pre>
+<div class="sourceCode" id="cb317"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb317-1"><a href="generalized-least-squares.html#cb317-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(ex0726)</span></code></pre></div>
+<pre><code>## &#39;data.frame&#39;:    45 obs. of  5 variables:
+##  $ Year       : num  1950 1951 1952 1953 1954 ...
+##  $ Denmark    : num  0.512 0.517 0.515 0.517 0.515 ...
+##  $ Netherlands: num  0.516 0.516 0.516 0.516 0.516 ...
+##  $ Canada     : num  NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN ...
+##  $ Usa        : num  NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN ...</code></pre>
+<div class="sourceCode" id="cb319"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb319-1"><a href="generalized-least-squares.html#cb319-1" aria-hidden="true" tabindex="-1"></a>births <span class="ot">&lt;-</span> ex0726</span>
+<span id="cb319-2"><a href="generalized-least-squares.html#cb319-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb319-3"><a href="generalized-least-squares.html#cb319-3" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(reshape2)</span></code></pre></div>
+<pre><code>## Loading required package: reshape2</code></pre>
+<div class="sourceCode" id="cb321"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb321-1"><a href="generalized-least-squares.html#cb321-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(births) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span>, <span class="st">&quot;DK&quot;</span>, <span class="st">&quot;NL&quot;</span>, <span class="st">&quot;CA&quot;</span>, <span class="st">&quot;US&quot;</span>)</span>
+<span id="cb321-2"><a href="generalized-least-squares.html#cb321-2" aria-hidden="true" tabindex="-1"></a>births.melt <span class="ot">&lt;-</span> <span class="fu">melt</span>(births, <span class="at">id.vars =</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span>))</span>
+<span id="cb321-3"><a href="generalized-least-squares.html#cb321-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb321-4"><a href="generalized-least-squares.html#cb321-4" aria-hidden="true" tabindex="-1"></a>births <span class="ot">&lt;-</span> births.melt</span>
+<span id="cb321-5"><a href="generalized-least-squares.html#cb321-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(births.melt)</span>
+<span id="cb321-6"><a href="generalized-least-squares.html#cb321-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb321-7"><a href="generalized-least-squares.html#cb321-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(births) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span>, <span class="st">&quot;country&quot;</span>, <span class="st">&quot;pct.male&quot;</span>)</span>
+<span id="cb321-8"><a href="generalized-least-squares.html#cb321-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb321-9"><a href="generalized-least-squares.html#cb321-9" aria-hidden="true" tabindex="-1"></a>births<span class="sc">$</span>pct.male <span class="ot">&lt;-</span> <span class="dv">100</span> <span class="sc">*</span> births<span class="sc">$</span>pct.male</span></code></pre></div>
+<p>We will focus only on the years 1970 – 1990, for which data are available for all countries:</p>
+<div class="sourceCode" id="cb322"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb322-1"><a href="generalized-least-squares.html#cb322-1" aria-hidden="true" tabindex="-1"></a>births <span class="ot">&lt;-</span> <span class="fu">subset</span>(births, year <span class="sc">&gt;=</span> <span class="dv">1970</span> <span class="sc">&amp;</span> year <span class="sc">&lt;=</span> <span class="dv">1990</span>)</span>
+<span id="cb322-2"><a href="generalized-least-squares.html#cb322-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(births)</span></code></pre></div>
+<pre><code>##       year      country    pct.male    
+##  Min.   :1970   DK:21   Min.   :50.87  
+##  1st Qu.:1975   NL:21   1st Qu.:51.22  
+##  Median :1980   CA:21   Median :51.28  
+##  Mean   :1980   US:21   Mean   :51.30  
+##  3rd Qu.:1985           3rd Qu.:51.38  
+##  Max.   :1990           Max.   :51.73</code></pre>
+<div class="sourceCode" id="cb324"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb324-1"><a href="generalized-least-squares.html#cb324-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(births)</span></code></pre></div>
+<pre><code>##    year country pct.male
+## 21 1970      DK    51.40
+## 22 1971      DK    51.70
+## 23 1972      DK    51.26
+## 24 1973      DK    51.33
+## 25 1974      DK    51.27
+## 26 1975      DK    51.08</code></pre>
+<p>Let’s have a look at the time trends in percentage male births in each of the four countries:</p>
+<div class="sourceCode" id="cb326"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb326-1"><a href="generalized-least-squares.html#cb326-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">las =</span> <span class="dv">1</span>)</span>
+<span id="cb326-2"><a href="generalized-least-squares.html#cb326-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb326-3"><a href="generalized-least-squares.html#cb326-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Canada&quot;</span>))</span>
+<span id="cb326-4"><a href="generalized-least-squares.html#cb326-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;CA&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb326-5"><a href="generalized-least-squares.html#cb326-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb326-6"><a href="generalized-least-squares.html#cb326-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;USA&quot;</span>))</span>
+<span id="cb326-7"><a href="generalized-least-squares.html#cb326-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;US&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb326-8"><a href="generalized-least-squares.html#cb326-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb326-9"><a href="generalized-least-squares.html#cb326-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Denmark&quot;</span>))</span>
+<span id="cb326-10"><a href="generalized-least-squares.html#cb326-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;DK&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb326-11"><a href="generalized-least-squares.html#cb326-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb326-12"><a href="generalized-least-squares.html#cb326-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Netherlands&quot;</span>))</span>
+<span id="cb326-13"><a href="generalized-least-squares.html#cb326-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;NL&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>For these data, we might want to ask: Is there evidence that the percentage of male births is changing through time? If so, does the rate of change differ among countries? Among continents?</p>
+<p>These are the types of questions that we would usually address with a regression model. However, there’s a lot going on with these data that would cause us to question the appropriateness of the usual ordinary least squares (OLS) assumptions.</p>
+<ol style="list-style-type: decimal">
+<li><p>The responses are proportions. We know that when the response is a proportion, the variance in the response depends on the mean, with the variance decreasing as the mean approaches 0% or 100%, and obtaining its maximal value when the mean response is at 50%. For these data, however, all of the responses are sufficiently close to 50% that we don’t need to worry about heterogeneous variances that arise from the proportional nature of the response.</p></li>
+<li><p>The variance of the response also depends inversely on the number of births. Evidently, this will be a major issue, because these countries differ substantially in the sizes of their populations. If we knew the number of births in each country in each year (in other words, if we knew the denominator of the each data point), then could account for these differences using grouped logistic regression. However, the data as we have them do not contain any information about the number of births that underlie each data point. So, we will need a different approach to deal with the heterogeneous variances among countries.</p></li>
+<li><p>The data are time series. We will devote our attention to time-series data more fully later in the course. For now, it suffices to realize that time series data are typically autocorrelated. In other words, the residual errors for consecutive data points are often correlated (and usually positively correlated), and this correlation typically decays as the time between data points increases. For these data, it is less clear why the errors might be autocorrelated, but we want to allow for the possibility all the same.</p></li>
+</ol>
+<p>We’ll regress the percentage of male births on year and country. Following Zuur et al.’s good advice, we’ll begin with a model with richly specified fixed effects. In this case, that means country specific intercepts and slopes. In an equation, this model is
+<span class="math display">\[\begin{equation}
+y_{it} = a_i + b_i x_{it} + \varepsilon_{it}
+\end{equation}\]</span>
+where <span class="math inline">\(i = 1, \ldots, 4\)</span> is an index that distinguishes among the four countries, and <span class="math inline">\(t = 1, \ldots, 21\)</span> is an index that distinguishes among the 21 years. The response <span class="math inline">\(y_{it}\)</span> is the percentage of male births in country <span class="math inline">\(i\)</span> in year <span class="math inline">\(t\)</span>, <span class="math inline">\(x_{it}\)</span> is the year to which measurement <span class="math inline">\(y_{it}\)</span> corresponds, the <span class="math inline">\(a_i\)</span> are the country-specific intercepts, the <span class="math inline">\(b_i\)</span> are the country-specific slopes, and the <span class="math inline">\(\varepsilon_{it}\)</span>’s are the errors. To begin, we make the usual OLS assumption that the errors are iid, that is, <span class="math inline">\(\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2_\varepsilon)\)</span>.</p>
+<div class="sourceCode" id="cb327"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb327-1"><a href="generalized-least-squares.html#cb327-1" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">with</span>(births, <span class="fu">lm</span>(pct.male <span class="sc">~</span> year <span class="sc">*</span> country))</span>
+<span id="cb327-2"><a href="generalized-least-squares.html#cb327-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = pct.male ~ year * country)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.30707 -0.05931  0.00100  0.04787  0.35314 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)    49.6995238  9.0048249   5.519 4.53e-07 ***
+## year            0.0008442  0.0045479   0.186   0.8532    
+## countryNL      14.4252381 12.7347455   1.133   0.2609    
+## countryCA      23.6790476 12.7347455   1.859   0.0668 .  
+## countryUS      12.3090476 12.7347455   0.967   0.3368    
+## year:countryNL -0.0073636  0.0064317  -1.145   0.2558    
+## year:countryCA -0.0119610  0.0064317  -1.860   0.0668 .  
+## year:countryUS -0.0062727  0.0064317  -0.975   0.3325    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1262 on 76 degrees of freedom
+## Multiple R-squared:  0.3052, Adjusted R-squared:  0.2412 
+## F-statistic: 4.768 on 7 and 76 DF,  p-value: 0.0001753</code></pre>
+<p>Inconveniently, the intercepts here refer to the percentage of male births extrapolated back to the year 1 BCE. That’s not very useful, so we’ll center the year predictor. Now, the predictor <span class="math inline">\(x_{it}\)</span> will refer to the number of years before or after 1980, and the intercepts will give the fitted percentage of male births in the year 1980.</p>
+<div class="sourceCode" id="cb329"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb329-1"><a href="generalized-least-squares.html#cb329-1" aria-hidden="true" tabindex="-1"></a>births<span class="sc">$</span>yr.ctr <span class="ot">&lt;-</span> births<span class="sc">$</span>year <span class="sc">-</span> <span class="dv">1980</span></span>
+<span id="cb329-2"><a href="generalized-least-squares.html#cb329-2" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">with</span>(births, <span class="fu">lm</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">*</span> country))</span>
+<span id="cb329-3"><a href="generalized-least-squares.html#cb329-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = pct.male ~ yr.ctr * country)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.30707 -0.05931  0.00100  0.04787  0.35314 
+## 
+## Coefficients:
+##                    Estimate Std. Error  t value Pr(&gt;|t|)    
+## (Intercept)      51.3709524  0.0275387 1865.408  &lt; 2e-16 ***
+## yr.ctr            0.0008442  0.0045479    0.186  0.85324    
+## countryNL        -0.1547619  0.0389456   -3.974  0.00016 ***
+## countryCA        -0.0038095  0.0389456   -0.098  0.92234    
+## countryUS        -0.1109524  0.0389456   -2.849  0.00564 ** 
+## yr.ctr:countryNL -0.0073636  0.0064317   -1.145  0.25584    
+## yr.ctr:countryCA -0.0119610  0.0064317   -1.860  0.06680 .  
+## yr.ctr:countryUS -0.0062727  0.0064317   -0.975  0.33251    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1262 on 76 degrees of freedom
+## Multiple R-squared:  0.3052, Adjusted R-squared:  0.2412 
+## F-statistic: 4.768 on 7 and 76 DF,  p-value: 0.0001753</code></pre>
+<p>Let’s plot the percentage of male births vs. year for each country, and overlay the fit of regression lines. To make it easy to extract the country-specific slopes and intercepts, we’ll first re-fit the model without the global intercept:</p>
+<div class="sourceCode" id="cb331"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb331-1"><a href="generalized-least-squares.html#cb331-1" aria-hidden="true" tabindex="-1"></a>fm1a <span class="ot">&lt;-</span> <span class="fu">with</span>(births, <span class="fu">lm</span>(pct.male <span class="sc">~</span> country <span class="sc">+</span> yr.ctr<span class="sc">:</span>country<span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb331-2"><a href="generalized-least-squares.html#cb331-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm1a)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = pct.male ~ country + yr.ctr:country - 1)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.30707 -0.05931  0.00100  0.04787  0.35314 
+## 
+## Coefficients:
+##                    Estimate Std. Error  t value Pr(&gt;|t|)    
+## countryDK        51.3709524  0.0275387 1865.408   &lt;2e-16 ***
+## countryNL        51.2161905  0.0275387 1859.788   &lt;2e-16 ***
+## countryCA        51.3671429  0.0275387 1865.270   &lt;2e-16 ***
+## countryUS        51.2600000  0.0275387 1861.379   &lt;2e-16 ***
+## countryDK:yr.ctr  0.0008442  0.0045479    0.186   0.8532    
+## countryNL:yr.ctr -0.0065195  0.0045479   -1.434   0.1558    
+## countryCA:yr.ctr -0.0111169  0.0045479   -2.444   0.0168 *  
+## countryUS:yr.ctr -0.0054286  0.0045479   -1.194   0.2363    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1262 on 76 degrees of freedom
+## Multiple R-squared:      1,  Adjusted R-squared:      1 
+## F-statistic: 1.735e+06 on 8 and 76 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>There’s probably a more elegant way to extract the slope and intercept, but we’ll use the crude approach for now.</p>
+<div class="sourceCode" id="cb333"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb333-1"><a href="generalized-least-squares.html#cb333-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">las =</span> <span class="dv">1</span>)</span>
+<span id="cb333-2"><a href="generalized-least-squares.html#cb333-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb333-3"><a href="generalized-least-squares.html#cb333-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Canada&quot;</span>))</span>
+<span id="cb333-4"><a href="generalized-least-squares.html#cb333-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;CA&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb333-5"><a href="generalized-least-squares.html#cb333-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb333-6"><a href="generalized-least-squares.html#cb333-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fl">51.3671</span> <span class="sc">-</span> (<span class="sc">-</span><span class="fl">0.01112</span> <span class="sc">*</span> <span class="dv">1980</span>), <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.01112</span>)</span>
+<span id="cb333-7"><a href="generalized-least-squares.html#cb333-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb333-8"><a href="generalized-least-squares.html#cb333-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;USA&quot;</span>))</span>
+<span id="cb333-9"><a href="generalized-least-squares.html#cb333-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;US&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb333-10"><a href="generalized-least-squares.html#cb333-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb333-11"><a href="generalized-least-squares.html#cb333-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fl">51.26</span> <span class="sc">-</span> (<span class="sc">-</span><span class="fl">0.0054286</span> <span class="sc">*</span> <span class="dv">1980</span>), <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.0054286</span>)</span>
+<span id="cb333-12"><a href="generalized-least-squares.html#cb333-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb333-13"><a href="generalized-least-squares.html#cb333-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Denmark&quot;</span>))</span>
+<span id="cb333-14"><a href="generalized-least-squares.html#cb333-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;DK&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb333-15"><a href="generalized-least-squares.html#cb333-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb333-16"><a href="generalized-least-squares.html#cb333-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fl">51.3709</span> <span class="sc">-</span> (<span class="fl">0.0008442</span> <span class="sc">*</span> <span class="dv">1980</span>), <span class="at">b =</span> <span class="fl">0.0008442</span>)</span>
+<span id="cb333-17"><a href="generalized-least-squares.html#cb333-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb333-18"><a href="generalized-least-squares.html#cb333-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Netherlands&quot;</span>))</span>
+<span id="cb333-19"><a href="generalized-least-squares.html#cb333-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;NL&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb333-20"><a href="generalized-least-squares.html#cb333-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb333-21"><a href="generalized-least-squares.html#cb333-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fl">51.2162</span> <span class="sc">-</span> (<span class="sc">-</span><span class="fl">0.00652</span> <span class="sc">*</span> <span class="dv">1980</span>), <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.0065195</span>)</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>We would like to draw inferences about the time and country effects. However, the error variance clearly differs among the countries, because of the different sizes of the countries’ populations. Thus, we can’t trust the usual inference procedures that assume iid errors.</p>
+<p>We will cope by fitting a GLS model that allows the error variances to differ among the countries. The model equation is nearly the same as above:
+<span class="math display">\[\begin{equation}
+y_{it} = a_i + b_i x_{it} + \varepsilon_{it}.
+\end{equation}\]</span>
+The only difference is that now we assume that the variance of the errors differs among the countries: <span class="math inline">\(\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2_{\varepsilon, i})\)</span>. This change looks trivial in the notation, but it’s an important change to the model!</p>
+<div class="sourceCode" id="cb334"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb334-1"><a href="generalized-least-squares.html#cb334-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(nlme)</span></code></pre></div>
+<pre><code>## Loading required package: nlme</code></pre>
+<div class="sourceCode" id="cb336"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb336-1"><a href="generalized-least-squares.html#cb336-1" aria-hidden="true" tabindex="-1"></a>gls1 <span class="ot">&lt;-</span> <span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">*</span> country, <span class="at">data =</span> births, <span class="at">weights =</span> <span class="fu">varIdent</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> country))</span>
+<span id="cb336-2"><a href="generalized-least-squares.html#cb336-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gls1)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by REML
+##   Model: pct.male ~ yr.ctr * country 
+##   Data: births 
+##         AIC       BIC   logLik
+##   -94.69995 -66.73115 59.34998
+## 
+## Variance function:
+##  Structure: Different standard deviations per stratum
+##  Formula: ~1 | country 
+##  Parameter estimates:
+##        DK        NL        CA        US 
+## 1.0000000 0.7264997 0.3971729 0.1347962 
+## 
+## Coefficients:
+##                     Value  Std.Error   t-value p-value
+## (Intercept)      51.37095 0.04219635 1217.4264  0.0000
+## yr.ctr            0.00084 0.00696850    0.1211  0.9039
+## countryNL        -0.15476 0.05215650   -2.9673  0.0040
+## countryCA        -0.00381 0.04540269   -0.0839  0.9334
+## countryUS        -0.11095 0.04257798   -2.6059  0.0110
+## yr.ctr:countryNL -0.00736 0.00861336   -0.8549  0.3953
+## yr.ctr:countryCA -0.01196 0.00749801   -1.5952  0.1148
+## yr.ctr:countryUS -0.00627 0.00703152   -0.8921  0.3752
+## 
+##  Correlation: 
+##                  (Intr) yr.ctr cntrNL cntrCA cntrUS yr.:NL yr.:CA
+## yr.ctr            0.000                                          
+## countryNL        -0.809  0.000                                   
+## countryCA        -0.929  0.000  0.752                            
+## countryUS        -0.991  0.000  0.802  0.921                     
+## yr.ctr:countryNL  0.000 -0.809  0.000  0.000  0.000              
+## yr.ctr:countryCA  0.000 -0.929  0.000  0.000  0.000  0.752       
+## yr.ctr:countryUS  0.000 -0.991  0.000  0.000  0.000  0.802  0.921
+## 
+## Standardized residuals:
+##         Min          Q1         Med          Q3         Max 
+## -2.18586065 -0.69331439 -0.01165266  0.66706364  1.82625138 
+## 
+## Residual standard error: 0.193368 
+## Degrees of freedom: 84 total; 76 residual</code></pre>
+<p>Notice that the model estimates separate error standard deviations for each country.</p>
+<p>We would like to ask if model with country-specific variances provides a statistically significant improvement in fit relative to the model with homogeneous error variances. Here, it is crucial to remember that the default fitting scheme in <code>nlme::gls</code> is REML. However, because the models share the same fixed-effect structure, we can compare AIC values from the REML fits directly. Further, because the modes are nested, we can use the REML fits for a likelihood ratio test. The <code>anova.gls</code> command provides both.</p>
+<div class="sourceCode" id="cb338"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb338-1"><a href="generalized-least-squares.html#cb338-1" aria-hidden="true" tabindex="-1"></a>gls0 <span class="ot">&lt;-</span> <span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">*</span> country, <span class="at">data =</span> births)  <span class="co"># OLS fit</span></span>
+<span id="cb338-2"><a href="generalized-least-squares.html#cb338-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(gls0, gls1)</span></code></pre></div>
+<pre><code>##      Model df       AIC       BIC   logLik   Test  L.Ratio p-value
+## gls0     1  9 -42.18264 -21.20604 30.09132                        
+## gls1     2 12 -94.69995 -66.73115 59.34998 1 vs 2 58.51731  &lt;.0001</code></pre>
+<p>Both the LRT and the AIC suggest that the GLS model with country-specific variances provides a statistically significant improvement over the OLS model with homogeneous error variances.</p>
+<p>If the fixed-effect structures had not been the same, it would not have been correct to compare the models using the REML fits. Instead, we would have to re-fit the models using ML. For the sake of illustration, let’s do this anyway, and see if and how the results differ.</p>
+<div class="sourceCode" id="cb340"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb340-1"><a href="generalized-least-squares.html#cb340-1" aria-hidden="true" tabindex="-1"></a>gls0.ml <span class="ot">&lt;-</span> <span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">*</span> country, <span class="at">data =</span> births, <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>)</span>
+<span id="cb340-2"><a href="generalized-least-squares.html#cb340-2" aria-hidden="true" tabindex="-1"></a>gls1.ml <span class="ot">&lt;-</span> <span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">*</span> country, <span class="at">data =</span> births, </span>
+<span id="cb340-3"><a href="generalized-least-squares.html#cb340-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">weights =</span> <span class="fu">varIdent</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> country), <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>)</span>
+<span id="cb340-4"><a href="generalized-least-squares.html#cb340-4" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(gls0.ml, gls1.ml)</span></code></pre></div>
+<pre><code>##         Model df        AIC        BIC   logLik   Test  L.Ratio p-value
+## gls0.ml     1  9  -99.76871  -77.89136 58.88435                        
+## gls1.ml     2 12 -158.44573 -129.27593 91.22287 1 vs 2 64.67702  &lt;.0001</code></pre>
+<p>Interestingly, we do get somewhat different numerical results based on the ML fit, even though the qualitative outcome of the test is unchanged (the model with country-specific variances is still strongly favored). I don’t understand quite why these results differ.</p>
+<p>In any event, we can also compare the variance estimates from the ML fit to those from the REML fit.</p>
+<div class="sourceCode" id="cb342"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb342-1"><a href="generalized-least-squares.html#cb342-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gls1.ml)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by maximum likelihood
+##   Model: pct.male ~ yr.ctr * country 
+##   Data: births 
+##         AIC       BIC   logLik
+##   -158.4457 -129.2759 91.22287
+## 
+## Variance function:
+##  Structure: Different standard deviations per stratum
+##  Formula: ~1 | country 
+##  Parameter estimates:
+##        DK        NL        CA        US 
+## 1.0000000 0.7264998 0.3971729 0.1347962 
+## 
+## Coefficients:
+##                     Value  Std.Error   t-value p-value
+## (Intercept)      51.37095 0.04219635 1217.4265  0.0000
+## yr.ctr            0.00084 0.00696850    0.1211  0.9039
+## countryNL        -0.15476 0.05215649   -2.9673  0.0040
+## countryCA        -0.00381 0.04540269   -0.0839  0.9334
+## countryUS        -0.11095 0.04257798   -2.6059  0.0110
+## yr.ctr:countryNL -0.00736 0.00861336   -0.8549  0.3953
+## yr.ctr:countryCA -0.01196 0.00749801   -1.5952  0.1148
+## yr.ctr:countryUS -0.00627 0.00703152   -0.8921  0.3752
+## 
+##  Correlation: 
+##                  (Intr) yr.ctr cntrNL cntrCA cntrUS yr.:NL yr.:CA
+## yr.ctr            0.000                                          
+## countryNL        -0.809  0.000                                   
+## countryCA        -0.929  0.000  0.752                            
+## countryUS        -0.991  0.000  0.802  0.921                     
+## yr.ctr:countryNL  0.000 -0.809  0.000  0.000  0.000              
+## yr.ctr:countryCA  0.000 -0.929  0.000  0.000  0.000  0.752       
+## yr.ctr:countryUS  0.000 -0.991  0.000  0.000  0.000  0.802  0.921
+## 
+## Standardized residuals:
+##         Min          Q1         Med          Q3         Max 
+## -2.29802805 -0.72889177 -0.01225061  0.70129396  1.91996552 
+## 
+## Residual standard error: 0.1839296 
+## Degrees of freedom: 84 total; 76 residual</code></pre>
+<p>Note that the estimate of the residual standard deviation (mislabeled as the “residual standard error” in the R output) is smaller for the ML fit than for the REML fit, as we expect.</p>
+<p>To continue, we can also fit a first-order autoregressive correlation structure to the residual errors within each country. Here, because the data are evenly spaced and are already sorted in the data set, it’s simple to add the within country autocorrelation. To write this model as an equation, the fixed-effect specification remains unchanged:
+<span class="math display">\[\begin{equation}
+y_{it} = a_i + b_i x_{it} + \varepsilon_{it}.
+\end{equation}\]</span>
+The marginal distribution of the errors is also unchanged: <span class="math inline">\(\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2_{\varepsilon, i})\)</span>. However, the within-country errors are now correlated:
+<span class="math display">\[\begin{equation}
+\mathrm{Corr}(\varepsilon_{it_1}, \varepsilon_{jt_2}) = \begin{cases} \rho^{|t_1 - t_2|} &amp; i = j \\ 0 &amp; i \neq j \end{cases}
+\end{equation}\]</span></p>
+<div class="sourceCode" id="cb344"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb344-1"><a href="generalized-least-squares.html#cb344-1" aria-hidden="true" tabindex="-1"></a>gls2 <span class="ot">&lt;-</span> <span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">*</span> country, <span class="at">data =</span> births, <span class="at">weights =</span> <span class="fu">varIdent</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> country),</span>
+<span id="cb344-2"><a href="generalized-least-squares.html#cb344-2" aria-hidden="true" tabindex="-1"></a>                                                        <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> country))</span>
+<span id="cb344-3"><a href="generalized-least-squares.html#cb344-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gls2)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by REML
+##   Model: pct.male ~ yr.ctr * country 
+##   Data: births 
+##         AIC       BIC   logLik
+##   -93.01222 -62.71269 59.50611
+## 
+## Correlation Structure: AR(1)
+##  Formula: ~1 | country 
+##  Parameter estimate(s):
+##        Phi 
+## 0.07081999 
+## Variance function:
+##  Structure: Different standard deviations per stratum
+##  Formula: ~1 | country 
+##  Parameter estimates:
+##        DK        NL        CA        US 
+## 1.0000000 0.7416576 0.4009707 0.1338036 
+## 
+## Coefficients:
+##                     Value  Std.Error   t-value p-value
+## (Intercept)      51.37134 0.04520738 1136.3485  0.0000
+## yr.ctr            0.00088 0.00741198    0.1187  0.9058
+## countryNL        -0.15484 0.05628375   -2.7510  0.0074
+## countryCA        -0.00385 0.04870616   -0.0791  0.9371
+## countryUS        -0.11127 0.04561027   -2.4396  0.0170
+## yr.ctr:countryNL -0.00713 0.00922801   -0.7727  0.4421
+## yr.ctr:countryCA -0.01188 0.00798562   -1.4872  0.1411
+## yr.ctr:countryUS -0.00634 0.00747803   -0.8481  0.3991
+## 
+##  Correlation: 
+##                  (Intr) yr.ctr cntrNL cntrCA cntrUS yr.:NL yr.:CA
+## yr.ctr            0.000                                          
+## countryNL        -0.803  0.000                                   
+## countryCA        -0.928  0.000  0.746                            
+## countryUS        -0.991  0.000  0.796  0.920                     
+## yr.ctr:countryNL  0.000 -0.803  0.000  0.000  0.000              
+## yr.ctr:countryCA  0.000 -0.928  0.000  0.000  0.000  0.746       
+## yr.ctr:countryUS  0.000 -0.991  0.000  0.000  0.000  0.796  0.920
+## 
+## Standardized residuals:
+##         Min          Q1         Med          Q3         Max 
+## -2.15117284 -0.70400508 -0.02488282  0.66159775  1.82002883 
+## 
+## Residual standard error: 0.1936784 
+## Degrees of freedom: 84 total; 76 residual</code></pre>
+<p>The estimate of the within-country correlation is small: only 0.071. The model with autocorrelated errors is nested within the model with heterogeneous variances, and both have the same fixed-effect structure, so we can compare the two REML fits directly:</p>
+<div class="sourceCode" id="cb346"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb346-1"><a href="generalized-least-squares.html#cb346-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(gls1, gls2)</span></code></pre></div>
+<pre><code>##      Model df       AIC       BIC   logLik   Test   L.Ratio p-value
+## gls1     1 12 -94.69995 -66.73115 59.34998                         
+## gls2     2 13 -93.01222 -62.71269 59.50611 1 vs 2 0.3122685  0.5763</code></pre>
+<p>By either AIC or the LRT, the model with the autocorrelated errors does not provide a statistically significant improvement in fit.</p>
+<p>We can now use the model with heterogeneous variances and independent errors to conduct the usual inferences on the fixed effects. Because we now compare models with different fixed-effect structures, we must work on the ML fits. Let’s start with a model that removes the interaction between time and country. The fixed-effects component of this model is:
+<span class="math display">\[\begin{equation}
+y_{it} = a_i + b x_{it} + \varepsilon_{it}.
+\end{equation}\]</span>
+In other words, there is a common slope among the countries.</p>
+<div class="sourceCode" id="cb348"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb348-1"><a href="generalized-least-squares.html#cb348-1" aria-hidden="true" tabindex="-1"></a>gls3.ml <span class="ot">&lt;-</span> <span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">+</span> country, <span class="at">data =</span> births, <span class="at">weights =</span> <span class="fu">varIdent</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> country),</span>
+<span id="cb348-2"><a href="generalized-least-squares.html#cb348-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>)</span>
+<span id="cb348-3"><a href="generalized-least-squares.html#cb348-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gls3.ml)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by maximum likelihood
+##   Model: pct.male ~ yr.ctr + country 
+##   Data: births 
+##         AIC       BIC  logLik
+##   -159.5456 -137.6682 88.7728
+## 
+## Variance function:
+##  Structure: Different standard deviations per stratum
+##  Formula: ~1 | country 
+##  Parameter estimates:
+##        DK        NL        CA        US 
+## 1.0000000 0.7098035 0.4232237 0.1323319 
+## 
+## Coefficients:
+##                Value  Std.Error   t-value p-value
+## (Intercept) 51.37095 0.04238044 1212.1383  0.0000
+## yr.ctr      -0.00585 0.00086365   -6.7731  0.0000
+## countryNL   -0.15476 0.05197129   -2.9778  0.0039
+## countryCA   -0.00381 0.04601974   -0.0828  0.9342
+## countryUS   -0.11095 0.04274991   -2.5954  0.0113
+## 
+##  Correlation: 
+##           (Intr) yr.ctr cntrNL cntrCA
+## yr.ctr     0.000                     
+## countryNL -0.815  0.000              
+## countryCA -0.921  0.000  0.751       
+## countryUS -0.991  0.000  0.808  0.913
+## 
+## Standardized residuals:
+##         Min          Q1         Med          Q3         Max 
+## -2.32703514 -0.72533260  0.03426803  0.82167128  2.12375960 
+## 
+## Residual standard error: 0.1883428 
+## Degrees of freedom: 84 total; 79 residual</code></pre>
+<div class="sourceCode" id="cb350"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb350-1"><a href="generalized-least-squares.html#cb350-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(gls3.ml, gls1.ml)</span></code></pre></div>
+<pre><code>##         Model df       AIC       BIC   logLik   Test  L.Ratio p-value
+## gls3.ml     1  9 -159.5456 -137.6683 88.77280                        
+## gls1.ml     2 12 -158.4457 -129.2759 91.22287 1 vs 2 4.900132  0.1793</code></pre>
+<p>Both AIC and the LRT favor a model with a common slope. Let’s go further to see if the intercepts differ among the countries. In other words, we can entertain the model
+<span class="math display">\[\begin{equation}
+y_{it} = a + b x_{it} + \varepsilon_{it}.
+\end{equation}\]</span></p>
+<div class="sourceCode" id="cb352"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb352-1"><a href="generalized-least-squares.html#cb352-1" aria-hidden="true" tabindex="-1"></a>gls4.ml <span class="ot">&lt;-</span> <span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr, <span class="at">data =</span> births, <span class="at">weights =</span> <span class="fu">varIdent</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> country),</span>
+<span id="cb352-2"><a href="generalized-least-squares.html#cb352-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">method =</span> <span class="st">&quot;ML&quot;</span>)</span>
+<span id="cb352-3"><a href="generalized-least-squares.html#cb352-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gls4.ml)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by maximum likelihood
+##   Model: pct.male ~ yr.ctr 
+##   Data: births 
+##         AIC       BIC  logLik
+##   -136.0564 -121.4715 74.0282
+## 
+## Variance function:
+##  Structure: Different standard deviations per stratum
+##  Formula: ~1 | country 
+##  Parameter estimates:
+##        DK        NL        CA        US 
+## 1.0000000 0.6559361 0.6051854 0.1159404 
+## 
+## Coefficients:
+##                Value   Std.Error  t-value p-value
+## (Intercept) 51.26375 0.005328997 9619.775       0
+## yr.ctr      -0.00558 0.000880055   -6.335       0
+## 
+##  Correlation: 
+##        (Intr)
+## yr.ctr 0     
+## 
+## Standardized residuals:
+##        Min         Q1        Med         Q3        Max 
+## -2.5381850 -0.3580928  0.1883530  0.9250207  2.3348065 
+## 
+## Residual standard error: 0.2164104 
+## Degrees of freedom: 84 total; 82 residual</code></pre>
+<div class="sourceCode" id="cb354"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb354-1"><a href="generalized-least-squares.html#cb354-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(gls4.ml, gls3.ml)</span></code></pre></div>
+<pre><code>##         Model df       AIC       BIC  logLik   Test L.Ratio p-value
+## gls4.ml     1  6 -136.0564 -121.4715 74.0282                       
+## gls3.ml     2  9 -159.5456 -137.6683 88.7728 1 vs 2 29.4892  &lt;.0001</code></pre>
+<p>There is strong evidence that the percentage of male births differs among countries, after accounting for the effect of the temporal trend.</p>
+<p>We can visualize the model by making scatterplots and overlaying fitted regression lines. Having finished with model selection, we’ll revert to the REML fits for final parameter estimation. Again, we’ll use the trick of eliminating the global intercept to make it easier to find the country-specific intercepts.</p>
+<div class="sourceCode" id="cb356"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb356-1"><a href="generalized-least-squares.html#cb356-1" aria-hidden="true" tabindex="-1"></a>gls3a <span class="ot">&lt;-</span> <span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">+</span> country <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> births, <span class="at">weights =</span> <span class="fu">varIdent</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> country))</span>
+<span id="cb356-2"><a href="generalized-least-squares.html#cb356-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gls3a)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by REML
+##   Model: pct.male ~ yr.ctr + country - 1 
+##   Data: births 
+##         AIC       BIC   logLik
+##   -122.7459 -101.4209 70.37297
+## 
+## Variance function:
+##  Structure: Different standard deviations per stratum
+##  Formula: ~1 | country 
+##  Parameter estimates:
+##        DK        NL        CA        US 
+## 1.0000000 0.7099908 0.4237512 0.1352729 
+## 
+## Coefficients:
+##              Value  Std.Error  t-value p-value
+## yr.ctr    -0.00586 0.00087529   -6.700       0
+## countryDK 51.37095 0.04213583 1219.175       0
+## countryNL 51.21619 0.02991605 1711.997       0
+## countryCA 51.36714 0.01785511 2876.888       0
+## countryUS 51.26000 0.00569984 8993.240       0
+## 
+##  Correlation: 
+##           yr.ctr cntrDK cntrNL cntrCA
+## countryDK 0                          
+## countryNL 0      0                   
+## countryCA 0      0      0            
+## countryUS 0      0      0      0     
+## 
+## Standardized residuals:
+##         Min          Q1         Med          Q3         Max 
+## -2.26855290 -0.70087717  0.03371643  0.79968075  2.07209002 
+## 
+## Residual standard error: 0.1930906 
+## Degrees of freedom: 84 total; 79 residual</code></pre>
+<div class="sourceCode" id="cb358"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb358-1"><a href="generalized-least-squares.html#cb358-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">las =</span> <span class="dv">1</span>)</span>
+<span id="cb358-2"><a href="generalized-least-squares.html#cb358-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb358-3"><a href="generalized-least-squares.html#cb358-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Canada&quot;</span>))</span>
+<span id="cb358-4"><a href="generalized-least-squares.html#cb358-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;CA&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb358-5"><a href="generalized-least-squares.html#cb358-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb358-6"><a href="generalized-least-squares.html#cb358-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fl">51.3671</span> <span class="sc">+</span> <span class="fl">0.00586</span> <span class="sc">*</span> <span class="dv">1980</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.00586</span>)</span>
+<span id="cb358-7"><a href="generalized-least-squares.html#cb358-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb358-8"><a href="generalized-least-squares.html#cb358-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;USA&quot;</span>))</span>
+<span id="cb358-9"><a href="generalized-least-squares.html#cb358-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;US&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb358-10"><a href="generalized-least-squares.html#cb358-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb358-11"><a href="generalized-least-squares.html#cb358-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fl">51.26</span> <span class="sc">+</span> <span class="fl">0.00586</span> <span class="sc">*</span> <span class="dv">1980</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.00586</span>)</span>
+<span id="cb358-12"><a href="generalized-least-squares.html#cb358-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb358-13"><a href="generalized-least-squares.html#cb358-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Denmark&quot;</span>))</span>
+<span id="cb358-14"><a href="generalized-least-squares.html#cb358-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;DK&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb358-15"><a href="generalized-least-squares.html#cb358-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb358-16"><a href="generalized-least-squares.html#cb358-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fl">51.371</span> <span class="sc">+</span> <span class="fl">0.00586</span> <span class="sc">*</span> <span class="dv">1980</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.00586</span>)</span>
+<span id="cb358-17"><a href="generalized-least-squares.html#cb358-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb358-18"><a href="generalized-least-squares.html#cb358-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(births, <span class="fu">plot</span>(pct.male <span class="sc">~</span> year, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;percent male&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Netherlands&quot;</span>))</span>
+<span id="cb358-19"><a href="generalized-least-squares.html#cb358-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">subset</span>(births, country <span class="sc">==</span> <span class="st">&quot;NL&quot;</span>), <span class="fu">points</span>(pct.male <span class="sc">~</span> year))</span>
+<span id="cb358-20"><a href="generalized-least-squares.html#cb358-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb358-21"><a href="generalized-least-squares.html#cb358-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fl">51.2162</span> <span class="sc">+</span> <span class="fl">0.00586</span> <span class="sc">*</span> <span class="dv">1980</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.00586</span>)</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p>It is interesting to compare the estimate of the slope between the GLS model and the naive OLS fit. In the GLS model, the slope is estimated to be <span class="math inline">\(-0.00586\%\)</span> per year, with a standard error of <span class="math inline">\(8.8 \times 10^{-4}\)</span>. In the OLS fit, the estimate is <span class="math inline">\(-0.00555\%\)</span> per year, with a standard error of <span class="math inline">\(2.8 \times 10^{-3}\)</span>. Thus the GLS fit has substantially improved the precision of the estimate of the temporal trend.</p>
+<div class="sourceCode" id="cb359"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb359-1"><a href="generalized-least-squares.html#cb359-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">gls</span>(pct.male <span class="sc">~</span> yr.ctr <span class="sc">+</span> country, <span class="at">data =</span> births))</span></code></pre></div>
+<pre><code>## Generalized least squares fit by REML
+##   Model: pct.male ~ yr.ctr + country 
+##   Data: births 
+##         AIC      BIC   logLik
+##   -70.12178 -55.9051 41.06089
+## 
+## Coefficients:
+##                Value  Std.Error   t-value p-value
+## (Intercept) 51.37095 0.02762942 1859.2846  0.0000
+## yr.ctr      -0.00556 0.00228142   -2.4350  0.0171
+## countryNL   -0.15476 0.03907390   -3.9607  0.0002
+## countryCA   -0.00381 0.03907390   -0.0975  0.9226
+## countryUS   -0.11095 0.03907390   -2.8396  0.0057
+## 
+##  Correlation: 
+##           (Intr) yr.ctr cntrNL cntrCA
+## yr.ctr     0.000                     
+## countryNL -0.707  0.000              
+## countryCA -0.707  0.000  0.500       
+## countryUS -0.707  0.000  0.500  0.500
+## 
+## Standardized residuals:
+##          Min           Q1          Med           Q3          Max 
+## -2.517325067 -0.553487986  0.009393865  0.508672668  3.142893232 
+## 
+## Residual standard error: 0.1266139 
+## Degrees of freedom: 84 total; 79 residual</code></pre>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="smooth-regression.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
