@@ -1,7 +1,7 @@
 --- 
 title: "Computing companion for BMA / ST 590, Fall 2021"
 author: "Kevin Gross"
-date: "2021-10-04"
+date: "2021-10-05"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book

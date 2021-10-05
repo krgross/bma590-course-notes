@@ -173,7 +173,7 @@ summary(gls2)
 The estimate of the within-country correlation is small: only 0.071.  The model with autocorrelated errors is nested within the model with heterogeneous variances, and both have the same fixed-effect structure, so we can compare the two REML fits directly:
 
 ```{r}
-anova(gls1, gls2)
+anova(gls0, gls1, gls2)
 ```
 
 By either AIC or the LRT, the model with the autocorrelated errors does not provide a statistically significant improvement in fit. 
@@ -200,7 +200,7 @@ y_{it} = a + b x_{it} + \varepsilon_{it}.
 gls4.ml <- gls(pct.male ~ yr.ctr, data = births, weights = varIdent(form = ~ 1 | country),
                method = "ML")
 summary(gls4.ml)
-anova(gls4.ml, gls3.ml)
+anova(gls4.ml, gls3.ml, gls1.ml)
 ```
 
 There is strong evidence that the percentage of male births differs among countries, after accounting for the effect of the temporal trend.

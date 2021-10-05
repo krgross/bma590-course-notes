@@ -468,13 +468,14 @@ The estimate of the within-country correlation is small: only 0.071.  The model 
 
 
 ```r
-anova(gls1, gls2)
+anova(gls0, gls1, gls2)
 ```
 
 ```
-##      Model df       AIC       BIC   logLik   Test   L.Ratio p-value
-## gls1     1 12 -94.69995 -66.73115 59.34998                         
-## gls2     2 13 -93.01222 -62.71269 59.50611 1 vs 2 0.3122685  0.5763
+##      Model df       AIC       BIC   logLik   Test  L.Ratio p-value
+## gls0     1  9 -42.18264 -21.20604 30.09132                        
+## gls1     2 12 -94.69995 -66.73115 59.34998 1 vs 2 58.51731  <.0001
+## gls2     3 13 -93.01222 -62.71269 59.50611 2 vs 3  0.31227  0.5763
 ```
 
 By either AIC or the LRT, the model with the autocorrelated errors does not provide a statistically significant improvement in fit. 
@@ -583,13 +584,14 @@ summary(gls4.ml)
 ```
 
 ```r
-anova(gls4.ml, gls3.ml)
+anova(gls4.ml, gls3.ml, gls1.ml)
 ```
 
 ```
-##         Model df       AIC       BIC  logLik   Test L.Ratio p-value
-## gls4.ml     1  6 -136.0564 -121.4715 74.0282                       
-## gls3.ml     2  9 -159.5456 -137.6683 88.7728 1 vs 2 29.4892  <.0001
+##         Model df       AIC       BIC   logLik   Test   L.Ratio p-value
+## gls4.ml     1  6 -136.0564 -121.4715 74.02820                         
+## gls3.ml     2  9 -159.5456 -137.6683 88.77280 1 vs 2 29.489202  <.0001
+## gls1.ml     3 12 -158.4457 -129.2759 91.22287 2 vs 3  4.900132  0.1793
 ```
 
 There is strong evidence that the percentage of male births differs among countries, after accounting for the effect of the temporal trend.

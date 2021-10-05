@@ -228,18 +228,18 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpsNFqWn/model2a6015ff6c4e.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqsSDI8/model12149bb7d67.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.699   0.050   0.604   0.665   0.699   0.732   0.801 1.001  3600
-## deviance 629.313   1.419 628.310 628.410 628.765 629.660 633.479 1.001  3800
+## lambda     0.700   0.049   0.607   0.668   0.699   0.732   0.800 1.001  3800
+## deviance 629.278   1.364 628.310 628.396 628.727 629.630 633.154 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 1.0 and DIC = 630.3
+## pD = 0.9 and DIC = 630.2
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -254,12 +254,12 @@ summary(mcmc.output)
 
 ```
 ##     deviance         lambda      
-##  Min.   :628.3   Min.   :0.5261  
-##  1st Qu.:628.4   1st Qu.:0.6652  
-##  Median :628.8   Median :0.6988  
-##  Mean   :629.3   Mean   :0.6994  
-##  3rd Qu.:629.7   3rd Qu.:0.7318  
-##  Max.   :642.9   Max.   :0.8744
+##  Min.   :628.3   Min.   :0.5445  
+##  1st Qu.:628.4   1st Qu.:0.6676  
+##  Median :628.7   Median :0.6990  
+##  Mean   :629.3   Mean   :0.7004  
+##  3rd Qu.:629.6   3rd Qu.:0.7321  
+##  Max.   :640.2   Max.   :0.8865
 ```
 
 ```r
@@ -267,7 +267,7 @@ median(mcmc.output$lambda)
 ```
 
 ```
-## [1] 0.698773
+## [1] 0.6989813
 ```
 
 ```r
@@ -276,7 +276,7 @@ quantile(mcmc.output$lambda, c(.025, .975))
 
 ```
 ##      2.5%     97.5% 
-## 0.6040955 0.8007128
+## 0.6065412 0.7999010
 ```
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
@@ -391,21 +391,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpsNFqWn/model2a6011d84a82.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqsSDI8/model1214580f6362.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.282   3.407 -7.291 -2.465 -0.351  1.934  6.354 1.001  3800
-## b1         0.212   0.042  0.128  0.184  0.212  0.239  0.298 1.001  3800
-## sigma      1.033   0.218  0.704  0.883  0.999  1.150  1.555 1.004   570
-## tau        1.055   0.411  0.413  0.757  1.002  1.284  2.016 1.004   570
-## deviance  42.887   2.733 39.788 40.900 42.177 44.108 49.670 1.001  3800
+## b0        -0.245   3.377 -6.904 -2.407 -0.284  1.871  6.604 1.001  3800
+## b1         0.211   0.042  0.125  0.185  0.212  0.238  0.294 1.001  3800
+## sigma      1.029   0.218  0.702  0.875  0.999  1.143  1.553 1.001  3800
+## tau        1.065   0.419  0.414  0.765  1.002  1.307  2.032 1.001  3800
+## deviance  42.904   2.751 39.802 40.867 42.212 44.057 50.050 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.7 and DIC = 46.6
+## pD = 3.8 and DIC = 46.7
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -425,19 +425,19 @@ summary(mcmc.output)
 
 ```
 ##        b0                 b1             deviance         sigma       
-##  Min.   :-13.2462   Min.   :0.04505   Min.   :39.56   Min.   :0.5833  
-##  1st Qu.: -2.4648   1st Qu.:0.18372   1st Qu.:40.90   1st Qu.:0.8827  
-##  Median : -0.3507   Median :0.21204   Median :42.18   Median :0.9992  
-##  Mean   : -0.2823   Mean   :0.21154   Mean   :42.89   Mean   :1.0332  
-##  3rd Qu.:  1.9342   3rd Qu.:0.23859   3rd Qu.:44.11   3rd Qu.:1.1496  
-##  Max.   : 13.8357   Max.   :0.36782   Max.   :61.63   Max.   :2.5605  
+##  Min.   :-15.4631   Min.   :0.05151   Min.   :39.57   Min.   :0.5439  
+##  1st Qu.: -2.4074   1st Qu.:0.18456   1st Qu.:40.87   1st Qu.:0.8747  
+##  Median : -0.2839   Median :0.21183   Median :42.21   Median :0.9989  
+##  Mean   : -0.2453   Mean   :0.21111   Mean   :42.90   Mean   :1.0287  
+##  3rd Qu.:  1.8714   3rd Qu.:0.23771   3rd Qu.:44.06   3rd Qu.:1.1435  
+##  Max.   : 12.6729   Max.   :0.40363   Max.   :60.00   Max.   :2.1508  
 ##       tau        
-##  Min.   :0.1525  
-##  1st Qu.:0.7567  
-##  Median :1.0017  
-##  Mean   :1.0548  
-##  3rd Qu.:1.2835  
-##  Max.   :2.9394
+##  Min.   :0.2162  
+##  1st Qu.:0.7648  
+##  Median :1.0023  
+##  Mean   :1.0653  
+##  3rd Qu.:1.3071  
+##  Max.   :3.3804
 ```
 
 Now we'll coerce the data frame `mcmc.output` to an MCMC object, and pass it to `HPDinterval`:
@@ -448,11 +448,11 @@ HPDinterval(as.mcmc(mcmc.output))
 
 ```
 ##               lower      upper
-## b0       -6.9696636  6.5491467
-## b1        0.1311684  0.3001208
-## deviance 39.5973523 48.3104960
-## sigma     0.6662042  1.4712550
-## tau       0.3325771  1.8823984
+## b0       -6.6386574  6.7003007
+## b1        0.1236251  0.2898813
+## deviance 39.5650774 48.5197727
+## sigma     0.6638457  1.4485633
+## tau       0.3209167  1.8923552
 ## attr(,"Probability")
 ## [1] 0.9498667
 ```
@@ -486,7 +486,7 @@ summary(avg.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   15.70   17.48   17.70   17.70   17.91   19.36
+##   16.42   17.48   17.70   17.70   17.92   19.02
 ```
 
 ```r
@@ -495,7 +495,7 @@ quantile(avg.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 17.04264 18.38317
+## 16.97942 18.38990
 ```
 
 We could use the `density` function to get a quick idea of the shape of the distribution:
@@ -506,7 +506,7 @@ plot(density(avg.chirps.85))
 
 <img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
-Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95\% credible interval is (17.04, 18.38).
+Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95\% credible interval is (16.98, 18.39).
 
 Finally, we can use the posterior samples to estimate the uncertainty in a future observation.  When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution.  The posterior predictive distribution must also include the error around the regression line.  We can estimate the posterior predictive distribution as follows.  Suppose we denote sample $i$ from the posterior as $\beta_{0, i}$, $\beta_{1, i}$, and $\sigma_i$.  Then for each posterior sample we will generate a new hypothetical observation $y_i^\star$ by sampling from a Gaussian distribution with mean equal to $\beta_{0,i} + \beta_{1,i} x $ and standard deviation $\sigma_i$, where $x = 85$.  The distribution of the $y_i^*$'s then gives the posterior predictive distribution that we seek.
 
@@ -525,7 +525,7 @@ summary(new.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   12.70   16.98   17.71   17.72   18.46   23.31
+##   12.48   17.01   17.72   17.72   18.44   21.88
 ```
 
 ```r
@@ -534,10 +534,10 @@ quantile(new.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 15.57249 19.86897
+## 15.50258 20.02538
 ```
 
-Thus, the posterior predictive distribution has a central 95\% credible interval of (15.57, 19.87).
+Thus, the posterior predictive distribution has a central 95\% credible interval of (15.5, 20.03).
 
 Although it hasn't caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
@@ -565,10 +565,10 @@ cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##              b0         b1         tau
-## b0   1.00000000 -0.9967833  0.01323103
-## b1  -0.99678327  1.0000000 -0.01458350
-## tau  0.01323103 -0.0145835  1.00000000
+##              b0          b1         tau
+## b0   1.00000000 -0.99658621 -0.02311071
+## b1  -0.99658621  1.00000000  0.02528803
+## tau -0.02311071  0.02528803  1.00000000
 ```
 
 Thus we estimate that the intercept and slope have a posterior correlation of -0.997.
@@ -617,21 +617,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpsNFqWn/model2a604fc9309b.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpqsSDI8/model1214138631de.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.651   0.266 16.122 16.484 16.655 16.815 17.189 1.001  3800
-## b1         0.211   0.042  0.129  0.184  0.211  0.239  0.292 1.001  3800
-## sigma      1.033   0.221  0.702  0.875  0.999  1.148  1.547 1.001  3800
-## tau        1.058   0.415  0.418  0.758  1.002  1.305  2.029 1.001  3800
-## deviance  42.838   2.681 39.785 40.829 42.140 44.168 49.777 1.001  2600
+## b0        16.650   0.277 16.103 16.473 16.646 16.827 17.199 1.001  3800
+## b1         0.213   0.041  0.131  0.186  0.213  0.239  0.297 1.002  1800
+## sigma      1.036   0.221  0.710  0.876  1.002  1.158  1.564 1.002  1600
+## tau        1.053   0.415  0.409  0.746  0.997  1.302  1.984 1.002  1600
+## deviance  42.908   2.693 39.771 40.911 42.244 44.198 50.044 1.003   870
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.6 and DIC = 46.4
+## pD = 3.6 and DIC = 46.5
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -659,10 +659,10 @@ cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##              b0           b1          tau
-## b0  1.000000000  0.006921498  0.002312011
-## b1  0.006921498  1.000000000 -0.003427459
-## tau 0.002312011 -0.003427459  1.000000000
+##                b0           b1           tau
+## b0   1.0000000000 -0.010423153 -0.0004887668
+## b1  -0.0104231535  1.000000000  0.0068874993
+## tau -0.0004887668  0.006887499  1.0000000000
 ```
 
 ## rstanarm
