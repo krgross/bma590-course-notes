@@ -1,0 +1,249 @@
+\newcommand{\iid}{\stackrel{\text{iid}}{\sim}}
+
+# Hierarchical Models
+
+```{r echo = FALSE}
+setwd("C:/Users/krgross/Documents/GitHub/bma590-course-notes/")
+```
+
+## One-factor layout: Dyestuff data
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will illustrate the basic ideas of hierarchical models with the `Dyestuff` data contained in `lme4`.  According to Bates (2012+), these data originally appeared in Davies (1947), and "are described in Davies and Goldsmith (1972, Table 6.3, p. 131) ... as coming from 'an investigation to find out how much the variation from batch to bach in the quality of an intermediate product contributes to the variation in the yield of the dyestuff made from it'".  The data consist of 6 batches, each of which gives rise to 5 observations. 
+
+Preparatory work:
+```{r}
+require(lme4)
+
+data(Dyestuff)
+summary(Dyestuff)
+with(Dyestuff, stripchart(Yield ~ Batch, pch = 16))
+```
+
+To develop some notation, let $i = 1, \ldots, 6$ index the batches, let $j = 1, \ldots, 5$ index the observations within each batch, and let $y_{ij}$ denote observation $j$ from batch $i$.
+
+As a starting point, we will fit the usual one-factor ANOVA model to these data.  This model is
+\begin{align}
+y_{ij} & = \mu_i + \varepsilon_{ij} \\
+\varepsilon_{ij} & \iid \mathcal{N}(0, \sigma^2). 
+\end{align}
+```{r}
+fm0 <- lm(Yield ~ 1, data = Dyestuff)          # model with common mean
+fm1 <- lm(Yield ~ Batch - 1, data = Dyestuff)  # mean varies by group
+anova(fm0, fm1)  # usual F-test for differences among group means
+summary(fm1)  # eliminating the intercept gives sample means for each group
+```
+
+Now we will use `nlme::gls` to fit a model that assumes that the data within each batch are correlated.  In other words, we fit the model
+\begin{align}
+y_{ij} & = \mu + \varepsilon_{ij} \\
+\varepsilon_{ij} & \sim \mathcal{N}(0, \sigma^2) \\
+\mathrm{Corr}(y_{ij}, y_{ik}) & = \rho
+\end{align}
+
+```{r}
+require(nlme)
+fm2 <- gls(Yield ~ 1, data = Dyestuff, correlation = corCompSymm(form = ~ 1 | Batch))
+summary(fm2)
+```
+
+The most salient components of this output are the estimate of the overall mean, and the estimate of the within-batch correlation ($\hat{\rho} = 0.42$).
+
+Now we will fit a hierarchical model that includes a random effect for the batch.  We can write the model as
+\begin{align}
+y_{ij} & = \mu + B_i + \varepsilon_{ij} \\
+B_i & \iid \mathcal{N}(0, \sigma_B^2) \\
+\varepsilon_{ij} & \iid \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align}
+
+```{r}
+fm3 <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
+summary(fm3)
+```
+
+The estimate of the overall mean is the same as it is in the GLS fit.  Note also that we can recover the estimate of the within-batch correlation from the estimates of the variances of the random effects:
+```{r}
+var.B   <- 1764
+var.eps <- 2451
+var.B / (var.B + var.eps)
+```
+To obtain the conditional modes (BLUPs) of the batch-level random effect, we can use the command `ranef`:
+```{r}
+ranef(fm3)
+```
+The conditional modes given here correspond to the differences between the mean for each batch and the overall mean ($\mu$).   To convert these to best guesses for the mean of each batch, we have to the overall mean back.  This can be done by using the command `fixef` to extract the lone fixed-effect estimate from the model:
+```{r}
+(batch.conditional.modes <- (fixef(fm3) + ranef(fm3)$Batch$`(Intercept)`))
+```
+
+It is informative to compare the conditional models for each batch to the sample means.  We can calculate the sample means with the `tapply` function
+
+```{r}
+(batch.means <- with(Dyestuff, tapply(Yield, Batch, mean)))
+```
+
+These are the same as the LS estimates of the batch-specific means in the ANOVA model, `fm1`.  Now plot the sample means against the conditional modes:
+
+```{r}
+cbind(batch.means, batch.conditional.modes)
+```
+
+```{r}
+plot(x    = batch.means, 
+     y    = batch.conditional.modes, 
+     xlim = range(batch.means), 
+     ylim = range(batch.means), 
+     xlab = "sample means",
+     ylab = "conditional modes",
+     pch  = LETTERS[1:6])
+
+abline(a = 0, b = 1)
+```
+
+The conditional modes are "shrunken" towards the global mean relative to the sample means.  Why is this so?
+
+To conduct inferences about the parameters in the hierarchical model, `lme4::lmer` offers likelihood profiling. This is the same idea that we encountered when we were using the likelihood to calculate profile-based confidence intervals earlier in the course.  `lme4::lmer` does all its profiling on the ML fit, so we begin by refitting our hierarchical model using ML.  To do so, set the optional argument `REML` to `FALSE`.
+
+```{r}
+fm3ML <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff, REML = FALSE)
+summary(fm3ML)
+```
+
+Switching to ML has decreased our estimate of the batch-level variance, and decreased it by quite a bit.  To construct profile-based intervals, we use the `lme4::profile` function.  We will use the `xyplot` function from the `lattice` package to display the profiles.
+
+```{r}
+pr <- profile(fm3ML)
+lattice::xyplot(pr)
+```
+
+There are three panels here, one for each of the parameters in the model.  These parameters are labeled as $\sigma_1$ for the standard deviation of the block-level random effect (what we have written $\sigma_B$), $\sigma$ for the standard deviation of the errors (what we have written as $\sigma_\varepsilon$), and "(Intercept)" for the global mean (what we have written as $\mu$).  
+
+Within each panel, the values plotted on the vertical axis are the signed square roots of the likelihood ratio test statistic.  This value is denoted by the Greek letter $\zeta$ ("zeta"); hence, the plots we are viewing are called zeta-plots.
+
+I do not know how widely used zeta-plots are.  They may be more common in other realms of science, although I have never encountered them outside `lme4`.  Basically, they are a visualization of profile-likelihood based confidence intervals.  The vertical lines in each panel give the limits of (working from the inside out) 50\%, 80\%, 90\%, 95\%, and 99\% confidence intervals for each parameter.  We can also extract these confidence limits using the `confint` function.  Below, we show 95\% confidence intervals; of course, one can change the confidence level as needed.
+```{r}
+confint(pr, level = .95)
+```
+
+So, a 95\% confidence interval for $\mu$ ranges from 1486 to 1569.
+
+Here is a bit more about the logic behind zeta plots (feel free to skip this paragraph if you wish).  Recall that negative log-likelihood profiles are convex and approximately quadratic.  Plotting the LRT statistic instead of the likelihood itself has the effect of placing the nadir of these curves at 0, instead of at the value of the negative log-likelihood.  Taking the square root of the LRT statistic converts a quadratic curve (a u-shape) into a linear one (a v-shape).  We can see this v-shape by using the optional argument `absVal = TRUE`:
+```{r}
+lattice::xyplot(pr, absVal = TRUE)
+```
+
+The purpose of using a signed square root is to turn these V-shaped plots into straight lines.  Straight lines are useful in turn because if the profile log likelihood is actually quadratic, then the zeta plot will yield a perfectly straight line, and thus a local approximation to the confidence interval will be appropriate.  If the zeta-plot is non-linear, then the confidence interval becomes more asymmetric, and a local approximation fares more poorly.
+
+(Start reading again if you skipped the above detail).  There is an interesting detail to the zeta-plots.  Consider the zeta-plot for $\sigma_1$ (the standard deviation of the batch-level random effects), and try to find the lower limit of a 99\% confidence interval.  You'll notice that the zeta-plot hits 0 (the lowest possible value for a standard deviation) before the interval is completed.  Thus, the lower limit of this interval is 0:
+```{r}
+confint(pr, level = 0.99)
+```
+
+Although we are not much in the habit of conducting hypothesis tests in this course, we would conclude that we would fail to reject the null hypothesis that the batch-level variance equals 0 with a 99\% level test.
+
+There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters.  Famously, `lme4::lmer` does not provide degrees of freedom for the estimates of the fixed effects.  The package `lmerTest` uses the Satterthwaite approximation to estimate these df.
+
+```{r}
+require(lmerTest)
+fm4 <- lmerTest::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
+summary(fm4)
+```
+`lmerTest::lmer` gives the associated df for the estimate of the intercept as 5.  If this were a class in experimental design, we would regard the individual measurements from each batch as subsamples, in which case the correct df for inferences about the intercept should be $6 - 1 = 5$.  In this case, the calculation from `lmerTest::lmer` matches our intuition.
+
+Equipped with this information, we could construct a 95\% confidence interval for the overall mean as
+```{r}
+1527.5 + 19.38 *  qt(c(0.025, 0.975), df = 5)
+```
+
+Compare this interval with the profile interval generated by `lme4::profile`.
+
+## Bayesian analysis
+
+The mixed-model formulation is our first encounter with a hierarchical model.  One often hears the phrase "Bayesian hierarchical model" in ecology.  It is important to realize that not all Bayesian models are hierarchical, and not all hierarchical models are Bayesian.  Indeed, we have seen examples of both: none of the Bayesian examples that we have seen in earlier chapters were hierarchical, and the mixed-model analysis of the Dyestuff data is a hierarchical model analyzed from a frequentist perspective.  However, we can certainly analyze hierarchical models from a Bayesian perspective as well, leading to a Bayesian hierarchical model.  
+
+The above paragraph begs the question: What defines a hierarchical model?  One can find definitions in the literature, though it isn't clear to me that any of these definitions are fully precise, although I may just be ignorant.  As best I can tell, a hierarchical model is one that includes so-called "latent" variables.  Latent variables are unobservable quantities on which the data depend, that in turn are related to model parameters via a statistical model.  This "layered" construction of the model (observables depend on latent variables, and latent variables depend on model parameters) gives rise to the "hierarchy" that gives hierarchical models their name.
+
+This hierarchical perspective gives rise to an alternative formulation of the model.  This model is mathematically identical to the random-effects formulation above, but it emphasizes the hierarchical nature of the model a bit more.  For the dyestuff data, we might write the model as 
+\begin{align}
+B_i & \iid \mathcal{N}(\mu, \sigma^2_B) \\
+y_{ij}| B_i  & \iid \mathcal{N}(B_i, \sigma^2_\varepsilon) \\
+\end{align}
+
+The hierarchical formulation states that the batch-specific means (the $B_i$'s) are latent variables drawn independently from a Gaussian distribution with mean $\mu$ and variance $\sigma^2_B$.  Conditional on the $B_i$'s, the observable data are drawn from a Gaussian distribution with mean $B_i$ and variance $\sigma^2_\varepsilon$.  
+
+To complete the Bayesian specification, we need to place priors on our three parameters: $\mu$, $\sigma^2_B$, and $\sigma^2_\varepsilon$.  In the absence of any information, we might choose a vague normal prior for $\mu$, and vague gamma priors for $1/\sigma^2_B$ and $1/\sigma^2_\varepsilon$.  The following `R2Jags` code implements such a model.
+
+```{r, results = 'hide'}
+require(R2jags)
+
+dyestuff.model <- function() {
+  
+  ## likelihood
+  
+  for (j in 1:J) {            
+    
+    y[j]    ~ dnorm(B[batch[j]], tau_eps)  # data distribution
+  }
+  
+  ## latent variables
+  
+  for (b in 1:6){
+  
+    B[b] ~ dnorm(mu, tauB)
+  }
+  
+  mu ~ dnorm (0.0, 1E-6)  # prior for the overall mean
+  
+  tau_eps ~ dgamma (0.01, 0.01)
+  tauB    ~ dgamma (0.01, 0.01)
+  
+  sd_eps <- pow(tau_eps, -1/2)
+  sdB    <- pow(tauB, -1/2)
+}
+
+jags.data <- list(y     = Dyestuff$Yield, 
+                  batch = as.numeric(Dyestuff$Batch), 
+                  J     = nrow(Dyestuff))
+
+jags.params <- c("mu", "sd_eps", "sdB", "B[1]", "B[2]")
+
+jags.inits <- function(){
+  list("mu" = rnorm(1, .01), "tauB" = runif(1), "tau_eps" = runif(1))
+}
+
+set.seed(1)
+
+jagsfit <- jags(data               = jags.data, 
+                inits              = jags.inits, 
+                parameters.to.save = jags.params,
+                model.file         = dyestuff.model,
+                n.chains           = 3,
+                n.iter             = 1e5)
+
+```
+
+The code above requires a way to associate each observation with the batch from which the observation was drawn.  We accomplish this by creating the variable `batch` that associates each observation with the numerical index of the batch.  (That is, batch "A" is associated with the index 1, etc.)  In the code, this happens with the line
+```{r, eval = FALSE}
+batch = as.numeric(Dyestuff$Batch)
+```
+
+The `as.numeric` command returns numerical values for each level of the factor `Batch`.
+
+Note also that we have only asked for the posterior draws for the latent means of the first two batches, $B_1$ and $B_2$.  This is merely to keep the output small for this example.  We could of course ask for the means of the other batches as well.  
+
+Let's have a look at the output:
+```{r, eval = TRUE}
+print(jagsfit)
+traceplot(jagsfit)  
+
+require(lattice)
+jagsfit.mcmc <- as.mcmc(jagsfit)
+densityplot(jagsfit.mcmc)
+```
+
+As of this writing, there are some aspects of the output that I don't understand.  The traceplots show that one chain starts far away from the region of high posterior density and then rapidly converges to it. This behavior seems to persist regardless of how long the burn-in period is, which doesn't make sense to me.  I also do not understand why `densityplot` produces a 6-by-1 stack of panels instead of a more useful layout.  Some of this may have to do with the interaction between `R2jags` and `rbookdown`, the version of R Markdown that I am using to create this document.
+
+One especially appealing aspect of analyzing this model from a Bayesian perspective is that there is no awkwardness in analyzing the posterior distributions of the latent variables, namely, the batch-specific means.  From the frequentist perspective, it is somewhat awkward (though not prohibitively so) to define the conditional modes (BLUPs).  We also lack straightforward methods for quantifying the uncertainty in these conditional modes.  From the Bayesian viewpoint, this awkwardness disappears, because the distinction between model parameters and latent variables vanishes.  Both are simply unobserved quantities.  Consequently, it is natural to summarize our posterior knowledge about the latent variables by their (marginal) posterior distributions, in the same way that we use marginal posteriors to summarize our inferences about the model parameters.

@@ -21,3 +21,6 @@ loess-smoothers
 splines
 generalized-additive-models-gams
 generalized-least-squares
+hierarchical-models
+one-factor-layout-dyestuff-data
+bayesian-analysis

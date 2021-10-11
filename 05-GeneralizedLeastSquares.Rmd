@@ -68,7 +68,7 @@ We'll regress the percentage of male births on year and country.  Following Zuur
 \begin{equation}
 y_{it} = a_i + b_i x_{it} + \varepsilon_{it}
 \end{equation}
-where $i = 1, \ldots, 4$ is an index that distinguishes among the four countries, and $t = 1, \ldots, 21$ is an index that distinguishes among the 21 years.  The response $y_{it}$ is the percentage of male births in country $i$ in year $t$, $x_{it}$ is the year to which measurement $y_{it}$ corresponds, the $a_i$ are the country-specific intercepts, the $b_i$ are the country-specific slopes, and the $\varepsilon_{it}$'s are the errors.  To begin, we make the usual OLS assumption that the errors are iid, that is, $\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2_\varepsilon)$.  
+where $i = 1, \ldots, 4$ is an index that distinguishes among the four countries, and $t = 1, \ldots, 21$ is an index that distinguishes among the 21 years.  The response $y_{it}$ is the percentage of male births in country $i$ in year $t$, $x_{it}$ is the year to which measurement $y_{it}$ corresponds, the $a_i$ are the country-specific intercepts, the $b_i$ are the country-specific slopes, and the $\varepsilon_{it}$'s are the errors.  To begin, we make the usual OLS assumption that the errors are iid, that is, $\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2)$.  
 
 ```{r}
 fm1 <- with(births, lm(pct.male ~ year * country))
@@ -119,7 +119,7 @@ We will cope by fitting a GLS model that allows the error variances to differ am
 \begin{equation}
 y_{it} = a_i + b_i x_{it} + \varepsilon_{it}.
 \end{equation}
-The only difference is that now we assume that the variance of the errors differs among the countries: $\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2_{\varepsilon, i})$.  This change looks trivial in the notation, but it's an important change to the model!
+The only difference is that now we assume that the variance of the errors differs among the countries: $\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2_i)$.  This change looks trivial in the notation, but it's an important change to the model!
 
 ```{r}
 require(nlme)
@@ -139,18 +139,18 @@ Both the LRT and the AIC suggest that the GLS model with country-specific varian
 If the fixed-effect structures had not been the same, it would not have been correct to compare the models using the REML fits.  Instead, we would have to re-fit the models using ML.  For the sake of illustration, let's do this anyway, and see if and how the results differ.
 
 ```{r}
-gls0.ml <- gls(pct.male ~ yr.ctr * country, data = births, method = "ML")
-gls1.ml <- gls(pct.male ~ yr.ctr * country, data = births, 
+gls0ML <- gls(pct.male ~ yr.ctr * country, data = births, method = "ML")
+gls1ML <- gls(pct.male ~ yr.ctr * country, data = births, 
                weights = varIdent(form = ~ 1 | country), method = "ML")
-anova(gls0.ml, gls1.ml)
+anova(gls0ML, gls1ML)
 ```
 
-Interestingly, we do get somewhat different numerical results based on the ML fit, even though the qualitative outcome of the test is unchanged (the model with country-specific variances is still strongly favored).  I don't understand quite why these results differ.  
+We obtain somewhat different numerical results based on the ML fit, even though the qualitative outcome of the test is unchanged (the model with country-specific variances is still strongly favored).  
 
 In any event, we can also compare the variance estimates from the ML fit to those from the REML fit.
 
 ```{r}
-summary(gls1.ml)
+summary(gls1ML)
 ```
 
 Note that the estimate of the residual standard deviation (mislabeled as the "residual standard error" in the R output) is smaller for the ML fit than for the REML fit, as we expect.
@@ -159,7 +159,7 @@ To continue, we can also fit a first-order autoregressive correlation structure 
 \begin{equation}
 y_{it} = a_i + b_i x_{it} + \varepsilon_{it}.
 \end{equation}
-The marginal distribution of the errors is also unchanged: $\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2_{\varepsilon, i})$.  However, the within-country errors are now correlated:
+The marginal distribution of the errors is also unchanged: $\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2_i)$.  However, the within-country errors are now correlated:
 \begin{equation}
 \mathrm{Corr}(\varepsilon_{it_1}, \varepsilon_{jt_2}) = \begin{cases} \rho^{|t_1 - t_2|} & i = j \\ 0 & i \neq j \end{cases}
 \end{equation}
@@ -185,10 +185,10 @@ y_{it} = a_i + b x_{it} + \varepsilon_{it}.
 In other words, there is a common slope among the countries. 
 
 ```{r}
-gls3.ml <- gls(pct.male ~ yr.ctr + country, data = births, weights = varIdent(form = ~ 1 | country),
+gls3ML <- gls(pct.male ~ yr.ctr + country, data = births, weights = varIdent(form = ~ 1 | country),
                method = "ML")
-summary(gls3.ml)
-anova(gls3.ml, gls1.ml)
+summary(gls3ML)
+anova(gls3ML, gls1ML)
 ```
 
 Both AIC and the LRT favor a model with a common slope.  Let's go further to see if the intercepts differ among the countries.  In other words, we can entertain the model
@@ -197,10 +197,10 @@ y_{it} = a + b x_{it} + \varepsilon_{it}.
 \end{equation}
 
 ```{r}
-gls4.ml <- gls(pct.male ~ yr.ctr, data = births, weights = varIdent(form = ~ 1 | country),
+gls4ML <- gls(pct.male ~ yr.ctr, data = births, weights = varIdent(form = ~ 1 | country),
                method = "ML")
-summary(gls4.ml)
-anova(gls4.ml, gls3.ml, gls1.ml)
+summary(gls4ML)
+anova(gls4ML, gls3ML, gls1ML)
 ```
 
 There is strong evidence that the percentage of male births differs among countries, after accounting for the effect of the temporal trend.
