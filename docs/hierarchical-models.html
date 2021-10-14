@@ -4,27 +4,25 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 6 Hierarchical Models | Computing companion for BMA / ST 590, Fall 2021</title>
-  <meta name="description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  <title>Chapter 6 Hierarchical Models | bookdown-demo</title>
+  <meta name="description" content="" />
   <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 6 Hierarchical Models | Computing companion for BMA / ST 590, Fall 2021" />
+  <meta property="og:title" content="Chapter 6 Hierarchical Models | bookdown-demo" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
-  <meta name="github-repo" content="krgross/bma590-course-notes" />
+  
+  
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 6 Hierarchical Models | Computing companion for BMA / ST 590, Fall 2021" />
+  <meta name="twitter:title" content="Chapter 6 Hierarchical Models | bookdown-demo" />
   
-  <meta name="twitter:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  
   
 
-<meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2021-10-11" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -170,6 +168,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="6.1" data-path="hierarchical-models.html"><a href="hierarchical-models.html#one-factor-layout-dyestuff-data"><i class="fa fa-check"></i><b>6.1</b> One-factor layout: Dyestuff data</a></li>
 <li class="chapter" data-level="6.2" data-path="hierarchical-models.html"><a href="hierarchical-models.html#bayesian-analysis"><i class="fa fa-check"></i><b>6.2</b> Bayesian analysis</a></li>
+<li class="chapter" data-level="6.3" data-path="hierarchical-models.html"><a href="hierarchical-models.html#negative-within-group-correlations"><i class="fa fa-check"></i><b>6.3</b> Negative within-group correlations</a></li>
+<li class="chapter" data-level="6.4" data-path="hierarchical-models.html"><a href="hierarchical-models.html#random-coefficient-models-rikz-data"><i class="fa fa-check"></i><b>6.4</b> Random coefficient models: RIKZ data</a></li>
 </ul></li>
 </ul>
 
@@ -180,7 +180,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Computing companion for BMA / ST 590, Fall 2021</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
           </h1>
         </div>
 
@@ -192,13 +192,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 6</span> Hierarchical Models</h1>
 <div id="one-factor-layout-dyestuff-data" class="section level2" number="6.1">
 <h2><span class="header-section-number">6.1</span> One-factor layout: Dyestuff data</h2>
-<p>We will illustrate the basic ideas of hierarchical models with the <code>Dyestuff</code> data contained in <code>lme4</code>. According to Bates (2012+), these data originally appeared in Davies (1947), and “are described in Davies and Goldsmith (1972, Table 6.3, p. 131) … as coming from ‘an investigation to find out how much the variation from batch to bach in the quality of an intermediate product contributes to the variation in the yield of the dyestuff made from it’.” The data consist of 6 batches, each of which gives rise to 5 observations.</p>
+<p>We will illustrate the basic ideas of hierarchical models with the <code>Dyestuff</code> data contained in <code>lme4</code>. According to Bates (2012+), these data originally appeared in Davies (1947), and “are described in Davies and Goldsmith (1972, Table 6.3, p. 131) … as coming from ‘an investigation to find out how much the variation from batch to bach in the quality of an intermediate product contributes to the variation in the yield of the dyestuff made from it’”. The data consist of 6 batches, each of which gives rise to 5 observations.</p>
 <p>Preparatory work:</p>
-<div class="sourceCode" id="cb361"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb361-1"><a href="hierarchical-models.html#cb361-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lme4)</span></code></pre></div>
+<div class="sourceCode" id="cb363"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb363-1"><a href="hierarchical-models.html#cb363-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lme4)</span></code></pre></div>
 <pre><code>## Loading required package: lme4</code></pre>
 <pre><code>## Loading required package: Matrix</code></pre>
-<div class="sourceCode" id="cb364"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb364-1"><a href="hierarchical-models.html#cb364-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Dyestuff)</span>
-<span id="cb364-2"><a href="hierarchical-models.html#cb364-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Dyestuff)</span></code></pre></div>
+<div class="sourceCode" id="cb366"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb366-1"><a href="hierarchical-models.html#cb366-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Dyestuff)</span>
+<span id="cb366-2"><a href="hierarchical-models.html#cb366-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Dyestuff)</span></code></pre></div>
 <pre><code>##  Batch     Yield     
 ##  A:5   Min.   :1440  
 ##  B:5   1st Qu.:1469  
@@ -206,17 +206,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  D:5   Mean   :1528  
 ##  E:5   3rd Qu.:1575  
 ##  F:5   Max.   :1635</code></pre>
-<div class="sourceCode" id="cb366"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb366-1"><a href="hierarchical-models.html#cb366-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(Dyestuff, <span class="fu">stripchart</span>(Yield <span class="sc">~</span> Batch, <span class="at">pch =</span> <span class="dv">16</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb368"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb368-1"><a href="hierarchical-models.html#cb368-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(Dyestuff, <span class="fu">stripchart</span>(Yield <span class="sc">~</span> Batch, <span class="at">pch =</span> <span class="dv">16</span>))</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p>To develop some notation, let <span class="math inline">\(i = 1, \ldots, 6\)</span> index the batches, let <span class="math inline">\(j = 1, \ldots, 5\)</span> index the observations within each batch, and let <span class="math inline">\(y_{ij}\)</span> denote observation <span class="math inline">\(j\)</span> from batch <span class="math inline">\(i\)</span>.</p>
 <p>As a starting point, we will fit the usual one-factor ANOVA model to these data. This model is
 <span class="math display">\[\begin{align}
 y_{ij} &amp; = \mu_i + \varepsilon_{ij} \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma^2). 
+\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2). 
 \end{align}\]</span></p>
-<div class="sourceCode" id="cb367"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb367-1"><a href="hierarchical-models.html#cb367-1" aria-hidden="true" tabindex="-1"></a>fm0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Yield <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff)          <span class="co"># model with common mean</span></span>
-<span id="cb367-2"><a href="hierarchical-models.html#cb367-2" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Yield <span class="sc">~</span> Batch <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff)  <span class="co"># mean varies by group</span></span>
-<span id="cb367-3"><a href="hierarchical-models.html#cb367-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm0, fm1)  <span class="co"># usual F-test for differences among group means</span></span></code></pre></div>
+<div class="sourceCode" id="cb369"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb369-1"><a href="hierarchical-models.html#cb369-1" aria-hidden="true" tabindex="-1"></a>fm0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Yield <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff)          <span class="co"># model with common mean</span></span>
+<span id="cb369-2"><a href="hierarchical-models.html#cb369-2" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Yield <span class="sc">~</span> Batch <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff)  <span class="co"># mean varies by group</span></span>
+<span id="cb369-3"><a href="hierarchical-models.html#cb369-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm0, fm1)  <span class="co"># usual F-test for differences among group means</span></span></code></pre></div>
 <pre><code>## Analysis of Variance Table
 ## 
 ## Model 1: Yield ~ 1
@@ -226,7 +226,7 @@ y_{ij} &amp; = \mu_i + \varepsilon_{ij} \\
 ## 2     24  58830  5     56358 4.5983 0.004398 **
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div class="sourceCode" id="cb369"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb369-1"><a href="hierarchical-models.html#cb369-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm1)  <span class="co"># eliminating the intercept gives sample means for each group</span></span></code></pre></div>
+<div class="sourceCode" id="cb371"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb371-1"><a href="hierarchical-models.html#cb371-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm1)  <span class="co"># eliminating the intercept gives sample means for each group</span></span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = Yield ~ Batch - 1, data = Dyestuff)
@@ -255,15 +255,15 @@ y_{ij} &amp; = \mu + \varepsilon_{ij} \\
 \varepsilon_{ij} &amp; \sim \mathcal{N}(0, \sigma^2) \\
 \mathrm{Corr}(y_{ij}, y_{ik}) &amp; = \rho
 \end{align}\]</span></p>
-<div class="sourceCode" id="cb371"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb371-1"><a href="hierarchical-models.html#cb371-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(nlme)</span></code></pre></div>
+<div class="sourceCode" id="cb373"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb373-1"><a href="hierarchical-models.html#cb373-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(nlme)</span></code></pre></div>
 <pre><code>## Loading required package: nlme</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;nlme&#39;</code></pre>
 <pre><code>## The following object is masked from &#39;package:lme4&#39;:
 ## 
 ##     lmList</code></pre>
-<div class="sourceCode" id="cb375"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb375-1"><a href="hierarchical-models.html#cb375-1" aria-hidden="true" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">gls</span>(Yield <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff, <span class="at">correlation =</span> <span class="fu">corCompSymm</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> Batch))</span>
-<span id="cb375-2"><a href="hierarchical-models.html#cb375-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
+<div class="sourceCode" id="cb377"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb377-1"><a href="hierarchical-models.html#cb377-1" aria-hidden="true" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">gls</span>(Yield <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff, <span class="at">correlation =</span> <span class="fu">corCompSymm</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> Batch))</span>
+<span id="cb377-2"><a href="hierarchical-models.html#cb377-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
 <pre><code>## Generalized least squares fit by REML
 ##   Model: Yield ~ 1 
 ##   Data: Dyestuff 
@@ -290,11 +290,11 @@ y_{ij} &amp; = \mu + \varepsilon_{ij} \\
 <p>Now we will fit a hierarchical model that includes a random effect for the batch. We can write the model as
 <span class="math display">\[\begin{align}
 y_{ij} &amp; = \mu + B_i + \varepsilon_{ij} \\
-B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_B^2) \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_\varepsilon^2).
+B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_B^2) \\
+\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
 \end{align}\]</span></p>
-<div class="sourceCode" id="cb377"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb377-1"><a href="hierarchical-models.html#cb377-1" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff)</span>
-<span id="cb377-2"><a href="hierarchical-models.html#cb377-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
+<div class="sourceCode" id="cb379"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb379-1"><a href="hierarchical-models.html#cb379-1" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff)</span>
+<span id="cb379-2"><a href="hierarchical-models.html#cb379-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML [&#39;lmerMod&#39;]
 ## Formula: Yield ~ 1 + (1 | Batch)
 ##    Data: Dyestuff
@@ -315,12 +315,12 @@ B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_B^2) \\
 ##             Estimate Std. Error t value
 ## (Intercept)  1527.50      19.38    78.8</code></pre>
 <p>The estimate of the overall mean is the same as it is in the GLS fit. Note also that we can recover the estimate of the within-batch correlation from the estimates of the variances of the random effects:</p>
-<div class="sourceCode" id="cb379"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb379-1"><a href="hierarchical-models.html#cb379-1" aria-hidden="true" tabindex="-1"></a>var.B   <span class="ot">&lt;-</span> <span class="dv">1764</span></span>
-<span id="cb379-2"><a href="hierarchical-models.html#cb379-2" aria-hidden="true" tabindex="-1"></a>var.eps <span class="ot">&lt;-</span> <span class="dv">2451</span></span>
-<span id="cb379-3"><a href="hierarchical-models.html#cb379-3" aria-hidden="true" tabindex="-1"></a>var.B <span class="sc">/</span> (var.B <span class="sc">+</span> var.eps)</span></code></pre></div>
+<div class="sourceCode" id="cb381"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb381-1"><a href="hierarchical-models.html#cb381-1" aria-hidden="true" tabindex="-1"></a>var.B   <span class="ot">&lt;-</span> <span class="dv">1764</span></span>
+<span id="cb381-2"><a href="hierarchical-models.html#cb381-2" aria-hidden="true" tabindex="-1"></a>var.eps <span class="ot">&lt;-</span> <span class="dv">2451</span></span>
+<span id="cb381-3"><a href="hierarchical-models.html#cb381-3" aria-hidden="true" tabindex="-1"></a>var.B <span class="sc">/</span> (var.B <span class="sc">+</span> var.eps)</span></code></pre></div>
 <pre><code>## [1] 0.4185053</code></pre>
 <p>To obtain the conditional modes (BLUPs) of the batch-level random effect, we can use the command <code>ranef</code>:</p>
-<div class="sourceCode" id="cb381"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb381-1"><a href="hierarchical-models.html#cb381-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ranef</span>(fm3)</span></code></pre></div>
+<div class="sourceCode" id="cb383"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb383-1"><a href="hierarchical-models.html#cb383-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ranef</span>(fm3)</span></code></pre></div>
 <pre><code>## $Batch
 ##   (Intercept)
 ## A -17.6068514
@@ -332,14 +332,14 @@ B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_B^2) \\
 ## 
 ## with conditional variances for &quot;Batch&quot;</code></pre>
 <p>The conditional modes given here correspond to the differences between the mean for each batch and the overall mean (<span class="math inline">\(\mu\)</span>). To convert these to best guesses for the mean of each batch, we have to the overall mean back. This can be done by using the command <code>fixef</code> to extract the lone fixed-effect estimate from the model:</p>
-<div class="sourceCode" id="cb383"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb383-1"><a href="hierarchical-models.html#cb383-1" aria-hidden="true" tabindex="-1"></a>(batch.conditional.modes <span class="ot">&lt;-</span> (<span class="fu">fixef</span>(fm3) <span class="sc">+</span> <span class="fu">ranef</span>(fm3)<span class="sc">$</span>Batch<span class="sc">$</span><span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb385"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb385-1"><a href="hierarchical-models.html#cb385-1" aria-hidden="true" tabindex="-1"></a>(batch.conditional.modes <span class="ot">&lt;-</span> (<span class="fu">fixef</span>(fm3) <span class="sc">+</span> <span class="fu">ranef</span>(fm3)<span class="sc">$</span>Batch<span class="sc">$</span><span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>))</span></code></pre></div>
 <pre><code>## [1] 1509.893 1527.891 1556.062 1504.415 1584.233 1482.505</code></pre>
 <p>It is informative to compare the conditional models for each batch to the sample means. We can calculate the sample means with the <code>tapply</code> function</p>
-<div class="sourceCode" id="cb385"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb385-1"><a href="hierarchical-models.html#cb385-1" aria-hidden="true" tabindex="-1"></a>(batch.means <span class="ot">&lt;-</span> <span class="fu">with</span>(Dyestuff, <span class="fu">tapply</span>(Yield, Batch, mean)))</span></code></pre></div>
+<div class="sourceCode" id="cb387"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb387-1"><a href="hierarchical-models.html#cb387-1" aria-hidden="true" tabindex="-1"></a>(batch.means <span class="ot">&lt;-</span> <span class="fu">with</span>(Dyestuff, <span class="fu">tapply</span>(Yield, Batch, mean)))</span></code></pre></div>
 <pre><code>##    A    B    C    D    E    F 
 ## 1505 1528 1564 1498 1600 1470</code></pre>
 <p>These are the same as the LS estimates of the batch-specific means in the ANOVA model, <code>fm1</code>. Now plot the sample means against the conditional modes:</p>
-<div class="sourceCode" id="cb387"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb387-1"><a href="hierarchical-models.html#cb387-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(batch.means, batch.conditional.modes)</span></code></pre></div>
+<div class="sourceCode" id="cb389"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb389-1"><a href="hierarchical-models.html#cb389-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(batch.means, batch.conditional.modes)</span></code></pre></div>
 <pre><code>##   batch.means batch.conditional.modes
 ## A        1505                1509.893
 ## B        1528                1527.891
@@ -347,20 +347,20 @@ B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_B^2) \\
 ## D        1498                1504.415
 ## E        1600                1584.233
 ## F        1470                1482.505</code></pre>
-<div class="sourceCode" id="cb389"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb389-1"><a href="hierarchical-models.html#cb389-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x    =</span> batch.means, </span>
-<span id="cb389-2"><a href="hierarchical-models.html#cb389-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">y    =</span> batch.conditional.modes, </span>
-<span id="cb389-3"><a href="hierarchical-models.html#cb389-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">range</span>(batch.means), </span>
-<span id="cb389-4"><a href="hierarchical-models.html#cb389-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">range</span>(batch.means), </span>
-<span id="cb389-5"><a href="hierarchical-models.html#cb389-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;sample means&quot;</span>,</span>
-<span id="cb389-6"><a href="hierarchical-models.html#cb389-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;conditional modes&quot;</span>,</span>
-<span id="cb389-7"><a href="hierarchical-models.html#cb389-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">pch  =</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>])</span>
-<span id="cb389-8"><a href="hierarchical-models.html#cb389-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb389-9"><a href="hierarchical-models.html#cb389-9" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb391"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb391-1"><a href="hierarchical-models.html#cb391-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x    =</span> batch.means, </span>
+<span id="cb391-2"><a href="hierarchical-models.html#cb391-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">y    =</span> batch.conditional.modes, </span>
+<span id="cb391-3"><a href="hierarchical-models.html#cb391-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">range</span>(batch.means), </span>
+<span id="cb391-4"><a href="hierarchical-models.html#cb391-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">range</span>(batch.means), </span>
+<span id="cb391-5"><a href="hierarchical-models.html#cb391-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;sample means&quot;</span>,</span>
+<span id="cb391-6"><a href="hierarchical-models.html#cb391-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;conditional modes&quot;</span>,</span>
+<span id="cb391-7"><a href="hierarchical-models.html#cb391-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">pch  =</span> LETTERS[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>])</span>
+<span id="cb391-8"><a href="hierarchical-models.html#cb391-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb391-9"><a href="hierarchical-models.html#cb391-9" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">1</span>)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>The conditional modes are “shrunken” towards the global mean relative to the sample means. Why is this so?</p>
 <p>To conduct inferences about the parameters in the hierarchical model, <code>lme4::lmer</code> offers likelihood profiling. This is the same idea that we encountered when we were using the likelihood to calculate profile-based confidence intervals earlier in the course. <code>lme4::lmer</code> does all its profiling on the ML fit, so we begin by refitting our hierarchical model using ML. To do so, set the optional argument <code>REML</code> to <code>FALSE</code>.</p>
-<div class="sourceCode" id="cb390"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb390-1"><a href="hierarchical-models.html#cb390-1" aria-hidden="true" tabindex="-1"></a>fm3ML <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb390-2"><a href="hierarchical-models.html#cb390-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3ML)</span></code></pre></div>
+<div class="sourceCode" id="cb392"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb392-1"><a href="hierarchical-models.html#cb392-1" aria-hidden="true" tabindex="-1"></a>fm3ML <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb392-2"><a href="hierarchical-models.html#cb392-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3ML)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
 ## Formula: Yield ~ 1 + (1 | Batch)
 ##    Data: Dyestuff
@@ -382,31 +382,35 @@ B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_B^2) \\
 ##             Estimate Std. Error t value
 ## (Intercept)  1527.50      17.69   86.33</code></pre>
 <p>Switching to ML has decreased our estimate of the batch-level variance, and decreased it by quite a bit. To construct profile-based intervals, we use the <code>lme4::profile</code> function. We will use the <code>xyplot</code> function from the <code>lattice</code> package to display the profiles.</p>
-<div class="sourceCode" id="cb392"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb392-1"><a href="hierarchical-models.html#cb392-1" aria-hidden="true" tabindex="-1"></a>pr <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm3ML)</span>
-<span id="cb392-2"><a href="hierarchical-models.html#cb392-2" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pr)</span></code></pre></div>
+<div class="sourceCode" id="cb394"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb394-1"><a href="hierarchical-models.html#cb394-1" aria-hidden="true" tabindex="-1"></a>pr <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm3ML)</span>
+<span id="cb394-2"><a href="hierarchical-models.html#cb394-2" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pr)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>There are three panels here, one for each of the parameters in the model. These parameters are labeled as <span class="math inline">\(\sigma_1\)</span> for the standard deviation of the block-level random effect (what we have written <span class="math inline">\(\sigma_B\)</span>), <span class="math inline">\(\sigma\)</span> for the standard deviation of the errors (what we have written as <span class="math inline">\(\sigma_\varepsilon\)</span>), and “(Intercept)” for the global mean (what we have written as <span class="math inline">\(\mu\)</span>).</p>
 <p>Within each panel, the values plotted on the vertical axis are the signed square roots of the likelihood ratio test statistic. This value is denoted by the Greek letter <span class="math inline">\(\zeta\)</span> (“zeta”); hence, the plots we are viewing are called zeta-plots.</p>
 <p>I do not know how widely used zeta-plots are. They may be more common in other realms of science, although I have never encountered them outside <code>lme4</code>. Basically, they are a visualization of profile-likelihood based confidence intervals. The vertical lines in each panel give the limits of (working from the inside out) 50%, 80%, 90%, 95%, and 99% confidence intervals for each parameter. We can also extract these confidence limits using the <code>confint</code> function. Below, we show 95% confidence intervals; of course, one can change the confidence level as needed.</p>
-<div class="sourceCode" id="cb393"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb393-1"><a href="hierarchical-models.html#cb393-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(pr, <span class="at">level =</span> .<span class="dv">95</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb395"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb395-1"><a href="hierarchical-models.html#cb395-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(pr, <span class="at">level =</span> .<span class="dv">95</span>)</span></code></pre></div>
 <pre><code>##                  2.5 %     97.5 %
 ## .sig01        12.19854   84.06305
 ## .sigma        38.22998   67.65770
 ## (Intercept) 1486.45150 1568.54849</code></pre>
 <p>So, a 95% confidence interval for <span class="math inline">\(\mu\)</span> ranges from 1486 to 1569.</p>
 <p>Here is a bit more about the logic behind zeta plots (feel free to skip this paragraph if you wish). Recall that negative log-likelihood profiles are convex and approximately quadratic. Plotting the LRT statistic instead of the likelihood itself has the effect of placing the nadir of these curves at 0, instead of at the value of the negative log-likelihood. Taking the square root of the LRT statistic converts a quadratic curve (a u-shape) into a linear one (a v-shape). We can see this v-shape by using the optional argument <code>absVal = TRUE</code>:</p>
-<div class="sourceCode" id="cb395"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb395-1"><a href="hierarchical-models.html#cb395-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pr, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb397"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb397-1"><a href="hierarchical-models.html#cb397-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pr, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <p>The purpose of using a signed square root is to turn these V-shaped plots into straight lines. Straight lines are useful in turn because if the profile log likelihood is actually quadratic, then the zeta plot will yield a perfectly straight line, and thus a local approximation to the confidence interval will be appropriate. If the zeta-plot is non-linear, then the confidence interval becomes more asymmetric, and a local approximation fares more poorly.</p>
 <p>(Start reading again if you skipped the above detail). There is an interesting detail to the zeta-plots. Consider the zeta-plot for <span class="math inline">\(\sigma_1\)</span> (the standard deviation of the batch-level random effects), and try to find the lower limit of a 99% confidence interval. You’ll notice that the zeta-plot hits 0 (the lowest possible value for a standard deviation) before the interval is completed. Thus, the lower limit of this interval is 0:</p>
-<div class="sourceCode" id="cb396"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb396-1"><a href="hierarchical-models.html#cb396-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(pr, <span class="at">level =</span> <span class="fl">0.99</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb398"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb398-1"><a href="hierarchical-models.html#cb398-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(pr, <span class="at">level =</span> <span class="fl">0.99</span>)</span></code></pre></div>
 <pre><code>##                  0.5 %     99.5 %
 ## .sig01         0.00000  113.68769
 ## .sigma        35.56317   75.66803
 ## (Intercept) 1465.87401 1589.12602</code></pre>
 <p>Although we are not much in the habit of conducting hypothesis tests in this course, we would conclude that we would fail to reject the null hypothesis that the batch-level variance equals 0 with a 99% level test.</p>
+<p>We can also obtain bivariate confidence regions from the profile likelihood using the <code>lattice::splom</code> command.</p>
+<div class="sourceCode" id="cb400"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb400-1"><a href="hierarchical-models.html#cb400-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">splom</span>(pr)</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/dyestuff%20bivariate%20confidence%20regions-1.png" width="672" /></p>
+<p>Panels above the diagonal show bivariate, profile-based confidence regions for each pair of parameters. Within each panel, we see 50%, 80%, 90%, 95%, and 99% confidence regions. (You should be able to figure out which is which.) The panels show, for example, that the estimate of the observation-level standard deviation is slightly negatively correlated with the estimate of the batch-level standard deviation. Panels below the diagoanl show the same plots on the <span class="math inline">\(\zeta\)</span> scale. See Bates (2012+) 1.5.3 for a detailed description of how to interpret these plots.</p>
 <p>There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters. Famously, <code>lme4::lmer</code> does not provide degrees of freedom for the estimates of the fixed effects. The package <code>lmerTest</code> uses the Satterthwaite approximation to estimate these df.</p>
-<div class="sourceCode" id="cb398"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb398-1"><a href="hierarchical-models.html#cb398-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lmerTest)</span></code></pre></div>
+<div class="sourceCode" id="cb401"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb401-1"><a href="hierarchical-models.html#cb401-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lmerTest)</span></code></pre></div>
 <pre><code>## Loading required package: lmerTest</code></pre>
 <pre><code>## Warning: package &#39;lmerTest&#39; was built under R version 4.1.1</code></pre>
 <pre><code>## 
@@ -417,8 +421,8 @@ B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_B^2) \\
 <pre><code>## The following object is masked from &#39;package:stats&#39;:
 ## 
 ##     step</code></pre>
-<div class="sourceCode" id="cb404"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb404-1"><a href="hierarchical-models.html#cb404-1" aria-hidden="true" tabindex="-1"></a>fm4 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff)</span>
-<span id="cb404-2"><a href="hierarchical-models.html#cb404-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm4)</span></code></pre></div>
+<div class="sourceCode" id="cb407"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb407-1"><a href="hierarchical-models.html#cb407-1" aria-hidden="true" tabindex="-1"></a>fm4 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff)</span>
+<span id="cb407-2"><a href="hierarchical-models.html#cb407-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm4)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: Yield ~ 1 + (1 | Batch)
@@ -443,7 +447,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_B^2) \\
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p><code>lmerTest::lmer</code> gives the associated df for the estimate of the intercept as 5. If this were a class in experimental design, we would regard the individual measurements from each batch as subsamples, in which case the correct df for inferences about the intercept should be <span class="math inline">\(6 - 1 = 5\)</span>. In this case, the calculation from <code>lmerTest::lmer</code> matches our intuition.</p>
 <p>Equipped with this information, we could construct a 95% confidence interval for the overall mean as</p>
-<div class="sourceCode" id="cb406"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb406-1"><a href="hierarchical-models.html#cb406-1" aria-hidden="true" tabindex="-1"></a><span class="fl">1527.5</span> <span class="sc">+</span> <span class="fl">19.38</span> <span class="sc">*</span>  <span class="fu">qt</span>(<span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>), <span class="at">df =</span> <span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb409"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb409-1"><a href="hierarchical-models.html#cb409-1" aria-hidden="true" tabindex="-1"></a><span class="fl">1527.5</span> <span class="sc">+</span> <span class="fl">19.38</span> <span class="sc">*</span>  <span class="fu">qt</span>(<span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>), <span class="at">df =</span> <span class="dv">5</span>)</span></code></pre></div>
 <pre><code>## [1] 1477.682 1577.318</code></pre>
 <p>Compare this interval with the profile interval generated by <code>lme4::profile</code>.</p>
 </div>
@@ -453,12 +457,12 @@ B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(0, \sigma_B^2) \\
 <p>The above paragraph begs the question: What defines a hierarchical model? One can find definitions in the literature, though it isn’t clear to me that any of these definitions are fully precise, although I may just be ignorant. As best I can tell, a hierarchical model is one that includes so-called “latent” variables. Latent variables are unobservable quantities on which the data depend, that in turn are related to model parameters via a statistical model. This “layered” construction of the model (observables depend on latent variables, and latent variables depend on model parameters) gives rise to the “hierarchy” that gives hierarchical models their name.</p>
 <p>This hierarchical perspective gives rise to an alternative formulation of the model. This model is mathematically identical to the random-effects formulation above, but it emphasizes the hierarchical nature of the model a bit more. For the dyestuff data, we might write the model as
 <span class="math display">\[\begin{align}
-B_i &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(\mu, \sigma^2_B) \\
-y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(B_i, \sigma^2_\varepsilon) \\
+B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
+y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(B_i, \sigma^2_\varepsilon) \\
 \end{align}\]</span></p>
 <p>The hierarchical formulation states that the batch-specific means (the <span class="math inline">\(B_i\)</span>’s) are latent variables drawn independently from a Gaussian distribution with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2_B\)</span>. Conditional on the <span class="math inline">\(B_i\)</span>’s, the observable data are drawn from a Gaussian distribution with mean <span class="math inline">\(B_i\)</span> and variance <span class="math inline">\(\sigma^2_\varepsilon\)</span>.</p>
 <p>To complete the Bayesian specification, we need to place priors on our three parameters: <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\sigma^2_B\)</span>, and <span class="math inline">\(\sigma^2_\varepsilon\)</span>. In the absence of any information, we might choose a vague normal prior for <span class="math inline">\(\mu\)</span>, and vague gamma priors for <span class="math inline">\(1/\sigma^2_B\)</span> and <span class="math inline">\(1/\sigma^2_\varepsilon\)</span>. The following <code>R2Jags</code> code implements such a model.</p>
-<div class="sourceCode" id="cb408"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb408-1"><a href="hierarchical-models.html#cb408-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(R2jags)</span></code></pre></div>
+<div class="sourceCode" id="cb411"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb411-1"><a href="hierarchical-models.html#cb411-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(R2jags)</span></code></pre></div>
 <pre><code>## Loading required package: R2jags</code></pre>
 <pre><code>## Warning: package &#39;R2jags&#39; was built under R version 4.1.1</code></pre>
 <pre><code>## Loading required package: rjags</code></pre>
@@ -471,57 +475,57 @@ y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(B_i, \sigma^2_\varepsi
 <pre><code>## The following object is masked from &#39;package:coda&#39;:
 ## 
 ##     traceplot</code></pre>
-<div class="sourceCode" id="cb418"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb418-1"><a href="hierarchical-models.html#cb418-1" aria-hidden="true" tabindex="-1"></a>dyestuff.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb418-2"><a href="hierarchical-models.html#cb418-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb418-3"><a href="hierarchical-models.html#cb418-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## likelihood</span></span>
-<span id="cb418-4"><a href="hierarchical-models.html#cb418-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb418-5"><a href="hierarchical-models.html#cb418-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {            </span>
-<span id="cb418-6"><a href="hierarchical-models.html#cb418-6" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb418-7"><a href="hierarchical-models.html#cb418-7" aria-hidden="true" tabindex="-1"></a>    y[j]    <span class="sc">~</span> <span class="fu">dnorm</span>(B[batch[j]], tau_eps)  <span class="co"># data distribution</span></span>
-<span id="cb418-8"><a href="hierarchical-models.html#cb418-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb418-9"><a href="hierarchical-models.html#cb418-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb418-10"><a href="hierarchical-models.html#cb418-10" aria-hidden="true" tabindex="-1"></a>  <span class="do">## latent variables</span></span>
-<span id="cb418-11"><a href="hierarchical-models.html#cb418-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb418-12"><a href="hierarchical-models.html#cb418-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (b <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>){</span>
-<span id="cb418-13"><a href="hierarchical-models.html#cb418-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb418-14"><a href="hierarchical-models.html#cb418-14" aria-hidden="true" tabindex="-1"></a>    B[b] <span class="sc">~</span> <span class="fu">dnorm</span>(mu, tauB)</span>
-<span id="cb418-15"><a href="hierarchical-models.html#cb418-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb418-16"><a href="hierarchical-models.html#cb418-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb418-17"><a href="hierarchical-models.html#cb418-17" aria-hidden="true" tabindex="-1"></a>  mu <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)  <span class="co"># prior for the overall mean</span></span>
-<span id="cb418-18"><a href="hierarchical-models.html#cb418-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb418-19"><a href="hierarchical-models.html#cb418-19" aria-hidden="true" tabindex="-1"></a>  tau_eps <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>)</span>
-<span id="cb418-20"><a href="hierarchical-models.html#cb418-20" aria-hidden="true" tabindex="-1"></a>  tauB    <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>)</span>
-<span id="cb418-21"><a href="hierarchical-models.html#cb418-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb418-22"><a href="hierarchical-models.html#cb418-22" aria-hidden="true" tabindex="-1"></a>  sd_eps <span class="ot">&lt;-</span> <span class="fu">pow</span>(tau_eps, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb418-23"><a href="hierarchical-models.html#cb418-23" aria-hidden="true" tabindex="-1"></a>  sdB    <span class="ot">&lt;-</span> <span class="fu">pow</span>(tauB, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb418-24"><a href="hierarchical-models.html#cb418-24" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb418-25"><a href="hierarchical-models.html#cb418-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb418-26"><a href="hierarchical-models.html#cb418-26" aria-hidden="true" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y     =</span> Dyestuff<span class="sc">$</span>Yield, </span>
-<span id="cb418-27"><a href="hierarchical-models.html#cb418-27" aria-hidden="true" tabindex="-1"></a>                  <span class="at">batch =</span> <span class="fu">as.numeric</span>(Dyestuff<span class="sc">$</span>Batch), </span>
-<span id="cb418-28"><a href="hierarchical-models.html#cb418-28" aria-hidden="true" tabindex="-1"></a>                  <span class="at">J     =</span> <span class="fu">nrow</span>(Dyestuff))</span>
-<span id="cb418-29"><a href="hierarchical-models.html#cb418-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb418-30"><a href="hierarchical-models.html#cb418-30" aria-hidden="true" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;mu&quot;</span>, <span class="st">&quot;sd_eps&quot;</span>, <span class="st">&quot;sdB&quot;</span>, <span class="st">&quot;B[1]&quot;</span>, <span class="st">&quot;B[2]&quot;</span>)</span>
-<span id="cb418-31"><a href="hierarchical-models.html#cb418-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb418-32"><a href="hierarchical-models.html#cb418-32" aria-hidden="true" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb418-33"><a href="hierarchical-models.html#cb418-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">&quot;mu&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, .<span class="dv">01</span>), <span class="st">&quot;tauB&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>), <span class="st">&quot;tau_eps&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
-<span id="cb418-34"><a href="hierarchical-models.html#cb418-34" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb418-35"><a href="hierarchical-models.html#cb418-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb418-36"><a href="hierarchical-models.html#cb418-36" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb418-37"><a href="hierarchical-models.html#cb418-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb418-38"><a href="hierarchical-models.html#cb418-38" aria-hidden="true" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
-<span id="cb418-39"><a href="hierarchical-models.html#cb418-39" aria-hidden="true" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
-<span id="cb418-40"><a href="hierarchical-models.html#cb418-40" aria-hidden="true" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
-<span id="cb418-41"><a href="hierarchical-models.html#cb418-41" aria-hidden="true" tabindex="-1"></a>                <span class="at">model.file         =</span> dyestuff.model,</span>
-<span id="cb418-42"><a href="hierarchical-models.html#cb418-42" aria-hidden="true" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
-<span id="cb418-43"><a href="hierarchical-models.html#cb418-43" aria-hidden="true" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="fl">1e5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb421"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb421-1"><a href="hierarchical-models.html#cb421-1" aria-hidden="true" tabindex="-1"></a>dyestuff.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb421-2"><a href="hierarchical-models.html#cb421-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb421-3"><a href="hierarchical-models.html#cb421-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## likelihood</span></span>
+<span id="cb421-4"><a href="hierarchical-models.html#cb421-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb421-5"><a href="hierarchical-models.html#cb421-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {            </span>
+<span id="cb421-6"><a href="hierarchical-models.html#cb421-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb421-7"><a href="hierarchical-models.html#cb421-7" aria-hidden="true" tabindex="-1"></a>    y[j]    <span class="sc">~</span> <span class="fu">dnorm</span>(B[batch[j]], tau_eps)  <span class="co"># data distribution</span></span>
+<span id="cb421-8"><a href="hierarchical-models.html#cb421-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb421-9"><a href="hierarchical-models.html#cb421-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb421-10"><a href="hierarchical-models.html#cb421-10" aria-hidden="true" tabindex="-1"></a>  <span class="do">## latent variables</span></span>
+<span id="cb421-11"><a href="hierarchical-models.html#cb421-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb421-12"><a href="hierarchical-models.html#cb421-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (b <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>){</span>
+<span id="cb421-13"><a href="hierarchical-models.html#cb421-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb421-14"><a href="hierarchical-models.html#cb421-14" aria-hidden="true" tabindex="-1"></a>    B[b] <span class="sc">~</span> <span class="fu">dnorm</span>(mu, tauB)</span>
+<span id="cb421-15"><a href="hierarchical-models.html#cb421-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb421-16"><a href="hierarchical-models.html#cb421-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb421-17"><a href="hierarchical-models.html#cb421-17" aria-hidden="true" tabindex="-1"></a>  mu <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)  <span class="co"># prior for the overall mean</span></span>
+<span id="cb421-18"><a href="hierarchical-models.html#cb421-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb421-19"><a href="hierarchical-models.html#cb421-19" aria-hidden="true" tabindex="-1"></a>  tau_eps <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>)</span>
+<span id="cb421-20"><a href="hierarchical-models.html#cb421-20" aria-hidden="true" tabindex="-1"></a>  tauB    <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>)</span>
+<span id="cb421-21"><a href="hierarchical-models.html#cb421-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb421-22"><a href="hierarchical-models.html#cb421-22" aria-hidden="true" tabindex="-1"></a>  sd_eps <span class="ot">&lt;-</span> <span class="fu">pow</span>(tau_eps, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb421-23"><a href="hierarchical-models.html#cb421-23" aria-hidden="true" tabindex="-1"></a>  sdB    <span class="ot">&lt;-</span> <span class="fu">pow</span>(tauB, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb421-24"><a href="hierarchical-models.html#cb421-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb421-25"><a href="hierarchical-models.html#cb421-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb421-26"><a href="hierarchical-models.html#cb421-26" aria-hidden="true" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y     =</span> Dyestuff<span class="sc">$</span>Yield, </span>
+<span id="cb421-27"><a href="hierarchical-models.html#cb421-27" aria-hidden="true" tabindex="-1"></a>                  <span class="at">batch =</span> <span class="fu">as.numeric</span>(Dyestuff<span class="sc">$</span>Batch), </span>
+<span id="cb421-28"><a href="hierarchical-models.html#cb421-28" aria-hidden="true" tabindex="-1"></a>                  <span class="at">J     =</span> <span class="fu">nrow</span>(Dyestuff))</span>
+<span id="cb421-29"><a href="hierarchical-models.html#cb421-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb421-30"><a href="hierarchical-models.html#cb421-30" aria-hidden="true" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;mu&quot;</span>, <span class="st">&quot;sd_eps&quot;</span>, <span class="st">&quot;sdB&quot;</span>, <span class="st">&quot;B[1]&quot;</span>, <span class="st">&quot;B[2]&quot;</span>)</span>
+<span id="cb421-31"><a href="hierarchical-models.html#cb421-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb421-32"><a href="hierarchical-models.html#cb421-32" aria-hidden="true" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb421-33"><a href="hierarchical-models.html#cb421-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">&quot;mu&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, .<span class="dv">01</span>), <span class="st">&quot;tauB&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>), <span class="st">&quot;tau_eps&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
+<span id="cb421-34"><a href="hierarchical-models.html#cb421-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb421-35"><a href="hierarchical-models.html#cb421-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb421-36"><a href="hierarchical-models.html#cb421-36" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb421-37"><a href="hierarchical-models.html#cb421-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb421-38"><a href="hierarchical-models.html#cb421-38" aria-hidden="true" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
+<span id="cb421-39"><a href="hierarchical-models.html#cb421-39" aria-hidden="true" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
+<span id="cb421-40"><a href="hierarchical-models.html#cb421-40" aria-hidden="true" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
+<span id="cb421-41"><a href="hierarchical-models.html#cb421-41" aria-hidden="true" tabindex="-1"></a>                <span class="at">model.file         =</span> dyestuff.model,</span>
+<span id="cb421-42"><a href="hierarchical-models.html#cb421-42" aria-hidden="true" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
+<span id="cb421-43"><a href="hierarchical-models.html#cb421-43" aria-hidden="true" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="fl">1e5</span>)</span></code></pre></div>
 <pre><code>## module glm loaded</code></pre>
 <p>The code above requires a way to associate each observation with the batch from which the observation was drawn. We accomplish this by creating the variable <code>batch</code> that associates each observation with the numerical index of the batch. (That is, batch “A” is associated with the index 1, etc.) In the code, this happens with the line</p>
-<div class="sourceCode" id="cb420"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb420-1"><a href="hierarchical-models.html#cb420-1" aria-hidden="true" tabindex="-1"></a>batch <span class="ot">=</span> <span class="fu">as.numeric</span>(Dyestuff<span class="sc">$</span>Batch)</span></code></pre></div>
+<div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="hierarchical-models.html#cb423-1" aria-hidden="true" tabindex="-1"></a>batch <span class="ot">=</span> <span class="fu">as.numeric</span>(Dyestuff<span class="sc">$</span>Batch)</span></code></pre></div>
 <p>The <code>as.numeric</code> command returns numerical values for each level of the factor <code>Batch</code>.</p>
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
-<div class="sourceCode" id="cb421"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb421-1"><a href="hierarchical-models.html#cb421-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmpyou3qh/modelc3424001d3.txt&quot;, fit using jags,
+<div class="sourceCode" id="cb424"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb424-1"><a href="hierarchical-models.html#cb424-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpY7cX0Y/model2afc1865e44.txt&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -545,15 +549,493 @@ y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim}\mathcal{N}(B_i, \sigma^2_\varepsi
 ## DIC info (using the rule, pD = var(deviance)/2)
 ## pD = 25.2 and DIC = 348.8
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
-<div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="hierarchical-models.html#cb423-1" aria-hidden="true" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)  </span></code></pre></div>
+<div class="sourceCode" id="cb426"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb426-1"><a href="hierarchical-models.html#cb426-1" aria-hidden="true" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)  </span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-2.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-3.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-4.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-5.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-6.png" width="672" /></p>
-<div class="sourceCode" id="cb424"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb424-1"><a href="hierarchical-models.html#cb424-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lattice)</span></code></pre></div>
+<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb427-1"><a href="hierarchical-models.html#cb427-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lattice)</span></code></pre></div>
 <pre><code>## Loading required package: lattice</code></pre>
-<div class="sourceCode" id="cb426"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb426-1"><a href="hierarchical-models.html#cb426-1" aria-hidden="true" tabindex="-1"></a>jagsfit.mcmc <span class="ot">&lt;-</span> <span class="fu">as.mcmc</span>(jagsfit)</span>
-<span id="cb426-2"><a href="hierarchical-models.html#cb426-2" aria-hidden="true" tabindex="-1"></a><span class="fu">densityplot</span>(jagsfit.mcmc)</span></code></pre></div>
+<div class="sourceCode" id="cb429"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb429-1"><a href="hierarchical-models.html#cb429-1" aria-hidden="true" tabindex="-1"></a>jagsfit.mcmc <span class="ot">&lt;-</span> <span class="fu">as.mcmc</span>(jagsfit)</span>
+<span id="cb429-2"><a href="hierarchical-models.html#cb429-2" aria-hidden="true" tabindex="-1"></a><span class="fu">densityplot</span>(jagsfit.mcmc)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-7.png" width="672" /></p>
-<p>As of this writing, there are some aspects of the output that I don’t understand. The traceplots show that one chain starts far away from the region of high posterior density and then rapidly converges to it. This behavior seems to persist regardless of how long the burn-in period is, which doesn’t make sense to me. I also do not understand why <code>densityplot</code> produces a 6-by-1 stack of panels instead of a more useful layout. Some of this may have to do with the interaction between <code>R2jags</code> and <code>rbookdown</code>, the version of R Markdown that I am using to create this document.</p>
+<p>As of this writing, there are some aspects of the output that I don’t understand. The traceplots show that one chain starts far away from the region of high posterior density and then rapidly converges to it. This behavior seems to persist regardless of how long the burn-in period is, which doesn’t make sense to me. I also do not understand why <code>densityplot</code> produces a 6-by-1 stack of panels instead of a more useful layout.</p>
 <p>One especially appealing aspect of analyzing this model from a Bayesian perspective is that there is no awkwardness in analyzing the posterior distributions of the latent variables, namely, the batch-specific means. From the frequentist perspective, it is somewhat awkward (though not prohibitively so) to define the conditional modes (BLUPs). We also lack straightforward methods for quantifying the uncertainty in these conditional modes. From the Bayesian viewpoint, this awkwardness disappears, because the distinction between model parameters and latent variables vanishes. Both are simply unobserved quantities. Consequently, it is natural to summarize our posterior knowledge about the latent variables by their (marginal) posterior distributions, in the same way that we use marginal posteriors to summarize our inferences about the model parameters.</p>
+</div>
+<div id="negative-within-group-correlations" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Negative within-group correlations</h2>
+<p>The hierarchical model formulation, regardless of whether analyzed from a frequentist or Bayesian perspective, is just a model. All models are wrong, but some models are useful. One can encounter grouped data where the hierarchical formulation is not useful. To illustrate, we consider the <code>Dyestuff2</code> data provided in <code>lme4</code>. These are synthetic (fake) data that have been created by Box &amp; Tiao (1973) for the sake of illustration. The Dyestuff2 data have the same structure as the original Dyestuff data, that is, 5 observations from each of 6 batches.</p>
+<div class="sourceCode" id="cb430"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb430-1"><a href="hierarchical-models.html#cb430-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Dyestuff2)</span>
+<span id="cb430-2"><a href="hierarchical-models.html#cb430-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Dyestuff2)</span></code></pre></div>
+<pre><code>##  Batch     Yield       
+##  A:5   Min.   :-0.892  
+##  B:5   1st Qu.: 2.765  
+##  C:5   Median : 5.365  
+##  D:5   Mean   : 5.666  
+##  E:5   3rd Qu.: 8.151  
+##  F:5   Max.   :13.434</code></pre>
+<div class="sourceCode" id="cb432"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb432-1"><a href="hierarchical-models.html#cb432-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(Dyestuff2, <span class="fu">stripchart</span>(Yield <span class="sc">~</span> Batch, <span class="at">pch =</span> <span class="dv">16</span>))</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p>We’ll begin by fitting a GLS model that includes a within-batch correlation:</p>
+<div class="sourceCode" id="cb433"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb433-1"><a href="hierarchical-models.html#cb433-1" aria-hidden="true" tabindex="-1"></a>fm5 <span class="ot">&lt;-</span> <span class="fu">gls</span>(Yield <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff2, <span class="at">correlation =</span> <span class="fu">corCompSymm</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> Batch))</span>
+<span id="cb433-2"><a href="hierarchical-models.html#cb433-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm5)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by REML
+##   Model: Yield ~ 1 
+##   Data: Dyestuff2 
+##        AIC      BIC    logLik
+##   167.2092 171.3111 -80.60461
+## 
+## Correlation Structure: Compound symmetry
+##  Formula: ~1 | Batch 
+##  Parameter estimate(s):
+##        Rho 
+## -0.0970284 
+## 
+## Coefficients:
+##              Value Std.Error  t-value p-value
+## (Intercept) 5.6656 0.5271409 10.74779       0
+## 
+## Standardized residuals:
+##         Min          Q1         Med          Q3         Max 
+## -1.77661357 -0.78584319 -0.08143986  0.67335540  2.10464878 
+## 
+## Residual standard error: 3.691067 
+## Degrees of freedom: 30 total; 29 residual</code></pre>
+<p>Notice that the within-batch correlation is negative. What does this imply about the structure of the data?</p>
+<p>Let’s have a look at a hierarchical model, fit with <code>lmer</code>.</p>
+<div class="sourceCode" id="cb435"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb435-1"><a href="hierarchical-models.html#cb435-1" aria-hidden="true" tabindex="-1"></a>fm6 <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff2)</span></code></pre></div>
+<pre><code>## boundary (singular) fit: see ?isSingular</code></pre>
+<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb437-1"><a href="hierarchical-models.html#cb437-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm6)</span></code></pre></div>
+<pre><code>## Linear mixed model fit by REML [&#39;lmerMod&#39;]
+## Formula: Yield ~ 1 + (1 | Batch)
+##    Data: Dyestuff2
+## 
+## REML criterion at convergence: 161.8
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.7648 -0.7806 -0.0809  0.6689  2.0907 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  Batch    (Intercept)  0.00    0.000   
+##  Residual             13.81    3.716   
+## Number of obs: 30, groups:  Batch, 6
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept)   5.6656     0.6784   8.352
+## optimizer (nloptwrap) convergence code: 0 (OK)
+## boundary (singular) fit: see ?isSingular</code></pre>
+<p>The estimate of the among-batch variance, <span class="math inline">\(\sigma^2_B\)</span>, is 0. The warning generated by R tells us that our fit is singular: one of the estimated parameters lies on the boundary of its possible values. To quote Bates (2012+, using our notation):</p>
+<blockquote>
+<p>"An estimate of 0 for <span class="math inline">\(\sigma_B\)</span> does not mean that there is no variation between the groups. Indeed, … there is some small amount of variability between the groups. The estimate, <span class="math inline">\(\hat{\sigma}_B=0\)</span>, simply indicates that the level of ‘between-group’ variability is not sufficient to warrant incorporating random effects in the model.</p>
+</blockquote>
+<blockquote>
+<p>“The important point … is that we must allow for the estimates of variance components to be zero. We describe such a model as being degenerate, in the sense that it corresponds to a linear model in which we have removed the randdom effects associated with Batch. Degenerate models can and do occur in practice. Eveen when the final fitted model is not degenerate, we must allow for such models when determining the parameter estimates through numerical optimization.”</p>
+</blockquote>
+<p>Can you think of any ecological mechanisms that might give rise to negative within-group correlations?</p>
+</div>
+<div id="random-coefficient-models-rikz-data" class="section level2" number="6.4">
+<h2><span class="header-section-number">6.4</span> Random coefficient models: RIKZ data</h2>
+<p>So-called random coefficient models are popular modeling structures in ecology. Random-coefficient models are useful when data are grouped, like the Dyestuff data. However, unlike the Dyestuff data, random-coefficient models refer to scenarios where the statistical model that we want to entertain within each group is more complex than just a simple random sample with a group-specific mean.</p>
+<p>To illustrate random-coefficient models, we will consider the RIKZ data from Zuur et al. (2009). These data were first analyzed in an earlier textbook (Zuur et al. 2007). Zuur et al. (2009, p. 101) describe the data as follows:</p>
+<blockquote>
+<p>“Zuur et al. (2007) used marine benthic data from nine inter-tidal areas along the Dutch coast. The data were collected by the Dutch institute RIKZ in the summer of 2002. In each inter-tidal area (denoted by ‘beach’), five samples were taken, and the macro-fauna and abiotic variables were measured. … The underlying question for these data is whether there is a relationship between species richness, exposure, and NAP (the height of a sampling station compared to mean tidal level). Exposure is an index composed of the following elements: wave action, length of the surf zone, slope, grain size, and the depth of the anaerobic layer.”</p>
+</blockquote>
+<p>In other words, there are 9 beaches, and 5 samples from each beach. The response, measured at each sample, is the macrofaunal species richness. There are two covariates: NAP, which is a sample-level covariate, and exposure, which is a beach-level covariate. For the moment, we will ignore the exposure covariate, and seek only to model the relationship between species richness and NAP. Because species richness is a count variable and includes the occasional zero (and because we have not yet discussed hierarchical models for non-Gaussian responses) we will use the square-root of richness as a variance-stabilizing transformation. Using the square root of species richness as the response has the added benefit of making our analysis different from the analysis in Zuur et al. (2009).</p>
+<p>Like all data from Zuur et al. (2009), the data are available for download from the book’s associated webpage. We will read in the data and do some housekeeping first.</p>
+<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb439-1"><a href="hierarchical-models.html#cb439-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lme4)</span>
+<span id="cb439-2"><a href="hierarchical-models.html#cb439-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lmerTest)</span>
+<span id="cb439-3"><a href="hierarchical-models.html#cb439-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb439-4"><a href="hierarchical-models.html#cb439-4" aria-hidden="true" tabindex="-1"></a>rikz <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;C:/Users/krgross/Documents/Teaching/bma590/ZuurDataMixedModelling/RIKZ.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb439-5"><a href="hierarchical-models.html#cb439-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb439-6"><a href="hierarchical-models.html#cb439-6" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(Richness <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach))  <span class="co"># raw response; note the non-constant variance</span></span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<div class="sourceCode" id="cb440"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb440-1"><a href="hierarchical-models.html#cb440-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach))  <span class="co"># transformation stabilizes the variance</span></span>
+<span id="cb440-2"><a href="hierarchical-models.html#cb440-2" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">leg =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-2.png" width="672" /></p>
+<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb441-1"><a href="hierarchical-models.html#cb441-1" aria-hidden="true" tabindex="-1"></a><span class="co"># change the Beach variable to a factor</span></span>
+<span id="cb441-2"><a href="hierarchical-models.html#cb441-2" aria-hidden="true" tabindex="-1"></a><span class="co"># would have been better to code the beaches as b1, b2, ...</span></span>
+<span id="cb441-3"><a href="hierarchical-models.html#cb441-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb441-4"><a href="hierarchical-models.html#cb441-4" aria-hidden="true" tabindex="-1"></a>rikz<span class="sc">$</span>fBeach <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(rikz<span class="sc">$</span>Beach)</span></code></pre></div>
+<p>To develop some notation for modeling, let <span class="math inline">\(i=1, \ldots, 9\)</span> index the different beaches, let <span class="math inline">\(j = 1, \ldots, 5\)</span> index the different samples at each beach, let <span class="math inline">\(y_{ij}\)</span> be the square root of the species richness at sample <span class="math inline">\(j\)</span> at beach <span class="math inline">\(i\)</span>, and let <span class="math inline">\(x_{ij}\)</span> be the NAP covariate at sample <span class="math inline">\(j\)</span> at beach <span class="math inline">\(i\)</span>.</p>
+<p>We’ll fit a linear regression of (transformed) species richness vs. NAP at each beach. We’ll begin by fitting a model with a common slope but a separate intercept for each beach. We’ll think of these beaches as a representative sample from a larger collection of beaches, and thus use a random effect to capture the differences among the beach-specific intercepts. Using the notational style of mixed modeling, we could write our model as
+<span class="math display">\[\begin{align*}
+y_{ij} &amp; = a + A_i + b x_{ij} + \varepsilon_{ij} \\
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_a^2) \\
+\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}\]</span></p>
+<p>Here, the <span class="math inline">\(A_i\)</span>’s are the beach-level random effects for the intercept. Alternatively, we could write
+<span class="math display">\[\begin{align*}
+y_{ij} &amp; = A_i + b x_{ij} + \varepsilon_{ij} \\
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) \\
+\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}\]</span></p>
+<p>Or, using the notational style of hierarchical modeling, we could write the same model as
+<span class="math display">\[\begin{align*}
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) \\
+y_{ij} | A_i &amp; \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2)
+\end{align*}\]</span></p>
+<p>We’ll fit the model using <code>lmerTest::lmer</code>.</p>
+<div class="sourceCode" id="cb442"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb442-1"><a href="hierarchical-models.html#cb442-1" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb442-2"><a href="hierarchical-models.html#cb442-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 1: random intercept</span></span>
+<span id="cb442-3"><a href="hierarchical-models.html#cb442-3" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb442-4"><a href="hierarchical-models.html#cb442-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb442-5"><a href="hierarchical-models.html#cb442-5" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
+<span id="cb442-6"><a href="hierarchical-models.html#cb442-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb442-7"><a href="hierarchical-models.html#cb442-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
+##    Data: rikz
+## 
+## REML criterion at convergence: 97.1
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.5693 -0.4286 -0.1869  0.3230  2.9399 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  fBeach   (Intercept) 0.2957   0.5438  
+##  Residual             0.3460   0.5882  
+## Number of obs: 45, groups:  fBeach, 9
+## 
+## Fixed effects:
+##             Estimate Std. Error       df t value Pr(&gt;|t|)    
+## (Intercept)  2.37424    0.20405  8.36034  11.635 1.88e-06 ***
+## NAP         -0.68063    0.09501 37.15971  -7.163 1.68e-08 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##     (Intr)
+## NAP -0.162</code></pre>
+<div class="sourceCode" id="cb444"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb444-1"><a href="hierarchical-models.html#cb444-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the conditional modes for the beach random effects</span></span>
+<span id="cb444-2"><a href="hierarchical-models.html#cb444-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ranef</span>(fm1)</span></code></pre></div>
+<pre><code>## $fBeach
+##   (Intercept)
+## 1   0.4962684
+## 2   1.0050819
+## 3  -0.4791252
+## 4  -0.4104708
+## 5   0.2444787
+## 6  -0.2252788
+## 7  -0.2858167
+## 8  -0.2124511
+## 9  -0.1326862
+## 
+## with conditional variances for &quot;fBeach&quot;</code></pre>
+<div class="sourceCode" id="cb446"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb446-1"><a href="hierarchical-models.html#cb446-1" aria-hidden="true" tabindex="-1"></a><span class="co"># replot the data and add a line for the average relationship across all beaches</span></span>
+<span id="cb446-2"><a href="hierarchical-models.html#cb446-2" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach))</span>
+<span id="cb446-3"><a href="hierarchical-models.html#cb446-3" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">leg =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span>
+<span id="cb446-4"><a href="hierarchical-models.html#cb446-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb446-5"><a href="hierarchical-models.html#cb446-5" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb446-6"><a href="hierarchical-models.html#cb446-6" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">2</span>, <span class="dv">1</span>]</span>
+<span id="cb446-7"><a href="hierarchical-models.html#cb446-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb446-8"><a href="hierarchical-models.html#cb446-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a, <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb446-9"><a href="hierarchical-models.html#cb446-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb446-10"><a href="hierarchical-models.html#cb446-10" aria-hidden="true" tabindex="-1"></a><span class="co"># highlight beach 1</span></span>
+<span id="cb446-11"><a href="hierarchical-models.html#cb446-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb446-12"><a href="hierarchical-models.html#cb446-12" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(rikz, Beach <span class="sc">==</span> <span class="dv">1</span>), <span class="fu">points</span>(<span class="at">x =</span> NAP, <span class="at">y =</span> <span class="fu">sqrt</span>(Richness), <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">pch =</span> <span class="dv">16</span>))</span>
+<span id="cb446-13"><a href="hierarchical-models.html#cb446-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb446-14"><a href="hierarchical-models.html#cb446-14" aria-hidden="true" tabindex="-1"></a>c.mode <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>fBeach</span>
+<span id="cb446-15"><a href="hierarchical-models.html#cb446-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb446-16"><a href="hierarchical-models.html#cb446-16" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a <span class="sc">+</span> c.mode[<span class="dv">1</span>, <span class="dv">1</span>], <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<div class="sourceCode" id="cb447"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb447-1"><a href="hierarchical-models.html#cb447-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make a plot with a line for each beach</span></span>
+<span id="cb447-2"><a href="hierarchical-models.html#cb447-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb447-3"><a href="hierarchical-models.html#cb447-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach))</span>
+<span id="cb447-4"><a href="hierarchical-models.html#cb447-4" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">leg =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span>
+<span id="cb447-5"><a href="hierarchical-models.html#cb447-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb447-6"><a href="hierarchical-models.html#cb447-6" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb447-7"><a href="hierarchical-models.html#cb447-7" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">2</span>, <span class="dv">1</span>]</span>
+<span id="cb447-8"><a href="hierarchical-models.html#cb447-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb447-9"><a href="hierarchical-models.html#cb447-9" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a, <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb447-10"><a href="hierarchical-models.html#cb447-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb447-11"><a href="hierarchical-models.html#cb447-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>){</span>
+<span id="cb447-12"><a href="hierarchical-models.html#cb447-12" aria-hidden="true" tabindex="-1"></a> <span class="fu">abline</span>(<span class="at">a =</span> a <span class="sc">+</span> c.mode[i, <span class="dv">1</span>], <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>) </span>
+<span id="cb447-13"><a href="hierarchical-models.html#cb447-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-25-2.png" width="672" /></p>
+<p>Next, we will fit a model with random intercepts and slopes for each beach. We have two options here. Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent. To write the first model in mixed-model notation, we might write
+<span class="math display">\[\begin{align*}
+y_{ij} &amp; = A_i + B_i x_{ij} + \varepsilon_{ij} \\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right) \\
+\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}\]</span></p>
+<p>To fit the model using <code>lmerTest::lmer</code>, we use</p>
+<div class="sourceCode" id="cb448"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb448-1"><a href="hierarchical-models.html#cb448-1" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb448-2"><a href="hierarchical-models.html#cb448-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 2: random slope and intercept (possibly correlated)</span></span>
+<span id="cb448-3"><a href="hierarchical-models.html#cb448-3" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb448-4"><a href="hierarchical-models.html#cb448-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb448-5"><a href="hierarchical-models.html#cb448-5" aria-hidden="true" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
+<span id="cb448-6"><a href="hierarchical-models.html#cb448-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
+<pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
+##    Data: rikz
+## 
+## REML criterion at convergence: 92.5
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.6245 -0.4430 -0.1095  0.3023  2.1610 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev. Corr 
+##  fBeach   (Intercept) 0.4389   0.6625        
+##           NAP         0.1582   0.3978   -0.41
+##  Residual             0.2159   0.4647        
+## Number of obs: 45, groups:  fBeach, 9
+## 
+## Fixed effects:
+##             Estimate Std. Error      df t value Pr(&gt;|t|)    
+## (Intercept)   2.4369     0.2348  7.9127  10.379 6.97e-06 ***
+## NAP          -0.7026     0.1543  6.7971  -4.552  0.00283 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##     (Intr)
+## NAP -0.390</code></pre>
+<div class="sourceCode" id="cb450"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb450-1"><a href="hierarchical-models.html#cb450-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ranef</span>(fm2)</span></code></pre></div>
+<pre><code>## $fBeach
+##   (Intercept)         NAP
+## 1  0.58582836  0.28968087
+## 2  1.04861982  0.03238569
+## 3 -0.59675334  0.16380577
+## 4 -0.62048288  0.21645636
+## 5  0.71297097 -0.79575937
+## 6 -0.36919268  0.24605745
+## 7 -0.43364056  0.09313482
+## 8 -0.29451043  0.02643661
+## 9 -0.03283925 -0.27219819
+## 
+## with conditional variances for &quot;fBeach&quot;</code></pre>
+<div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb452-1"><a href="hierarchical-models.html#cb452-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make a plot</span></span>
+<span id="cb452-2"><a href="hierarchical-models.html#cb452-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb452-3"><a href="hierarchical-models.html#cb452-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach))</span>
+<span id="cb452-4"><a href="hierarchical-models.html#cb452-4" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">leg =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span>
+<span id="cb452-5"><a href="hierarchical-models.html#cb452-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb452-6"><a href="hierarchical-models.html#cb452-6" aria-hidden="true" tabindex="-1"></a><span class="co"># add a line for the average relationship across all beaches</span></span>
+<span id="cb452-7"><a href="hierarchical-models.html#cb452-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb452-8"><a href="hierarchical-models.html#cb452-8" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm2))[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb452-9"><a href="hierarchical-models.html#cb452-9" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm2))[<span class="dv">2</span>, <span class="dv">1</span>]</span>
+<span id="cb452-10"><a href="hierarchical-models.html#cb452-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb452-11"><a href="hierarchical-models.html#cb452-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a, <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb452-12"><a href="hierarchical-models.html#cb452-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb452-13"><a href="hierarchical-models.html#cb452-13" aria-hidden="true" tabindex="-1"></a><span class="co"># add a line for beach 1</span></span>
+<span id="cb452-14"><a href="hierarchical-models.html#cb452-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb452-15"><a href="hierarchical-models.html#cb452-15" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(rikz, Beach <span class="sc">==</span> <span class="dv">1</span>), <span class="fu">points</span>(<span class="at">x =</span> NAP, <span class="at">y =</span> <span class="fu">sqrt</span>(Richness), <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">pch =</span> <span class="dv">16</span>))</span>
+<span id="cb452-16"><a href="hierarchical-models.html#cb452-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb452-17"><a href="hierarchical-models.html#cb452-17" aria-hidden="true" tabindex="-1"></a>c.mode <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm2)<span class="sc">$</span>fBeach</span>
+<span id="cb452-18"><a href="hierarchical-models.html#cb452-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb452-19"><a href="hierarchical-models.html#cb452-19" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a <span class="sc">+</span> c.mode[<span class="dv">1</span>, <span class="dv">1</span>], <span class="at">b =</span> b <span class="sc">+</span> c.mode[<span class="dv">1</span>, <span class="dv">2</span>], <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p>Let’s make a scatterplot of the conditional modes of the random intercepts and slopes</p>
+<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb453-1"><a href="hierarchical-models.html#cb453-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the conditional modes of the random effects</span></span>
+<span id="cb453-2"><a href="hierarchical-models.html#cb453-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb453-3"><a href="hierarchical-models.html#cb453-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> a <span class="sc">+</span> c.mode[, <span class="dv">1</span>], <span class="at">y =</span> b <span class="sc">+</span> c.mode[, <span class="dv">2</span>], <span class="at">xlab =</span> <span class="st">&quot;intercept&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;slope&quot;</span>, <span class="at">pch =</span> <span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>))</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<p>Finally, we can test the null hypothesis that <span class="math inline">\(\sigma_B^2 = 0\)</span> by a call to <code>anova</code>. Note that <code>anova</code> in this case refits the models with ML before executing the test.</p>
+<div class="sourceCode" id="cb454"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb454-1"><a href="hierarchical-models.html#cb454-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm1, fm2)  <span class="co"># could compare REML fits by fitting both models with nlme::lme</span></span></code></pre></div>
+<pre><code>## refitting model(s) with ML (instead of REML)</code></pre>
+<pre><code>## Data: rikz
+## Models:
+## fm1: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
+## fm2: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
+##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
+## fm1    4 100.83 108.06 -46.416   92.833                     
+## fm2    6 101.26 112.10 -44.630   89.259 3.5736  2     0.1675</code></pre>
+<p>We cannot reject the null hypothesis that <span class="math inline">\(\sigma_B^2 = 0\)</span>.</p>
+<p>Now we try a model with independent random effects for intercepts and slopes, and compare this model to previous ones. This model is
+<span class="math display">\[\begin{align*}
+y_{ij} &amp; = A_i + B_i x_{ij} + \varepsilon_{ij} \\
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma^2_A) \\
+B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
+\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}\]</span></p>
+<div class="sourceCode" id="cb457"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb457-1"><a href="hierarchical-models.html#cb457-1" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb457-2"><a href="hierarchical-models.html#cb457-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 2a: random slope and intercept (independent)</span></span>
+<span id="cb457-3"><a href="hierarchical-models.html#cb457-3" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb457-4"><a href="hierarchical-models.html#cb457-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb457-5"><a href="hierarchical-models.html#cb457-5" aria-hidden="true" tabindex="-1"></a>fm2a <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
+<span id="cb457-6"><a href="hierarchical-models.html#cb457-6" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm1, fm2a, fm2)</span></code></pre></div>
+<pre><code>## refitting model(s) with ML (instead of REML)</code></pre>
+<pre><code>## Data: rikz
+## Models:
+## fm1: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
+## fm2a: sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach)
+## fm2: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
+##      npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
+## fm1     4 100.83 108.06 -46.416   92.833                     
+## fm2a    5 100.16 109.19 -45.078   90.156 2.6767  1     0.1018
+## fm2     6 101.26 112.10 -44.630   89.259 0.8969  1     0.3436</code></pre>
+<p>Here we see a conflict between AIC and the LRT. AIC favors the model with random but independent intercepts and slopes, whereas the LRT continues to suggest that we cannot reject the null hypothesis that <span class="math inline">\(\sigma_B^2 = 0\)</span>.</p>
+<p>Finally, we consider the effect of exposure, a beach-level covariate. Exposure is coded in the data set as a numerical predictor. However, there are only three unique values: 8, 10, and 11 (and only one beach has exposure level 8). We will follow Zuur et al. (2009) in treating exposure as a binary predictor, grouping the beaches with exposure levels 8 and 10 together as low exposure beaches.</p>
+<div class="sourceCode" id="cb460"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb460-1"><a href="hierarchical-models.html#cb460-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create an &#39;exposure&#39; factor, with two levels: low and high</span></span>
+<span id="cb460-2"><a href="hierarchical-models.html#cb460-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb460-3"><a href="hierarchical-models.html#cb460-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">table</span>(fBeach, Exposure))</span></code></pre></div>
+<pre><code>##       Exposure
+## fBeach 8 10 11
+##      1 0  5  0
+##      2 5  0  0
+##      3 0  0  5
+##      4 0  0  5
+##      5 0  5  0
+##      6 0  0  5
+##      7 0  0  5
+##      8 0  5  0
+##      9 0  5  0</code></pre>
+<div class="sourceCode" id="cb462"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb462-1"><a href="hierarchical-models.html#cb462-1" aria-hidden="true" tabindex="-1"></a>rikz<span class="sc">$</span>fExp <span class="ot">&lt;-</span> rikz<span class="sc">$</span>Exposure  <span class="co"># make a new variable so that we can leave the original alone</span></span>
+<span id="cb462-2"><a href="hierarchical-models.html#cb462-2" aria-hidden="true" tabindex="-1"></a>rikz<span class="sc">$</span>fExp[rikz<span class="sc">$</span>Exposure <span class="sc">==</span> <span class="dv">8</span>] <span class="ot">&lt;-</span> <span class="dv">10</span>  <span class="co"># assign a value of 10 to the lone beach with exposure = 8</span></span>
+<span id="cb462-3"><a href="hierarchical-models.html#cb462-3" aria-hidden="true" tabindex="-1"></a>rikz<span class="sc">$</span>fExp <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(rikz<span class="sc">$</span>fExp)  <span class="co"># make the new variable into a factor</span></span>
+<span id="cb462-4"><a href="hierarchical-models.html#cb462-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb462-5"><a href="hierarchical-models.html#cb462-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rikz)</span></code></pre></div>
+<pre><code>##      Sample      Richness         Exposure          NAP              Beach  
+##  Min.   : 1   Min.   : 0.000   Min.   : 8.00   Min.   :-1.3360   Min.   :1  
+##  1st Qu.:12   1st Qu.: 3.000   1st Qu.:10.00   1st Qu.:-0.3750   1st Qu.:3  
+##  Median :23   Median : 4.000   Median :10.00   Median : 0.1670   Median :5  
+##  Mean   :23   Mean   : 5.689   Mean   :10.22   Mean   : 0.3477   Mean   :5  
+##  3rd Qu.:34   3rd Qu.: 8.000   3rd Qu.:11.00   3rd Qu.: 1.1170   3rd Qu.:7  
+##  Max.   :45   Max.   :22.000   Max.   :11.00   Max.   : 2.2550   Max.   :9  
+##                                                                             
+##      fBeach   fExp   
+##  1      : 5   10:25  
+##  2      : 5   11:20  
+##  3      : 5          
+##  4      : 5          
+##  5      : 5          
+##  6      : 5          
+##  (Other):15</code></pre>
+<p>We will consider a model in which we use separate distributions of random intercepts for the the low- and high-exposure beaches. To fit this model, we will need to embellish our notation. Now, let <span class="math inline">\(i=1, 2\)</span> index the exposure level of the beaches. Let <span class="math inline">\(j=1,\ldots, n_i\)</span> index the replicate beaches within each exposure level. Let <span class="math inline">\(k=1, \ldots, 5\)</span> index the samples at each beach. We consider the model
+<span class="math display">\[\begin{align*}
+y_{ijk} &amp; = A_{ij} + b_i x_{ijk} + \varepsilon_{ijk} \\
+A_{ij} &amp; \sim \mathcal{N}(a_i, \sigma^2_A) \\
+\varepsilon_{ijk} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}\]</span></p>
+<!--\begin{align*}
+y_{ijk} & = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
+\left(\begin{array}{c} A \\ B \end{array} \right)_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a_i \\ b_i \end{array} \right),  \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right) \\
+\varepsilon_{ijk} & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_\varepsilon^2).
+\end{align*}-->
+<div class="sourceCode" id="cb464"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb464-1"><a href="hierarchical-models.html#cb464-1" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb464-2"><a href="hierarchical-models.html#cb464-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 3: random intercept, with effect of exposure</span></span>
+<span id="cb464-3"><a href="hierarchical-models.html#cb464-3" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb464-4"><a href="hierarchical-models.html#cb464-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb464-5"><a href="hierarchical-models.html#cb464-5" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> fExp <span class="sc">+</span> NAP<span class="sc">:</span>fExp <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
+<span id="cb464-6"><a href="hierarchical-models.html#cb464-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb464-7"><a href="hierarchical-models.html#cb464-7" aria-hidden="true" tabindex="-1"></a><span class="co"># equivalently</span></span>
+<span id="cb464-8"><a href="hierarchical-models.html#cb464-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb464-9"><a href="hierarchical-models.html#cb464-9" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">*</span> fExp <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
+<span id="cb464-10"><a href="hierarchical-models.html#cb464-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb464-11"><a href="hierarchical-models.html#cb464-11" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
+<pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: sqrt(Richness) ~ 1 + NAP * fExp + (1 | fBeach)
+##    Data: rikz
+## 
+## REML criterion at convergence: 89.7
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.4532 -0.5066 -0.0280  0.3478  2.6221 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  fBeach   (Intercept) 0.1395   0.3735  
+##  Residual             0.3182   0.5641  
+## Number of obs: 45, groups:  fBeach, 9
+## 
+## Fixed effects:
+##             Estimate Std. Error      df t value Pr(&gt;|t|)    
+## (Intercept)   2.7722     0.2047  7.3111  13.544 1.92e-06 ***
+## NAP          -0.8580     0.1207 37.7420  -7.110 1.82e-08 ***
+## fExp11       -0.9213     0.3096  7.5513  -2.976   0.0189 *  
+## NAP:fExp11    0.3979     0.1818 37.1348   2.189   0.0350 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##            (Intr) NAP    fExp11
+## NAP        -0.174              
+## fExp11     -0.661  0.115       
+## NAP:fExp11  0.115 -0.664 -0.212</code></pre>
+<p>The significance of the interaction between NAP and exposure suggests that the relationship between species richness and NAP differs between the low- and high-exposure beaches.</p>
+<p>We’ll visualize the model with a plot. The code below is ugly and could be improved.</p>
+<div class="sourceCode" id="cb466"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb466-1"><a href="hierarchical-models.html#cb466-1" aria-hidden="true" tabindex="-1"></a>a0 <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm3))[<span class="dv">1</span>, <span class="dv">1</span>]  <span class="co"># marginal intercept for low-exposure beaches</span></span>
+<span id="cb466-2"><a href="hierarchical-models.html#cb466-2" aria-hidden="true" tabindex="-1"></a>b0 <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm3))[<span class="dv">2</span>, <span class="dv">1</span>]  <span class="co"># marginal slope for low-exposure beaches</span></span>
+<span id="cb466-3"><a href="hierarchical-models.html#cb466-3" aria-hidden="true" tabindex="-1"></a>a1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm3))[<span class="dv">3</span>, <span class="dv">1</span>]  <span class="co"># difference in marginal intercepts for high vs low </span></span>
+<span id="cb466-4"><a href="hierarchical-models.html#cb466-4" aria-hidden="true" tabindex="-1"></a>b1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm3))[<span class="dv">4</span>, <span class="dv">1</span>]  <span class="co"># difference in marginal slopes for high vs low</span></span>
+<span id="cb466-5"><a href="hierarchical-models.html#cb466-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-6"><a href="hierarchical-models.html#cb466-6" aria-hidden="true" tabindex="-1"></a>c.mode <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm3)<span class="sc">$</span>fBeach</span>
+<span id="cb466-7"><a href="hierarchical-models.html#cb466-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-8"><a href="hierarchical-models.html#cb466-8" aria-hidden="true" tabindex="-1"></a>low.beaches <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">9</span>)</span>
+<span id="cb466-9"><a href="hierarchical-models.html#cb466-9" aria-hidden="true" tabindex="-1"></a>high.beaches <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">7</span>)</span>
+<span id="cb466-10"><a href="hierarchical-models.html#cb466-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-11"><a href="hierarchical-models.html#cb466-11" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))  <span class="co"># split the plot region</span></span>
+<span id="cb466-12"><a href="hierarchical-models.html#cb466-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-13"><a href="hierarchical-models.html#cb466-13" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, </span>
+<span id="cb466-14"><a href="hierarchical-models.html#cb466-14" aria-hidden="true" tabindex="-1"></a>                <span class="at">type     =</span> <span class="st">&quot;n&quot;</span>, </span>
+<span id="cb466-15"><a href="hierarchical-models.html#cb466-15" aria-hidden="true" tabindex="-1"></a>                <span class="at">main     =</span> <span class="st">&quot;Exposure = 8 or 10&quot;</span>))  <span class="co"># set up the axes</span></span>
+<span id="cb466-16"><a href="hierarchical-models.html#cb466-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-17"><a href="hierarchical-models.html#cb466-17" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(rikz, fExp <span class="sc">==</span> <span class="st">&quot;10&quot;</span>), <span class="fu">points</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach))  <span class="co"># plot points for low exposure beaches</span></span>
+<span id="cb466-18"><a href="hierarchical-models.html#cb466-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-19"><a href="hierarchical-models.html#cb466-19" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a0, <span class="at">b =</span> b0, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)  <span class="co"># add the average line for low-exposure beaches</span></span>
+<span id="cb466-20"><a href="hierarchical-models.html#cb466-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-21"><a href="hierarchical-models.html#cb466-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(low.beaches)) {</span>
+<span id="cb466-22"><a href="hierarchical-models.html#cb466-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb466-23"><a href="hierarchical-models.html#cb466-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> a0 <span class="sc">+</span> c.mode[low.beaches[i], <span class="dv">1</span>], <span class="at">b =</span> b0, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span>
+<span id="cb466-24"><a href="hierarchical-models.html#cb466-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb466-25"><a href="hierarchical-models.html#cb466-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-26"><a href="hierarchical-models.html#cb466-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Repeat for high exposure beaches</span></span>
+<span id="cb466-27"><a href="hierarchical-models.html#cb466-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-28"><a href="hierarchical-models.html#cb466-28" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, </span>
+<span id="cb466-29"><a href="hierarchical-models.html#cb466-29" aria-hidden="true" tabindex="-1"></a>                <span class="at">type     =</span> <span class="st">&quot;n&quot;</span>, </span>
+<span id="cb466-30"><a href="hierarchical-models.html#cb466-30" aria-hidden="true" tabindex="-1"></a>                <span class="at">main     =</span> <span class="st">&quot;Exposure = 11&quot;</span>))  <span class="co"># set up the axes</span></span>
+<span id="cb466-31"><a href="hierarchical-models.html#cb466-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-32"><a href="hierarchical-models.html#cb466-32" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(rikz, fExp <span class="sc">==</span> <span class="st">&quot;11&quot;</span>), <span class="fu">points</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach))  <span class="co"># plot points for low exposure beaches</span></span>
+<span id="cb466-33"><a href="hierarchical-models.html#cb466-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-34"><a href="hierarchical-models.html#cb466-34" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a0 <span class="sc">+</span> a1, <span class="at">b =</span> b0 <span class="sc">+</span> b1, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)  <span class="co"># add the average line for low-exposure beaches</span></span>
+<span id="cb466-35"><a href="hierarchical-models.html#cb466-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb466-36"><a href="hierarchical-models.html#cb466-36" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(high.beaches)) {</span>
+<span id="cb466-37"><a href="hierarchical-models.html#cb466-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb466-38"><a href="hierarchical-models.html#cb466-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> a0 <span class="sc">+</span> a1 <span class="sc">+</span> c.mode[high.beaches[i], <span class="dv">1</span>], <span class="at">b =</span> b0 <span class="sc">+</span> b1, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span>
+<span id="cb466-39"><a href="hierarchical-models.html#cb466-39" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<!-- Finally, we'll fit a model in which the slope does not depend on exposure, just for comparison.  That is, we entertain the model -->
+<!-- \begin{align*} -->
+<!-- y_{ijk} & = A_{ij} + b x_{ijk} + \varepsilon_{ijk} \\ -->
+<!-- A_{ij} & \sim \mathcal{N}(a_i, \sigma^2_A) \\ -->
+<!-- \varepsilon_{ijk} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). -->
+<!-- \end{align*} -->
+<!-- ```{r} -->
+<!-- fm4 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + fExp + (1 | fBeach), data = rikz) -->
+<!-- a0 <- coef(summary(fm4))[1, 1]  # marginal intercept for low-exposure beaches -->
+<!-- b0 <- coef(summary(fm4))[2, 1]  # common slope for all beaches -->
+<!-- a1 <- coef(summary(fm4))[3, 1]  # difference in marginal intercepts for high vs low  -->
+<!-- c.mode <- ranef(fm4)$fBeach -->
+<!-- # this code is ugly, but oh well -->
+<!-- par(mfrow = c(1, 2))  # split the plot region -->
+<!-- with(rikz, plot(sqrt(Richness) ~ NAP,  -->
+<!--                 type     = "n",  -->
+<!--                 main     = "Exposure = 8 or 10"))  # set up the axes -->
+<!-- with(subset(rikz, fExp == "10"), points(sqrt(Richness) ~ NAP, pch = Beach))  # plot points for low exposure beaches -->
+<!-- abline(a = a0, b = b0, col = "red", lwd = 2)  # add the average line for low-exposure beaches -->
+<!-- for (i in 1:length(low.beaches)) { -->
+<!--   abline(a = a0 + c.mode[low.beaches[i], 1], b = b0, col = "red", lty = "dotted") -->
+<!-- } -->
+<!-- # Repeat for high exposure beaches -->
+<!-- with(rikz, plot(sqrt(Richness) ~ NAP,  -->
+<!--                 type     = "n",  -->
+<!--                 main     = "Exposure = 11"))  # set up the axes -->
+<!-- with(subset(rikz, fExp == "11"), points(sqrt(Richness) ~ NAP, pch = Beach))  # plot points for low exposure beaches -->
+<!-- abline(a = a0 + a1, b = b0, col = "blue", lwd = 2)  # add the average line for low-exposure beaches -->
+<!-- for (i in 1:length(high.beaches)) { -->
+<!--   abline(a = a0 + a1 + c.mode[high.beaches[i], 1], b = b0, col = "blue", lty = "dotted") -->
+<!-- } -->
+<!-- # we want a model where the variance of the random beach effects differs between low vs. high exposure beaches. -->
+<!-- # how do we do that?? -->
+<!-- ``` -->
+<p>In the homework, you will a consider a model with both random intercepts and slopes, and in which the mean intercept and slope depends on the exposure of the beach.</p>
 
 </div>
 </div>

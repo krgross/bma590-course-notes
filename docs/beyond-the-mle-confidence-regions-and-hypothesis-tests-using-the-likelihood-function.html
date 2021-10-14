@@ -4,27 +4,25 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | Computing companion for BMA / ST 590, Fall 2021</title>
-  <meta name="description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  <title>Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | bookdown-demo</title>
+  <meta name="description" content="" />
   <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | Computing companion for BMA / ST 590, Fall 2021" />
+  <meta property="og:title" content="Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | bookdown-demo" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
-  <meta name="github-repo" content="krgross/bma590-course-notes" />
+  
+  
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | Computing companion for BMA / ST 590, Fall 2021" />
+  <meta name="twitter:title" content="Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | bookdown-demo" />
   
-  <meta name="twitter:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  
   
 
-<meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2021-10-11" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -170,6 +168,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="6.1" data-path="hierarchical-models.html"><a href="hierarchical-models.html#one-factor-layout-dyestuff-data"><i class="fa fa-check"></i><b>6.1</b> One-factor layout: Dyestuff data</a></li>
 <li class="chapter" data-level="6.2" data-path="hierarchical-models.html"><a href="hierarchical-models.html#bayesian-analysis"><i class="fa fa-check"></i><b>6.2</b> Bayesian analysis</a></li>
+<li class="chapter" data-level="6.3" data-path="hierarchical-models.html"><a href="hierarchical-models.html#negative-within-group-correlations"><i class="fa fa-check"></i><b>6.3</b> Negative within-group correlations</a></li>
+<li class="chapter" data-level="6.4" data-path="hierarchical-models.html"><a href="hierarchical-models.html#random-coefficient-models-rikz-data"><i class="fa fa-check"></i><b>6.4</b> Random coefficient models: RIKZ data</a></li>
 </ul></li>
 </ul>
 
@@ -180,7 +180,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Computing companion for BMA / ST 590, Fall 2021</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
           </h1>
         </div>
 
@@ -582,8 +582,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="comparing-models-likelihood-ratio-test-and-aic" class="section level2" number="2.4">
 <h2><span class="header-section-number">2.4</span> Comparing models: Likelihood ratio test and AIC</h2>
-<p>Obtaining a parsimonious statistical description of data often requires arbitrating between competing model fits. Likelihood provides two tools for comparing models: likelihood ratio tests (LRTs) and information criteria. Of the latter, the best known information criterion is due to Akaike, and takes the name AIC. (Akaike didn’t name AIC after himself; he used AIC to refer to “An information criterion.” In his honor, the acronym is now largely taken to stand for “Akaike’s information criterion.”)</p>
-<p>LRTs and information criteria have complementary strengths and weaknesses. LRTs are direct, head-to-head comparisons of nested models. By “nested,” we mean that one model can be obtained as a special case of the other. The “reduced,” or less flexible (and thus more parsimonious) model plays the role of the null hypothesis, and the “full,” or more flexible (and thus less parsimonious) model plays the role of the alternative hypothesis. The LRT then formally evaluates whether the improvement in fit offered by the full model is statistically significant, that is, greater than what we would expect merely by chance.</p>
+<p>Obtaining a parsimonious statistical description of data often requires arbitrating between competing model fits. Likelihood provides two tools for comparing models: likelihood ratio tests (LRTs) and information criteria. Of the latter, the best known information criterion is due to Akaike, and takes the name AIC. (Akaike didn’t name AIC after himself; he used AIC to refer to “An information criterion”. In his honor, the acronym is now largely taken to stand for “Akaike’s information criterion”.)</p>
+<p>LRTs and information criteria have complementary strengths and weaknesses. LRTs are direct, head-to-head comparisons of nested models. By “nested”, we mean that one model can be obtained as a special case of the other. The “reduced”, or less flexible (and thus more parsimonious) model plays the role of the null hypothesis, and the “full”, or more flexible (and thus less parsimonious) model plays the role of the alternative hypothesis. The LRT then formally evaluates whether the improvement in fit offered by the full model is statistically significant, that is, greater than what we would expect merely by chance.</p>
 <p>On the other hand, information criteria provide a penalized goodness-of-fit measure that can be used to compare many models at once. Information criteria produce a ranking of model fits, and thus a best-fitting model. The downside to information criteria is that there are no hard and fast guidelines to determine when one model provides a significantly better fit than another. The properties of information criteria are also less well understood than the properties of LRTs.</p>
 <p>To illustrate both, we will use the study of cone production by fir trees studied in <span class="math inline">\(\S\)</span> 6.6 of Bolker. These data are originally from work by Dodd and Silvertown. The data are much richer than we will examine here. Like Bolker, we will focus on whether the relationship between tree size (as measured by diameter at breast height, or dbh) and the number of cones produces differs between populations that “have experienced wave-like die-offs” and those that have not.</p>
 <p>First some preparatory work to import and assemble the data:</p>
@@ -639,7 +639,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 \mu(x) &amp; = a x ^ b \\
 Y &amp; \sim \mbox{NB}(\mu(x), k) 
 \end{align*}\]</span></p>
-<p>To head in a slightly different direction from Bolker, we will compare two models. In the first, or reduced, model the same parameters will prevail for both wave and non-wave populations. Thus this model has three parameters: <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(k\)</span>. In the second, or full, model, we will allow the <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> parameters to differ between the wave and non-wave populations. (We will continue to assume a common <span class="math inline">\(k\)</span> for both population types.) Using subscripts on <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> to distinguish population types, the full model then has 5 parameters: <span class="math inline">\(a_w\)</span>, <span class="math inline">\(a_n\)</span>, <span class="math inline">\(b_w\)</span>, <span class="math inline">\(b_n\)</span>, and <span class="math inline">\(k\)</span>. We’ll fit the reduced model first. To do so, we’ll use the <code>dnbinom</code> function in R, in which the <span class="math inline">\(k\)</span> parameter is located in the formal argument “size.”</p>
+<p>To head in a slightly different direction from Bolker, we will compare two models. In the first, or reduced, model the same parameters will prevail for both wave and non-wave populations. Thus this model has three parameters: <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(k\)</span>. In the second, or full, model, we will allow the <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> parameters to differ between the wave and non-wave populations. (We will continue to assume a common <span class="math inline">\(k\)</span> for both population types.) Using subscripts on <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> to distinguish population types, the full model then has 5 parameters: <span class="math inline">\(a_w\)</span>, <span class="math inline">\(a_n\)</span>, <span class="math inline">\(b_w\)</span>, <span class="math inline">\(b_n\)</span>, and <span class="math inline">\(k\)</span>. We’ll fit the reduced model first. To do so, we’ll use the <code>dnbinom</code> function in R, in which the <span class="math inline">\(k\)</span> parameter is located in the formal argument “size”.</p>
 <div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-1" aria-hidden="true" tabindex="-1"></a>fir.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(parms, x, y){</span>
 <span id="cb127-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-2" aria-hidden="true" tabindex="-1"></a> </span>
 <span id="cb127-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-3" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> parms[<span class="dv">1</span>]</span>
@@ -916,7 +916,7 @@ Fitting proceeds in the usual way:</p>
 </div>
 <div id="the-negative-binomial-distriution-revisited" class="section level2" number="2.6">
 <h2><span class="header-section-number">2.6</span> The negative binomial distriution, revisited</h2>
-<p>The negative binomial distribution is a funny distribution that is frequently misunderstood by ecologists. In ecology, the negative binomial distribution is typically parameterized by the distribution’s mean (which we typically write as <span class="math inline">\(\mu\)</span>) and the “overdispersion parameter,” almost always written as <span class="math inline">\(k\)</span>. In this parameterization, if <span class="math inline">\(X\)</span> has a negative binomial distribution with mean <span class="math inline">\(\mu\)</span> and overdispersion parameter <span class="math inline">\(k\)</span>, then the variance of <span class="math inline">\(X\)</span> is
+<p>The negative binomial distribution is a funny distribution that is frequently misunderstood by ecologists. In ecology, the negative binomial distribution is typically parameterized by the distribution’s mean (which we typically write as <span class="math inline">\(\mu\)</span>) and the “overdispersion parameter”, almost always written as <span class="math inline">\(k\)</span>. In this parameterization, if <span class="math inline">\(X\)</span> has a negative binomial distribution with mean <span class="math inline">\(\mu\)</span> and overdispersion parameter <span class="math inline">\(k\)</span>, then the variance of <span class="math inline">\(X\)</span> is
 <span class="math display">\[
 Var(X) = \mu + \frac{\mu^2}{k}
 \]</span>

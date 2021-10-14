@@ -329,7 +329,12 @@ require(rstanarm)
 stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaussian, seed = 1)
 ```
 
-Note that `rstanarm` has made a variety of decisions about how many chains to run, how long to run them, etc.  We can obtain a summary of the model fit by the `print` command:
+We can discover the priors that `stan_glm` has selected by using the function `prior_summary`.
+```{r}
+prior_summary(stanarm.cricket.fit)
+```
+
+The `rstanarm` package has made a variety of decisions about how many chains to run, how long to run them, etc.  We can obtain a summary of the model fit by the `print` command:
 ```{r} 
 print(stanarm.cricket.fit, digits = 3)
 ```

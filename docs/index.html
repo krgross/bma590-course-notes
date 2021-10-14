@@ -4,27 +4,25 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Computing companion for BMA / ST 590, Fall 2021</title>
-  <meta name="description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  <title>Chapter 1 Maximum likelihood estimation | bookdown-demo</title>
+  <meta name="description" content="" />
   <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Computing companion for BMA / ST 590, Fall 2021" />
+  <meta property="og:title" content="Chapter 1 Maximum likelihood estimation | bookdown-demo" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
-  <meta name="github-repo" content="krgross/bma590-course-notes" />
+  
+  
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Computing companion for BMA / ST 590, Fall 2021" />
+  <meta name="twitter:title" content="Chapter 1 Maximum likelihood estimation | bookdown-demo" />
   
-  <meta name="twitter:description" content="Computing companion for BMA / ST 590, Statistical Modeling in Ecology, NCSU, Fall 2021." />
+  
   
 
-<meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2021-10-05" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -166,6 +164,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.3" data-path="smooth-regression.html"><a href="smooth-regression.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html"><i class="fa fa-check"></i><b>5</b> Generalized Least Squares</a></li>
+<li class="chapter" data-level="6" data-path="hierarchical-models.html"><a href="hierarchical-models.html"><i class="fa fa-check"></i><b>6</b> Hierarchical Models</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="hierarchical-models.html"><a href="hierarchical-models.html#one-factor-layout-dyestuff-data"><i class="fa fa-check"></i><b>6.1</b> One-factor layout: Dyestuff data</a></li>
+<li class="chapter" data-level="6.2" data-path="hierarchical-models.html"><a href="hierarchical-models.html#bayesian-analysis"><i class="fa fa-check"></i><b>6.2</b> Bayesian analysis</a></li>
+<li class="chapter" data-level="6.3" data-path="hierarchical-models.html"><a href="hierarchical-models.html#negative-within-group-correlations"><i class="fa fa-check"></i><b>6.3</b> Negative within-group correlations</a></li>
+<li class="chapter" data-level="6.4" data-path="hierarchical-models.html"><a href="hierarchical-models.html#random-coefficient-models-rikz-data"><i class="fa fa-check"></i><b>6.4</b> Random coefficient models: RIKZ data</a></li>
+</ul></li>
 </ul>
 
       </nav>
@@ -175,7 +180,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Computing companion for BMA / ST 590, Fall 2021</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
           </h1>
         </div>
 
@@ -183,11 +188,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Computing companion for BMA / ST 590, Fall 2021</h1>
-<p class="author"><em>Kevin Gross</em></p>
-<p class="date" style="margin-top: 1.5em;"><em>2021-10-05</em></p>
-</div>
+<!--bookdown:title:end-->
+<!--bookdown:title:start-->
 <div id="maximum-likelihood-estimation" class="section level1" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Maximum likelihood estimation</h1>
 <div id="a-very-simple-example-with-a-single-observation" class="section level2" number="1.1">
@@ -288,7 +290,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 
 ## $objective
 ## [1] -314.1545</code></pre>
-<p>The <code>optimize</code> function returns a ‘list.’ A list is an R object that contains components of different types. The numerically calculated MLE is <span class="math inline">\(\hat{\lambda} \approx 0.7\)</span>. The ‘objective’ component of  gives the value of the log-likelihood at that point.</p>
+<p>The <code>optimize</code> function returns a ‘list’. A list is an R object that contains components of different types. The numerically calculated MLE is <span class="math inline">\(\hat{\lambda} \approx 0.7\)</span>. The ‘objective’ component of  gives the value of the log-likelihood at that point.</p>
 </div>
 </div>
 <div id="myxomatosis-data" class="section level2" number="1.3">

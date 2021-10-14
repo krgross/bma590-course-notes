@@ -1,5 +1,3 @@
-\newcommand{\iid}{\stackrel{\text{iid}}{\sim}}
-
 # Hierarchical Models
 
 
@@ -50,7 +48,7 @@ To develop some notation, let $i = 1, \ldots, 6$ index the batches, let $j = 1, 
 As a starting point, we will fit the usual one-factor ANOVA model to these data.  This model is
 \begin{align}
 y_{ij} & = \mu_i + \varepsilon_{ij} \\
-\varepsilon_{ij} & \iid \mathcal{N}(0, \sigma^2). 
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2). 
 \end{align}
 
 ```r
@@ -162,8 +160,8 @@ The most salient components of this output are the estimate of the overall mean,
 Now we will fit a hierarchical model that includes a random effect for the batch.  We can write the model as
 \begin{align}
 y_{ij} & = \mu + B_i + \varepsilon_{ij} \\
-B_i & \iid \mathcal{N}(0, \sigma_B^2) \\
-\varepsilon_{ij} & \iid \mathcal{N}(0, \sigma_\varepsilon^2).
+B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_B^2) \\
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
 \end{align}
 
 
@@ -364,6 +362,16 @@ confint(pr, level = 0.99)
 
 Although we are not much in the habit of conducting hypothesis tests in this course, we would conclude that we would fail to reject the null hypothesis that the batch-level variance equals 0 with a 99\% level test.
 
+We can also obtain bivariate confidence regions from the profile likelihood using the `lattice::splom` command.
+
+```r
+lattice::splom(pr)
+```
+
+<img src="06-HierarchicalModels_files/figure-html/dyestuff bivariate confidence regions-1.png" width="672" />
+
+Panels above the diagonal show bivariate, profile-based confidence regions for each pair of parameters.  Within each panel, we see 50\%, 80\%, 90\%, 95\%, and 99\% confidence regions.  (You should be able to figure out which is which.)  The panels show, for example, that the estimate of the observation-level standard deviation is slightly negatively correlated with the estimate of the batch-level standard deviation.  Panels below the diagoanl show the same plots on the $\zeta$ scale.  See Bates (2012+) \S 1.5.3 for a detailed description of how to interpret these plots.
+
 There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters.  Famously, `lme4::lmer` does not provide degrees of freedom for the estimates of the fixed effects.  The package `lmerTest` uses the Satterthwaite approximation to estimate these df.
 
 
@@ -447,8 +455,8 @@ The above paragraph begs the question: What defines a hierarchical model?  One c
 
 This hierarchical perspective gives rise to an alternative formulation of the model.  This model is mathematically identical to the random-effects formulation above, but it emphasizes the hierarchical nature of the model a bit more.  For the dyestuff data, we might write the model as 
 \begin{align}
-B_i & \iid \mathcal{N}(\mu, \sigma^2_B) \\
-y_{ij}| B_i  & \iid \mathcal{N}(B_i, \sigma^2_\varepsilon) \\
+B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
+y_{ij}| B_i  & \stackrel{\text{iid}}{\sim} \mathcal{N}(B_i, \sigma^2_\varepsilon) \\
 \end{align}
 
 The hierarchical formulation states that the batch-specific means (the $B_i$'s) are latent variables drawn independently from a Gaussian distribution with mean $\mu$ and variance $\sigma^2_B$.  Conditional on the $B_i$'s, the observable data are drawn from a Gaussian distribution with mean $B_i$ and variance $\sigma^2_\varepsilon$.  
@@ -566,7 +574,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpyou3qh/modelc3424001d3.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpY7cX0Y/model2afc1865e44.txt", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -613,6 +621,652 @@ densityplot(jagsfit.mcmc)
 
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-7.png" width="672" />
 
-As of this writing, there are some aspects of the output that I don't understand.  The traceplots show that one chain starts far away from the region of high posterior density and then rapidly converges to it. This behavior seems to persist regardless of how long the burn-in period is, which doesn't make sense to me.  I also do not understand why `densityplot` produces a 6-by-1 stack of panels instead of a more useful layout.  Some of this may have to do with the interaction between `R2jags` and `rbookdown`, the version of R Markdown that I am using to create this document.
+As of this writing, there are some aspects of the output that I don't understand.  The traceplots show that one chain starts far away from the region of high posterior density and then rapidly converges to it. This behavior seems to persist regardless of how long the burn-in period is, which doesn't make sense to me.  I also do not understand why `densityplot` produces a 6-by-1 stack of panels instead of a more useful layout.  
 
 One especially appealing aspect of analyzing this model from a Bayesian perspective is that there is no awkwardness in analyzing the posterior distributions of the latent variables, namely, the batch-specific means.  From the frequentist perspective, it is somewhat awkward (though not prohibitively so) to define the conditional modes (BLUPs).  We also lack straightforward methods for quantifying the uncertainty in these conditional modes.  From the Bayesian viewpoint, this awkwardness disappears, because the distinction between model parameters and latent variables vanishes.  Both are simply unobserved quantities.  Consequently, it is natural to summarize our posterior knowledge about the latent variables by their (marginal) posterior distributions, in the same way that we use marginal posteriors to summarize our inferences about the model parameters.
+
+## Negative within-group correlations
+
+The hierarchical model formulation, regardless of whether analyzed from a frequentist or Bayesian perspective, is just a model.  All models are wrong, but some models are useful.  One can encounter grouped data where the hierarchical formulation is not useful.  To illustrate, we consider the `Dyestuff2` data provided in `lme4`.  These are synthetic (fake) data that have been created by Box & Tiao (1973) for the sake of illustration.  The Dyestuff2 data have the same structure as the original Dyestuff data, that is, 5 observations from each of 6 batches.
+
+
+```r
+data(Dyestuff2)
+summary(Dyestuff2)
+```
+
+```
+##  Batch     Yield       
+##  A:5   Min.   :-0.892  
+##  B:5   1st Qu.: 2.765  
+##  C:5   Median : 5.365  
+##  D:5   Mean   : 5.666  
+##  E:5   3rd Qu.: 8.151  
+##  F:5   Max.   :13.434
+```
+
+```r
+with(Dyestuff2, stripchart(Yield ~ Batch, pch = 16))
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+
+We'll begin by fitting a GLS model that includes a within-batch correlation:
+
+
+```r
+fm5 <- gls(Yield ~ 1, data = Dyestuff2, correlation = corCompSymm(form = ~ 1 | Batch))
+summary(fm5)
+```
+
+```
+## Generalized least squares fit by REML
+##   Model: Yield ~ 1 
+##   Data: Dyestuff2 
+##        AIC      BIC    logLik
+##   167.2092 171.3111 -80.60461
+## 
+## Correlation Structure: Compound symmetry
+##  Formula: ~1 | Batch 
+##  Parameter estimate(s):
+##        Rho 
+## -0.0970284 
+## 
+## Coefficients:
+##              Value Std.Error  t-value p-value
+## (Intercept) 5.6656 0.5271409 10.74779       0
+## 
+## Standardized residuals:
+##         Min          Q1         Med          Q3         Max 
+## -1.77661357 -0.78584319 -0.08143986  0.67335540  2.10464878 
+## 
+## Residual standard error: 3.691067 
+## Degrees of freedom: 30 total; 29 residual
+```
+
+Notice that the within-batch correlation is negative.  What does this imply about the structure of the data?
+
+Let's have a look at a hierarchical model, fit with `lmer`.
+
+```r
+fm6 <- lme4::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff2)
+```
+
+```
+## boundary (singular) fit: see ?isSingular
+```
+
+```r
+summary(fm6)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: Yield ~ 1 + (1 | Batch)
+##    Data: Dyestuff2
+## 
+## REML criterion at convergence: 161.8
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.7648 -0.7806 -0.0809  0.6689  2.0907 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  Batch    (Intercept)  0.00    0.000   
+##  Residual             13.81    3.716   
+## Number of obs: 30, groups:  Batch, 6
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept)   5.6656     0.6784   8.352
+## optimizer (nloptwrap) convergence code: 0 (OK)
+## boundary (singular) fit: see ?isSingular
+```
+
+The estimate of the among-batch variance, $\sigma^2_B$, is 0. The warning generated by R tells us that our fit is singular: one of the estimated parameters lies on the boundary of its possible values.  To quote Bates (2012+, using our notation):
+
+> "An estimate of 0 for $\sigma_B$ does not mean that there is no variation between the groups.  Indeed, ... there is some small amount of variability between the groups.  The estimate, $\hat{\sigma}_B=0$, simply indicates that the level of 'between-group' variability is not sufficient to warrant incorporating random effects in the model.
+
+> "The important point ... is that we must allow for the estimates of variance components to be zero.  We describe such a model as being degenerate, in the sense that it corresponds to a linear model in which we have removed the randdom effects associated with Batch.  Degenerate models can and do occur in practice.  Eveen when the final fitted model is not degenerate, we must allow for such models when determining the parameter estimates through numerical optimization."
+
+Can you think of any ecological mechanisms that might give rise to negative within-group correlations?
+
+## Random coefficient models: RIKZ data
+
+So-called random coefficient models are popular modeling structures in ecology.  Random-coefficient models are useful when data are grouped, like the Dyestuff data.  However, unlike the Dyestuff data, random-coefficient models refer to scenarios where the statistical model that we want to entertain within each group is more complex than just a simple random sample with a group-specific mean.
+
+To illustrate random-coefficient models, we will consider the RIKZ data from Zuur et al. (2009).  These data were first analyzed in an earlier textbook (Zuur et al.\ 2007).  Zuur et al. (2009, p. 101) describe the data as follows:
+
+> "Zuur et al. (2007) used marine benthic data from nine inter-tidal areas along the Dutch coast. The data were collected by the Dutch institute RIKZ in the summer of 2002. In each inter-tidal area (denoted by ‘beach’), five samples were taken, and the macro-fauna and abiotic variables were measured. ... The underlying question for these data is whether there is a relationship between species richness, exposure, and NAP (the height of a sampling station compared to mean tidal level). Exposure is an index composed of the following elements: wave action, length of the surf zone, slope, grain size, and the depth of the anaerobic layer."
+
+In other words, there are 9 beaches, and 5 samples from each beach.  The response, measured at each sample, is the macrofaunal species richness.  There are two covariates: NAP, which is a sample-level covariate, and exposure, which is a beach-level covariate.  For the moment, we will ignore the exposure covariate, and seek only to model the relationship between species richness and NAP.  Because species richness is a count variable and includes the occasional zero (and because we have not yet discussed hierarchical models for non-Gaussian responses) we will use the square-root of richness as a variance-stabilizing transformation.  Using the square root of species richness as the response has the added benefit of making our analysis different from the analysis in Zuur et al. (2009).
+
+Like all data from Zuur et al. (2009), the data are available for download from the book's associated webpage.  We will read in the data and do some housekeeping first.
+
+
+```r
+require(lme4)
+require(lmerTest)
+
+rikz <- read.table("C:/Users/krgross/Documents/Teaching/bma590/ZuurDataMixedModelling/RIKZ.txt", head = T)
+
+with(rikz, plot(Richness ~ NAP, pch = Beach))  # raw response; note the non-constant variance
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+
+```r
+with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach))  # transformation stabilizes the variance
+legend("topright", leg = 1:9, pch = 1:9)
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-2.png" width="672" />
+
+
+```r
+# change the Beach variable to a factor
+# would have been better to code the beaches as b1, b2, ...
+
+rikz$fBeach <- as.factor(rikz$Beach)
+```
+
+To develop some notation for modeling, let $i=1, \ldots, 9$ index the different beaches, let $j = 1, \ldots, 5$ index the different samples at each beach, let $y_{ij}$ be the square root of the species richness at sample $j$ at beach $i$, and let $x_{ij}$ be the NAP covariate at sample $j$ at beach $i$.
+
+We'll fit a linear regression of (transformed) species richness vs.\ NAP at each beach.  We'll begin by fitting a model with a common slope but a separate intercept for each beach.  We'll think of these beaches as a representative sample from a larger collection of beaches, and thus use a random effect to capture the differences among the beach-specific intercepts.  Using the notational style of mixed modeling, we could write our model as
+\begin{align*}
+y_{ij} & = a + A_i + b x_{ij} + \varepsilon_{ij} \\
+A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_a^2) \\
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}
+
+Here, the $A_i$'s are the beach-level random effects for the intercept.  Alternatively, we could write
+\begin{align*}
+y_{ij} & = A_i + b x_{ij} + \varepsilon_{ij} \\
+A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) \\
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}
+
+Or, using the notational style of hierarchical modeling, we could write the same model as
+\begin{align*}
+A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) \\
+y_{ij} | A_i & \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2)
+\end{align*}
+
+We'll fit the model using `lmerTest::lmer`.
+
+```r
+#######################
+# Model 1: random intercept
+#######################
+
+fm1 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 | fBeach), data = rikz)
+
+summary(fm1)
+```
+
+```
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
+##    Data: rikz
+## 
+## REML criterion at convergence: 97.1
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.5693 -0.4286 -0.1869  0.3230  2.9399 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  fBeach   (Intercept) 0.2957   0.5438  
+##  Residual             0.3460   0.5882  
+## Number of obs: 45, groups:  fBeach, 9
+## 
+## Fixed effects:
+##             Estimate Std. Error       df t value Pr(>|t|)    
+## (Intercept)  2.37424    0.20405  8.36034  11.635 1.88e-06 ***
+## NAP         -0.68063    0.09501 37.15971  -7.163 1.68e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##     (Intr)
+## NAP -0.162
+```
+
+```r
+# extract the conditional modes for the beach random effects
+ranef(fm1)
+```
+
+```
+## $fBeach
+##   (Intercept)
+## 1   0.4962684
+## 2   1.0050819
+## 3  -0.4791252
+## 4  -0.4104708
+## 5   0.2444787
+## 6  -0.2252788
+## 7  -0.2858167
+## 8  -0.2124511
+## 9  -0.1326862
+## 
+## with conditional variances for "fBeach"
+```
+
+```r
+# replot the data and add a line for the average relationship across all beaches
+with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach))
+legend("topright", leg = 1:9, pch = 1:9)
+
+a <- coef(summary(fm1))[1, 1]
+b <- coef(summary(fm1))[2, 1]
+
+abline(a = a, b = b, col = "red", lwd = 2)
+
+# highlight beach 1
+
+with(subset(rikz, Beach == 1), points(x = NAP, y = sqrt(Richness), col = "red", pch = 16))
+
+c.mode <- ranef(fm1)$fBeach
+
+abline(a = a + c.mode[1, 1], b = b, col = "red", lty = "dotted")
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-25-1.png" width="672" />
+
+```r
+# make a plot with a line for each beach
+
+with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach))
+legend("topright", leg = 1:9, pch = 1:9)
+
+a <- coef(summary(fm1))[1, 1]
+b <- coef(summary(fm1))[2, 1]
+
+abline(a = a, b = b, col = "red", lwd = 2)
+
+for(i in 1:9){
+ abline(a = a + c.mode[i, 1], b = b, col = "red", lty = "dotted") 
+}
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-25-2.png" width="672" />
+
+Next, we will fit a model with random intercepts and slopes for each beach.  We have two options here.  Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent.  To write the first model in mixed-model notation, we might write
+\begin{align*}
+y_{ij} & = A_i + B_i x_{ij} + \varepsilon_{ij} \\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i & \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right) \\
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}
+
+To fit the model using `lmerTest::lmer`, we use
+
+```r
+#######################
+# Model 2: random slope and intercept (possibly correlated)
+#######################
+
+fm2 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach), data = rikz)  
+summary(fm2)
+```
+
+```
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
+##    Data: rikz
+## 
+## REML criterion at convergence: 92.5
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.6245 -0.4430 -0.1095  0.3023  2.1610 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev. Corr 
+##  fBeach   (Intercept) 0.4389   0.6625        
+##           NAP         0.1582   0.3978   -0.41
+##  Residual             0.2159   0.4647        
+## Number of obs: 45, groups:  fBeach, 9
+## 
+## Fixed effects:
+##             Estimate Std. Error      df t value Pr(>|t|)    
+## (Intercept)   2.4369     0.2348  7.9127  10.379 6.97e-06 ***
+## NAP          -0.7026     0.1543  6.7971  -4.552  0.00283 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##     (Intr)
+## NAP -0.390
+```
+
+```r
+ranef(fm2)
+```
+
+```
+## $fBeach
+##   (Intercept)         NAP
+## 1  0.58582836  0.28968087
+## 2  1.04861982  0.03238569
+## 3 -0.59675334  0.16380577
+## 4 -0.62048288  0.21645636
+## 5  0.71297097 -0.79575937
+## 6 -0.36919268  0.24605745
+## 7 -0.43364056  0.09313482
+## 8 -0.29451043  0.02643661
+## 9 -0.03283925 -0.27219819
+## 
+## with conditional variances for "fBeach"
+```
+
+```r
+# make a plot
+
+with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach))
+legend("topright", leg = 1:9, pch = 1:9)
+
+# add a line for the average relationship across all beaches
+
+a <- coef(summary(fm2))[1, 1]
+b <- coef(summary(fm2))[2, 1]
+
+abline(a = a, b = b, col = "red", lwd = 2)
+
+# add a line for beach 1
+
+with(subset(rikz, Beach == 1), points(x = NAP, y = sqrt(Richness), col = "red", pch = 16))
+
+c.mode <- ranef(fm2)$fBeach
+
+abline(a = a + c.mode[1, 1], b = b + c.mode[1, 2], col = "red", lty = "dotted")
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+
+Let's make a scatterplot of the conditional modes of the random intercepts and slopes 
+
+
+```r
+# plot the conditional modes of the random effects
+
+plot(x = a + c.mode[, 1], y = b + c.mode[, 2], xlab = "intercept", ylab = "slope", pch = as.character(1:9))
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+
+Finally, we can test the null hypothesis that $\sigma_B^2 = 0$ by a call to `anova`.  Note that `anova` in this case refits the models with ML before executing the test.
+
+```r
+anova(fm1, fm2)  # could compare REML fits by fitting both models with nlme::lme
+```
+
+```
+## refitting model(s) with ML (instead of REML)
+```
+
+```
+## Data: rikz
+## Models:
+## fm1: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
+## fm2: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
+##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)
+## fm1    4 100.83 108.06 -46.416   92.833                     
+## fm2    6 101.26 112.10 -44.630   89.259 3.5736  2     0.1675
+```
+
+We cannot reject the null hypothesis that $\sigma_B^2 = 0$.
+
+Now we try a model with independent random effects for intercepts and slopes, and compare this model to previous ones.  This model is
+\begin{align*}
+y_{ij} & = A_i + B_i x_{ij} + \varepsilon_{ij} \\
+A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma^2_A) \\
+B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}
+
+
+```r
+#######################
+# Model 2a: random slope and intercept (independent)
+#######################
+
+fm2a <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach), data = rikz)
+anova(fm1, fm2a, fm2)
+```
+
+```
+## refitting model(s) with ML (instead of REML)
+```
+
+```
+## Data: rikz
+## Models:
+## fm1: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
+## fm2a: sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach)
+## fm2: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
+##      npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)
+## fm1     4 100.83 108.06 -46.416   92.833                     
+## fm2a    5 100.16 109.19 -45.078   90.156 2.6767  1     0.1018
+## fm2     6 101.26 112.10 -44.630   89.259 0.8969  1     0.3436
+```
+
+Here we see a conflict between AIC and the LRT.  AIC favors the model with random but independent intercepts and slopes, whereas the LRT continues to suggest that we cannot reject the null hypothesis that $\sigma_B^2 = 0$.
+
+Finally, we consider the effect of exposure, a beach-level covariate.  Exposure is coded in the data set as a numerical predictor.  However, there are only three unique values: 8, 10, and 11 (and only one beach has exposure level 8).  We will follow Zuur et al.\ (2009) in treating exposure as a binary predictor, grouping the beaches with exposure levels 8 and 10 together as low exposure beaches.
+
+
+```r
+# create an 'exposure' factor, with two levels: low and high
+
+with(rikz, table(fBeach, Exposure))
+```
+
+```
+##       Exposure
+## fBeach 8 10 11
+##      1 0  5  0
+##      2 5  0  0
+##      3 0  0  5
+##      4 0  0  5
+##      5 0  5  0
+##      6 0  0  5
+##      7 0  0  5
+##      8 0  5  0
+##      9 0  5  0
+```
+
+```r
+rikz$fExp <- rikz$Exposure  # make a new variable so that we can leave the original alone
+rikz$fExp[rikz$Exposure == 8] <- 10  # assign a value of 10 to the lone beach with exposure = 8
+rikz$fExp <- as.factor(rikz$fExp)  # make the new variable into a factor
+
+summary(rikz)
+```
+
+```
+##      Sample      Richness         Exposure          NAP              Beach  
+##  Min.   : 1   Min.   : 0.000   Min.   : 8.00   Min.   :-1.3360   Min.   :1  
+##  1st Qu.:12   1st Qu.: 3.000   1st Qu.:10.00   1st Qu.:-0.3750   1st Qu.:3  
+##  Median :23   Median : 4.000   Median :10.00   Median : 0.1670   Median :5  
+##  Mean   :23   Mean   : 5.689   Mean   :10.22   Mean   : 0.3477   Mean   :5  
+##  3rd Qu.:34   3rd Qu.: 8.000   3rd Qu.:11.00   3rd Qu.: 1.1170   3rd Qu.:7  
+##  Max.   :45   Max.   :22.000   Max.   :11.00   Max.   : 2.2550   Max.   :9  
+##                                                                             
+##      fBeach   fExp   
+##  1      : 5   10:25  
+##  2      : 5   11:20  
+##  3      : 5          
+##  4      : 5          
+##  5      : 5          
+##  6      : 5          
+##  (Other):15
+```
+
+We will consider a model in which we use separate distributions of random intercepts for the the low- and high-exposure beaches.  To fit this model, we will need to embellish our notation.  Now, let $i=1, 2$ index the exposure level of the beaches.  Let $j=1,\ldots, n_i$ index the replicate beaches within each exposure level.  Let $k=1, \ldots, 5$ index the samples at each beach.  We consider the model
+\begin{align*}
+y_{ijk} & = A_{ij} + b_i x_{ijk} + \varepsilon_{ijk} \\
+A_{ij} & \sim \mathcal{N}(a_i, \sigma^2_A) \\
+\varepsilon_{ijk} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}
+
+<!--\begin{align*}
+y_{ijk} & = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
+\left(\begin{array}{c} A \\ B \end{array} \right)_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a_i \\ b_i \end{array} \right),  \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right) \\
+\varepsilon_{ijk} & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_\varepsilon^2).
+\end{align*}-->
+
+
+```r
+#######################
+# Model 3: random intercept, with effect of exposure
+#######################
+
+fm3 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + fExp + NAP:fExp + (1 | fBeach), data = rikz)
+
+# equivalently
+
+fm3 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP * fExp + (1 | fBeach), data = rikz)
+
+summary(fm3)
+```
+
+```
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: sqrt(Richness) ~ 1 + NAP * fExp + (1 | fBeach)
+##    Data: rikz
+## 
+## REML criterion at convergence: 89.7
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.4532 -0.5066 -0.0280  0.3478  2.6221 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  fBeach   (Intercept) 0.1395   0.3735  
+##  Residual             0.3182   0.5641  
+## Number of obs: 45, groups:  fBeach, 9
+## 
+## Fixed effects:
+##             Estimate Std. Error      df t value Pr(>|t|)    
+## (Intercept)   2.7722     0.2047  7.3111  13.544 1.92e-06 ***
+## NAP          -0.8580     0.1207 37.7420  -7.110 1.82e-08 ***
+## fExp11       -0.9213     0.3096  7.5513  -2.976   0.0189 *  
+## NAP:fExp11    0.3979     0.1818 37.1348   2.189   0.0350 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##            (Intr) NAP    fExp11
+## NAP        -0.174              
+## fExp11     -0.661  0.115       
+## NAP:fExp11  0.115 -0.664 -0.212
+```
+
+The significance of the interaction between NAP and exposure suggests that the relationship between species richness and NAP differs between the low- and high-exposure beaches.
+
+We'll visualize the model with a plot.  The code below is ugly and could be improved.
+
+```r
+a0 <- coef(summary(fm3))[1, 1]  # marginal intercept for low-exposure beaches
+b0 <- coef(summary(fm3))[2, 1]  # marginal slope for low-exposure beaches
+a1 <- coef(summary(fm3))[3, 1]  # difference in marginal intercepts for high vs low 
+b1 <- coef(summary(fm3))[4, 1]  # difference in marginal slopes for high vs low
+
+c.mode <- ranef(fm3)$fBeach
+
+low.beaches <- c(1, 2, 5, 8, 9)
+high.beaches <- c(3, 4, 6, 7)
+
+par(mfrow = c(1, 2))  # split the plot region
+
+with(rikz, plot(sqrt(Richness) ~ NAP, 
+                type     = "n", 
+                main     = "Exposure = 8 or 10"))  # set up the axes
+
+with(subset(rikz, fExp == "10"), points(sqrt(Richness) ~ NAP, pch = Beach))  # plot points for low exposure beaches
+
+abline(a = a0, b = b0, col = "red", lwd = 2)  # add the average line for low-exposure beaches
+
+for (i in 1:length(low.beaches)) {
+  
+  abline(a = a0 + c.mode[low.beaches[i], 1], b = b0, col = "red", lty = "dotted")
+}
+
+# Repeat for high exposure beaches
+
+with(rikz, plot(sqrt(Richness) ~ NAP, 
+                type     = "n", 
+                main     = "Exposure = 11"))  # set up the axes
+
+with(subset(rikz, fExp == "11"), points(sqrt(Richness) ~ NAP, pch = Beach))  # plot points for low exposure beaches
+
+abline(a = a0 + a1, b = b0 + b1, col = "blue", lwd = 2)  # add the average line for low-exposure beaches
+
+for (i in 1:length(high.beaches)) {
+  
+  abline(a = a0 + a1 + c.mode[high.beaches[i], 1], b = b0 + b1, col = "blue", lty = "dotted")
+}
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+
+<!-- Finally, we'll fit a model in which the slope does not depend on exposure, just for comparison.  That is, we entertain the model -->
+<!-- \begin{align*} -->
+<!-- y_{ijk} & = A_{ij} + b x_{ijk} + \varepsilon_{ijk} \\ -->
+<!-- A_{ij} & \sim \mathcal{N}(a_i, \sigma^2_A) \\ -->
+<!-- \varepsilon_{ijk} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). -->
+<!-- \end{align*} -->
+
+<!-- ```{r} -->
+<!-- fm4 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + fExp + (1 | fBeach), data = rikz) -->
+
+<!-- a0 <- coef(summary(fm4))[1, 1]  # marginal intercept for low-exposure beaches -->
+<!-- b0 <- coef(summary(fm4))[2, 1]  # common slope for all beaches -->
+<!-- a1 <- coef(summary(fm4))[3, 1]  # difference in marginal intercepts for high vs low  -->
+
+<!-- c.mode <- ranef(fm4)$fBeach -->
+
+<!-- # this code is ugly, but oh well -->
+
+<!-- par(mfrow = c(1, 2))  # split the plot region -->
+
+<!-- with(rikz, plot(sqrt(Richness) ~ NAP,  -->
+<!--                 type     = "n",  -->
+<!--                 main     = "Exposure = 8 or 10"))  # set up the axes -->
+
+<!-- with(subset(rikz, fExp == "10"), points(sqrt(Richness) ~ NAP, pch = Beach))  # plot points for low exposure beaches -->
+
+<!-- abline(a = a0, b = b0, col = "red", lwd = 2)  # add the average line for low-exposure beaches -->
+
+<!-- for (i in 1:length(low.beaches)) { -->
+
+<!--   abline(a = a0 + c.mode[low.beaches[i], 1], b = b0, col = "red", lty = "dotted") -->
+<!-- } -->
+
+<!-- # Repeat for high exposure beaches -->
+
+<!-- with(rikz, plot(sqrt(Richness) ~ NAP,  -->
+<!--                 type     = "n",  -->
+<!--                 main     = "Exposure = 11"))  # set up the axes -->
+
+<!-- with(subset(rikz, fExp == "11"), points(sqrt(Richness) ~ NAP, pch = Beach))  # plot points for low exposure beaches -->
+
+<!-- abline(a = a0 + a1, b = b0, col = "blue", lwd = 2)  # add the average line for low-exposure beaches -->
+
+<!-- for (i in 1:length(high.beaches)) { -->
+
+<!--   abline(a = a0 + a1 + c.mode[high.beaches[i], 1], b = b0, col = "blue", lty = "dotted") -->
+<!-- } -->
+
+<!-- # we want a model where the variance of the random beach effects differs between low vs. high exposure beaches. -->
+<!-- # how do we do that?? -->
+<!-- ``` -->
+
+In the homework, you will a consider a model with both random intercepts and slopes, and in which the mean intercept and slope depends on the exposure of the beach.

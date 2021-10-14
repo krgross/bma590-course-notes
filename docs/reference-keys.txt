@@ -24,3 +24,5 @@ generalized-least-squares
 hierarchical-models
 one-factor-layout-dyestuff-data
 bayesian-analysis
+negative-within-group-correlations
+random-coefficient-models-rikz-data
