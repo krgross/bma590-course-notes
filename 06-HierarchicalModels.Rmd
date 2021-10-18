@@ -153,8 +153,8 @@ There is a second approach to calculating confidence intervals and/or conducting
 
 ```{r}
 require(lmerTest)
-fm4 <- lmerTest::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
-summary(fm4)
+fm5 <- lmerTest::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
+summary(fm5)
 ```
 `lmerTest::lmer` gives the associated df for the estimate of the intercept as 5.  If this were a class in experimental design, we would regard the individual measurements from each batch as subsamples, in which case the correct df for inferences about the intercept should be $6 - 1 = 5$.  In this case, the calculation from `lmerTest::lmer` matches our intuition.
 
@@ -266,8 +266,8 @@ with(Dyestuff2, stripchart(Yield ~ Batch, pch = 16))
 We'll begin by fitting a GLS model that includes a within-batch correlation:
 
 ```{r dyestuff2-gls}
-fm5 <- gls(Yield ~ 1, data = Dyestuff2, correlation = corCompSymm(form = ~ 1 | Batch))
-summary(fm5)
+fm6 <- gls(Yield ~ 1, data = Dyestuff2, correlation = corCompSymm(form = ~ 1 | Batch))
+summary(fm6)
 ```
 
 Notice that the within-batch correlation is negative.  What does this imply about the structure of the data?
@@ -320,11 +320,11 @@ rikz$fBeach <- as.factor(rikz$Beach)
 
 ### Analysis without beach-level covariate
 
+#### Using fixed effects for among-beach differences
+
 To develop some notation for modeling, let $i=1, \ldots, 9$ index the different beaches, let $j = 1, \ldots, 5$ index the different samples at each beach, let $y_{ij}$ be the square root of the species richness at sample $j$ at beach $i$, and let $x_{ij}$ be the NAP covariate at sample $j$ at beach $i$.
 
-In a standard linear models course, we would identify this as a blocked design in which the beaches are the individual blocks, and the samples are nested within the beaches.  NAP is a quantitative, sample-level covariate.  
-
-Suppose we wish to characterize the relationship between NAP and (the square root of) species richness, while controlling for differences among the beaches.  To do so, we entertain the model
+In a standard linear models course, we would identify this as a two-factor design with a categorical factor (the beaches) and a numerical factor (NAP).   Suppose we wish to characterize the relationship between NAP and (the square root of) species richness, while controlling for differences among the beaches.  To do so, we might entertain the additive model
 \begin{align*}
 y_{ij} & = a_i + b x_{ij} + \varepsilon_{ij} \\
 \varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). 
@@ -342,7 +342,7 @@ to emphasize that the mean of each observation ($\mu_{ij}$) is equal to the sum 
 y_{ij} \sim \mathcal{N}(a_i + b x_{ij}, \sigma_\varepsilon^2). 
 \end{equation}
 
-In any case, the model states that each observation is drawn independently from a Gaussian distribution.  The fitted value (or mean) for each datum is determined by a regression line with beach-specific intercepts and a common slope.  The error variance is the same for all observations.
+In any case, the model states that each observation is drawn independently from a Gaussian distribution.  The fitted value (or mean) for each datum is determined by a regression line with beach-specific intercepts and a common slope.  (The additive model has the same structure has a parallel-lines ANCOVA.) The error variance is the same for all observations.
 
 Let's fit the model and see what it yields.  
 ```{r rikz-fixed0}
@@ -386,7 +386,46 @@ for(i in 1:9){
 rm(fm0.temp)
 ```
 
-Now let's compare this model to one in which the differences among the beach-level intercepts are captured with a random effect instead.  A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection.  Using the notational style of mixed modeling, we could write our model as
+Continuing with the fixed-effects analysis, we might also consider a model in which the relationship between NAP and species richness varies among beaches.  In other words, we might fit a model with a beach-by-NAP interaction.  This model is
+\begin{align*}
+y_{ij} & = a_i + b_i x_{ij} + \varepsilon_{ij} \\
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). 
+\end{align*}
+
+We fit this model in the usual way:
+```{r}
+fm0b <- lm(sqrt(Richness) ~ fBeach * NAP, data = rikz)
+summary(fm0b)
+```
+
+We can test for whether the differences among the slopes for the beaches are statistically significant with the usual $F$-test:
+```{r}
+anova(fm0, fm0b)
+```
+
+We'll save the model of the beach-specific intercepts and slopes, and use them to visualize the fit.  We'll do the usual trick of refitting the model without the intercept to make it easy to extract the beach-level intercepts and slopes
+```{r}
+fm0b.temp <- lm(sqrt(Richness) ~ fBeach + fBeach:NAP - 1, data = rikz)
+(fixed.params <- data.frame(beach     = 1:9,
+                            intercept = coef(fm0b.temp)[1:9], 
+                            slope     = coef(fm0b.temp)[10:18]))
+row.names(fixed.params) <- NULL
+
+with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach, main = "Fixed-effects fit, with beach-NAP interaction"))
+legend("topright", leg = 1:9, pch = 1:9)
+
+for(i in 1:9){
+  abline(a = fixed.params$intercept[i], b = fixed.params$slope[i], 
+         col = "red", lty = "dotted") 
+}
+```
+```{r include=FALSE}
+rm(fm0b.temp)
+```
+
+#### Using random-effects for among-beach differences
+
+Now let's use random effects to capture the differences among beaches.  A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection.  We'll start with the additive model again, so that the random beach effect only affects the intercept.  Using the notational style of mixed modeling, we could write our model as
 \begin{align*}
 y_{ij} & = A_i + b x_{ij} + \varepsilon_{ij} \\
 A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) \\
@@ -401,10 +440,6 @@ A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2)
 
 We'll fit the model using `lmerTest::lmer`.
 ```{r}
-#######################
-# Model 1: random intercept
-#######################
-
 fm1 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 | fBeach), data = rikz)
 
 summary(fm1)
@@ -440,44 +475,7 @@ for(i in 1:9){
 
 Though it's subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.
 
-Next, we might want to consider if the slope of the relationship between NAP and species richness differs among the beaches as well.  Again, we'll begin with the fixed-effect specification in which inferences apply only to these 9 beaches.  The fixed-effects model is
-\begin{align*}
-y_{ij} & = a_i + b_i x_{ij} + \varepsilon_{ij} \\
-\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). 
-\end{align*}
-
-To fit this model, we use
-```{r}
-fm0b <- lm(sqrt(Richness) ~ fBeach * NAP, data = rikz)
-summary(fm0b)
-```
-
-We can test for whether the differences among the slopes for the beaches are statistically significant in the usual way:
-```{r}
-anova(fm0, fm0b)
-```
-
-We'll save the model of the beach-specific intercepts and slopes, and use them to visualize the fit.  We'll do the usual trick of refitting the model without the intercept to make it easy to extract the beach-level intercepts and slopes
-```{r}
-fm0b.temp <- lm(sqrt(Richness) ~ fBeach + fBeach:NAP - 1, data = rikz)
-(fixed.params <- data.frame(beach     = 1:9,
-                            intercept = coef(fm0b.temp)[1:9], 
-                            slope     = coef(fm0b.temp)[10:18]))
-row.names(fixed.params) <- NULL
-
-with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach, main = "Fixed-effects fit, with beach-NAP interaction"))
-legend("topright", leg = 1:9, pch = 1:9)
-
-for(i in 1:9){
-  abline(a = fixed.params$intercept[i], b = fixed.params$slope[i], 
-         col = "red", lty = "dotted") 
-}
-```
-```{r include=FALSE}
-rm(fm0b.temp)
-```
-
-Now let's consider a model with beach-specific intercepts and slopes, but treat the beaches as a random sample.  In other words, we'll fit a "random coefficients" model with random intercepts and slopes for each beach. We have two options here.  Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent.  To write the first model in mixed-model notation, we might write
+Now let's consider a model that includes both separate intercepts and slopes for each beach, while continuing to model the among-beach differences in both with random effects.  In other words, we'll fit a "random coefficients" model with random intercepts and slopes for each beach. We have two options here.  Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent.  To write the first model in mixed-model notation, we might write
 \begin{align*}
 y_{ij} & = A_i + B_i x_{ij} + \varepsilon_{ij} \\
 \left(\begin{array}{c} A \\ B \end{array} \right)_i & \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right) \\
@@ -486,10 +484,6 @@ y_{ij} & = A_i + B_i x_{ij} + \varepsilon_{ij} \\
 
 To fit the model using `lmerTest::lmer`, we use
 ```{r}
-#######################
-# Model 2: random slope and intercept (possibly correlated)
-#######################
-
 fm2 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach), data = rikz)  
 summary(fm2)
 ```
@@ -511,27 +505,23 @@ B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
 
 To fit it in R, we use
 ```{r}
-#######################
-# Model 2a: random slope and intercept (independent)
-#######################
-
-fm2a <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach), data = rikz)
-summary(fm2a)
+fm3 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach), data = rikz)
+summary(fm3)
 ```
 
 Because each of these random-effect models are nested within one another, we can compare them directly with LRTs:
 ```{r}
-anova(fm1, fm2a, fm2)
+anova(fm1, fm3, fm2)
 ```
 
 Here we see a conflict between AIC and the LRT.  AIC favors the model with random but independent intercepts and slopes, whereas the LRT continues to suggest that we cannot reject the null hypothesis that $\sigma_B^2 = 0$.
 
-Finally, let's compare the conditional modes for the intercepts and slopes from model `fm2a` with the beach-specific intercept and slopes from the fixed-effects model.
+Finally, let's compare the conditional modes for the intercepts and slopes from model `fm3` with the beach-specific intercept and slopes from the fixed-effects model.
 
 ```{r}
 (conditional.modes  <- data.frame(beach     = 1:9,
-                                  intercept = fixef(fm2a)["(Intercept)"] + ranef(fm2a)$fBeach$`(Intercept)`, 
-                                  slope     = fixef(fm2a)["NAP"] + ranef(fm2a)$fBeach$`NAP`))
+                                  intercept = fixef(fm3)["(Intercept)"] + ranef(fm3)$fBeach$`(Intercept)`, 
+                                  slope     = fixef(fm3)["NAP"] + ranef(fm3)$fBeach$`NAP`))
 ```
 
 Let's make a scatterplot that compares the fixed-effect estimates to the conditional modes.
@@ -540,7 +530,7 @@ par(mfrow = c(1, 2))
 with(fixed.params, plot(slope ~ intercept, main = "fixed-effects fit", pch = 1:9))
 with(fixed.params, plot(slope ~ intercept, main = "conditional modes", type = "n"))
 with(conditional.modes, points(slope ~ intercept, pch = 1:9))
-points(fixef(fm2a)[1], fixef(fm2a)[2], pch = 16, col = "red", cex = 2)
+points(fixef(fm3)[1], fixef(fm3)[2], pch = 16, col = "red", cex = 2)
 ```
 
 Note, again, that the conditional modes of the intercepts and slopes have shrunk (sometimes substantially) back towards the population means of each.  The population means of the intercept and slope are shown by the red dot on the right-hand panel.  Finally, we visualize the model by plotting beach-specific "fits":
@@ -555,6 +545,7 @@ for(i in 1:9){
          col = "red", lty = "dotted") 
 }
 
+abline(a = fixef(fm3)[1], b = fixef(fm3)[2], col = "red", lwd = 2)
 ```
 
 ### Adding a beach-level covariate
@@ -593,8 +584,8 @@ A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A) \\
 \end{align*}
 We fit this model in R with the code
 ```{r}
-fm3 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 | fBeach), data = rikz) 
-summary(fm3)
+fm4 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 | fBeach), data = rikz) 
+summary(fm4)
 ```
 
 The model with independent intercepts and slopes can be written as 
@@ -606,9 +597,9 @@ B_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(b_i, \sigma^2_B) \\
 \end{align*}
 We fit this model with the code
 ```{r}
-fm4 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 | fBeach) + (0 + NAP | fBeach),
+fm5 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 | fBeach) + (0 + NAP | fBeach),
                       data = rikz) 
-summary(fm4)
+summary(fm5)
 ```
 
 The model with possibly correlated random intercepts and slopes can be written as
@@ -620,19 +611,19 @@ y_{ijk} & = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
 
 We fit the model in R as follows
 ```{r rikz model3}
-fm5 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 + NAP| fBeach), data = rikz)  
-summary(fm5)
+fm6 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 + NAP| fBeach), data = rikz)  
+summary(fm6)
 ```
 
 Because these models form a series of nested models, we can use LRTs or AIC to find the most parsimonious fit.
 ```{r}
-anova(fm3, fm4, fm5)
+anova(fm4, fm5, fm6)
 ```
 
 Both AIC and the LRT suggest that the model with only random intercepts provides the most parsimonious fit.  Let's take a closer look at that fit
 
 ```{r}
-summary(fm3)
+summary(fm4)
 ```
 
 We can analyze the fixed-effects as follows.  Based on the contrasts R has used, the low exposure beaches are the baseline; thus the values for the "Intercept" and "NAP" coefficients give the intercept and slope for low-exposure beaches.  The values of the "fExp11" and "fExp11:NAP" coefficients (resp.) give the differences of the intercepts and slopes (resp.) between the high vs.\ low exposure beaches.  Thus the negative value of the "NAP" coefficient suggests that species richness declines as NAP increases at low-exposure beaches.  The positive coefficient for the "fExp11:NAP" interaction suggests that species richness declines more gradually with increasing NAP at high-exposure beaches as compared to low-exposure beaches.  Because we have analyzed the square-root transform of the response, it is hard to assign any biological meaning to the magnitudes of the coefficients.  This is one downside of using a transformation to stabilize the variance in the response.
@@ -640,12 +631,12 @@ We can analyze the fixed-effects as follows.  Based on the contrasts R has used,
 
 We'll visualize the model with a plot.  The code below is ugly and could be improved.
 ```{r}
-a0 <- fixef(fm3)[1]  # marginal intercept for low-exposure beaches
-b0 <- fixef(fm3)[2]  # marginal slope for low-exposure beaches
-a1 <- fixef(fm3)[3]  # difference in marginal intercepts for high vs low 
-b1 <- fixef(fm3)[4]  # difference in marginal slopes for high vs low
+a0 <- fixef(fm4)[1]  # marginal intercept for low-exposure beaches
+b0 <- fixef(fm4)[2]  # marginal slope for low-exposure beaches
+a1 <- fixef(fm4)[3]  # difference in marginal intercepts for high vs low 
+b1 <- fixef(fm4)[4]  # difference in marginal slopes for high vs low
 
-c.mode <- ranef(fm3)$fBeach
+c.mode <- ranef(fm4)$fBeach
 
 low.beaches <- c(1, 2, 5, 8, 9)
 high.beaches <- c(3, 4, 6, 7)
@@ -689,13 +680,13 @@ for (i in 1:length(high.beaches)) {
 <!-- \end{align*} -->
 
 <!-- ```{r} -->
-<!-- fm4 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + fExp + (1 | fBeach), data = rikz) -->
+<!-- fm5 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + fExp + (1 | fBeach), data = rikz) -->
 
-<!-- a0 <- coef(summary(fm4))[1, 1]  # marginal intercept for low-exposure beaches -->
-<!-- b0 <- coef(summary(fm4))[2, 1]  # common slope for all beaches -->
-<!-- a1 <- coef(summary(fm4))[3, 1]  # difference in marginal intercepts for high vs low  -->
+<!-- a0 <- coef(summary(fm5))[1, 1]  # marginal intercept for low-exposure beaches -->
+<!-- b0 <- coef(summary(fm5))[2, 1]  # common slope for all beaches -->
+<!-- a1 <- coef(summary(fm5))[3, 1]  # difference in marginal intercepts for high vs low  -->
 
-<!-- c.mode <- ranef(fm4)$fBeach -->
+<!-- c.mode <- ranef(fm5)$fBeach -->
 
 <!-- # this code is ugly, but oh well -->
 

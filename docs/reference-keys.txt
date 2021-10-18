@@ -27,4 +27,6 @@ bayesian-analysis
 negative-within-group-correlations
 random-coefficient-models-rikz-data
 analysis-without-beach-level-covariate
+using-fixed-effects-for-among-beach-differences
+using-random-effects-for-among-beach-differences
 adding-a-beach-level-covariate

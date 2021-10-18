@@ -425,8 +425,8 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_B^2) \\
 <pre><code>## The following object is masked from &#39;package:stats&#39;:
 ## 
 ##     step</code></pre>
-<div class="sourceCode" id="cb407"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb407-1"><a href="hierarchical-models.html#cb407-1" aria-hidden="true" tabindex="-1"></a>fm4 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff)</span>
-<span id="cb407-2"><a href="hierarchical-models.html#cb407-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm4)</span></code></pre></div>
+<div class="sourceCode" id="cb407"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb407-1"><a href="hierarchical-models.html#cb407-1" aria-hidden="true" tabindex="-1"></a>fm5 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff)</span>
+<span id="cb407-2"><a href="hierarchical-models.html#cb407-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm5)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: Yield ~ 1 + (1 | Batch)
@@ -529,7 +529,7 @@ y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(B_i, \sigma^2_\vareps
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb424"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb424-1"><a href="hierarchical-models.html#cb424-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpKutl7f/modele806c372a.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpagWVzH/model21ac32a12dc9.txt&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -578,8 +578,8 @@ y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(B_i, \sigma^2_\vareps
 <div class="sourceCode" id="cb432"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb432-1"><a href="hierarchical-models.html#cb432-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(Dyestuff2, <span class="fu">stripchart</span>(Yield <span class="sc">~</span> Batch, <span class="at">pch =</span> <span class="dv">16</span>))</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
 <p>We’ll begin by fitting a GLS model that includes a within-batch correlation:</p>
-<div class="sourceCode" id="cb433"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb433-1"><a href="hierarchical-models.html#cb433-1" aria-hidden="true" tabindex="-1"></a>fm5 <span class="ot">&lt;-</span> <span class="fu">gls</span>(Yield <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff2, <span class="at">correlation =</span> <span class="fu">corCompSymm</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> Batch))</span>
-<span id="cb433-2"><a href="hierarchical-models.html#cb433-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm5)</span></code></pre></div>
+<div class="sourceCode" id="cb433"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb433-1"><a href="hierarchical-models.html#cb433-1" aria-hidden="true" tabindex="-1"></a>fm6 <span class="ot">&lt;-</span> <span class="fu">gls</span>(Yield <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff2, <span class="at">correlation =</span> <span class="fu">corCompSymm</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> Batch))</span>
+<span id="cb433-2"><a href="hierarchical-models.html#cb433-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm6)</span></code></pre></div>
 <pre><code>## Generalized least squares fit by REML
 ##   Model: Yield ~ 1 
 ##   Data: Dyestuff2 
@@ -663,9 +663,10 @@ y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(B_i, \sigma^2_\vareps
 <span id="cb441-4"><a href="hierarchical-models.html#cb441-4" aria-hidden="true" tabindex="-1"></a>rikz<span class="sc">$</span>fBeach <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(rikz<span class="sc">$</span>Beach)</span></code></pre></div>
 <div id="analysis-without-beach-level-covariate" class="section level3" number="6.4.1">
 <h3><span class="header-section-number">6.4.1</span> Analysis without beach-level covariate</h3>
+<div id="using-fixed-effects-for-among-beach-differences" class="section level4" number="6.4.1.1">
+<h4><span class="header-section-number">6.4.1.1</span> Using fixed effects for among-beach differences</h4>
 <p>To develop some notation for modeling, let <span class="math inline">\(i=1, \ldots, 9\)</span> index the different beaches, let <span class="math inline">\(j = 1, \ldots, 5\)</span> index the different samples at each beach, let <span class="math inline">\(y_{ij}\)</span> be the square root of the species richness at sample <span class="math inline">\(j\)</span> at beach <span class="math inline">\(i\)</span>, and let <span class="math inline">\(x_{ij}\)</span> be the NAP covariate at sample <span class="math inline">\(j\)</span> at beach <span class="math inline">\(i\)</span>.</p>
-<p>In a standard linear models course, we would identify this as a blocked design in which the beaches are the individual blocks, and the samples are nested within the beaches. NAP is a quantitative, sample-level covariate.</p>
-<p>Suppose we wish to characterize the relationship between NAP and (the square root of) species richness, while controlling for differences among the beaches. To do so, we entertain the model
+<p>In a standard linear models course, we would identify this as a two-factor design with a categorical factor (the beaches) and a numerical factor (NAP). Suppose we wish to characterize the relationship between NAP and (the square root of) species richness, while controlling for differences among the beaches. To do so, we might entertain the additive model
 <span class="math display">\[\begin{align*}
 y_{ij} &amp; = a_i + b x_{ij} + \varepsilon_{ij} \\
 \varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). 
@@ -680,7 +681,7 @@ y_{ij} &amp; = \mu_{ij} + \varepsilon_{ij} \\
 <span class="math display">\[\begin{equation}
 y_{ij} \sim \mathcal{N}(a_i + b x_{ij}, \sigma_\varepsilon^2). 
 \end{equation}\]</span></p>
-<p>In any case, the model states that each observation is drawn independently from a Gaussian distribution. The fitted value (or mean) for each datum is determined by a regression line with beach-specific intercepts and a common slope. The error variance is the same for all observations.</p>
+<p>In any case, the model states that each observation is drawn independently from a Gaussian distribution. The fitted value (or mean) for each datum is determined by a regression line with beach-specific intercepts and a common slope. (The additive model has the same structure has a parallel-lines ANCOVA.) The error variance is the same for all observations.</p>
 <p>Let’s fit the model and see what it yields.</p>
 <div class="sourceCode" id="cb442"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb442-1"><a href="hierarchical-models.html#cb442-1" aria-hidden="true" tabindex="-1"></a>fm0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fBeach <span class="sc">+</span> NAP, <span class="at">data =</span> rikz)</span>
 <span id="cb442-2"><a href="hierarchical-models.html#cb442-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm0)</span></code></pre></div>
@@ -754,82 +755,14 @@ y_{ij} \sim \mathcal{N}(a_i + b x_{ij}, \sigma_\varepsilon^2).
 <span id="cb450-9"><a href="hierarchical-models.html#cb450-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fu">coef</span>(fm0.temp)[i], <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>) </span>
 <span id="cb450-10"><a href="hierarchical-models.html#cb450-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
-<p>Now let’s compare this model to one in which the differences among the beach-level intercepts are captured with a random effect instead. A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection. Using the notational style of mixed modeling, we could write our model as
-<span class="math display">\[\begin{align*}
-y_{ij} &amp; = A_i + b x_{ij} + \varepsilon_{ij} \\
-A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
-\end{align*}\]</span></p>
-<p>Here, the <span class="math inline">\(A_i\)</span>’s are the random beach-level intercept. Alternatively, using the notational style of hierarchical modeling, we could write the same model as
-<span class="math display">\[\begin{align*}
-y_{ij} | A_i &amp; \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2) \\
-A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) 
-\end{align*}\]</span></p>
-<p>We’ll fit the model using <code>lmerTest::lmer</code>.</p>
-<div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="hierarchical-models.html#cb451-1" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
-<span id="cb451-2"><a href="hierarchical-models.html#cb451-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 1: random intercept</span></span>
-<span id="cb451-3"><a href="hierarchical-models.html#cb451-3" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
-<span id="cb451-4"><a href="hierarchical-models.html#cb451-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb451-5"><a href="hierarchical-models.html#cb451-5" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
-<span id="cb451-6"><a href="hierarchical-models.html#cb451-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb451-7"><a href="hierarchical-models.html#cb451-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
-<pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
-## lmerModLmerTest]
-## Formula: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
-##    Data: rikz
-## 
-## REML criterion at convergence: 97.1
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -2.5693 -0.4286 -0.1869  0.3230  2.9399 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev.
-##  fBeach   (Intercept) 0.2957   0.5438  
-##  Residual             0.3460   0.5882  
-## Number of obs: 45, groups:  fBeach, 9
-## 
-## Fixed effects:
-##             Estimate Std. Error       df t value Pr(&gt;|t|)    
-## (Intercept)  2.37424    0.20405  8.36034  11.635 1.88e-06 ***
-## NAP         -0.68063    0.09501 37.15971  -7.163 1.68e-08 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Correlation of Fixed Effects:
-##     (Intr)
-## NAP -0.162</code></pre>
-<p>Note that the random-intercepts model includes the parameter <span class="math inline">\(a\)</span>, which is the average intercept across the population of beaches. This is the parameter listed as “(Intercept)” in the fixed-effects portion of the model output above. The model with fixed-effect for the beach-level intercepts has no such parameter. This makes sense, because that model did not envision a larger population of beaches.</p>
-<p>We can go further by finding the conditional modes of the intercepts for each beach.</p>
-<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb453-1"><a href="hierarchical-models.html#cb453-1" aria-hidden="true" tabindex="-1"></a>(beach.conditional.modes <span class="ot">&lt;-</span> (<span class="fu">fixef</span>(fm1)[<span class="st">&quot;(Intercept)&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>))</span></code></pre></div>
-<pre><code>## [1] 2.870511 3.379324 1.895117 1.963771 2.618721 2.148964 2.088426 2.161791
-## [9] 2.241556</code></pre>
-<p>In particular, note the conditional mode for the intercept for beach 1, which is 2.871. This conditional mode is shrunken back towards the average intercept, compared to the intercept for this beach in the fixed-effects model.</p>
-<p>To visualize the model, we will again make a plot that shows the conditional modes of the fit for each beach. We can also add a line for the average relationship across the population of beaches.</p>
-<div class="sourceCode" id="cb455"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb455-1"><a href="hierarchical-models.html#cb455-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach, <span class="at">main =</span> <span class="st">&quot;Random intercepts fit&quot;</span>))</span>
-<span id="cb455-2"><a href="hierarchical-models.html#cb455-2" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">leg =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span>
-<span id="cb455-3"><a href="hierarchical-models.html#cb455-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb455-4"><a href="hierarchical-models.html#cb455-4" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">1</span>, <span class="dv">1</span>]</span>
-<span id="cb455-5"><a href="hierarchical-models.html#cb455-5" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">2</span>, <span class="dv">1</span>]</span>
-<span id="cb455-6"><a href="hierarchical-models.html#cb455-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb455-7"><a href="hierarchical-models.html#cb455-7" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a, <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb455-8"><a href="hierarchical-models.html#cb455-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb455-9"><a href="hierarchical-models.html#cb455-9" aria-hidden="true" tabindex="-1"></a><span class="co"># make a plot with a line for each beach</span></span>
-<span id="cb455-10"><a href="hierarchical-models.html#cb455-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb455-11"><a href="hierarchical-models.html#cb455-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>){</span>
-<span id="cb455-12"><a href="hierarchical-models.html#cb455-12" aria-hidden="true" tabindex="-1"></a> <span class="fu">abline</span>(<span class="at">a =</span> beach.conditional.modes[i], <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>) </span>
-<span id="cb455-13"><a href="hierarchical-models.html#cb455-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
-<p>Though it’s subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.</p>
-<p>Next, we might want to consider if the slope of the relationship between NAP and species richness differs among the beaches as well. Again, we’ll begin with the fixed-effect specification in which inferences apply only to these 9 beaches. The fixed-effects model is
+<p>Continuing with the fixed-effects analysis, we might also consider a model in which the relationship between NAP and species richness varies among beaches. In other words, we might fit a model with a beach-by-NAP interaction. This model is
 <span class="math display">\[\begin{align*}
 y_{ij} &amp; = a_i + b_i x_{ij} + \varepsilon_{ij} \\
 \varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). 
 \end{align*}\]</span></p>
-<p>To fit this model, we use</p>
-<div class="sourceCode" id="cb456"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb456-1"><a href="hierarchical-models.html#cb456-1" aria-hidden="true" tabindex="-1"></a>fm0b <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fBeach <span class="sc">*</span> NAP, <span class="at">data =</span> rikz)</span>
-<span id="cb456-2"><a href="hierarchical-models.html#cb456-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm0b)</span></code></pre></div>
+<p>We fit this model in the usual way:</p>
+<div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="hierarchical-models.html#cb451-1" aria-hidden="true" tabindex="-1"></a>fm0b <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fBeach <span class="sc">*</span> NAP, <span class="at">data =</span> rikz)</span>
+<span id="cb451-2"><a href="hierarchical-models.html#cb451-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm0b)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = sqrt(Richness) ~ fBeach * NAP, data = rikz)
@@ -864,8 +797,8 @@ y_{ij} &amp; = a_i + b_i x_{ij} + \varepsilon_{ij} \\
 ## Residual standard error: 0.4508 on 27 degrees of freedom
 ## Multiple R-squared:  0.8911, Adjusted R-squared:  0.8225 
 ## F-statistic:    13 on 17 and 27 DF,  p-value: 7.079e-09</code></pre>
-<p>We can test for whether the differences among the slopes for the beaches are statistically significant in the usual way:</p>
-<div class="sourceCode" id="cb458"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb458-1"><a href="hierarchical-models.html#cb458-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm0, fm0b)</span></code></pre></div>
+<p>We can test for whether the differences among the slopes for the beaches are statistically significant with the usual <span class="math inline">\(F\)</span>-test:</p>
+<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb453-1"><a href="hierarchical-models.html#cb453-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm0, fm0b)</span></code></pre></div>
 <pre><code>## Analysis of Variance Table
 ## 
 ## Model 1: sqrt(Richness) ~ fBeach + NAP
@@ -876,10 +809,10 @@ y_{ij} &amp; = a_i + b_i x_{ij} + \varepsilon_{ij} \\
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>We’ll save the model of the beach-specific intercepts and slopes, and use them to visualize the fit. We’ll do the usual trick of refitting the model without the intercept to make it easy to extract the beach-level intercepts and slopes</p>
-<div class="sourceCode" id="cb460"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb460-1"><a href="hierarchical-models.html#cb460-1" aria-hidden="true" tabindex="-1"></a>fm0b.temp <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fBeach <span class="sc">+</span> fBeach<span class="sc">:</span>NAP <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> rikz)</span>
-<span id="cb460-2"><a href="hierarchical-models.html#cb460-2" aria-hidden="true" tabindex="-1"></a>(fixed.params <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">beach     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>,</span>
-<span id="cb460-3"><a href="hierarchical-models.html#cb460-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">intercept =</span> <span class="fu">coef</span>(fm0b.temp)[<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>], </span>
-<span id="cb460-4"><a href="hierarchical-models.html#cb460-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">slope     =</span> <span class="fu">coef</span>(fm0b.temp)[<span class="dv">10</span><span class="sc">:</span><span class="dv">18</span>]))</span></code></pre></div>
+<div class="sourceCode" id="cb455"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb455-1"><a href="hierarchical-models.html#cb455-1" aria-hidden="true" tabindex="-1"></a>fm0b.temp <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fBeach <span class="sc">+</span> fBeach<span class="sc">:</span>NAP <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> rikz)</span>
+<span id="cb455-2"><a href="hierarchical-models.html#cb455-2" aria-hidden="true" tabindex="-1"></a>(fixed.params <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">beach     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>,</span>
+<span id="cb455-3"><a href="hierarchical-models.html#cb455-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">intercept =</span> <span class="fu">coef</span>(fm0b.temp)[<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>], </span>
+<span id="cb455-4"><a href="hierarchical-models.html#cb455-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">slope     =</span> <span class="fu">coef</span>(fm0b.temp)[<span class="dv">10</span><span class="sc">:</span><span class="dv">18</span>]))</span></code></pre></div>
 <pre><code>##         beach intercept       slope
 ## fBeach1     1  3.288351 -0.05077384
 ## fBeach2     2  3.590739 -0.59390495
@@ -890,29 +823,92 @@ y_{ij} &amp; = a_i + b_i x_{ij} + \varepsilon_{ij} \\
 ## fBeach7     7  1.892979 -0.53289652
 ## fBeach8     8  2.109276 -0.67506643
 ## fBeach9     9  2.429231 -1.06355553</code></pre>
-<div class="sourceCode" id="cb462"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb462-1"><a href="hierarchical-models.html#cb462-1" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(fixed.params) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb462-2"><a href="hierarchical-models.html#cb462-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb462-3"><a href="hierarchical-models.html#cb462-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach, <span class="at">main =</span> <span class="st">&quot;Fixed-effects fit, with beach-NAP interaction&quot;</span>))</span>
-<span id="cb462-4"><a href="hierarchical-models.html#cb462-4" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">leg =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span>
-<span id="cb462-5"><a href="hierarchical-models.html#cb462-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb462-6"><a href="hierarchical-models.html#cb462-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>){</span>
-<span id="cb462-7"><a href="hierarchical-models.html#cb462-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> fixed.params<span class="sc">$</span>intercept[i], <span class="at">b =</span> fixed.params<span class="sc">$</span>slope[i], </span>
-<span id="cb462-8"><a href="hierarchical-models.html#cb462-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>) </span>
-<span id="cb462-9"><a href="hierarchical-models.html#cb462-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
-<p>Now let’s consider a model with beach-specific intercepts and slopes, but treat the beaches as a random sample. In other words, we’ll fit a “random coefficients” model with random intercepts and slopes for each beach. We have two options here. Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent. To write the first model in mixed-model notation, we might write
+<div class="sourceCode" id="cb457"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb457-1"><a href="hierarchical-models.html#cb457-1" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(fixed.params) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb457-2"><a href="hierarchical-models.html#cb457-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb457-3"><a href="hierarchical-models.html#cb457-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach, <span class="at">main =</span> <span class="st">&quot;Fixed-effects fit, with beach-NAP interaction&quot;</span>))</span>
+<span id="cb457-4"><a href="hierarchical-models.html#cb457-4" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">leg =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span>
+<span id="cb457-5"><a href="hierarchical-models.html#cb457-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb457-6"><a href="hierarchical-models.html#cb457-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>){</span>
+<span id="cb457-7"><a href="hierarchical-models.html#cb457-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> fixed.params<span class="sc">$</span>intercept[i], <span class="at">b =</span> fixed.params<span class="sc">$</span>slope[i], </span>
+<span id="cb457-8"><a href="hierarchical-models.html#cb457-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>) </span>
+<span id="cb457-9"><a href="hierarchical-models.html#cb457-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+</div>
+<div id="using-random-effects-for-among-beach-differences" class="section level4" number="6.4.1.2">
+<h4><span class="header-section-number">6.4.1.2</span> Using random-effects for among-beach differences</h4>
+<p>Now let’s use random effects to capture the differences among beaches. A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection. We’ll start with the additive model again, so that the random beach effect only affects the intercept. Using the notational style of mixed modeling, we could write our model as
+<span class="math display">\[\begin{align*}
+y_{ij} &amp; = A_i + b x_{ij} + \varepsilon_{ij} \\
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) \\
+\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+\end{align*}\]</span></p>
+<p>Here, the <span class="math inline">\(A_i\)</span>’s are the random beach-level intercept. Alternatively, using the notational style of hierarchical modeling, we could write the same model as
+<span class="math display">\[\begin{align*}
+y_{ij} | A_i &amp; \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2) \\
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) 
+\end{align*}\]</span></p>
+<p>We’ll fit the model using <code>lmerTest::lmer</code>.</p>
+<div class="sourceCode" id="cb458"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb458-1"><a href="hierarchical-models.html#cb458-1" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
+<span id="cb458-2"><a href="hierarchical-models.html#cb458-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb458-3"><a href="hierarchical-models.html#cb458-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
+## lmerModLmerTest]
+## Formula: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
+##    Data: rikz
+## 
+## REML criterion at convergence: 97.1
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.5693 -0.4286 -0.1869  0.3230  2.9399 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  fBeach   (Intercept) 0.2957   0.5438  
+##  Residual             0.3460   0.5882  
+## Number of obs: 45, groups:  fBeach, 9
+## 
+## Fixed effects:
+##             Estimate Std. Error       df t value Pr(&gt;|t|)    
+## (Intercept)  2.37424    0.20405  8.36034  11.635 1.88e-06 ***
+## NAP         -0.68063    0.09501 37.15971  -7.163 1.68e-08 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##     (Intr)
+## NAP -0.162</code></pre>
+<p>Note that the random-intercepts model includes the parameter <span class="math inline">\(a\)</span>, which is the average intercept across the population of beaches. This is the parameter listed as “(Intercept)” in the fixed-effects portion of the model output above. The model with fixed-effect for the beach-level intercepts has no such parameter. This makes sense, because that model did not envision a larger population of beaches.</p>
+<p>We can go further by finding the conditional modes of the intercepts for each beach.</p>
+<div class="sourceCode" id="cb460"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb460-1"><a href="hierarchical-models.html#cb460-1" aria-hidden="true" tabindex="-1"></a>(beach.conditional.modes <span class="ot">&lt;-</span> (<span class="fu">fixef</span>(fm1)[<span class="st">&quot;(Intercept)&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>))</span></code></pre></div>
+<pre><code>## [1] 2.870511 3.379324 1.895117 1.963771 2.618721 2.148964 2.088426 2.161791
+## [9] 2.241556</code></pre>
+<p>In particular, note the conditional mode for the intercept for beach 1, which is 2.871. This conditional mode is shrunken back towards the average intercept, compared to the intercept for this beach in the fixed-effects model.</p>
+<p>To visualize the model, we will again make a plot that shows the conditional modes of the fit for each beach. We can also add a line for the average relationship across the population of beaches.</p>
+<div class="sourceCode" id="cb462"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb462-1"><a href="hierarchical-models.html#cb462-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach, <span class="at">main =</span> <span class="st">&quot;Random intercepts fit&quot;</span>))</span>
+<span id="cb462-2"><a href="hierarchical-models.html#cb462-2" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="at">leg =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span>
+<span id="cb462-3"><a href="hierarchical-models.html#cb462-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb462-4"><a href="hierarchical-models.html#cb462-4" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">1</span>, <span class="dv">1</span>]</span>
+<span id="cb462-5"><a href="hierarchical-models.html#cb462-5" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">2</span>, <span class="dv">1</span>]</span>
+<span id="cb462-6"><a href="hierarchical-models.html#cb462-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb462-7"><a href="hierarchical-models.html#cb462-7" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> a, <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb462-8"><a href="hierarchical-models.html#cb462-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb462-9"><a href="hierarchical-models.html#cb462-9" aria-hidden="true" tabindex="-1"></a><span class="co"># make a plot with a line for each beach</span></span>
+<span id="cb462-10"><a href="hierarchical-models.html#cb462-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb462-11"><a href="hierarchical-models.html#cb462-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>){</span>
+<span id="cb462-12"><a href="hierarchical-models.html#cb462-12" aria-hidden="true" tabindex="-1"></a> <span class="fu">abline</span>(<span class="at">a =</span> beach.conditional.modes[i], <span class="at">b =</span> b, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>) </span>
+<span id="cb462-13"><a href="hierarchical-models.html#cb462-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-36-1.png" width="672" /></p>
+<p>Though it’s subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.</p>
+<p>Now let’s consider a model that includes both separate intercepts and slopes for each beach, while continuing to model the among-beach differences in both with random effects. In other words, we’ll fit a “random coefficients” model with random intercepts and slopes for each beach. We have two options here. Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent. To write the first model in mixed-model notation, we might write
 <span class="math display">\[\begin{align*}
 y_{ij} &amp; = A_i + B_i x_{ij} + \varepsilon_{ij} \\
 \left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right) \\
 \varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
 \end{align*}\]</span></p>
 <p>To fit the model using <code>lmerTest::lmer</code>, we use</p>
-<div class="sourceCode" id="cb463"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb463-1"><a href="hierarchical-models.html#cb463-1" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
-<span id="cb463-2"><a href="hierarchical-models.html#cb463-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 2: random slope and intercept (possibly correlated)</span></span>
-<span id="cb463-3"><a href="hierarchical-models.html#cb463-3" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
-<span id="cb463-4"><a href="hierarchical-models.html#cb463-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb463-5"><a href="hierarchical-models.html#cb463-5" aria-hidden="true" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
-<span id="cb463-6"><a href="hierarchical-models.html#cb463-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
+<div class="sourceCode" id="cb463"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb463-1"><a href="hierarchical-models.html#cb463-1" aria-hidden="true" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
+<span id="cb463-2"><a href="hierarchical-models.html#cb463-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
@@ -960,12 +956,8 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
 \varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
 \end{align*}\]</span></p>
 <p>To fit it in R, we use</p>
-<div class="sourceCode" id="cb468"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb468-1"><a href="hierarchical-models.html#cb468-1" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
-<span id="cb468-2"><a href="hierarchical-models.html#cb468-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 2a: random slope and intercept (independent)</span></span>
-<span id="cb468-3"><a href="hierarchical-models.html#cb468-3" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
-<span id="cb468-4"><a href="hierarchical-models.html#cb468-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb468-5"><a href="hierarchical-models.html#cb468-5" aria-hidden="true" tabindex="-1"></a>fm2a <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
-<span id="cb468-6"><a href="hierarchical-models.html#cb468-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm2a)</span></code></pre></div>
+<div class="sourceCode" id="cb468"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb468-1"><a href="hierarchical-models.html#cb468-1" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
+<span id="cb468-2"><a href="hierarchical-models.html#cb468-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach)
@@ -995,22 +987,22 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
 ##     (Intr)
 ## NAP -0.061</code></pre>
 <p>Because each of these random-effect models are nested within one another, we can compare them directly with LRTs:</p>
-<div class="sourceCode" id="cb470"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb470-1"><a href="hierarchical-models.html#cb470-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm1, fm2a, fm2)</span></code></pre></div>
+<div class="sourceCode" id="cb470"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb470-1"><a href="hierarchical-models.html#cb470-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm1, fm3, fm2)</span></code></pre></div>
 <pre><code>## refitting model(s) with ML (instead of REML)</code></pre>
 <pre><code>## Data: rikz
 ## Models:
 ## fm1: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
-## fm2a: sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach)
+## fm3: sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach)
 ## fm2: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
-##      npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
-## fm1     4 100.83 108.06 -46.416   92.833                     
-## fm2a    5 100.16 109.19 -45.078   90.156 2.6767  1     0.1018
-## fm2     6 101.26 112.10 -44.630   89.259 0.8969  1     0.3436</code></pre>
+##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
+## fm1    4 100.83 108.06 -46.416   92.833                     
+## fm3    5 100.16 109.19 -45.078   90.156 2.6767  1     0.1018
+## fm2    6 101.26 112.10 -44.630   89.259 0.8969  1     0.3436</code></pre>
 <p>Here we see a conflict between AIC and the LRT. AIC favors the model with random but independent intercepts and slopes, whereas the LRT continues to suggest that we cannot reject the null hypothesis that <span class="math inline">\(\sigma_B^2 = 0\)</span>.</p>
-<p>Finally, let’s compare the conditional modes for the intercepts and slopes from model <code>fm2a</code> with the beach-specific intercept and slopes from the fixed-effects model.</p>
+<p>Finally, let’s compare the conditional modes for the intercepts and slopes from model <code>fm3</code> with the beach-specific intercept and slopes from the fixed-effects model.</p>
 <div class="sourceCode" id="cb473"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb473-1"><a href="hierarchical-models.html#cb473-1" aria-hidden="true" tabindex="-1"></a>(conditional.modes  <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">beach     =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>,</span>
-<span id="cb473-2"><a href="hierarchical-models.html#cb473-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">intercept =</span> <span class="fu">fixef</span>(fm2a)[<span class="st">&quot;(Intercept)&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm2a)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>, </span>
-<span id="cb473-3"><a href="hierarchical-models.html#cb473-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">slope     =</span> <span class="fu">fixef</span>(fm2a)[<span class="st">&quot;NAP&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm2a)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">NAP</span><span class="st">`</span>))</span></code></pre></div>
+<span id="cb473-2"><a href="hierarchical-models.html#cb473-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">intercept =</span> <span class="fu">fixef</span>(fm3)[<span class="st">&quot;(Intercept)&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm3)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>, </span>
+<span id="cb473-3"><a href="hierarchical-models.html#cb473-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">slope     =</span> <span class="fu">fixef</span>(fm3)[<span class="st">&quot;NAP&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm3)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">NAP</span><span class="st">`</span>))</span></code></pre></div>
 <pre><code>##   beach intercept      slope
 ## 1     1  3.091736 -0.3225870
 ## 2     2  3.484038 -0.5930830
@@ -1026,7 +1018,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
 <span id="cb475-2"><a href="hierarchical-models.html#cb475-2" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(fixed.params, <span class="fu">plot</span>(slope <span class="sc">~</span> intercept, <span class="at">main =</span> <span class="st">&quot;fixed-effects fit&quot;</span>, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>))</span>
 <span id="cb475-3"><a href="hierarchical-models.html#cb475-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(fixed.params, <span class="fu">plot</span>(slope <span class="sc">~</span> intercept, <span class="at">main =</span> <span class="st">&quot;conditional modes&quot;</span>, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>))</span>
 <span id="cb475-4"><a href="hierarchical-models.html#cb475-4" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(conditional.modes, <span class="fu">points</span>(slope <span class="sc">~</span> intercept, <span class="at">pch =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>))</span>
-<span id="cb475-5"><a href="hierarchical-models.html#cb475-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">fixef</span>(fm2a)[<span class="dv">1</span>], <span class="fu">fixef</span>(fm2a)[<span class="dv">2</span>], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span></code></pre></div>
+<span id="cb475-5"><a href="hierarchical-models.html#cb475-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">fixef</span>(fm3)[<span class="dv">1</span>], <span class="fu">fixef</span>(fm3)[<span class="dv">2</span>], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-42-1.png" width="672" /></p>
 <p>Note, again, that the conditional modes of the intercepts and slopes have shrunk (sometimes substantially) back towards the population means of each. The population means of the intercept and slope are shown by the red dot on the right-hand panel. Finally, we visualize the model by plotting beach-specific “fits”:</p>
 <div class="sourceCode" id="cb476"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb476-1"><a href="hierarchical-models.html#cb476-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span>
@@ -1036,8 +1028,11 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
 <span id="cb476-5"><a href="hierarchical-models.html#cb476-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>){</span>
 <span id="cb476-6"><a href="hierarchical-models.html#cb476-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> conditional.modes<span class="sc">$</span>intercept[i], <span class="at">b =</span> conditional.modes<span class="sc">$</span>slope[i], </span>
 <span id="cb476-7"><a href="hierarchical-models.html#cb476-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>) </span>
-<span id="cb476-8"><a href="hierarchical-models.html#cb476-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb476-8"><a href="hierarchical-models.html#cb476-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb476-9"><a href="hierarchical-models.html#cb476-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb476-10"><a href="hierarchical-models.html#cb476-10" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="fu">fixef</span>(fm3)[<span class="dv">1</span>], <span class="at">b =</span> <span class="fu">fixef</span>(fm3)[<span class="dv">2</span>], <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-43-1.png" width="672" /></p>
+</div>
 </div>
 <div id="adding-a-beach-level-covariate" class="section level3" number="6.4.2">
 <h3><span class="header-section-number">6.4.2</span> Adding a beach-level covariate</h3>
@@ -1093,8 +1088,8 @@ A_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A) \\
 \varepsilon_{ijk} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
 \end{align*}\]</span>
 We fit this model in R with the code</p>
-<div class="sourceCode" id="cb481"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb481-1"><a href="hierarchical-models.html#cb481-1" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz) </span>
-<span id="cb481-2"><a href="hierarchical-models.html#cb481-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
+<div class="sourceCode" id="cb481"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb481-1"><a href="hierarchical-models.html#cb481-1" aria-hidden="true" tabindex="-1"></a>fm4 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz) </span>
+<span id="cb481-2"><a href="hierarchical-models.html#cb481-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm4)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: sqrt(Richness) ~ fExp * NAP + (1 | fBeach)
@@ -1134,9 +1129,9 @@ B_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b_i, \sigma^2_B) \\
 \varepsilon_{ijk} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
 \end{align*}\]</span>
 We fit this model with the code</p>
-<div class="sourceCode" id="cb483"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb483-1"><a href="hierarchical-models.html#cb483-1" aria-hidden="true" tabindex="-1"></a>fm4 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach),</span>
+<div class="sourceCode" id="cb483"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb483-1"><a href="hierarchical-models.html#cb483-1" aria-hidden="true" tabindex="-1"></a>fm5 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach),</span>
 <span id="cb483-2"><a href="hierarchical-models.html#cb483-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> rikz) </span>
-<span id="cb483-3"><a href="hierarchical-models.html#cb483-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm4)</span></code></pre></div>
+<span id="cb483-3"><a href="hierarchical-models.html#cb483-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm5)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: sqrt(Richness) ~ fExp * NAP + (1 | fBeach) + (0 + NAP | fBeach)
@@ -1176,8 +1171,8 @@ y_{ijk} &amp; = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
 \varepsilon_{ijk} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
 \end{align*}\]</span></p>
 <p>We fit the model in R as follows</p>
-<div class="sourceCode" id="cb485"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb485-1"><a href="hierarchical-models.html#cb485-1" aria-hidden="true" tabindex="-1"></a>fm5 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP<span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
-<span id="cb485-2"><a href="hierarchical-models.html#cb485-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm5)</span></code></pre></div>
+<div class="sourceCode" id="cb485"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb485-1"><a href="hierarchical-models.html#cb485-1" aria-hidden="true" tabindex="-1"></a>fm6 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP<span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
+<span id="cb485-2"><a href="hierarchical-models.html#cb485-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm6)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: sqrt(Richness) ~ fExp * NAP + (1 + NAP | fBeach)
@@ -1211,19 +1206,19 @@ y_{ijk} &amp; = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
 ## NAP        -0.026  0.017       
 ## fExp11:NAP  0.017 -0.054 -0.666</code></pre>
 <p>Because these models form a series of nested models, we can use LRTs or AIC to find the most parsimonious fit.</p>
-<div class="sourceCode" id="cb487"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb487-1"><a href="hierarchical-models.html#cb487-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm3, fm4, fm5)</span></code></pre></div>
+<div class="sourceCode" id="cb487"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb487-1"><a href="hierarchical-models.html#cb487-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm4, fm5, fm6)</span></code></pre></div>
 <pre><code>## refitting model(s) with ML (instead of REML)</code></pre>
 <pre><code>## Data: rikz
 ## Models:
-## fm3: sqrt(Richness) ~ fExp * NAP + (1 | fBeach)
-## fm4: sqrt(Richness) ~ fExp * NAP + (1 | fBeach) + (0 + NAP | fBeach)
-## fm5: sqrt(Richness) ~ fExp * NAP + (1 + NAP | fBeach)
+## fm4: sqrt(Richness) ~ fExp * NAP + (1 | fBeach)
+## fm5: sqrt(Richness) ~ fExp * NAP + (1 | fBeach) + (0 + NAP | fBeach)
+## fm6: sqrt(Richness) ~ fExp * NAP + (1 + NAP | fBeach)
 ##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
-## fm3    6 94.275 105.11 -41.137   82.275                     
-## fm4    7 94.418 107.06 -40.209   80.418 1.8565  1     0.1730
-## fm5    8 96.373 110.83 -40.186   80.373 0.0454  1     0.8312</code></pre>
+## fm4    6 94.275 105.11 -41.137   82.275                     
+## fm5    7 94.418 107.06 -40.209   80.418 1.8565  1     0.1730
+## fm6    8 96.373 110.83 -40.186   80.373 0.0454  1     0.8312</code></pre>
 <p>Both AIC and the LRT suggest that the model with only random intercepts provides the most parsimonious fit. Let’s take a closer look at that fit</p>
-<div class="sourceCode" id="cb490"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb490-1"><a href="hierarchical-models.html#cb490-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
+<div class="sourceCode" id="cb490"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb490-1"><a href="hierarchical-models.html#cb490-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm4)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: sqrt(Richness) ~ fExp * NAP + (1 | fBeach)
@@ -1257,12 +1252,12 @@ y_{ijk} &amp; = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
 ## fExp11:NAP  0.115 -0.212 -0.664</code></pre>
 <p>We can analyze the fixed-effects as follows. Based on the contrasts R has used, the low exposure beaches are the baseline; thus the values for the “Intercept” and “NAP” coefficients give the intercept and slope for low-exposure beaches. The values of the “fExp11” and “fExp11:NAP” coefficients (resp.) give the differences of the intercepts and slopes (resp.) between the high vs. low exposure beaches. Thus the negative value of the “NAP” coefficient suggests that species richness declines as NAP increases at low-exposure beaches. The positive coefficient for the “fExp11:NAP” interaction suggests that species richness declines more gradually with increasing NAP at high-exposure beaches as compared to low-exposure beaches. Because we have analyzed the square-root transform of the response, it is hard to assign any biological meaning to the magnitudes of the coefficients. This is one downside of using a transformation to stabilize the variance in the response.</p>
 <p>We’ll visualize the model with a plot. The code below is ugly and could be improved.</p>
-<div class="sourceCode" id="cb492"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb492-1"><a href="hierarchical-models.html#cb492-1" aria-hidden="true" tabindex="-1"></a>a0 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm3)[<span class="dv">1</span>]  <span class="co"># marginal intercept for low-exposure beaches</span></span>
-<span id="cb492-2"><a href="hierarchical-models.html#cb492-2" aria-hidden="true" tabindex="-1"></a>b0 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm3)[<span class="dv">2</span>]  <span class="co"># marginal slope for low-exposure beaches</span></span>
-<span id="cb492-3"><a href="hierarchical-models.html#cb492-3" aria-hidden="true" tabindex="-1"></a>a1 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm3)[<span class="dv">3</span>]  <span class="co"># difference in marginal intercepts for high vs low </span></span>
-<span id="cb492-4"><a href="hierarchical-models.html#cb492-4" aria-hidden="true" tabindex="-1"></a>b1 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm3)[<span class="dv">4</span>]  <span class="co"># difference in marginal slopes for high vs low</span></span>
+<div class="sourceCode" id="cb492"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb492-1"><a href="hierarchical-models.html#cb492-1" aria-hidden="true" tabindex="-1"></a>a0 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm4)[<span class="dv">1</span>]  <span class="co"># marginal intercept for low-exposure beaches</span></span>
+<span id="cb492-2"><a href="hierarchical-models.html#cb492-2" aria-hidden="true" tabindex="-1"></a>b0 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm4)[<span class="dv">2</span>]  <span class="co"># marginal slope for low-exposure beaches</span></span>
+<span id="cb492-3"><a href="hierarchical-models.html#cb492-3" aria-hidden="true" tabindex="-1"></a>a1 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm4)[<span class="dv">3</span>]  <span class="co"># difference in marginal intercepts for high vs low </span></span>
+<span id="cb492-4"><a href="hierarchical-models.html#cb492-4" aria-hidden="true" tabindex="-1"></a>b1 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm4)[<span class="dv">4</span>]  <span class="co"># difference in marginal slopes for high vs low</span></span>
 <span id="cb492-5"><a href="hierarchical-models.html#cb492-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb492-6"><a href="hierarchical-models.html#cb492-6" aria-hidden="true" tabindex="-1"></a>c.mode <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm3)<span class="sc">$</span>fBeach</span>
+<span id="cb492-6"><a href="hierarchical-models.html#cb492-6" aria-hidden="true" tabindex="-1"></a>c.mode <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm4)<span class="sc">$</span>fBeach</span>
 <span id="cb492-7"><a href="hierarchical-models.html#cb492-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb492-8"><a href="hierarchical-models.html#cb492-8" aria-hidden="true" tabindex="-1"></a>low.beaches <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">9</span>)</span>
 <span id="cb492-9"><a href="hierarchical-models.html#cb492-9" aria-hidden="true" tabindex="-1"></a>high.beaches <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">7</span>)</span>
@@ -1304,11 +1299,11 @@ y_{ijk} &amp; = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
 <!-- \varepsilon_{ijk} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). -->
 <!-- \end{align*} -->
 <!-- ```{r} -->
-<!-- fm4 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + fExp + (1 | fBeach), data = rikz) -->
-<!-- a0 <- coef(summary(fm4))[1, 1]  # marginal intercept for low-exposure beaches -->
-<!-- b0 <- coef(summary(fm4))[2, 1]  # common slope for all beaches -->
-<!-- a1 <- coef(summary(fm4))[3, 1]  # difference in marginal intercepts for high vs low  -->
-<!-- c.mode <- ranef(fm4)$fBeach -->
+<!-- fm5 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + fExp + (1 | fBeach), data = rikz) -->
+<!-- a0 <- coef(summary(fm5))[1, 1]  # marginal intercept for low-exposure beaches -->
+<!-- b0 <- coef(summary(fm5))[2, 1]  # common slope for all beaches -->
+<!-- a1 <- coef(summary(fm5))[3, 1]  # difference in marginal intercepts for high vs low  -->
+<!-- c.mode <- ranef(fm5)$fBeach -->
 <!-- # this code is ugly, but oh well -->
 <!-- par(mfrow = c(1, 2))  # split the plot region -->
 <!-- with(rikz, plot(sqrt(Richness) ~ NAP,  -->
