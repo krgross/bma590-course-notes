@@ -30,3 +30,6 @@ analysis-without-beach-level-covariate
 using-fixed-effects-for-among-beach-differences
 using-random-effects-for-among-beach-differences
 adding-a-beach-level-covariate
+nested-and-crossed-random-effects
+nested-random-effects
+crossed-random-effects

@@ -574,7 +574,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpagWVzH/model21ac32a12dc9.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSoqM15/model3250494d425d.txt", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -1667,3 +1667,326 @@ for (i in 1:length(high.beaches)) {
 <!-- # we want a model where the variance of the random beach effects differs between low vs. high exposure beaches. -->
 <!-- # how do we do that?? -->
 <!-- ``` -->
+
+## Nested and crossed random effects
+
+### Nested random effects
+
+A major advantage of the `lme4::lmer` software is that it allows nested and crossed random effects.  We will look first at an example of nested random effects.  These data come from a study by Yates (1935), as reported in Venables \& Ripley (Modern Applied Statistics with S, 4e, 2002).  They are found in the `MASS` library as the `oats` data.  The description in the help documentation states:
+
+> The yield of oats from a split-plot field trial using three varieties and four levels of manurial treatment. The experiment was laid out in 6 blocks of 3 main plots, each split into 4 sub-plots. The varieties were applied to the main plots and the manurial treatments to the sub-plots.
+
+Let's first take a look at the data.
+
+```r
+rm(list = ls())
+
+library(MASS)
+require(lme4)
+require(lmerTest)
+
+data(oats)
+summary(oats)
+```
+
+```
+##    B                V           N            Y        
+##  I  :12   Golden.rain:24   0.0cwt:18   Min.   : 53.0  
+##  II :12   Marvellous :24   0.2cwt:18   1st Qu.: 86.0  
+##  III:12   Victory    :24   0.4cwt:18   Median :102.5  
+##  IV :12                    0.6cwt:18   Mean   :104.0  
+##  V  :12                                3rd Qu.:121.2  
+##  VI :12                                Max.   :174.0
+```
+
+The variables are (respectively) [B]lock, [V]ariety, [N]itrogen (the manure), and the [Y]ield, in units of 1/4lbs, according to the help documentation.
+
+To develop notation, let $i = 1, \ldots, 3$ index the three varieties, let $j = 1, \ldots, 4$ index the four manure treatments, and let $k = 1, ldots, 6$ index the blocks.  We wish to entertain the usual model for a split-plot design with a blocking factor at the whole-plot level:
+
+\begin{array}
+y_{ijk} & = \mu_{ij} + B_k + W_{ik} + \varepsilon_{ijk} \\
+B_k  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) \\
+W_{ik}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W) \\
+\varepsilon_{ijk} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_\varepsilon).
+\end{array}
+
+Here, $\mu_{ij}$ is the average response for the combination of variety $i$ and manure treatment $j$; the $B_k$ are the random effects for the blocks, the $W_{ik}$ are the whole-plot errors, and the $\varepsilon_{ijk}$ are the split-plot (observation-level) errors.  We proceed to fit the model using `lmerTest::lmer`.   A key to the coding here is to notice that each combination of block and variety uniquely specifies one of the 18 whole plots.  (In other words, variety is not replicated within the blocks.)  Therefore, we can code the whole-plot random effect as `(1 | B : V)`, which creats a random effect for each unique combination of block and variety.  The rest of the model coding is straightforward.
+
+
+```r
+fm1 <- lmerTest::lmer(Y ~ V * N + (1 | B) + (1 | B : V), data = oats)
+
+# for nested random effects, lmer provides the coding shortcut  
+
+fm1a <- lmerTest::lmer(Y ~ V * N + (1 | B / V), data = oats)
+
+summary(fm1)
+```
+
+```
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: Y ~ V * N + (1 | B) + (1 | B:V)
+##    Data: oats
+## 
+## REML criterion at convergence: 529
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -1.81301 -0.56145  0.01758  0.63865  1.57034 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  B:V      (Intercept) 106.1    10.30   
+##  B        (Intercept) 214.5    14.65   
+##  Residual             177.1    13.31   
+## Number of obs: 72, groups:  B:V, 18; B, 6
+## 
+## Fixed effects:
+##                     Estimate Std. Error      df t value Pr(>|t|)    
+## (Intercept)          80.0000     9.1070 16.0816   8.784 1.55e-07 ***
+## VMarvellous           6.6667     9.7150 30.2308   0.686   0.4978    
+## VVictory             -8.5000     9.7150 30.2308  -0.875   0.3885    
+## N0.2cwt              18.5000     7.6829 45.0000   2.408   0.0202 *  
+## N0.4cwt              34.6667     7.6829 45.0000   4.512 4.58e-05 ***
+## N0.6cwt              44.8333     7.6829 45.0000   5.835 5.48e-07 ***
+## VMarvellous:N0.2cwt   3.3333    10.8653 45.0000   0.307   0.7604    
+## VVictory:N0.2cwt     -0.3333    10.8653 45.0000  -0.031   0.9757    
+## VMarvellous:N0.4cwt  -4.1667    10.8653 45.0000  -0.383   0.7032    
+## VVictory:N0.4cwt      4.6667    10.8653 45.0000   0.430   0.6696    
+## VMarvellous:N0.6cwt  -4.6667    10.8653 45.0000  -0.430   0.6696    
+## VVictory:N0.6cwt      2.1667    10.8653 45.0000   0.199   0.8428    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr) VMrvll VVctry N0.2cw N0.4cw N0.6cw VM:N0.2 VV:N0.2 VM:N0.4
+## VMarvellous -0.533                                                           
+## VVictory    -0.533  0.500                                                    
+## N0.2cwt     -0.422  0.395  0.395                                             
+## N0.4cwt     -0.422  0.395  0.395  0.500                                      
+## N0.6cwt     -0.422  0.395  0.395  0.500  0.500                               
+## VMrvll:N0.2  0.298 -0.559 -0.280 -0.707 -0.354 -0.354                        
+## VVctry:N0.2  0.298 -0.280 -0.559 -0.707 -0.354 -0.354  0.500                 
+## VMrvll:N0.4  0.298 -0.559 -0.280 -0.354 -0.707 -0.354  0.500   0.250         
+## VVctry:N0.4  0.298 -0.280 -0.559 -0.354 -0.707 -0.354  0.250   0.500   0.500 
+## VMrvll:N0.6  0.298 -0.559 -0.280 -0.354 -0.354 -0.707  0.500   0.250   0.500 
+## VVctry:N0.6  0.298 -0.280 -0.559 -0.354 -0.354 -0.707  0.250   0.500   0.250 
+##             VV:N0.4 VM:N0.6
+## VMarvellous                
+## VVictory                   
+## N0.2cwt                    
+## N0.4cwt                    
+## N0.6cwt                    
+## VMrvll:N0.2                
+## VVctry:N0.2                
+## VMrvll:N0.4                
+## VVctry:N0.4                
+## VMrvll:N0.6  0.250         
+## VVctry:N0.6  0.500   0.500
+```
+
+```r
+anova(fm1)
+```
+
+```
+## Type III Analysis of Variance Table with Satterthwaite's method
+##      Sum Sq Mean Sq NumDF DenDF F value    Pr(>F)    
+## V     526.1   263.0     2    10  1.4853    0.2724    
+## N   20020.5  6673.5     3    45 37.6857 2.458e-12 ***
+## V:N   321.7    53.6     6    45  0.3028    0.9322    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+We proceed to analyze the fixed effects in the usual fashion, noting first that the variety-by-nitrogen interaction is not significant.  We then proceed to inspect the $F$-tests of the fixed effects, and see that the marginal means for the manure treatment are significantly different, but there are no significant differences among the marginal means for the three varieties.
+
+Note that it would be incorrect to have coded the model as
+
+```r
+fm1.wrong <- lmerTest::lmer(Y ~ V * N + (1 | B) + (1 | V), data = oats)
+```
+as this would have treated the random effects for block and variety as crossed, not nested.
+
+To complete the analysis, we should notice that the levels of the nitrogen treatment correspond to equally spaced values of a numerical covariate.  We can thus extract the polynomial trends by assigning polynomial contrasts to the nitrogen treatment.
+
+
+```r
+contrasts(oats$N) <- contr.poly(n = 4)
+fm1 <- lmerTest::lmer(Y ~ V * N +  (1 | B) + (1 | B : V), data = oats)
+
+summary(fm1)
+```
+
+```
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: Y ~ V * N + (1 | B) + (1 | B:V)
+##    Data: oats
+## 
+## REML criterion at convergence: 533.2
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -1.81301 -0.56145  0.01758  0.63865  1.57034 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  B:V      (Intercept) 106.1    10.30   
+##  B        (Intercept) 214.5    14.65   
+##  Residual             177.1    13.31   
+## Number of obs: 72, groups:  B:V, 18; B, 6
+## 
+## Fixed effects:
+##                 Estimate Std. Error       df t value Pr(>|t|)    
+## (Intercept)     104.5000     7.7976   8.8688  13.402 3.45e-07 ***
+## VMarvellous       5.2917     7.0789  10.0000   0.748    0.472    
+## VVictory         -6.8750     7.0789  10.0000  -0.971    0.354    
+## N.L              33.6901     5.4327  45.0000   6.201 1.57e-07 ***
+## N.Q              -4.1667     5.4327  45.0000  -0.767    0.447    
+## N.C              -0.8199     5.4327  45.0000  -0.151    0.881    
+## VMarvellous:N.L  -4.8075     7.6829  45.0000  -0.626    0.535    
+## VVictory:N.L      2.5715     7.6829  45.0000   0.335    0.739    
+## VMarvellous:N.Q  -1.9167     7.6829  45.0000  -0.249    0.804    
+## VVictory:N.Q     -1.0833     7.6829  45.0000  -0.141    0.888    
+## VMarvellous:N.C   3.9877     7.6829  45.0000   0.519    0.606    
+## VVictory:N.C     -2.8696     7.6829  45.0000  -0.374    0.711    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr) VMrvll VVctry N.L    N.Q    N.C    VM:N.L VV:N.L VM:N.Q
+## VMarvellous -0.454                                                        
+## VVictory    -0.454  0.500                                                 
+## N.L          0.000  0.000  0.000                                          
+## N.Q          0.000  0.000  0.000  0.000                                   
+## N.C          0.000  0.000  0.000  0.000  0.000                            
+## VMrvlls:N.L  0.000  0.000  0.000 -0.707  0.000  0.000                     
+## VVictry:N.L  0.000  0.000  0.000 -0.707  0.000  0.000  0.500              
+## VMrvlls:N.Q  0.000  0.000  0.000  0.000 -0.707  0.000  0.000  0.000       
+## VVictry:N.Q  0.000  0.000  0.000  0.000 -0.707  0.000  0.000  0.000  0.500
+## VMrvlls:N.C  0.000  0.000  0.000  0.000  0.000 -0.707  0.000  0.000  0.000
+## VVictry:N.C  0.000  0.000  0.000  0.000  0.000 -0.707  0.000  0.000  0.000
+##             VV:N.Q VM:N.C
+## VMarvellous              
+## VVictory                 
+## N.L                      
+## N.Q                      
+## N.C                      
+## VMrvlls:N.L              
+## VVictry:N.L              
+## VMrvlls:N.Q              
+## VVictry:N.Q              
+## VMrvlls:N.C  0.000       
+## VVictry:N.C  0.000  0.500
+```
+
+We see that only the linear trend of the nitrogen treatment is significant.  Let's make a quick plot to visualize this effect.
+
+```r
+with(oats, plot(Y ~ N))
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-54-1.png" width="672" />
+
+### Crossed random effects
+
+To illustrate crossed random effects, we will model players' scores from the 2018 US Open golf tournament.  This data set includes scores for all 136 players who competed in the tournament.  All players participated in the first two days of the tournament.  Players who had a sufficiently low (good) total score from those first two days qualified to compete in the next two days.  Players who with a high (poor) total score from the first two days were disqualified or "cut" from the tournament.
+
+To develop notation, let $i=1, \ldots, 136$ index the players, and let $j = 1, \ldots, 4$ index the days.  We seek to fit the model
+\begin{align}
+y_{ij} & = \mu + A_i + B_j + \varepsilon_{ij} \\
+A_i  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
+B_j  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) \\
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_\varepsilon).
+\end{align}
+
+In this model, $\mu$ is the average score, $A_i$ are the player-level random effects, $B_j$ are the day-level random effects, and $\varepsilon_{ij}$ are the observation-level errors.  Note that because each player played at most once in each day, there is no possibility to separate a possible player-by-day interaction (also a random effect) from the observation-level error.  If the players had played multiple rounds in a given day, we could have tried to separate the player-by-day random effect from the observation-level error.  We fit the model in `lmerTest::lmer`.
+
+
+```r
+rm(list = ls())
+golf <- read.table("data/golf.txt", head = T)
+
+fm1 <- lmerTest::lmer(score ~ 1 + (1 | player) + (1 | round), data = golf)
+
+summary(fm1)  # comparison of the std devs of the random effects is interesting
+```
+
+```
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: score ~ 1 + (1 | player) + (1 | round)
+##    Data: golf
+## 
+## REML criterion at convergence: 2130.5
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -2.6856 -0.6669 -0.0515  0.5825  4.5577 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  player   (Intercept)  0.5059  0.7113  
+##  round    (Intercept)  3.1513  1.7752  
+##  Residual             11.2507  3.3542  
+## Number of obs: 400, groups:  player, 136; round, 4
+## 
+## Fixed effects:
+##             Estimate Std. Error      df t value Pr(>|t|)    
+## (Intercept)  74.2631     0.9081  3.0093   81.78  3.9e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+It is interesting to compare the standard deviations of the random effects.
+
+We can also extract the conditional modes for the players and rounds.
+
+```r
+player.modes <- ranef(fm1)$player
+head(player.modes)
+```
+
+```
+##             (Intercept)
+## Akiyoshi      0.3983034
+## Aphibarnrat  -0.3069054
+## Axley        -0.0142805
+## Babcock       0.1920115
+## Baddeley     -0.1925652
+## Berger       -0.4212456
+```
+
+```r
+(round.modes <- ranef(fm1)$round)
+```
+
+```
+##     (Intercept)
+## rd1   1.7211234
+## rd2  -0.9012137
+## rd3   1.1661848
+## rd4  -1.9860945
+```
+
+According to Wikipedia, on day 1 "conditions were extremely difficult as gusty winds hung around all day with sunny skies, making the course firm and fast."  This corresponds with the large conditional mode for round 1.
+
+Finally, it is interesting to compare the conditional modes for the players who qualified to play in rounds 3 and 4, vs.\ the players who were "cut".  
+
+
+```r
+player.stats <- data.frame(name = row.names(player.modes),
+                           mode = player.modes[, 1],
+                           rds  = with(golf, as.numeric(table(player))))
+
+with(player.stats, stripchart(mode ~ as.factor(rds), method = "jitter", ylab = "rounds played", 
+                              xlab = "conditional mode", pch = 1))
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-57-1.png" width="672" />
+
+Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were "cut".  We might infer that these players played above their abilities on days 1 and 2.
+
+<img src="images/sports-comic.png" width="248" />

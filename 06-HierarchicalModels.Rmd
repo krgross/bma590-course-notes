@@ -723,3 +723,120 @@ for (i in 1:length(high.beaches)) {
 <!-- # we want a model where the variance of the random beach effects differs between low vs. high exposure beaches. -->
 <!-- # how do we do that?? -->
 <!-- ``` -->
+
+## Nested and crossed random effects
+
+### Nested random effects
+
+A major advantage of the `lme4::lmer` software is that it allows nested and crossed random effects.  We will look first at an example of nested random effects.  These data come from a study by Yates (1935), as reported in Venables \& Ripley (Modern Applied Statistics with S, 4e, 2002).  They are found in the `MASS` library as the `oats` data.  The description in the help documentation states:
+
+> The yield of oats from a split-plot field trial using three varieties and four levels of manurial treatment. The experiment was laid out in 6 blocks of 3 main plots, each split into 4 sub-plots. The varieties were applied to the main plots and the manurial treatments to the sub-plots.
+
+Let's first take a look at the data.
+```{r}
+rm(list = ls())
+
+library(MASS)
+require(lme4)
+require(lmerTest)
+
+data(oats)
+summary(oats)
+```
+
+The variables are (respectively) [B]lock, [V]ariety, [N]itrogen (the manure), and the [Y]ield, in units of 1/4lbs, according to the help documentation.
+
+To develop notation, let $i = 1, \ldots, 3$ index the three varieties, let $j = 1, \ldots, 4$ index the four manure treatments, and let $k = 1, ldots, 6$ index the blocks.  We wish to entertain the usual model for a split-plot design with a blocking factor at the whole-plot level:
+
+\begin{array}
+y_{ijk} & = \mu_{ij} + B_k + W_{ik} + \varepsilon_{ijk} \\
+B_k  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) \\
+W_{ik}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W) \\
+\varepsilon_{ijk} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_\varepsilon).
+\end{array}
+
+Here, $\mu_{ij}$ is the average response for the combination of variety $i$ and manure treatment $j$; the $B_k$ are the random effects for the blocks, the $W_{ik}$ are the whole-plot errors, and the $\varepsilon_{ijk}$ are the split-plot (observation-level) errors.  We proceed to fit the model using `lmerTest::lmer`.   A key to the coding here is to notice that each combination of block and variety uniquely specifies one of the 18 whole plots.  (In other words, variety is not replicated within the blocks.)  Therefore, we can code the whole-plot random effect as `(1 | B : V)`, which creats a random effect for each unique combination of block and variety.  The rest of the model coding is straightforward.
+
+```{r}
+fm1 <- lmerTest::lmer(Y ~ V * N + (1 | B) + (1 | B : V), data = oats)
+
+# for nested random effects, lmer provides the coding shortcut  
+
+fm1a <- lmerTest::lmer(Y ~ V * N + (1 | B / V), data = oats)
+
+summary(fm1)
+anova(fm1)
+```
+
+We proceed to analyze the fixed effects in the usual fashion, noting first that the variety-by-nitrogen interaction is not significant.  We then proceed to inspect the $F$-tests of the fixed effects, and see that the marginal means for the manure treatment are significantly different, but there are no significant differences among the marginal means for the three varieties.
+
+Note that it would be incorrect to have coded the model as
+```{r eval = FALSE}
+fm1.wrong <- lmerTest::lmer(Y ~ V * N + (1 | B) + (1 | V), data = oats)
+```
+as this would have treated the random effects for block and variety as crossed, not nested.
+
+To complete the analysis, we should notice that the levels of the nitrogen treatment correspond to equally spaced values of a numerical covariate.  We can thus extract the polynomial trends by assigning polynomial contrasts to the nitrogen treatment.
+
+```{r}
+contrasts(oats$N) <- contr.poly(n = 4)
+fm1 <- lmerTest::lmer(Y ~ V * N +  (1 | B) + (1 | B : V), data = oats)
+
+summary(fm1)
+```
+
+We see that only the linear trend of the nitrogen treatment is significant.  Let's make a quick plot to visualize this effect.
+```{r}
+with(oats, plot(Y ~ N))
+```
+
+### Crossed random effects
+
+To illustrate crossed random effects, we will model players' scores from the 2018 US Open golf tournament.  This data set includes scores for all 136 players who competed in the tournament.  All players participated in the first two days of the tournament.  Players who had a sufficiently low (good) total score from those first two days qualified to compete in the next two days.  Players who with a high (poor) total score from the first two days were disqualified or "cut" from the tournament.
+
+To develop notation, let $i=1, \ldots, 136$ index the players, and let $j = 1, \ldots, 4$ index the days.  We seek to fit the model
+\begin{align}
+y_{ij} & = \mu + A_i + B_j + \varepsilon_{ij} \\
+A_i  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
+B_j  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) \\
+\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_\varepsilon).
+\end{align}
+
+In this model, $\mu$ is the average score, $A_i$ are the player-level random effects, $B_j$ are the day-level random effects, and $\varepsilon_{ij}$ are the observation-level errors.  Note that because each player played at most once in each day, there is no possibility to separate a possible player-by-day interaction (also a random effect) from the observation-level error.  If the players had played multiple rounds in a given day, we could have tried to separate the player-by-day random effect from the observation-level error.  We fit the model in `lmerTest::lmer`.
+
+```{r}
+rm(list = ls())
+golf <- read.table("data/golf.txt", head = T)
+
+fm1 <- lmerTest::lmer(score ~ 1 + (1 | player) + (1 | round), data = golf)
+
+summary(fm1)  # comparison of the std devs of the random effects is interesting
+```
+
+It is interesting to compare the standard deviations of the random effects.
+
+We can also extract the conditional modes for the players and rounds.
+```{r}
+player.modes <- ranef(fm1)$player
+head(player.modes)
+(round.modes <- ranef(fm1)$round)
+```
+
+According to Wikipedia, on day 1 "conditions were extremely difficult as gusty winds hung around all day with sunny skies, making the course firm and fast."  This corresponds with the large conditional mode for round 1.
+
+Finally, it is interesting to compare the conditional modes for the players who qualified to play in rounds 3 and 4, vs.\ the players who were "cut".  
+
+```{r}
+player.stats <- data.frame(name = row.names(player.modes),
+                           mode = player.modes[, 1],
+                           rds  = with(golf, as.numeric(table(player))))
+
+with(player.stats, stripchart(mode ~ as.factor(rds), method = "jitter", ylab = "rounds played", 
+                              xlab = "conditional mode", pch = 1))
+```
+
+Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were "cut".  We might infer that these players played above their abilities on days 1 and 2.
+
+```{r echo = FALSE}
+knitr::include_graphics("images/sports-comic.png", dpi = 100)
+```
