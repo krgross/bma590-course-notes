@@ -220,8 +220,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>To develop some notation, let <span class="math inline">\(i = 1, \ldots, 6\)</span> index the batches, let <span class="math inline">\(j = 1, \ldots, 5\)</span> index the observations within each batch, and let <span class="math inline">\(y_{ij}\)</span> denote observation <span class="math inline">\(j\)</span> from batch <span class="math inline">\(i\)</span>.</p>
 <p>As a starting point, we will fit the usual one-factor ANOVA model to these data. This model is
 <span class="math display">\[\begin{align}
-y_{ij} &amp; = \mu_i + \varepsilon_{ij} \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2). 
+y_{ij} &amp; \sim \mathcal{N}(\mu_i, \sigma^2)
 \end{align}\]</span></p>
 <div class="sourceCode" id="cb369"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb369-1"><a href="hierarchical-models.html#cb369-1" aria-hidden="true" tabindex="-1"></a>fm0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Yield <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff)          <span class="co"># model with common mean</span></span>
 <span id="cb369-2"><a href="hierarchical-models.html#cb369-2" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Yield <span class="sc">~</span> Batch <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> Dyestuff)  <span class="co"># mean varies by group</span></span>
@@ -260,8 +259,7 @@ y_{ij} &amp; = \mu_i + \varepsilon_{ij} \\
 ## F-statistic:  4763 on 6 and 24 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>Now we will use <code>nlme::gls</code> to fit a model that assumes that the data within each batch are correlated. In other words, we fit the model
 <span class="math display">\[\begin{align}
-y_{ij} &amp; = \mu + \varepsilon_{ij} \\
-\varepsilon_{ij} &amp; \sim \mathcal{N}(0, \sigma^2) \\
+y_{ij} &amp; \sim \mathcal{N}(\mu_i, \sigma^2) \\
 \mathrm{Corr}(y_{ij}, y_{ik}) &amp; = \rho
 \end{align}\]</span></p>
 <div class="sourceCode" id="cb373"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb373-1"><a href="hierarchical-models.html#cb373-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(nlme)</span></code></pre></div>
@@ -298,9 +296,8 @@ y_{ij} &amp; = \mu + \varepsilon_{ij} \\
 <p>The most salient components of this output are the estimate of the overall mean, and the estimate of the within-batch correlation (<span class="math inline">\(\hat{\rho} = 0.42\)</span>).</p>
 <p>Now we will fit a hierarchical model that includes a random effect for the batch. We can write the model as
 <span class="math display">\[\begin{align}
-y_{ij} &amp; = \mu + B_i + \varepsilon_{ij} \\
-B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_B^2) \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+y_{ij} &amp; \sim \mathcal{N}(B_i, \sigma_\varepsilon^2) \\
+B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma_B^2).
 \end{align}\]</span></p>
 <div class="sourceCode" id="cb379"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb379-1"><a href="hierarchical-models.html#cb379-1" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Yield <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Batch), <span class="at">data =</span> Dyestuff)</span>
 <span id="cb379-2"><a href="hierarchical-models.html#cb379-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
@@ -464,12 +461,12 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_B^2) \\
 <h2><span class="header-section-number">6.2</span> Bayesian analysis</h2>
 <p>The mixed-model formulation is our first encounter with a hierarchical model. One often hears the phrase “Bayesian hierarchical model” in ecology. It is important to realize that not all Bayesian models are hierarchical, and not all hierarchical models are Bayesian. Indeed, we have seen examples of both: none of the Bayesian examples that we have seen in earlier chapters were hierarchical, and the mixed-model analysis of the Dyestuff data is a hierarchical model analyzed from a frequentist perspective. However, we can certainly analyze hierarchical models from a Bayesian perspective as well, leading to a Bayesian hierarchical model.</p>
 <p>The above paragraph begs the question: What defines a hierarchical model? One can find definitions in the literature, though it isn’t clear to me that any of these definitions are fully precise, although I may just be ignorant. As best I can tell, a hierarchical model is one that includes so-called “latent” variables. Latent variables are unobservable quantities on which the data depend, that in turn are related to model parameters via a statistical model. This “layered” construction of the model (observables depend on latent variables, and latent variables depend on model parameters) gives rise to the “hierarchy” that gives hierarchical models their name.</p>
-<p>This hierarchical perspective gives rise to an alternative formulation of the model. This model is mathematically identical to the random-effects formulation above, but it emphasizes the hierarchical nature of the model a bit more. For the dyestuff data, we might write the model as
+<p>This hierarchical perspective can be emphasized by how the model is written. For the dyestuff data, when we write
 <span class="math display">\[\begin{align}
+y_{ij} &amp; \sim \mathcal{N}(B_i, \sigma^2_\varepsilon) \\
 B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
-y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(B_i, \sigma^2_\varepsilon) \\
 \end{align}\]</span></p>
-<p>The hierarchical formulation states that the batch-specific means (the <span class="math inline">\(B_i\)</span>’s) are latent variables drawn independently from a Gaussian distribution with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2_B\)</span>. Conditional on the <span class="math inline">\(B_i\)</span>’s, the observable data are drawn from a Gaussian distribution with mean <span class="math inline">\(B_i\)</span> and variance <span class="math inline">\(\sigma^2_\varepsilon\)</span>.</p>
+<p>we emphasize that the distribution of the data depends in part on the latent variables <span class="math inline">\(B_i\)</span>, and the distribution of the latent variables depends in turn on some of the model parameters.</p>
 <p>To complete the Bayesian specification, we need to place priors on our three parameters: <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\sigma^2_B\)</span>, and <span class="math inline">\(\sigma^2_\varepsilon\)</span>. In the absence of any information, we might choose a vague normal prior for <span class="math inline">\(\mu\)</span>, and vague gamma priors for <span class="math inline">\(1/\sigma^2_B\)</span> and <span class="math inline">\(1/\sigma^2_\varepsilon\)</span>. The following <code>R2Jags</code> code implements such a model.</p>
 <div class="sourceCode" id="cb411"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb411-1"><a href="hierarchical-models.html#cb411-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(R2jags)</span></code></pre></div>
 <pre><code>## Loading required package: R2jags</code></pre>
@@ -534,7 +531,7 @@ y_{ij}| B_i  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(B_i, \sigma^2_\vareps
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb424"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb424-1"><a href="hierarchical-models.html#cb424-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpSoqM15/model3250494d425d.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpYvFDvP/model80c40475c42.txt&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -762,8 +759,7 @@ y_{ij} \sim \mathcal{N}(a_i + b x_{ij}, \sigma_\varepsilon^2).
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
 <p>Continuing with the fixed-effects analysis, we might also consider a model in which the relationship between NAP and species richness varies among beaches. In other words, we might fit a model with a beach-by-NAP interaction. This model is
 <span class="math display">\[\begin{align*}
-y_{ij} &amp; = a_i + b_i x_{ij} + \varepsilon_{ij} \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). 
+y_{ij} &amp; \sim \mathcal{N}(a_i + b_i x_{ij}, \sigma_\varepsilon^2). 
 \end{align*}\]</span></p>
 <p>We fit this model in the usual way:</p>
 <div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="hierarchical-models.html#cb451-1" aria-hidden="true" tabindex="-1"></a>fm0b <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fBeach <span class="sc">*</span> NAP, <span class="at">data =</span> rikz)</span>
@@ -843,15 +839,10 @@ y_{ij} &amp; = a_i + b_i x_{ij} + \varepsilon_{ij} \\
 <h4><span class="header-section-number">6.4.1.2</span> Using random-effects for among-beach differences</h4>
 <p>Now let’s use random effects to capture the differences among beaches. A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection. We’ll start with the additive model again, so that the random beach effect only affects the intercept. Using the notational style of mixed modeling, we could write our model as
 <span class="math display">\[\begin{align*}
-y_{ij} &amp; = A_i + b x_{ij} + \varepsilon_{ij} \\
-A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+y_{ij} &amp; \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2)  \\
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2).
 \end{align*}\]</span></p>
-<p>Here, the <span class="math inline">\(A_i\)</span>’s are the random beach-level intercept. Alternatively, using the notational style of hierarchical modeling, we could write the same model as
-<span class="math display">\[\begin{align*}
-y_{ij} | A_i &amp; \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2) \\
-A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2) 
-\end{align*}\]</span></p>
+<p>Here, the <span class="math inline">\(A_i\)</span>’s are the random beach-level intercept.</p>
 <p>We’ll fit the model using <code>lmerTest::lmer</code>.</p>
 <div class="sourceCode" id="cb458"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb458-1"><a href="hierarchical-models.html#cb458-1" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
 <span id="cb458-2"><a href="hierarchical-models.html#cb458-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -907,9 +898,8 @@ A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2)
 <p>Though it’s subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.</p>
 <p>Now let’s consider a model that includes both separate intercepts and slopes for each beach, while continuing to model the among-beach differences in both with random effects. In other words, we’ll fit a “random coefficients” model with random intercepts and slopes for each beach. We have two options here. Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent. To write the first model in mixed-model notation, we might write
 <span class="math display">\[\begin{align*}
-y_{ij} &amp; = A_i + B_i x_{ij} + \varepsilon_{ij} \\
-\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right) \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+y_{ij} &amp; \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right).
 \end{align*}\]</span></p>
 <p>To fit the model using <code>lmerTest::lmer</code>, we use</p>
 <div class="sourceCode" id="cb463"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb463-1"><a href="hierarchical-models.html#cb463-1" aria-hidden="true" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
@@ -955,10 +945,9 @@ y_{ij} &amp; = A_i + B_i x_{ij} + \varepsilon_{ij} \\
 <p>Interestingly, both the LRT and ANOVA suggest that the random-coefficients model does not provide a statistically significant improvement over the random-intercepts model. In other words, we cannot reject the null hypothesis that <span class="math inline">\(\sigma_B^2 = 0\)</span>.</p>
 <p>Alternatively, we could try a model with independent random effects for intercepts and slopes. This model is
 <span class="math display">\[\begin{align*}
-y_{ij} &amp; = A_i + B_i x_{ij} + \varepsilon_{ij} \\
+y_{ij} &amp; \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
 A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma^2_A) \\
-B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B).
 \end{align*}\]</span></p>
 <p>To fit it in R, we use</p>
 <div class="sourceCode" id="cb468"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb468-1"><a href="hierarchical-models.html#cb468-1" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
@@ -1088,9 +1077,8 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B) \\
 <p>Initially, we fit a model with richly specified fixed effects. In this case, this will mean that the average slope and intercept will vary between the exposure groups.</p>
 <p>These models can be written and fit as follows. The random-intercepts model is
 <span class="math display">\[\begin{align*}
-y_{ijk} &amp; = A_{ij} + b_i x_{ijk} + \varepsilon_{ijk} \\
-A_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A) \\
-\varepsilon_{ijk} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + b_i x_{ijk}, \sigma_\varepsilon^2)\\
+A_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A).
 \end{align*}\]</span>
 We fit this model in R with the code</p>
 <div class="sourceCode" id="cb481"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb481-1"><a href="hierarchical-models.html#cb481-1" aria-hidden="true" tabindex="-1"></a>fm4 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz) </span>
@@ -1128,10 +1116,9 @@ We fit this model in R with the code</p>
 ## fExp11:NAP  0.115 -0.212 -0.664</code></pre>
 <p>The model with independent intercepts and slopes can be written as
 <span class="math display">\[\begin{align*}
-y_{ijk} &amp; = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
+y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
 A_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A) \\
-B_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b_i, \sigma^2_B) \\
-\varepsilon_{ijk} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+B_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b_i, \sigma^2_B) .
 \end{align*}\]</span>
 We fit this model with the code</p>
 <div class="sourceCode" id="cb483"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb483-1"><a href="hierarchical-models.html#cb483-1" aria-hidden="true" tabindex="-1"></a>fm5 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach),</span>
@@ -1171,9 +1158,8 @@ We fit this model with the code</p>
 ## fExp11:NAP  0.041 -0.090 -0.666</code></pre>
 <p>The model with possibly correlated random intercepts and slopes can be written as
 <span class="math display">\[\begin{align*}
-y_{ijk} &amp; = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
-\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a_i \\ b_i \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right) \\
-\varepsilon_{ijk} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
+y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a_i \\ b_i \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right).
 \end{align*}\]</span></p>
 <p>We fit the model in R as follows</p>
 <div class="sourceCode" id="cb485"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb485-1"><a href="hierarchical-models.html#cb485-1" aria-hidden="true" tabindex="-1"></a>fm6 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP<span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
@@ -1358,13 +1344,12 @@ y_{ijk} &amp; = A_{ij} + B_{ij} x_{ijk} + \varepsilon_{ijk} \\
 ##  V  :12                                3rd Qu.:121.2  
 ##  VI :12                                Max.   :174.0</code></pre>
 <p>The variables are (respectively) [B]lock, [V]ariety, [N]itrogen (the manure), and the [Y]ield, in units of 1/4lbs, according to the help documentation.</p>
-<p>To develop notation, let <span class="math inline">\(i = 1, \ldots, 3\)</span> index the three varieties, let <span class="math inline">\(j = 1, \ldots, 4\)</span> index the four manure treatments, and let <span class="math inline">\(k = 1, ldots, 6\)</span> index the blocks. We wish to entertain the usual model for a split-plot design with a blocking factor at the whole-plot level:</p>
-<span class="math display">\[\begin{array}
-y_{ijk} &amp; = \mu_{ij} + B_k + W_{ik} + \varepsilon_{ijk} \\
+<p>To develop notation, let <span class="math inline">\(i = 1, \ldots, 3\)</span> index the three varieties, let <span class="math inline">\(j = 1, \ldots, 4\)</span> index the four manure treatments, and let <span class="math inline">\(k = 1, \ldots, 6\)</span> index the blocks. We wish to entertain the usual model for a split-plot design with a blocking factor at the whole-plot level:</p>
+<p><span class="math display">\[\begin{align}
+y_{ijk} &amp; \sim \mathcal{N}(\mu_{ij} + B_k + W_{ik}, \sigma^2_\varepsilon) \\
 B_k  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) \\
-W_{ik}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W) \\
-\varepsilon_{ijk} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_\varepsilon).
-\end{array}\]</span>
+W_{ik}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W).
+\end{align}\]</span></p>
 <p>Here, <span class="math inline">\(\mu_{ij}\)</span> is the average response for the combination of variety <span class="math inline">\(i\)</span> and manure treatment <span class="math inline">\(j\)</span>; the <span class="math inline">\(B_k\)</span> are the random effects for the blocks, the <span class="math inline">\(W_{ik}\)</span> are the whole-plot errors, and the <span class="math inline">\(\varepsilon_{ijk}\)</span> are the split-plot (observation-level) errors. We proceed to fit the model using <code>lmerTest::lmer</code>. A key to the coding here is to notice that each combination of block and variety uniquely specifies one of the 18 whole plots. (In other words, variety is not replicated within the blocks.) Therefore, we can code the whole-plot random effect as <code>(1 | B : V)</code>, which creats a random effect for each unique combination of block and variety. The rest of the model coding is straightforward.</p>
 <div class="sourceCode" id="cb495"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb495-1"><a href="hierarchical-models.html#cb495-1" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B <span class="sc">:</span> V), <span class="at">data =</span> oats)</span>
 <span id="cb495-2"><a href="hierarchical-models.html#cb495-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1519,10 +1504,9 @@ W_{ik}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W) \\
 <p>To illustrate crossed random effects, we will model players’ scores from the 2018 US Open golf tournament. This data set includes scores for all 136 players who competed in the tournament. All players participated in the first two days of the tournament. Players who had a sufficiently low (good) total score from those first two days qualified to compete in the next two days. Players who with a high (poor) total score from the first two days were disqualified or “cut” from the tournament.</p>
 <p>To develop notation, let <span class="math inline">\(i=1, \ldots, 136\)</span> index the players, and let <span class="math inline">\(j = 1, \ldots, 4\)</span> index the days. We seek to fit the model
 <span class="math display">\[\begin{align}
-y_{ij} &amp; = \mu + A_i + B_j + \varepsilon_{ij} \\
+y_{ij} &amp; \sim \mathcal{N}(\mu + A_i + B_j, \sigma^2_\varepsilon) \\
 A_i  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
-B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_\varepsilon).
+B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 \end{align}\]</span></p>
 <p>In this model, <span class="math inline">\(\mu\)</span> is the average score, <span class="math inline">\(A_i\)</span> are the player-level random effects, <span class="math inline">\(B_j\)</span> are the day-level random effects, and <span class="math inline">\(\varepsilon_{ij}\)</span> are the observation-level errors. Note that because each player played at most once in each day, there is no possibility to separate a possible player-by-day interaction (also a random effect) from the observation-level error. If the players had played multiple rounds in a given day, we could have tried to separate the player-by-day random effect from the observation-level error. We fit the model in <code>lmerTest::lmer</code>.</p>
 <div class="sourceCode" id="cb503"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb503-1"><a href="hierarchical-models.html#cb503-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
@@ -1582,6 +1566,7 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) \\
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-57-1.png" width="672" /></p>
 <p>Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were “cut”. We might infer that these players played above their abilities on days 1 and 2.</p>
 <p><img src="images/sports-comic.png" width="248" /></p>
+<p>Thanks to xkcd for the perspective.</p>
 
 </div>
 </div>
