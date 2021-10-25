@@ -163,7 +163,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.2" data-path="smooth-regression.html"><a href="smooth-regression.html#splines"><i class="fa fa-check"></i><b>4.2</b> Splines</a></li>
 <li class="chapter" data-level="4.3" data-path="smooth-regression.html"><a href="smooth-regression.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html"><i class="fa fa-check"></i><b>5</b> Generalized Least Squares</a></li>
+<li class="chapter" data-level="5" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html"><i class="fa fa-check"></i><b>5</b> Generalized Least Squares</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#heterogeneous-variance"><i class="fa fa-check"></i><b>5.1</b> Heterogeneous variance</a></li>
+<li class="chapter" data-level="5.2" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#temporal-serial-correlation"><i class="fa fa-check"></i><b>5.2</b> Temporal (serial) correlation</a></li>
+<li class="chapter" data-level="5.3" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#spatial-data"><i class="fa fa-check"></i><b>5.3</b> Spatial data</a></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="hierarchical-models.html"><a href="hierarchical-models.html"><i class="fa fa-check"></i><b>6</b> Hierarchical Models</a>
 <ul>
 <li class="chapter" data-level="6.1" data-path="hierarchical-models.html"><a href="hierarchical-models.html#one-factor-layout-dyestuff-data"><i class="fa fa-check"></i><b>6.1</b> One-factor layout: Dyestuff data</a></li>
@@ -199,6 +204,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="generalized-least-squares" class="section level1" number="5">
 <h1><span class="header-section-number">Chapter 5</span> Generalized Least Squares</h1>
+<div id="heterogeneous-variance" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Heterogeneous variance</h2>
 <p>We will illustrate generalized least squares (GLS) using a data set that gives the percentage of male births for four countries (Canada, Denmark, the Netherlands, and the US) for several decades in the late twentieth century. The data were originally reported in Davis et al., JAMA 279:1018–1023 (1998). The data set that we will work with was scraped from this publication by Ramsey and Schafer for their book “The Statistical Sleuth” (2e, 2002). The data can be found as the data set ‘ex0726’ in the r library ‘sleuth2’. We will begin by reading the data and performing some housekeeping.</p>
 <div class="sourceCode" id="cb317"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb317-1"><a href="generalized-least-squares.html#cb317-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--------------------</span></span>
 <span id="cb317-2"><a href="generalized-least-squares.html#cb317-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Ex 07.26 from the Statistical Sleuth, 2e</span></span>
@@ -723,7 +730,149 @@ y_{it} = a + b x_{it} + \varepsilon_{it}.
 ## 
 ## Residual standard error: 0.1266139 
 ## Degrees of freedom: 84 total; 79 residual</code></pre>
+</div>
+<div id="temporal-serial-correlation" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Temporal (serial) correlation</h2>
+<p>Temporal structure often induces a (positive) correlation between data points that occur close together in time. These are the same types of correlations that we would expect to find for any data that occur as part of a series, or serial correlation. (Other data types may display serial correlations that are not driven by time, such as positions along a one-dimensional spatial transect.) We will illustrate how to handle temporal correlations using a time series of annual moorhen abundance on the island of Kauai. These data are analyzed in Ch. 6 of Zuur et al. (2009), and are originally from Reed et al. (2007). The data are available for download from the website associated with Zuur et al.’s text. More details about the models available to handle serial correlations in <code>nlme::gls</code> can be found in <span class="math inline">\(\S\)</span> 5.3.1 of Pinheiro &amp; Bates (2000).</p>
+<p>First we load the data and do some housekeeping.</p>
+<div class="sourceCode" id="cb363"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb363-1"><a href="generalized-least-squares.html#cb363-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb363-2"><a href="generalized-least-squares.html#cb363-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(nlme)</span>
+<span id="cb363-3"><a href="generalized-least-squares.html#cb363-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb363-4"><a href="generalized-least-squares.html#cb363-4" aria-hidden="true" tabindex="-1"></a>birds <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/Hawaii.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb363-5"><a href="generalized-least-squares.html#cb363-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb363-6"><a href="generalized-least-squares.html#cb363-6" aria-hidden="true" tabindex="-1"></a><span class="do">## extract moorhen data</span></span>
+<span id="cb363-7"><a href="generalized-least-squares.html#cb363-7" aria-hidden="true" tabindex="-1"></a>moorhen <span class="ot">&lt;-</span> birds[, <span class="fu">c</span>(<span class="st">&quot;Year&quot;</span>, <span class="st">&quot;Rainfall&quot;</span>, <span class="st">&quot;Moorhen.Kauai&quot;</span>)]</span>
+<span id="cb363-8"><a href="generalized-least-squares.html#cb363-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb363-9"><a href="generalized-least-squares.html#cb363-9" aria-hidden="true" tabindex="-1"></a><span class="do">## rename variables</span></span>
+<span id="cb363-10"><a href="generalized-least-squares.html#cb363-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(moorhen) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span>, <span class="st">&quot;rainfall&quot;</span>, <span class="st">&quot;abundance&quot;</span>)</span>
+<span id="cb363-11"><a href="generalized-least-squares.html#cb363-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb363-12"><a href="generalized-least-squares.html#cb363-12" aria-hidden="true" tabindex="-1"></a><span class="do">## remove NAs</span></span>
+<span id="cb363-13"><a href="generalized-least-squares.html#cb363-13" aria-hidden="true" tabindex="-1"></a>moorhen <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(moorhen)</span>
+<span id="cb363-14"><a href="generalized-least-squares.html#cb363-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb363-15"><a href="generalized-least-squares.html#cb363-15" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(moorhen, <span class="fu">plot</span>(abundance <span class="sc">~</span> year))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<div class="sourceCode" id="cb364"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb364-1"><a href="generalized-least-squares.html#cb364-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(moorhen, <span class="fu">plot</span>(<span class="fu">log</span>(abundance) <span class="sc">~</span> year))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-20-2.png" width="672" /></p>
+<div class="sourceCode" id="cb365"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb365-1"><a href="generalized-least-squares.html#cb365-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(moorhen, <span class="fu">plot</span>(<span class="fu">log</span>(abundance) <span class="sc">~</span> rainfall))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-20-3.png" width="672" /></p>
+<p>Suppose we want to characterize any possible (linear) temporal trend in moorhen abundance, and/or any association between moorhen abundance and annual rainfall. We log transform the abundance data to convert any multiplicative time trends into linear trends. First we will fit an OLS model and use the function <code>acf</code> to plot the autocorrelation function (ACF) of the residuals.</p>
+<div class="sourceCode" id="cb366"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb366-1"><a href="generalized-least-squares.html#cb366-1" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> nlme<span class="sc">::</span><span class="fu">gls</span>(<span class="fu">log</span>(abundance) <span class="sc">~</span> rainfall <span class="sc">+</span> year, <span class="at">data =</span> moorhen)</span>
+<span id="cb366-2"><a href="generalized-least-squares.html#cb366-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">residuals</span>(fm1) <span class="sc">~</span> moorhen<span class="sc">$</span>year)</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<div class="sourceCode" id="cb367"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb367-1"><a href="generalized-least-squares.html#cb367-1" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(<span class="fu">residuals</span>(fm1))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-21-2.png" width="672" /></p>
+<p>The significant first-order autocorrelation suggests a first-order autoregressive model might be appropriate for these errors. We will fit such a model using the <code>corAR1</code> correlation structure. In doing so, we use the formula <code>form = ~ year</code> to indicate that the <code>year</code> variable in the data set provides the time index. This is a necessary step with these data because some years are missing.</p>
+<div class="sourceCode" id="cb368"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb368-1"><a href="generalized-least-squares.html#cb368-1" aria-hidden="true" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> nlme<span class="sc">::</span><span class="fu">gls</span>(<span class="fu">log</span>(abundance) <span class="sc">~</span> rainfall <span class="sc">+</span> year, <span class="at">data =</span> moorhen, </span>
+<span id="cb368-2"><a href="generalized-least-squares.html#cb368-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span> year))</span>
+<span id="cb368-3"><a href="generalized-least-squares.html#cb368-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by REML
+##   Model: log(abundance) ~ rainfall + year 
+##   Data: moorhen 
+##        AIC      BIC   logLik
+##   124.6062 133.2946 -57.3031
+## 
+## Correlation Structure: ARMA(1,0)
+##  Formula: ~year 
+##  Parameter estimate(s):
+##      Phi1 
+## 0.5599778 
+## 
+## Coefficients:
+##                  Value Std.Error   t-value p-value
+## (Intercept) -161.17809  32.93180 -4.894299  0.0000
+## rainfall      -0.00783   0.01433 -0.546369  0.5877
+## year           0.08326   0.01663  5.005461  0.0000
+## 
+##  Correlation: 
+##          (Intr) ranfll
+## rainfall -0.006       
+## year     -1.000 -0.001
+## 
+## Standardized residuals:
+##        Min         Q1        Med         Q3        Max 
+## -3.3338721 -0.5125953  0.2117251  0.6813604  1.5181543 
+## 
+## Residual standard error: 0.9112434 
+## Degrees of freedom: 45 total; 42 residual</code></pre>
+<p>The fit suggests that the residuals from adjacent years have a reasonably strong positive correlation of <span class="math inline">\(\approx 0.56\)</span>.</p>
+<p>To see if the AR1 model has successfully accounted for the correlation structure in the residuals, we will inspect the “normalized” residuals (see the R help for <code>residuals.gls</code> for details). If all the structure in the residuals has been successfully accounted for, then the normalized residuals should look like iid draws from a standard Gaussian distribution.</p>
+<div class="sourceCode" id="cb370"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb370-1"><a href="generalized-least-squares.html#cb370-1" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(<span class="fu">residuals</span>(fm2, <span class="at">type =</span> <span class="st">&quot;normalized&quot;</span>))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p>None of the autocorrelations among the normalized residuals differ significantly from zero.</p>
+<p>Finally, because the AR1 model nests the OLS model, we can use a LRT to inspect whether the first-order autoregression provides a significant improvement in fit.</p>
+<div class="sourceCode" id="cb371"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb371-1"><a href="generalized-least-squares.html#cb371-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm1, fm2)</span></code></pre></div>
+<pre><code>##     Model df      AIC      BIC    logLik   Test  L.Ratio p-value
+## fm1     1  4 134.5734 141.5240 -63.28668                        
+## fm2     2  5 124.6062 133.2946 -57.30310 1 vs 2 11.96716   5e-04</code></pre>
+<p>The LRT suggests that the model with a first-order autocorrelation signficantly improves on the OLS model. We would then proceed to use this model to characterize the temporal trend in moorhen abundance, and the (lack of) association between moorhen abundance and rainfall.</p>
+</div>
+<div id="spatial-data" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> Spatial data</h2>
+<p>Data that are organized in space are also often correlated, with data points that occur close together in space being strongly (positively) correlated with one another. To illustrate spatial correlations, we will use the <code>Wheat2</code> data provided as part of the <code>nlme</code> package. Pinheiro &amp; Bates (2000, p. 260) introduce the data as follows:</p>
+<blockquote>
+<p>“Stroup and Baenziger (1994) describe an agronomic experiment to compare the yield of 56 different varieties of wheat planted in four blocks arranged according to a randomized complete complete block design. All 56 varieties of wheat were used in each block. The latitude and longitude of each experimental unit in the trial were also recorded.”</p>
+</blockquote>
+<div class="sourceCode" id="cb373"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb373-1"><a href="generalized-least-squares.html#cb373-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb373-2"><a href="generalized-least-squares.html#cb373-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;Wheat2&quot;</span>)</span>
+<span id="cb373-3"><a href="generalized-least-squares.html#cb373-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb373-4"><a href="generalized-least-squares.html#cb373-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Wheat2)</span></code></pre></div>
+<pre><code>##  Block       variety        yield          latitude       longitude    
+##  4:56   ARAPAHOE :  4   Min.   : 1.05   Min.   : 4.30   Min.   : 1.20  
+##  2:56   BRULE    :  4   1st Qu.:23.52   1st Qu.:17.20   1st Qu.: 7.20  
+##  3:56   BUCKSKIN :  4   Median :26.85   Median :25.80   Median :14.40  
+##  1:56   CENTURA  :  4   Mean   :25.53   Mean   :27.22   Mean   :14.08  
+##         CENTURK78:  4   3rd Qu.:30.39   3rd Qu.:38.70   3rd Qu.:20.40  
+##         CHEYENNE :  4   Max.   :42.00   Max.   :47.30   Max.   :26.40  
+##         (Other)  :200</code></pre>
+<p>A plot of the spatial locations of these data shows that the blocks hide a lot of information about the actual spatial position of the individual plots. While a traditional RCBD analysis might account for some of the spatial variation, we could perhaps do better by ignoring the block designations and modeling spatial correlations based on the actual location of each plot.</p>
+<div class="sourceCode" id="cb375"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb375-1"><a href="generalized-least-squares.html#cb375-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(Wheat2, <span class="fu">plot</span>(<span class="at">x =</span> longitude, <span class="at">y =</span> latitude, </span>
+<span id="cb375-2"><a href="generalized-least-squares.html#cb375-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">pch =</span> <span class="fu">as.numeric</span>(Block)))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p>Our goal is simply to characterizes the differences in mean yield among the 56 varieties while accounting for possible spatial correlations. We begin by fitting a simple one-factor ANOVA model and plotting a semivariogram of the residuals. We plot the semivariogram using <code>nlme::Variogram</code>.</p>
+<div class="sourceCode" id="cb376"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb376-1"><a href="generalized-least-squares.html#cb376-1" aria-hidden="true" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> nlme<span class="sc">::</span><span class="fu">gls</span>(yield <span class="sc">~</span> variety, <span class="at">data =</span> Wheat2)</span>
+<span id="cb376-2"><a href="generalized-least-squares.html#cb376-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb376-3"><a href="generalized-least-squares.html#cb376-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">Variogram</span>(fm1, <span class="at">form =</span> <span class="sc">~</span> latitude <span class="sc">+</span> longitude))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<p>The semivariogram suggests a non-zero nugget. Here, we will fit spherical and Gaussian correlation models based on the latitude and longitude coordinates of each data point. For each fit, we will then plot a semivariogram of the normalized residuals. Again, if the model has done a good job accounting for the correlation structure in the data, then the normalized residuals should be independent. See <span class="math inline">\(\S\)</span> 5.3.2 of Pinheiro &amp; Bates (2000) for more details about the different spatial correlation structures available in <code>nlme::gls</code>. In particular, see their Fig. 5.9 for a display of how different spatial correlation models compare.</p>
+<p>For each model, we must supply starting values for the range and sill. Rough starting values based on the semivariogram of the raw residuals will suffice.</p>
+<div class="sourceCode" id="cb377"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb377-1"><a href="generalized-least-squares.html#cb377-1" aria-hidden="true" tabindex="-1"></a><span class="do">## spherical covariance</span></span>
+<span id="cb377-2"><a href="generalized-least-squares.html#cb377-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb377-3"><a href="generalized-least-squares.html#cb377-3" aria-hidden="true" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> nlme<span class="sc">::</span><span class="fu">gls</span>(yield <span class="sc">~</span> variety, <span class="at">data =</span> Wheat2, </span>
+<span id="cb377-4"><a href="generalized-least-squares.html#cb377-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">correlation =</span> <span class="fu">corSpher</span>(<span class="fu">c</span>(<span class="dv">28</span>, <span class="fl">0.2</span>), </span>
+<span id="cb377-5"><a href="generalized-least-squares.html#cb377-5" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">form =</span> <span class="sc">~</span> latitude <span class="sc">+</span> longitude, </span>
+<span id="cb377-6"><a href="generalized-least-squares.html#cb377-6" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">nugget =</span> <span class="cn">TRUE</span>))  <span class="co"># need to supply starting values</span></span>
+<span id="cb377-7"><a href="generalized-least-squares.html#cb377-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb377-8"><a href="generalized-least-squares.html#cb377-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">Variogram</span>(fm2, <span class="at">form =</span> <span class="sc">~</span> latitude <span class="sc">+</span> longitude, <span class="at">resType =</span> <span class="st">&quot;n&quot;</span>))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<div class="sourceCode" id="cb378"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb378-1"><a href="generalized-least-squares.html#cb378-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Gaussian covariance</span></span>
+<span id="cb378-2"><a href="generalized-least-squares.html#cb378-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb378-3"><a href="generalized-least-squares.html#cb378-3" aria-hidden="true" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> nlme<span class="sc">::</span><span class="fu">gls</span>(yield <span class="sc">~</span> variety, <span class="at">data =</span> Wheat2, </span>
+<span id="cb378-4"><a href="generalized-least-squares.html#cb378-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">correlation =</span> <span class="fu">corGaus</span>(<span class="fu">c</span>(<span class="dv">28</span>, <span class="fl">0.2</span>),</span>
+<span id="cb378-5"><a href="generalized-least-squares.html#cb378-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">form =</span> <span class="sc">~</span> latitude <span class="sc">+</span> longitude,</span>
+<span id="cb378-6"><a href="generalized-least-squares.html#cb378-6" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">nugget =</span> <span class="cn">TRUE</span>))  <span class="co"># need to supply starting values</span></span>
+<span id="cb378-7"><a href="generalized-least-squares.html#cb378-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb378-8"><a href="generalized-least-squares.html#cb378-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">Variogram</span>(fm3, <span class="at">form =</span> <span class="sc">~</span> latitude <span class="sc">+</span> longitude, <span class="at">resType =</span> <span class="st">&quot;n&quot;</span>))</span></code></pre></div>
+<p><img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-28-2.png" width="672" /></p>
+<p>We can use AIC to compare the fits of the two different spatial correlation structures.</p>
+<div class="sourceCode" id="cb379"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb379-1"><a href="generalized-least-squares.html#cb379-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm1, fm2, fm3)</span></code></pre></div>
+<pre><code>##     Model df      AIC      BIC    logLik   Test  L.Ratio p-value
+## fm1     1 57 1354.742 1532.808 -620.3709                        
+## fm2     2 59 1185.863 1370.177 -533.9315 1 vs 2 172.8787  &lt;.0001
+## fm3     3 59 1185.102 1369.416 -533.5509</code></pre>
+<p>While both correlation structures seem to generate independent residuals, the Gaussian correlation structure is AIC best.</p>
+<p>At this point, if we were really interested in these data, we would proceed to analyze for significant differences among the 56 wheat varieties. For our present purposes, we will merely note that the usual <span class="math inline">\(F\)</span>-test rejects the null hypothesis of equality of means when we account for the spatial correlation in the residuals, but does not do so when we assumed the residuals were independent.</p>
+<div class="sourceCode" id="cb381"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb381-1"><a href="generalized-least-squares.html#cb381-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm1)</span></code></pre></div>
+<pre><code>## Denom. DF: 168 
+##             numDF  F-value p-value
+## (Intercept)     1 2454.621  &lt;.0001
+## variety        55    0.730  0.9119</code></pre>
+<div class="sourceCode" id="cb383"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb383-1"><a href="generalized-least-squares.html#cb383-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fm3)</span></code></pre></div>
+<pre><code>## Denom. DF: 168 
+##             numDF  F-value p-value
+## (Intercept)     1 97.80432  &lt;.0001
+## variety        55  1.85682  0.0014</code></pre>
 
+</div>
 </div>
             </section>
 

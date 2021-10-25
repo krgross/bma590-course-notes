@@ -2,6 +2,8 @@
 
 
 
+## Heterogeneous variance
+
 We will illustrate generalized least squares (GLS) using a data set that gives the percentage of male births for four countries (Canada, Denmark, the Netherlands, and the US) for several decades in the late twentieth century.  The data were originally reported in Davis et al., JAMA 279:1018--1023 (1998).  The data set that we will work with was scraped from this publication by Ramsey and Schafer for their book "The Statistical Sleuth" (2e, 2002).  The data can be found as the data set 'ex0726' in the r library 'sleuth2'.  We will begin by reading the data and performing some housekeeping.
 
 
@@ -704,3 +706,244 @@ summary(gls(pct.male ~ yr.ctr + country, data = births))
 ## Degrees of freedom: 84 total; 79 residual
 ```
 
+## Temporal (serial) correlation
+
+Temporal structure often induces a (positive) correlation between data points that occur close together in time.  These are the same types of correlations that we would expect to find for any data that occur as part of a series, or serial correlation.  (Other data types may display serial correlations that are not driven by time, such as positions along a one-dimensional spatial transect.)  We will illustrate how to handle temporal correlations using a time series of annual moorhen abundance on the island of Kauai.  These data are analyzed in Ch.\ 6 of Zuur et al.\ (2009), and are originally from Reed et al.\ (2007).  The data are available for download from the website associated with Zuur et al.'s text.  More details about the models available to handle serial correlations in `nlme::gls` can be found in $\S$ 5.3.1 of Pinheiro \& Bates (2000).
+
+First we load the data and do some housekeeping.
+
+```r
+rm(list = ls())
+require(nlme)
+
+birds <- read.table("data/Hawaii.txt", head = T)
+
+## extract moorhen data
+moorhen <- birds[, c("Year", "Rainfall", "Moorhen.Kauai")]
+
+## rename variables
+names(moorhen) <- c("year", "rainfall", "abundance")
+
+## remove NAs
+moorhen <- na.omit(moorhen)
+
+with(moorhen, plot(abundance ~ year))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+
+```r
+with(moorhen, plot(log(abundance) ~ year))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-20-2.png" width="672" />
+
+```r
+with(moorhen, plot(log(abundance) ~ rainfall))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-20-3.png" width="672" />
+
+Suppose we want to characterize any possible (linear) temporal trend in moorhen abundance, and/or any association between moorhen abundance and annual rainfall.  We log transform the abundance data to convert any multiplicative time trends into linear trends.  First we will fit an OLS model and use the function `acf` to plot the autocorrelation function (ACF) of the residuals.
+
+
+```r
+fm1 <- nlme::gls(log(abundance) ~ rainfall + year, data = moorhen)
+plot(residuals(fm1) ~ moorhen$year)
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+
+```r
+acf(residuals(fm1))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-21-2.png" width="672" />
+
+The significant first-order autocorrelation suggests a first-order autoregressive model might be appropriate for these errors.  We will fit such a model using the `corAR1` correlation structure.  In doing so, we use the formula `form = ~ year` to indicate that the `year` variable in the data set provides the time index.  This is a necessary step with these data because some years are missing.
+
+
+```r
+fm2 <- nlme::gls(log(abundance) ~ rainfall + year, data = moorhen, 
+                 correlation = corAR1(form = ~ year))
+summary(fm2)
+```
+
+```
+## Generalized least squares fit by REML
+##   Model: log(abundance) ~ rainfall + year 
+##   Data: moorhen 
+##        AIC      BIC   logLik
+##   124.6062 133.2946 -57.3031
+## 
+## Correlation Structure: ARMA(1,0)
+##  Formula: ~year 
+##  Parameter estimate(s):
+##      Phi1 
+## 0.5599778 
+## 
+## Coefficients:
+##                  Value Std.Error   t-value p-value
+## (Intercept) -161.17809  32.93180 -4.894299  0.0000
+## rainfall      -0.00783   0.01433 -0.546369  0.5877
+## year           0.08326   0.01663  5.005461  0.0000
+## 
+##  Correlation: 
+##          (Intr) ranfll
+## rainfall -0.006       
+## year     -1.000 -0.001
+## 
+## Standardized residuals:
+##        Min         Q1        Med         Q3        Max 
+## -3.3338721 -0.5125953  0.2117251  0.6813604  1.5181543 
+## 
+## Residual standard error: 0.9112434 
+## Degrees of freedom: 45 total; 42 residual
+```
+
+The fit suggests that the residuals from adjacent years have a reasonably strong positive correlation of $\approx 0.56$.
+
+To see if the AR1 model has successfully accounted for the correlation structure in the residuals, we will inspect the "normalized" residuals (see the R help for `residuals.gls` for details).  If all the structure in the residuals has been successfully accounted for, then the normalized residuals should look like iid draws from a standard Gaussian distribution.
+
+
+```r
+acf(residuals(fm2, type = "normalized"))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+
+None of the autocorrelations among the normalized residuals differ significantly from zero.
+
+Finally, because the AR1 model nests the OLS model, we can use a LRT to inspect whether the first-order autoregression provides a significant improvement in fit.
+
+
+```r
+anova(fm1, fm2)
+```
+
+```
+##     Model df      AIC      BIC    logLik   Test  L.Ratio p-value
+## fm1     1  4 134.5734 141.5240 -63.28668                        
+## fm2     2  5 124.6062 133.2946 -57.30310 1 vs 2 11.96716   5e-04
+```
+
+The LRT suggests that the model with a first-order autocorrelation signficantly improves on the OLS model.  We would then proceed to use this model to characterize the temporal trend in moorhen abundance, and the (lack of) association between moorhen abundance and rainfall.
+
+## Spatial data
+
+Data that are organized in space are also often correlated, with data points that occur close together in space being strongly (positively) correlated with one another.  To illustrate spatial correlations, we will use the `Wheat2` data provided as part of the `nlme` package.  Pinheiro \& Bates (2000, p.\ 260) introduce the data as follows:
+
+> "Stroup and Baenziger (1994) describe an agronomic experiment to compare the yield of 56 different varieties of wheat planted in four blocks arranged according to a randomized complete complete block design. All 56 varieties of wheat were used in each block. The latitude and longitude of each experimental unit in the trial were also recorded."
+
+
+
+```r
+rm(list = ls())
+data("Wheat2")
+
+summary(Wheat2)
+```
+
+```
+##  Block       variety        yield          latitude       longitude    
+##  4:56   ARAPAHOE :  4   Min.   : 1.05   Min.   : 4.30   Min.   : 1.20  
+##  2:56   BRULE    :  4   1st Qu.:23.52   1st Qu.:17.20   1st Qu.: 7.20  
+##  3:56   BUCKSKIN :  4   Median :26.85   Median :25.80   Median :14.40  
+##  1:56   CENTURA  :  4   Mean   :25.53   Mean   :27.22   Mean   :14.08  
+##         CENTURK78:  4   3rd Qu.:30.39   3rd Qu.:38.70   3rd Qu.:20.40  
+##         CHEYENNE :  4   Max.   :42.00   Max.   :47.30   Max.   :26.40  
+##         (Other)  :200
+```
+
+A plot of the spatial locations of these data shows that the blocks hide a lot of information about the actual spatial position of the individual plots.  While a traditional RCBD analysis might account for some of the spatial variation, we could perhaps do better by ignoring the block designations and modeling spatial correlations based on the actual location of each plot.
+
+
+```r
+with(Wheat2, plot(x = longitude, y = latitude, 
+                  pch = as.numeric(Block)))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+
+Our goal is simply to characterizes the differences in mean yield among the 56 varieties while accounting for possible spatial correlations.  We begin by fitting a simple one-factor ANOVA model and plotting a semivariogram of the residuals.  We plot the semivariogram using `nlme::Variogram`.
+
+
+```r
+fm1 <- nlme::gls(yield ~ variety, data = Wheat2)
+
+plot(Variogram(fm1, form = ~ latitude + longitude))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+
+The semivariogram suggests a non-zero nugget.  Here, we will fit spherical and Gaussian correlation models based on the latitude and longitude coordinates of each data point.  For each fit, we will then plot a semivariogram of the normalized residuals.  Again, if the model has done a good job accounting for the correlation structure in the data, then the normalized residuals should be independent.  See $\S$ 5.3.2 of Pinheiro \& Bates (2000) for more details about the different spatial correlation structures available in `nlme::gls`.  In particular, see their Fig.\ 5.9 for a display of how different spatial correlation models compare.
+
+For each model, we must supply starting values for the range and sill.  Rough starting values based on the semivariogram of the raw residuals will suffice.
+
+
+```r
+## spherical covariance
+
+fm2 <- nlme::gls(yield ~ variety, data = Wheat2, 
+                 correlation = corSpher(c(28, 0.2), 
+                                        form = ~ latitude + longitude, 
+                                        nugget = TRUE))  # need to supply starting values
+
+plot(Variogram(fm2, form = ~ latitude + longitude, resType = "n"))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+
+```r
+## Gaussian covariance
+
+fm3 <- nlme::gls(yield ~ variety, data = Wheat2, 
+                 correlation = corGaus(c(28, 0.2),
+                                       form = ~ latitude + longitude,
+                                       nugget = TRUE))  # need to supply starting values
+
+plot(Variogram(fm3, form = ~ latitude + longitude, resType = "n"))
+```
+
+<img src="05-GeneralizedLeastSquares_files/figure-html/unnamed-chunk-28-2.png" width="672" />
+
+We can use AIC to compare the fits of the two different spatial correlation structures.
+
+
+```r
+anova(fm1, fm2, fm3)
+```
+
+```
+##     Model df      AIC      BIC    logLik   Test  L.Ratio p-value
+## fm1     1 57 1354.742 1532.808 -620.3709                        
+## fm2     2 59 1185.863 1370.177 -533.9315 1 vs 2 172.8787  <.0001
+## fm3     3 59 1185.102 1369.416 -533.5509
+```
+
+While both correlation structures seem to generate independent residuals, the Gaussian correlation structure is AIC best. 
+
+At this point, if we were really interested in these data, we would proceed to analyze for significant differences among the 56 wheat varieties.  For our present purposes, we will merely note that the usual $F$-test rejects the null hypothesis of equality of means when we account for the spatial correlation in the residuals, but does not do so when we assumed the residuals were independent.
+
+
+```r
+anova(fm1)
+```
+
+```
+## Denom. DF: 168 
+##             numDF  F-value p-value
+## (Intercept)     1 2454.621  <.0001
+## variety        55    0.730  0.9119
+```
+
+```r
+anova(fm3)
+```
+
+```
+## Denom. DF: 168 
+##             numDF  F-value p-value
+## (Intercept)     1 97.80432  <.0001
+## variety        55  1.85682  0.0014
+```
