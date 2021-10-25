@@ -571,7 +571,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpU7zxQe/model68461e83564.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp2X3lqh/model5383761173a.txt", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -1556,18 +1556,18 @@ summary(fm4)
 We can analyze the fixed-effects as follows.  Based on the contrasts R has used, the low exposure beaches are the baseline; thus the values for the "Intercept" and "NAP" coefficients give the intercept and slope for low-exposure beaches.  The values of the "fExp11" and "fExp11:NAP" coefficients (resp.) give the differences of the intercepts and slopes (resp.) between the high vs.\ low exposure beaches.  Thus the negative value of the "NAP" coefficient suggests that species richness declines as NAP increases at low-exposure beaches.  The positive coefficient for the "fExp11:NAP" interaction suggests that species richness declines more gradually with increasing NAP at high-exposure beaches as compared to low-exposure beaches.  Because we have analyzed the square-root transform of the response, it is hard to assign any biological meaning to the magnitudes of the coefficients.  This is one downside of using a transformation to stabilize the variance in the response.
 
 
-We'll visualize the model with a plot.  The code below is ugly and could be improved.
+We'll visualize the model with a plot.  
 
 ```r
-a0 <- fixef(fm4)[1]  # marginal intercept for low-exposure beaches
-b0 <- fixef(fm4)[2]  # marginal slope for low-exposure beaches
-a1 <- fixef(fm4)[3]  # difference in marginal intercepts for high vs low 
-b1 <- fixef(fm4)[4]  # difference in marginal slopes for high vs low
+a0 <- fixef(fm4)[1]  # mean intercept for low-exposure beaches
+b0 <- fixef(fm4)[2]  # mean slope for low-exposure beaches
+a1 <- fixef(fm4)[3]  # difference in mean intercepts for high vs low 
+b1 <- fixef(fm4)[4]  # difference in mean slopes for high vs low
 
 c.mode <- ranef(fm4)$fBeach
 
-low.beaches <- c(1, 2, 5, 8, 9)
-high.beaches <- c(3, 4, 6, 7)
+low.beaches <- c(1, 2, 5, 8, 9) # indices of the low-exposure beaches
+high.beaches <- c(3, 4, 6, 7) # indices of the high-exposure beacues
 
 par(mfrow = c(1, 2))  # split the plot region
 
