@@ -323,17 +323,29 @@ with(Wheat2, plot(x = longitude, y = latitude,
                   pch = as.numeric(Block)))
 ```
 
-Our goal is simply to characterizes the differences in mean yield among the 56 varieties while accounting for possible spatial correlations.  We begin by fitting a simple one-factor ANOVA model and plotting a semivariogram of the residuals.  We plot the semivariogram using `nlme::Variogram`.
+Our goal is simply to characterizes the differences in mean yield among the 56 varieties while accounting for possible spatial correlations.  We begin by fitting a simple one-factor ANOVA model and inspecting the residuals.  First, we will use the `plot_ly` function to generate a three-dimensional view of the residuals.  This 3D plot can be rotated in R, although the rotation is not possible in this Rbook.  
 
 ```{r}
 fm1 <- nlme::gls(yield ~ variety, data = Wheat2)
 
+require(plotly)
+plot_ly(x = Wheat2$latitude, 
+        y = Wheat2$longitude, 
+        z = resid(fm1), 
+        type = "scatter3d", 
+        mode = "markers", 
+        color = resid(fm1))
+```
+
+The residuals suggest a clear spatial trend in fertility.  Next, We plot the semivariogram using `nlme::Variogram`.  This command will actually plot the semivariance normalized by the sill, such that the quantity plotted is 1 minus the correlation between two points.  In the plot below, the smooth curve is a loess curve fit to the calculated points.
+
+```{r}
 plot(Variogram(fm1, form = ~ latitude + longitude))
 ```
 
-The semivariogram suggests a non-zero nugget.  Here, we will fit spherical and Gaussian correlation models based on the latitude and longitude coordinates of each data point.  For each fit, we will then plot a semivariogram of the normalized residuals.  Again, if the model has done a good job accounting for the correlation structure in the data, then the normalized residuals should be independent.  See $\S$ 5.3.2 of Pinheiro \& Bates (2000) for more details about the different spatial correlation structures available in `nlme::gls`.  In particular, see their Fig.\ 5.9 for a display of how different spatial correlation models compare.
+The semivariogram suggests a non-zero nugget.  Here, we will fit spherical, Gaussian, and linear correlation models based on the latitude and longitude coordinates of each data point.  For each fit, we will then plot a semivariogram of the normalized residuals.  Again, if the model has done a good job accounting for the correlation structure in the data, then the normalized residuals should be independent.  See $\S$ 5.3.2 of Pinheiro \& Bates (2000) for more details about the different spatial correlation structures available in `nlme::gls`.  In particular, see their Fig.\ 5.9 for a display of how different spatial correlation models compare.
 
-For each model, we must supply starting values for the range and sill.  Rough starting values based on the semivariogram of the raw residuals will suffice.
+For each model, we must supply starting values for the range and nugget.  Rough starting values based on the semivariogram of the raw residuals will suffice.  Calls to `Variogram` will plot the calculated semivariances and overlay the fitted semivariogram.
 
 ```{r}
 ## spherical covariance
@@ -343,7 +355,7 @@ fm2 <- nlme::gls(yield ~ variety, data = Wheat2,
                                         form = ~ latitude + longitude, 
                                         nugget = TRUE))  # need to supply starting values
 
-plot(Variogram(fm2, form = ~ latitude + longitude, resType = "n"))
+plot(Variogram(fm2, form = ~ latitude + longitude))
 
 ## Gaussian covariance
 
@@ -352,20 +364,34 @@ fm3 <- nlme::gls(yield ~ variety, data = Wheat2,
                                        form = ~ latitude + longitude,
                                        nugget = TRUE))  # need to supply starting values
 
-plot(Variogram(fm3, form = ~ latitude + longitude, resType = "n"))
+plot(Variogram(fm3, form = ~ latitude + longitude))
+
+## linear covariance
+
+fm4 <- nlme::gls(yield ~ variety, data = Wheat2, 
+                 correlation = corLin(c(28, 0.2),
+                                       form = ~ latitude + longitude,
+                                       nugget = TRUE))  # need to supply starting values
+
+plot(Variogram(fm4, form = ~ latitude + longitude))
+```
+
+If we wish, we can extract the estimated nugget and range from each model by calling `print`.
+```{r}
+print(fm4)
 ```
 
 We can use AIC to compare the fits of the two different spatial correlation structures.
 
 ```{r}
-anova(fm1, fm2, fm3)
+anova(fm1, fm2, fm3, fm4)
 ```
 
-While both correlation structures seem to generate independent residuals, the Gaussian correlation structure is AIC best. 
+The linear correlation structure is AIC best. 
 
 At this point, if we were really interested in these data, we would proceed to analyze for significant differences among the 56 wheat varieties.  For our present purposes, we will merely note that the usual $F$-test rejects the null hypothesis of equality of means when we account for the spatial correlation in the residuals, but does not do so when we assumed the residuals were independent.
 
 ```{r}
 anova(fm1)
-anova(fm3)
+anova(fm4)
 ```

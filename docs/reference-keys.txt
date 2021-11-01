@@ -36,3 +36,10 @@ adding-a-beach-level-covariate
 nested-and-crossed-random-effects
 nested-random-effects
 crossed-random-effects
+generalized-linear-models
+poisson-regression
+bayesian-interlude
+rstanarm-1
+posterior-predictive-checks
+jags
+observation-level-random-effects
