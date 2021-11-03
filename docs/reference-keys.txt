@@ -43,3 +43,6 @@ rstanarm-1
 posterior-predictive-checks
 jags
 observation-level-random-effects
+binary-responses
+individual-binary-responses-tb-in-boar
+grouped-binary-data-industrial-melanism

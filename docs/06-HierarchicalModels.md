@@ -571,7 +571,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpGG9szX/model2cb45c89e36.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpAJisk1/model2424128c763.txt", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
