@@ -777,7 +777,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSqOWCz/model1a0cecb101e.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpq8pOYe/model2ab46b1f9a4.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -798,7 +798,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSqOWCz/model1a0c6893685f.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpq8pOYe/model2ab4642d2605.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -1233,14 +1233,15 @@ jagsfit <- jags(data               = jags.data,
 
 For some reason this works without specifying initial values for $a$ and $b$ (now both vectors).  Maybe the initial values are drawn from the prior?
 
-In any case, let's have a look at the summary statistics and visualize the fit:
+Again, we defer the plot of the model until we discuss marginal vs.\ conditional means in GLMMs more fully.  We can still have a look at the posterior summaries however.
+
 
 ```r
 print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSqOWCz/model1a0c6de83feb.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpq8pOYe/model2ab43a265b9f.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
@@ -1260,103 +1261,102 @@ print(jagsfit)
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
+<!-- ```{r} -->
+<!-- inv.logit <- function(x) exp(x) / (1 + exp(x)) -->
+
+<!-- mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list) -->
+<!-- post.mean   <- apply(mcmc.output, 2, mean) -->
+
+<!-- subset.samples <- sample(nrow(mcmc.output), size = 100) -->
+
+<!-- moth$prop.removed <- with(moth, removed / placed) -->
+
+<!-- light <- subset(moth, morph == "light") -->
+<!-- dark  <- subset(moth, morph == "dark") -->
+
+<!-- par(mfrow = c(1, 2)) -->
+
+<!-- #------ light morph -->
+
+<!-- plot(prop.removed ~ distance,  -->
+<!--      data = moth,  -->
+<!--      type = "n",  -->
+<!--      main = "Light morph", -->
+<!--      ylab = "proprotion removed") -->
+
+<!-- points(x = light$distance, y = light$prop.removed, pch = 16) -->
+
+<!-- for(i in subset.samples) { -->
+
+<!--   a <- mcmc.output$a.2[i] -->
+<!--   b <- mcmc.output$b.2[i] -->
+
+<!--   fitted.curve <- function(x) inv.logit(a + b * x) -->
+
+<!--   curve(fitted.curve, -->
+<!--         from = min(moth$distance), -->
+<!--         to   = max(moth$distance), -->
+<!--         add  = TRUE, -->
+<!--         col  = "deepskyblue") -->
+<!-- } -->
+
+<!-- fitted.mean.curve <- function(x) inv.logit(post.mean['a.2'] + post.mean['b.2'] * x) -->
+
+<!-- curve(fitted.mean.curve, -->
+<!--         from = min(moth$distance), -->
+<!--         to   = max(moth$distance), -->
+<!--         add  = TRUE, -->
+<!--         col  = "darkblue", -->
+<!--         lwd  = 2) -->
+
+<!-- points(x = light$distance, y = light$prop.removed, pch = 16) -->
+
+<!-- #--------- dark morph  -->
+
+<!-- plot(prop.removed ~ distance,  -->
+<!--      data = moth,  -->
+<!--      type = "n",  -->
+<!--      main = "Dark morph", -->
+<!--      ylab = "proprotion removed") -->
+
+<!-- for(i in subset.samples) { -->
+
+<!--   a <- mcmc.output$a.1[i] -->
+<!--   b <- mcmc.output$b.1[i] -->
+
+<!--   fitted.curve <- function(x) inv.logit(a + b * x) -->
+
+<!--   curve(fitted.curve, -->
+<!--         from = min(moth$distance), -->
+<!--         to   = max(moth$distance), -->
+<!--         add  = TRUE, -->
+<!--         col  = "deepskyblue") -->
+<!-- } -->
+
+<!-- fitted.mean.curve <- function(x) inv.logit(post.mean['a.1'] + post.mean['b.1'] * x) -->
+
+<!-- curve(fitted.mean.curve, -->
+<!--         from = min(moth$distance), -->
+<!--         to   = max(moth$distance), -->
+<!--         add  = TRUE, -->
+<!--         col  = "darkblue", -->
+<!--         lwd  = 2) -->
+
+<!-- points(x = dark$distance, y = dark$prop.removed, pch = 16) -->
+<!-- ``` -->
+
+Most salient is the posterior of the difference between the two slopes (on the logit scale).  
+
 
 ```r
-inv.logit <- function(x) exp(x) / (1 + exp(x))
-
 mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
-post.mean   <- apply(mcmc.output, 2, mean)
 
-subset.samples <- sample(nrow(mcmc.output), size = 100)
-
-moth$prop.removed <- with(moth, removed / placed)
-
-light <- subset(moth, morph == "light")
-dark  <- subset(moth, morph == "dark")
-
-par(mfrow = c(1, 2))
-
-#------ light morph
-
-plot(prop.removed ~ distance, 
-     data = moth, 
-     type = "n", 
-     main = "Light morph",
-     ylab = "proprotion removed")
-
-points(x = light$distance, y = light$prop.removed, pch = 16)
-
-for(i in subset.samples) {
-  
-  a <- mcmc.output$a.2[i]
-  b <- mcmc.output$b.2[i]
-  
-  fitted.curve <- function(x) inv.logit(a + b * x)
-  
-  curve(fitted.curve,
-        from = min(moth$distance),
-        to   = max(moth$distance),
-        add  = TRUE,
-        col  = "deepskyblue")
-}
-
-fitted.mean.curve <- function(x) inv.logit(post.mean['a.2'] + post.mean['b.2'] * x)
-
-curve(fitted.mean.curve,
-        from = min(moth$distance),
-        to   = max(moth$distance),
-        add  = TRUE,
-        col  = "darkblue",
-        lwd  = 2)
-
-points(x = light$distance, y = light$prop.removed, pch = 16)
-
-#--------- dark morph 
-
-plot(prop.removed ~ distance, 
-     data = moth, 
-     type = "n", 
-     main = "Dark morph",
-     ylab = "proprotion removed")
-
-for(i in subset.samples) {
-  
-  a <- mcmc.output$a.1[i]
-  b <- mcmc.output$b.1[i]
-  
-  fitted.curve <- function(x) inv.logit(a + b * x)
-  
-  curve(fitted.curve,
-        from = min(moth$distance),
-        to   = max(moth$distance),
-        add  = TRUE,
-        col  = "deepskyblue")
-}
-
-fitted.mean.curve <- function(x) inv.logit(post.mean['a.1'] + post.mean['b.1'] * x)
-
-curve(fitted.mean.curve,
-        from = min(moth$distance),
-        to   = max(moth$distance),
-        add  = TRUE,
-        col  = "darkblue",
-        lwd  = 2)
-
-points(x = dark$distance, y = dark$prop.removed, pch = 16)
-```
-
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
-
-More salient is the posterior of the difference between the two slopes (on the logit scale).  
-
-
-```r
 bayesplot::mcmc_areas(mcmc.output,
                       pars = c("b.diff"),
                       prob = 0.95) 
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-38-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 
 ```r

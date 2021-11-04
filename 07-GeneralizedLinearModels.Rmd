@@ -661,98 +661,101 @@ jagsfit <- jags(data               = jags.data,
 
 For some reason this works without specifying initial values for $a$ and $b$ (now both vectors).  Maybe the initial values are drawn from the prior?
 
-In any case, let's have a look at the summary statistics and visualize the fit:
+Again, we defer the plot of the model until we discuss marginal vs.\ conditional means in GLMMs more fully.  We can still have a look at the posterior summaries however.
+
 ```{r}
 print(jagsfit)
 ```
 
-```{r}
-inv.logit <- function(x) exp(x) / (1 + exp(x))
+<!-- ```{r} -->
+<!-- inv.logit <- function(x) exp(x) / (1 + exp(x)) -->
 
+<!-- mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list) -->
+<!-- post.mean   <- apply(mcmc.output, 2, mean) -->
+
+<!-- subset.samples <- sample(nrow(mcmc.output), size = 100) -->
+
+<!-- moth$prop.removed <- with(moth, removed / placed) -->
+
+<!-- light <- subset(moth, morph == "light") -->
+<!-- dark  <- subset(moth, morph == "dark") -->
+
+<!-- par(mfrow = c(1, 2)) -->
+
+<!-- #------ light morph -->
+
+<!-- plot(prop.removed ~ distance,  -->
+<!--      data = moth,  -->
+<!--      type = "n",  -->
+<!--      main = "Light morph", -->
+<!--      ylab = "proprotion removed") -->
+
+<!-- points(x = light$distance, y = light$prop.removed, pch = 16) -->
+
+<!-- for(i in subset.samples) { -->
+
+<!--   a <- mcmc.output$a.2[i] -->
+<!--   b <- mcmc.output$b.2[i] -->
+
+<!--   fitted.curve <- function(x) inv.logit(a + b * x) -->
+
+<!--   curve(fitted.curve, -->
+<!--         from = min(moth$distance), -->
+<!--         to   = max(moth$distance), -->
+<!--         add  = TRUE, -->
+<!--         col  = "deepskyblue") -->
+<!-- } -->
+
+<!-- fitted.mean.curve <- function(x) inv.logit(post.mean['a.2'] + post.mean['b.2'] * x) -->
+
+<!-- curve(fitted.mean.curve, -->
+<!--         from = min(moth$distance), -->
+<!--         to   = max(moth$distance), -->
+<!--         add  = TRUE, -->
+<!--         col  = "darkblue", -->
+<!--         lwd  = 2) -->
+
+<!-- points(x = light$distance, y = light$prop.removed, pch = 16) -->
+
+<!-- #--------- dark morph  -->
+
+<!-- plot(prop.removed ~ distance,  -->
+<!--      data = moth,  -->
+<!--      type = "n",  -->
+<!--      main = "Dark morph", -->
+<!--      ylab = "proprotion removed") -->
+
+<!-- for(i in subset.samples) { -->
+
+<!--   a <- mcmc.output$a.1[i] -->
+<!--   b <- mcmc.output$b.1[i] -->
+
+<!--   fitted.curve <- function(x) inv.logit(a + b * x) -->
+
+<!--   curve(fitted.curve, -->
+<!--         from = min(moth$distance), -->
+<!--         to   = max(moth$distance), -->
+<!--         add  = TRUE, -->
+<!--         col  = "deepskyblue") -->
+<!-- } -->
+
+<!-- fitted.mean.curve <- function(x) inv.logit(post.mean['a.1'] + post.mean['b.1'] * x) -->
+
+<!-- curve(fitted.mean.curve, -->
+<!--         from = min(moth$distance), -->
+<!--         to   = max(moth$distance), -->
+<!--         add  = TRUE, -->
+<!--         col  = "darkblue", -->
+<!--         lwd  = 2) -->
+
+<!-- points(x = dark$distance, y = dark$prop.removed, pch = 16) -->
+<!-- ``` -->
+
+Most salient is the posterior of the difference between the two slopes (on the logit scale).  
+
+```{r}
 mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
-post.mean   <- apply(mcmc.output, 2, mean)
 
-subset.samples <- sample(nrow(mcmc.output), size = 100)
-
-moth$prop.removed <- with(moth, removed / placed)
-
-light <- subset(moth, morph == "light")
-dark  <- subset(moth, morph == "dark")
-
-par(mfrow = c(1, 2))
-
-#------ light morph
-
-plot(prop.removed ~ distance, 
-     data = moth, 
-     type = "n", 
-     main = "Light morph",
-     ylab = "proprotion removed")
-
-points(x = light$distance, y = light$prop.removed, pch = 16)
-
-for(i in subset.samples) {
-  
-  a <- mcmc.output$a.2[i]
-  b <- mcmc.output$b.2[i]
-  
-  fitted.curve <- function(x) inv.logit(a + b * x)
-  
-  curve(fitted.curve,
-        from = min(moth$distance),
-        to   = max(moth$distance),
-        add  = TRUE,
-        col  = "deepskyblue")
-}
-
-fitted.mean.curve <- function(x) inv.logit(post.mean['a.2'] + post.mean['b.2'] * x)
-
-curve(fitted.mean.curve,
-        from = min(moth$distance),
-        to   = max(moth$distance),
-        add  = TRUE,
-        col  = "darkblue",
-        lwd  = 2)
-
-points(x = light$distance, y = light$prop.removed, pch = 16)
-
-#--------- dark morph 
-
-plot(prop.removed ~ distance, 
-     data = moth, 
-     type = "n", 
-     main = "Dark morph",
-     ylab = "proprotion removed")
-
-for(i in subset.samples) {
-  
-  a <- mcmc.output$a.1[i]
-  b <- mcmc.output$b.1[i]
-  
-  fitted.curve <- function(x) inv.logit(a + b * x)
-  
-  curve(fitted.curve,
-        from = min(moth$distance),
-        to   = max(moth$distance),
-        add  = TRUE,
-        col  = "deepskyblue")
-}
-
-fitted.mean.curve <- function(x) inv.logit(post.mean['a.1'] + post.mean['b.1'] * x)
-
-curve(fitted.mean.curve,
-        from = min(moth$distance),
-        to   = max(moth$distance),
-        add  = TRUE,
-        col  = "darkblue",
-        lwd  = 2)
-
-points(x = dark$distance, y = dark$prop.removed, pch = 16)
-```
-
-More salient is the posterior of the difference between the two slopes (on the logit scale).  
-
-```{r}
 bayesplot::mcmc_areas(mcmc.output,
                       pars = c("b.diff"),
                       prob = 0.95) 
