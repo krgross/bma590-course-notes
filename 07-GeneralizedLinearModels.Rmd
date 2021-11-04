@@ -386,12 +386,16 @@ jagsfit2 <- jags(data               = jags.data,
                  n.thin             = 5)
 ```
 
-Again, we can have a look at the posterior summaries, and plot a random sample of fits from the posterior:
+Again, we can have a look at the posterior summaries.
 ```{r}
 mcmc.output <- as.data.frame(jagsfit2$BUGSoutput$sims.list)
 apply(mcmc.output, 2, mean)
 HPDinterval(as.mcmc(mcmc.output), prob = 0.95)
+```
 
+Plotting the posterior fit in this case is more subtle.  With the observation-level random effect, we now have a model that includes a random effect behind a non-linear link function.  In other words, we have a generalizd linear mixed model (GLMM).  The combination of a random effect and a non-linear link function means that there are two different ways to calculate the fitted value --- the so-called "marginal means" and the "conditional means".  We will defer a discussion of this distinction until we discuss GLMMs in greater detail.  Accordingly, we defer the plot as well.
+
+<!-- ```{r}
 plot(matings ~ age, data = elephant, type = "n")
 
 subset.samples <- sample(nrow(mcmc.output), size = 100)
@@ -426,6 +430,7 @@ curve(my.fit,
 ```
 
 Because the extra-Poisson variation in the elephant data is small, the effect of the observation-level random effect is slight.  However, an eagle-eyed observer might notice the following differences.  First, the posterior uncertainty in the slope parameter that captures the effect of age has increased slightly.  Second, and perhaps more meaningfully, the fitted curve has dropped slightly.    This makes sense, as the model with the observation-level random effect doesn't have to strain quite as hard to accommodate the few elephants with large and positive residuals.  Thus, adding an observation-level random effect has had the same effect on the fit as other approaches to accommodating extra-Poisson variaton.  
+-->
 
 Formally, we can assess the need for the observation-level random effect by comparing the two models with the deviance information criterion (DIC), an information criterion that can be used to compare Bayesian models in the same way that AIC can be used to compare frequentist fits.  DIC is provided as a portion to the output from the `print` command applied to a JAGS model fit.
 
@@ -596,7 +601,7 @@ The plot of the residuals suggests that we might want to include a random effect
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
 p_{ij}  & = \mathrm{logit}^{-1}({\eta_{ij}}) \\
-\eta_{ij} = a_i + b_i x_{ij} + L_j \\
+\eta_{ij} & = a_i + b_i x_{ij} + L_j \\
 L_j & \sim \mathcal{N}(0, \sigma^2_L)
 \end{align*}
 

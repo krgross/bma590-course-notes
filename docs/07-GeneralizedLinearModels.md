@@ -704,7 +704,7 @@ jagsfit2 <- jags(data               = jags.data,
                  n.thin             = 5)
 ```
 
-Again, we can have a look at the posterior summaries, and plot a random sample of fits from the posterior:
+Again, we can have a look at the posterior summaries.
 
 ```r
 mcmc.output <- as.data.frame(jagsfit2$BUGSoutput$sims.list)
@@ -730,7 +730,9 @@ HPDinterval(as.mcmc(mcmc.output), prob = 0.95)
 ## [1] 0.95
 ```
 
-```r
+Plotting the posterior fit in this case is more subtle.  With the observation-level random effect, we now have a model that includes a random effect behind a non-linear link function.  In other words, we have a generalizd linear mixed model (GLMM).  The combination of a random effect and a non-linear link function means that there are two different ways to calculate the fitted value --- the so-called "marginal means" and the "conditional means".  We will defer a discussion of this distinction until we discuss GLMMs in greater detail.  Accordingly, we defer the plot as well.
+
+<!-- ```{r}
 plot(matings ~ age, data = elephant, type = "n")
 
 subset.samples <- sample(nrow(mcmc.output), size = 100)
@@ -764,9 +766,8 @@ curve(my.fit,
       add  = TRUE)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-24-1.png" width="672" />
-
 Because the extra-Poisson variation in the elephant data is small, the effect of the observation-level random effect is slight.  However, an eagle-eyed observer might notice the following differences.  First, the posterior uncertainty in the slope parameter that captures the effect of age has increased slightly.  Second, and perhaps more meaningfully, the fitted curve has dropped slightly.    This makes sense, as the model with the observation-level random effect doesn't have to strain quite as hard to accommodate the few elephants with large and positive residuals.  Thus, adding an observation-level random effect has had the same effect on the fit as other approaches to accommodating extra-Poisson variaton.  
+-->
 
 Formally, we can assess the need for the observation-level random effect by comparing the two models with the deviance information criterion (DIC), an information criterion that can be used to compare Bayesian models in the same way that AIC can be used to compare frequentist fits.  DIC is provided as a portion to the output from the `print` command applied to a JAGS model fit.
 
@@ -776,7 +777,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpGiLYNj/model29e476421391.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSqOWCz/model1a0cecb101e.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -797,7 +798,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpGiLYNj/model29e47117bdd.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSqOWCz/model1a0c6893685f.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -1171,7 +1172,7 @@ The plot of the residuals suggests that we might want to include a random effect
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
 p_{ij}  & = \mathrm{logit}^{-1}({\eta_{ij}}) \\
-\eta_{ij} = a_i + b_i x_{ij} + L_j \\
+\eta_{ij} & = a_i + b_i x_{ij} + L_j \\
 L_j & \sim \mathcal{N}(0, \sigma^2_L)
 \end{align*}
 
@@ -1239,7 +1240,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpGiLYNj/model29e44e0d65ed.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSqOWCz/model1a0c6de83feb.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
@@ -1368,7 +1369,7 @@ table(mcmc.output$b.diff > 0)
 ##     4 14996
 ```
 
-Thus we would say that there is a 14993 / 15000 = 0.9995 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
+Thus we would say that there is a 0.9997 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
 
 <!-- We have already mentioned that the $t$-statistics reported in `summary.glm` are based on standard errors calculated from the curvature (Hessian) of the negative log-likelihood at the MLEs, with df determined by the df available for the residual deviance.  An alternative approach for testing for the significance of model terms is to use the residual deviance to compare nested models, much as one would use $F$-tests to compare nested models in ordinary least squares.  Here is a bit of theory.  Let $D$ denote the residual deviance for a model.  Suppose we are comparing two nested models: a parameter poor model that we call model 0, and a parameter rich model that we call model 1.  The parameter-rich model nests the parameter poor model.  Let $p_0$ and $p_1$ be the number of estimated parameters in the linear predictor of models 0 and 1, respectively, and let $D_0$ and $D_1$ denote the (residual) deviances of both models.  In the usual way, we wish to test whether or not the parameter-rich model provides a statistically significant improvement in fit over the parameter-poor model. -->
 
