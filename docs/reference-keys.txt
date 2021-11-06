@@ -46,3 +46,7 @@ observation-level-random-effects
 binary-responses
 individual-binary-responses-tb-in-boar
 grouped-binary-data-industrial-melanism
+zero-adjusted-models-for-count-data
+zero-truncated-models
+zero-inflated-models
+zero-altered-or-hurdle-models
