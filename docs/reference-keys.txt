@@ -50,3 +50,8 @@ zero-adjusted-models-for-count-data
 zero-truncated-models
 zero-inflated-models
 zero-altered-or-hurdle-models
+generalized-additive-models-gams-1
+generalized-linear-mixed-models
+gees
+glmms
+bayesian-fit

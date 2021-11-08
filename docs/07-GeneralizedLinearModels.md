@@ -777,7 +777,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpAPOokr/model2db860c055a9.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpA5tju8/model1eec1f193604.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -798,7 +798,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpAPOokr/model2db85208264d.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpA5tju8/model1eec1445167b.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -1168,208 +1168,15 @@ abline(h = 0, lty = "dashed")
 
 <img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-34-1.png" width="672" />
 
-The plot of the residuals suggests that we might want to include a random effect for the sampling station.  This makes complete sense.  The data for the two color morphs at each station share whatever other characteristics make the station unique, and are thus correlated.  To account for this correlation, we need to introduce a random effect for the station.  This again gets us into the world of generalized linear mixed models.  Before proceeding, we'll write the model down.  Let $i=1,2$ index the two color morphs, and let $j = 1, \ldots, 7$ index the stations.  Let $y_{ij}$ be the number of moths removed, let $n_{ij}$ be the number of moths placed, and let $x_{ij}$ be the distance of the station from Liverpool.  We wish to fit the model
+The plot of the residuals suggests that we should include a random effect for the sampling station.  This makes complete sense.  The data for the two color morphs at each station share whatever other characteristics make the station unique, and are thus correlated.  To account for this correlation, we need to introduce a random effect for the station.  This again gets us into the world of generalized linear mixed models.  Before proceeding, we'll write the model down.  Let $i=1,2$ index the two color morphs, and let $j = 1, \ldots, 7$ index the stations.  Let $y_{ij}$ be the number of moths removed, let $n_{ij}$ be the number of moths placed, and let $x_j$ be the distance of the station from Liverpool.  We wish to fit the model
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
-p_{ij}  & = \mathrm{logit}^{-1}({\eta_{ij}}) \\
-\eta_{ij} & = a_i + b_i x_{ij} + L_j \\
+\mathrm{logit}(p_{ij})  & = \eta_{ij} \\
+\eta_{ij} & = a_i + b_i x_j + L_j \\
 L_j & \sim \mathcal{N}(0, \sigma^2_L)
 \end{align*}
 
-The $L_j$'s are our [l]ocation-specific random effects that capture any other station-to-station differences above and beyond the station's distance from Liverpool.  (It turns out that an observation-level random effect does not improve the model, at least as indicated by DIC.)  We'll fit the model in JAGS.
-
-
-```r
-moth.model <- function() {
-   
-   for (j in 1:J) {             # J = number of data points
-      
-      y[j]   ~ dbin(p[j], n[j])      # data distribution
-      
-      p[j]   <- ilogit(eta[j])      # inverse link
-      eta[j] <- a[morph[j]] + b[morph[j]] * dist[j] + L[loc[j]]  # linear predictor,
-   }
-   
-   for (j in 1:7){  # random effects for location
-    
-     L[j] ~ dnorm(0, tau_L)
-   }
-  
-   a[1] ~ dnorm (0.0, 1E-6)       # priors for intercept
-   a[2] ~ dnorm (0.0, 1E-6)       # priors for intercept
-   b[1] ~ dnorm (0.0, 1E-6)       # prior for slope
-   b[2] ~ dnorm (0.0, 1E-6)       # prior for slope
-   
-   tau_L   ~ dgamma (0.01, 0.01)    # prior for location-level random effect
-   
-   sd_L   <- pow(tau_L, -1/2)
-   
-   b.diff <- b[1] - b[2]
-}
-
-jags.data <- list(y     = moth$removed, 
-                  n     = moth$placed,
-                  dist  = moth$distance,
-                  loc   = as.numeric(moth$location),
-                  morph = as.numeric(moth$morph),
-                  J     = nrow(moth))
-
-jags.params <- c("a[1]", "a[2]", "b[1]", "b[2]", "b.diff", "sd_L")
-
-jags.inits <- function(){
-   list("tau_L" = runif(1))
-}
-
-set.seed(1)
-
-jagsfit <- jags(data               = jags.data, 
-                inits              = jags.inits, 
-                parameters.to.save = jags.params,
-                model.file         = moth.model,
-                n.chains           = 3,
-                n.iter             = 5E4,
-                n.thin             = 5)
-```
-
-For some reason this works without specifying initial values for $a$ and $b$ (now both vectors).  Maybe the initial values are drawn from the prior?
-
-Again, we defer the plot of the model until we discuss marginal vs.\ conditional means in GLMMs more fully.  We can still have a look at the posterior summaries however.
-
-
-```r
-print(jagsfit)
-```
-
-```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpAPOokr/model2db8453e13cd.txt", fit using jags,
-##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
-##  n.sims = 15000 iterations saved
-##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## a[1]      -1.141   0.290 -1.720 -1.320 -1.135 -0.963 -0.577 1.001 13000
-## a[2]      -0.735   0.282 -1.295 -0.908 -0.733 -0.559 -0.185 1.001 15000
-## b.diff     0.028   0.008  0.012  0.022  0.028  0.033  0.044 1.001 15000
-## b[1]       0.019   0.009  0.002  0.013  0.019  0.024  0.036 1.001  6800
-## b[2]      -0.009   0.009 -0.026 -0.015 -0.009 -0.004  0.008 1.001  9700
-## sd_L       0.249   0.147  0.080  0.151  0.215  0.306  0.620 1.002  2200
-## deviance  75.258   4.136 68.632 72.242 74.782 77.723 84.621 1.002  2700
-## 
-## For each parameter, n.eff is a crude measure of effective sample size,
-## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
-## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 8.5 and DIC = 83.8
-## DIC is an estimate of expected predictive error (lower deviance is better).
-```
-
-<!-- ```{r} -->
-<!-- inv.logit <- function(x) exp(x) / (1 + exp(x)) -->
-
-<!-- mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list) -->
-<!-- post.mean   <- apply(mcmc.output, 2, mean) -->
-
-<!-- subset.samples <- sample(nrow(mcmc.output), size = 100) -->
-
-<!-- moth$prop.removed <- with(moth, removed / placed) -->
-
-<!-- light <- subset(moth, morph == "light") -->
-<!-- dark  <- subset(moth, morph == "dark") -->
-
-<!-- par(mfrow = c(1, 2)) -->
-
-<!-- #------ light morph -->
-
-<!-- plot(prop.removed ~ distance,  -->
-<!--      data = moth,  -->
-<!--      type = "n",  -->
-<!--      main = "Light morph", -->
-<!--      ylab = "proprotion removed") -->
-
-<!-- points(x = light$distance, y = light$prop.removed, pch = 16) -->
-
-<!-- for(i in subset.samples) { -->
-
-<!--   a <- mcmc.output$a.2[i] -->
-<!--   b <- mcmc.output$b.2[i] -->
-
-<!--   fitted.curve <- function(x) inv.logit(a + b * x) -->
-
-<!--   curve(fitted.curve, -->
-<!--         from = min(moth$distance), -->
-<!--         to   = max(moth$distance), -->
-<!--         add  = TRUE, -->
-<!--         col  = "deepskyblue") -->
-<!-- } -->
-
-<!-- fitted.mean.curve <- function(x) inv.logit(post.mean['a.2'] + post.mean['b.2'] * x) -->
-
-<!-- curve(fitted.mean.curve, -->
-<!--         from = min(moth$distance), -->
-<!--         to   = max(moth$distance), -->
-<!--         add  = TRUE, -->
-<!--         col  = "darkblue", -->
-<!--         lwd  = 2) -->
-
-<!-- points(x = light$distance, y = light$prop.removed, pch = 16) -->
-
-<!-- #--------- dark morph  -->
-
-<!-- plot(prop.removed ~ distance,  -->
-<!--      data = moth,  -->
-<!--      type = "n",  -->
-<!--      main = "Dark morph", -->
-<!--      ylab = "proprotion removed") -->
-
-<!-- for(i in subset.samples) { -->
-
-<!--   a <- mcmc.output$a.1[i] -->
-<!--   b <- mcmc.output$b.1[i] -->
-
-<!--   fitted.curve <- function(x) inv.logit(a + b * x) -->
-
-<!--   curve(fitted.curve, -->
-<!--         from = min(moth$distance), -->
-<!--         to   = max(moth$distance), -->
-<!--         add  = TRUE, -->
-<!--         col  = "deepskyblue") -->
-<!-- } -->
-
-<!-- fitted.mean.curve <- function(x) inv.logit(post.mean['a.1'] + post.mean['b.1'] * x) -->
-
-<!-- curve(fitted.mean.curve, -->
-<!--         from = min(moth$distance), -->
-<!--         to   = max(moth$distance), -->
-<!--         add  = TRUE, -->
-<!--         col  = "darkblue", -->
-<!--         lwd  = 2) -->
-
-<!-- points(x = dark$distance, y = dark$prop.removed, pch = 16) -->
-<!-- ``` -->
-
-Most salient is the posterior of the difference between the two slopes (on the logit scale).  
-
-
-```r
-mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
-
-bayesplot::mcmc_areas(mcmc.output,
-                      pars = c("b.diff"),
-                      prob = 0.95) 
-```
-
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
-
-
-```r
-table(mcmc.output$b.diff > 0)
-```
-
-```
-## 
-## FALSE  TRUE 
-##     4 14996
-```
-
-Thus we would say that there is a 0.9997 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
+The $L_j$'s are our [l]ocation-specific random effects that capture any other station-to-station differences above and beyond the station's distance from Liverpool.  (It turns out that an observation-level random effect does not improve the model, at least as indicated by DIC.)  Because this model includes both a random effect for the station and a non-Gaussian response, it is a generalized linear mixed model (GLMM).  We postpone our discussion accordingly.
 
 <!-- We have already mentioned that the $t$-statistics reported in `summary.glm` are based on standard errors calculated from the curvature (Hessian) of the negative log-likelihood at the MLEs, with df determined by the df available for the residual deviance.  An alternative approach for testing for the significance of model terms is to use the residual deviance to compare nested models, much as one would use $F$-tests to compare nested models in ordinary least squares.  Here is a bit of theory.  Let $D$ denote the residual deviance for a model.  Suppose we are comparing two nested models: a parameter poor model that we call model 0, and a parameter rich model that we call model 1.  The parameter-rich model nests the parameter poor model.  Let $p_0$ and $p_1$ be the number of estimated parameters in the linear predictor of models 0 and 1, respectively, and let $D_0$ and $D_1$ denote the (residual) deviances of both models.  In the usual way, we wish to test whether or not the parameter-rich model provides a statistically significant improvement in fit over the parameter-poor model. -->
 
@@ -1434,7 +1241,7 @@ with(corbet, barplot(species, names = ofreq,
                      ylab = "frequency"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-40-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 
 We will fit a zero-truncated negative binomial distribution to these data, and compare the fitted zero-truncated distribution to the data.
 
@@ -1461,7 +1268,7 @@ fitted.vals <- sum(corbet$species) * fitted.probs
 barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fitted"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-41-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 
 
@@ -1504,7 +1311,30 @@ summary(cod)
 ##  Max.   :4.000   Max.   :10.000   Max.   :4.000
 ```
 
-There are a large number of potential predictors.  Following the analysis in Zuur et al., we will focus on the effects of length (a measure of the fish's size), year (which we will treat as a categorical predictor for flexibility), and "area", a categorical predictor for one of four areas in which the fish was sampled.
+There are a large number of potential predictors.  Following the analysis in Zuur et al., we will focus on the effects of length (a measure of the fish's size), year (which we will treat as a categorical predictor for flexibility), and "area", a categorical predictor for one of four areas in which the fish was sampled.  Before beginning, we will plot the data.  In the plot below, each row of the plot corresponds to a year, and each column (unlabeled) corresponds to one of the four areas, going from area 1 (the leftmost column) to area 4 (the rightmost column).  Because most of the parasite loads are zero or close to zero, we plot parasite load on a log(y + 1) scale. 
+
+
+```r
+par(mfrow = c(3, 4), mar = c(2, 2, 1, 1), oma = c(3, 7, 0, 0), las = 1)
+
+for (i in unique(cod$Year)) {
+  for (j in sort(unique(cod$Area))) {
+    
+    with(subset(cod, Year == i & Area == j), 
+         plot(log(Intensity + 1) ~ Length, xlim = range(cod$Length), ylim = log(range(cod$Intensity) + 1),
+              xlab = "", ylab = "", yaxt = "n"))
+    
+    axis(2, at = log(c(0, 10, 100) + 1), lab = c(0, 10, 100))
+    
+    if (j == 1) mtext(i, side = 2, line  = 3)
+  }
+}
+
+mtext("length", side = 1, outer = T, line = 2)
+mtext("parasite intensity", side = 2, outer = T, line = 5, las = 0)
+```
+
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-40-1.png" width="672" />
 
 With ZI models, one can use separate model combinations of predictors for the two components.  Indeed, if we think of the two components as capturing two different natural processes, then there is no reason that the predictors should have the same affect on both components.  Following Zuur et al., however, we will start with a ZINB model that includes length, year, area, and an interaction between year and area for both components.  Because both components are generalized linear models, both include a link function.  Here, we will use the default logit link for the zero-inflation component and log link for the count component.
 
@@ -1665,6 +1495,35 @@ summary(cod.nb.fm2)
 
 There's a lot of output here to process.  One observation we might make is that there seems to be a strongly significant negative association between length and both the probability of a false zero in the first model component, and the parasite abundance in the second model component.  To visualize the model, we might plot the fitted probability of a false zero vs.\ length for each combination of area and year, and then plot the fitted intensity (mean) of the count process vs.\ length, also for each combination of area and year.  See Ch. 11 of Zuur et al.\ for such plots.
 
+Alternatively, we might merge the two model components to generate predicted values as a function of length for each year and area.  The library `pscl` provides methods to extract predicted values directly; see the help documentation for `pscl::predict.zeroinfl`.  We use that method here to generate predicted mean parasite counts (merging the zero-inflation and count components) for each combination of year and area.  In the plot below, bear in mind that because the data are shown on a log scale, the fitted line will not necessarily pass through the center of the plotted data cloud.
+
+
+```r
+length.vals <- seq(from = min(cod$Length), to = max(cod$Length), length = 100)
+par(mfrow = c(3, 4), mar = c(2, 2, 1, 1), oma = c(3, 7, 0, 0), las = 1)
+
+for (i in unique(cod$Year)) {
+  for (j in sort(unique(cod$Area))) {
+   
+    new.data <- data.frame(Length = length.vals, Year = i, Area = j)
+    predicted.vals <- predict(cod.nb.fm2, newdata = new.data, type = "response")
+    
+    plot(x = range(cod$Length), y = log(range(cod$Intensity) + 1), xlab = "", ylab = "", type = "n", yaxt = "n")
+    lines(log(predicted.vals + 1) ~ length.vals)
+    
+    with(subset(cod, Year == i & Area == j), points(log(Intensity + 1) ~ Length))
+    axis(2, at = log(c(0, 10, 100) + 1), lab = c(0, 10, 100))
+    
+    if (j == 1) mtext(i, side = 2, line  = 3)
+  }
+}
+
+mtext("length", side = 1, outer = T, line = 2)
+mtext("parasite intensity", side = 2, outer = T, line = 6, las = 0)
+```
+
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-45-1.png" width="672" />
+
 ### Zero-altered, or "hurdle", models
 
 Zero-altered (ZA) models, also known as hurdle models, are similar to ZI models in the sense that there are two components.  However, in ZA models, the binary component models whether the response is 0 or greater than 0.  This binary component of the model is called the hurdle component.  The count component is then modeled using a zero-truncated distribution.  Consequently, in ZA models, the proportion of zeros may be either greater or less than the distribution of the non-zero counts suggests.  
@@ -1724,3 +1583,6 @@ summary(cod.hurdle.fm3)
 ## Log-likelihood: -2448 on 20 Df
 ```
 
+## Generalized additive models (GAMs)
+
+forthcoming

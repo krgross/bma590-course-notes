@@ -1,0 +1,8 @@
+location	distance	morph	l.placed	l.removed	d.placed	d.removed
+sp	0	light	56	17	56	14
+ef	7.2	light	80	28	80	20
+ha	24.1	light	52	18	52	22
+lo	30.2	light	60	9	60	16
+ll	36.4	light	60	16	60	23
+pw	41.5	light	84	20	84	40
+cm	51.2	light	92	24	92	39
