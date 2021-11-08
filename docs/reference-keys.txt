@@ -52,6 +52,8 @@ zero-inflated-models
 zero-altered-or-hurdle-models
 generalized-additive-models-gams-1
 generalized-linear-mixed-models
+example-1-industrial-melanism-data
 gees
 glmms
 bayesian-fit
+ticks-on-red-grouse

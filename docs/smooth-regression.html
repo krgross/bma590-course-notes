@@ -4,25 +4,27 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 4 Smooth regression | bookdown-demo</title>
-  <meta name="description" content="" />
+  <title>Chapter 4 Smooth regression | BMA / ST 590 computing companion</title>
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
   <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 4 Smooth regression | bookdown-demo" />
+  <meta property="og:title" content="Chapter 4 Smooth regression | BMA / ST 590 computing companion" />
   <meta property="og:type" content="book" />
   
   
-  
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 4 Smooth regression | bookdown-demo" />
+  <meta name="twitter:title" content="Chapter 4 Smooth regression | BMA / ST 590 computing companion" />
   
-  
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
   
 
+<meta name="author" content="Kevin Gross" />
 
 
+<meta name="date" content="2021-11-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -138,16 +140,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <nav role="navigation">
 
 <ul class="summary">
-<li class="chapter" data-level="1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html"><i class="fa fa-check"></i><b>1</b> Maximum likelihood estimation</a>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Maximum likelihood estimation</a>
 <ul>
-<li class="chapter" data-level="1.1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#a-very-simple-example-with-a-single-observation"><i class="fa fa-check"></i><b>1.1</b> A very simple example with a single observation</a></li>
-<li class="chapter" data-level="1.2" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#horse-kick-data"><i class="fa fa-check"></i><b>1.2</b> Horse-kick data</a>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#a-very-simple-example-with-a-single-observation"><i class="fa fa-check"></i><b>1.1</b> A very simple example with a single observation</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#horse-kick-data"><i class="fa fa-check"></i><b>1.2</b> Horse-kick data</a>
 <ul>
-<li class="chapter" data-level="1.2.1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#calculate-and-plot-the-log-likelihood-function"><i class="fa fa-check"></i><b>1.2.1</b> Calculate and plot the log-likelihood function</a></li>
-<li class="chapter" data-level="1.2.2" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#find-the-mle-numerically-using-optimize"><i class="fa fa-check"></i><b>1.2.2</b> Find the MLE numerically using ‘optimize’</a></li>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#calculate-and-plot-the-log-likelihood-function"><i class="fa fa-check"></i><b>1.2.1</b> Calculate and plot the log-likelihood function</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#find-the-mle-numerically-using-optimize"><i class="fa fa-check"></i><b>1.2.2</b> Find the MLE numerically using ‘optimize’</a></li>
 </ul></li>
-<li class="chapter" data-level="1.3" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#myxomatosis-data"><i class="fa fa-check"></i><b>1.3</b> Myxomatosis data</a></li>
-<li class="chapter" data-level="1.4" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#myxomatosis-data"><i class="fa fa-check"></i><b>1.3</b> Myxomatosis data</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><i class="fa fa-check"></i><b>2</b> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</a>
 <ul>
@@ -211,15 +213,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="7.4.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-truncated-models"><i class="fa fa-check"></i><b>7.4.1</b> Zero-truncated models</a></li>
 <li class="chapter" data-level="7.4.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-inflated-models"><i class="fa fa-check"></i><b>7.4.2</b> Zero-inflated models</a></li>
-<li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
+<li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle,” models</a></li>
 </ul></li>
 <li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams-1"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html"><i class="fa fa-check"></i><b>8</b> Generalized linear mixed models</a>
 <ul>
-<li class="chapter" data-level="8.1" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#gees"><i class="fa fa-check"></i><b>8.1</b> GEEs</a></li>
-<li class="chapter" data-level="8.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#glmms"><i class="fa fa-check"></i><b>8.2</b> GLMMs</a></li>
-<li class="chapter" data-level="8.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#bayesian-fit"><i class="fa fa-check"></i><b>8.3</b> Bayesian fit</a></li>
+<li class="chapter" data-level="8.1" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#example-1-industrial-melanism-data"><i class="fa fa-check"></i><b>8.1</b> Example 1: Industrial melanism data</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#gees"><i class="fa fa-check"></i><b>8.1.1</b> GEEs</a></li>
+<li class="chapter" data-level="8.1.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#glmms"><i class="fa fa-check"></i><b>8.1.2</b> GLMMs</a></li>
+<li class="chapter" data-level="8.1.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#bayesian-fit"><i class="fa fa-check"></i><b>8.1.3</b> Bayesian fit</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#ticks-on-red-grouse"><i class="fa fa-check"></i><b>8.2</b> Ticks on red grouse</a></li>
 </ul></li>
 </ul>
 
@@ -230,7 +236,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">BMA / ST 590 computing companion</a>
           </h1>
         </div>
 
@@ -361,7 +367,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="splines" class="section level2" number="4.2">
 <h2><span class="header-section-number">4.2</span> Splines</h2>
-<p>We’ll use the <code>gam</code> function in the <code>mgcv</code> package to fit splines and additive models. The name of the package is an acronym for “Mixed GAM Computation Vehicle”. GAM is an acronym for Generalized Additive Model. <strong>Warning</strong>. I do not understand much of the functionality of <code>mgcv::gam</code>. What follows is my best guess of how the procedure works.</p>
+<p>We’ll use the <code>gam</code> function in the <code>mgcv</code> package to fit splines and additive models. The name of the package is an acronym for “Mixed GAM Computation Vehicle.” GAM is an acronym for Generalized Additive Model. <strong>Warning</strong>. I do not understand much of the functionality of <code>mgcv::gam</code>. What follows is my best guess of how the procedure works.</p>
 <p>The code below fits a regression spline to the bioluminescence data. Actually, the code fits an additive model with the spline as the only predictor. We will say more about additive models later. For now, it is sufficient to think about an additive model as a type of regression in which the linear effect of the predictor has been replaced by a spline. In other words, in terms of a word equation, the model can be represented as
 <span class="math display">\[
 \mbox{response = intercept + spline + error}
@@ -414,7 +420,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 
 ## R-sq.(adj) =  0.924   Deviance explained = 93.2%
 ## GCV = 19.837  Scale est. = 17.503    n = 51</code></pre>
-<p>This summary requires a bit more explanation as well. In this GAM, the spline component of the model effectively creates a set of new predictor variables. A regression spline with <span class="math inline">\(x\)</span> knots requires <span class="math inline">\(x+3\)</span> new regression predictors to fit the spline. In this fit, there are two knots, so the spline requires 5 new predictor variables. Because the predictors are determined in advance with regression splines, we can use the usual theory of <span class="math inline">\(F\)</span>-tests from regression to assess the statistical significance of the spline terms. In the section of the output labeled “Approximate significance of smooth terms”, we see that these 5 predictors together provide a significantly better fit than a model that does not include the spline. I believe this test is actually exact. I think that it is labeled “approximate” because the default behavior of <code>mgcv::gam</code> is to fit a smoothing spline, for which the test is indeed only approximate. We’ll discuss this more when we study a smoothing spline fit.</p>
+<p>This summary requires a bit more explanation as well. In this GAM, the spline component of the model effectively creates a set of new predictor variables. A regression spline with <span class="math inline">\(x\)</span> knots requires <span class="math inline">\(x+3\)</span> new regression predictors to fit the spline. In this fit, there are two knots, so the spline requires 5 new predictor variables. Because the predictors are determined in advance with regression splines, we can use the usual theory of <span class="math inline">\(F\)</span>-tests from regression to assess the statistical significance of the spline terms. In the section of the output labeled “Approximate significance of smooth terms,” we see that these 5 predictors together provide a significantly better fit than a model that does not include the spline. I believe this test is actually exact. I think that it is labeled “approximate” because the default behavior of <code>mgcv::gam</code> is to fit a smoothing spline, for which the test is indeed only approximate. We’ll discuss this more when we study a smoothing spline fit.</p>
 <p>Now we’ll fit and plot a smoothing spline. A smoothing spline differs from a regression spline by using generalized cross-validation to determine the appropriate smoothness.</p>
 <div class="sourceCode" id="cb285"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb285-1"><a href="smooth-regression.html#cb285-1" aria-hidden="true" tabindex="-1"></a>st16.spline <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(sources <span class="sc">~</span> <span class="fu">s</span>(depth), <span class="at">data =</span> st16)</span>
 <span id="cb285-2"><a href="smooth-regression.html#cb285-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.spline, <span class="at">se =</span> <span class="cn">TRUE</span>)  <span class="co"># note that the plot does not include the intercept</span></span></code></pre></div>
@@ -457,7 +463,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 
 ## R-sq.(adj) =  0.966   Deviance explained = 97.2%
 ## GCV = 9.7081  Scale est. = 7.8402    n = 51</code></pre>
-<p>Note especially the <code>edf</code> component in the “Approximate significance of smooth terms” section. The label <code>edf</code> stands for effective degrees of freedom. We can think of the edf as the effective number of new predictors that have been added to the model to accommodate the spline. For a smoothing spline, the number and values of the newly created predictors are determined by fitting the model to the data. Because the predictors are calculated in this way, the usual theory of <span class="math inline">\(F\)</span>-testing does not apply. This is why the <span class="math inline">\(F\)</span>-test shown for the smoothing spline is labeled as “approximate”.</p>
+<p>Note especially the <code>edf</code> component in the “Approximate significance of smooth terms” section. The label <code>edf</code> stands for effective degrees of freedom. We can think of the edf as the effective number of new predictors that have been added to the model to accommodate the spline. For a smoothing spline, the number and values of the newly created predictors are determined by fitting the model to the data. Because the predictors are calculated in this way, the usual theory of <span class="math inline">\(F\)</span>-testing does not apply. This is why the <span class="math inline">\(F\)</span>-test shown for the smoothing spline is labeled as “approximate.”</p>
 <p>Find the AIC for the smoothing spline fit:</p>
 <div class="sourceCode" id="cb289"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb289-1"><a href="smooth-regression.html#cb289-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(st16.spline)</span></code></pre></div>
 <pre><code>## [1] 260.4811</code></pre>

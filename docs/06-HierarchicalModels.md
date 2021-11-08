@@ -571,7 +571,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpwp7yHQ/model2ff435a56124.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp2fsUGo/model1b0430ab49fc.txt", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -1924,7 +1924,29 @@ summary(fm1)  # comparison of the std devs of the random effects is interesting
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
-It is interesting to compare the standard deviations of the random effects.
+It is interesting to compare the standard deviations of the random effects.  It is also interesting to use the profile function to see the asymmetry in the confidence intervals for these standard deviations.
+
+
+```r
+pp.golf <- profile(fm1)
+
+confint(pp.golf)
+```
+
+```
+##                  2.5 %    97.5 %
+## .sig01       0.0000000  1.551146
+## .sig02       0.8129721  3.837297
+## .sigma       3.0513011  3.666234
+## (Intercept) 72.2434040 76.265786
+```
+
+```r
+lattice::xyplot(pp.golf, absVal = TRUE)
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-56-1.png" width="672" />
+
 
 We can also extract the conditional modes for the players and rounds.
 
@@ -1969,7 +1991,7 @@ with(player.stats, stripchart(mode ~ as.factor(rds), method = "jitter", ylab = "
                               xlab = "conditional mode", pch = 1))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-57-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-58-1.png" width="672" />
 
 Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were "cut".  We might infer that these players played above their abilities on days 1 and 2.
 

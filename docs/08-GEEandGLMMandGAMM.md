@@ -2,6 +2,8 @@
 
 
 
+## Example 1: Industrial melanism data
+
 We will examine several possible approaches to analyzing the industrial melanism data.  Recall that these data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  In notation, the model that we seek to fit is
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
@@ -83,7 +85,7 @@ This approach tells us that the difference in log-odds slopes (defined as dark m
 
 The major disadvantage to the approach above is that it doesn't account for the fact that differing numbers of moths were placed at the different stations.  We could try to account for this with a weighted regression, but it's not clear what the weights should be.  We were also fortunate in the sense that there were no instances of either none or all of the moths being removed at a particular station, which would have led to an infinite empirical logit.
 
-## GEEs
+### GEEs
 
 Next we try a GEE with a compound symmetry ("exchangable") correlation structure imposed on the pair of measurements at each station.  Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure.  We fit the model using `geepack::geeglm`. 
 
@@ -178,7 +180,7 @@ dark.fit(20)
 ## [1] 0.3192197
 ```
 
-## GLMMs
+### GLMMs
 
 Next, we will fit the same model with `lme4::glmer`.
 
@@ -285,7 +287,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3188324
+## [1] 0.3187475
 ```
 
 ```r
@@ -319,7 +321,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3502449
+## [1] 0.3502061
 ```
 
 ```r
@@ -332,7 +334,7 @@ abline(v = marginal.mean, col = "blue", lwd = 2)
 
 <img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-11-1.png" width="672" />
 
-## Bayesian fit
+### Bayesian fit
 
 We now fit the model using JAGS and vague priors.
 
@@ -414,7 +416,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpU5mLkn/model17c4a0a6cf8.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpauG7gg/model1fe07a763b35.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
@@ -481,8 +483,6 @@ table(mcmc.output$b.diff > 0)
 ```
 
 Thus we would say that there is a 0.9997 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
-
-
 
 We can plot the fit of the model using draws from the posterior distribution of the parameters.  The heavy lines below show the fits using the posterior means of the parameters.  Do these fits correspond to the marginal or conditional means?  (There's little difference here, but it's a useful thought exercise.)
 
@@ -566,4 +566,213 @@ points(x = dark$distance, y = dark$prop.removed, pch = 16)
 ```
 
 <img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+
+## Ticks on red grouse
+
+This example comes from Ben Bolker's chapter in Fox et al. (2015).  Bolker describes the data as follows:
+
+> "Elston et al. (2001) used data on numbers of ticks sampled from the heads of red grouse chicks in Scotland to explore patterns of aggregation. Ticks have potentially large fitness and demographic consequences on red grouse individuals and populations, but Elston et al. 's goal was just to decompose patterns of variation into different scales (within-brood, within-site, by altitude and year). The response is the tick count (TICKS, again Poisson or negative binomial); altitude (HEIGHT, treated as continuous) and year (YEAR, treated as categorical) are fixed predictor variables. Individual within brood (INDEX) and brood within location are nested random-effect grouping variables, with the baseline expected number of ticks (intercept) varying among groups."
+
+An alternative analysis of these data can be found on Bolker's Github page at https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html.
+
+
+
+
+```r
+require(lme4)
+require(lattice)
+```
+
+```
+## Loading required package: lattice
+```
+
+```r
+tick <- read.table("data/tick.txt", head = T)
+
+names(tick) <- c("index", "ticks", "brood", "elevation", "yr", "loc")
+
+tick$index <- as.factor(tick$index)
+tick$brood <- as.factor(tick$brood)
+tick$yr    <- as.factor(tick$yr)
+tick$loc   <- as.factor(tick$loc)
+
+# center and scale elevation
+
+tick$elev.z <- with(tick, (elevation - mean(elevation)) / sd(elevation))
+```
+
+Model fitting:
+
+
+```r
+# GLMM with Poisson response
+
+fm1  <- glmer(ticks ~ yr + elev.z + (1 | loc / brood / index), 
+              family = "poisson",
+              data = tick)
+
+summary(fm1)
+```
+
+```
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: poisson  ( log )
+## Formula: ticks ~ yr + elev.z + (1 | loc/brood/index)
+##    Data: tick
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   1794.5   1822.5   -890.3   1780.5      396 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.6123 -0.5536 -0.1486  0.2850  2.4430 
+## 
+## Random effects:
+##  Groups            Name        Variance Std.Dev.
+##  index:(brood:loc) (Intercept) 0.2932   0.5415  
+##  brood:loc         (Intercept) 0.5625   0.7500  
+##  loc               (Intercept) 0.2796   0.5287  
+## Number of obs: 403, groups:  index:(brood:loc), 403; brood:loc, 118; loc, 63
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)   0.3728     0.1964   1.898 0.057648 .  
+## yr96          1.1804     0.2381   4.957 7.15e-07 ***
+## yr97         -0.9787     0.2628  -3.724 0.000196 ***
+## elev.z       -0.8543     0.1236  -6.910 4.83e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##        (Intr) yr96   yr97  
+## yr96   -0.728              
+## yr97   -0.610  0.514       
+## elev.z  0.011  0.048  0.047
+```
+
+```r
+pp <- profile(fm1)
+
+confint(pp)
+```
+
+```
+##                   2.5 %     97.5 %
+## .sig01       0.45148404  0.6451853
+## .sig02       0.52127895  1.0569669
+## .sig03       0.00000000  0.8928761
+## (Intercept) -0.02822434  0.7485780
+## yr96         0.71308876  1.6583695
+## yr97        -1.50239878 -0.4606277
+## elev.z      -1.10589097 -0.6090506
+```
+
+```r
+xyplot(pp, absVal = TRUE)
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+
+```r
+d.resid <- residuals(fm1, type = "deviance")
+(residual.deviance <- sum(d.resid^2))
+```
+
+```
+## [1] 220.9251
+```
+
+```r
+df.residual(fm1)
+```
+
+```
+## [1] 396
+```
+
+```r
+# residual diagnostics
+
+plot(fitted(fm1), d.resid)
+abline(h = 0, lty = "dashed")
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-21-2.png" width="672" />
+
+```r
+plot(tick$elev.z, d.resid)
+abline(h = 0, lty = "dashed")
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-21-3.png" width="672" />
+
+```r
+# model without observation-level random effect
+
+fm2  <- glmer(ticks ~ yr + elev.z + (1 | loc / brood), 
+              family = "poisson",
+              data = tick)
+
+anova(fm1, fm2)
+```
+
+```
+## Data: tick
+## Models:
+## fm2: ticks ~ yr + elev.z + (1 | loc/brood)
+## fm1: ticks ~ yr + elev.z + (1 | loc/brood/index)
+##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)    
+## fm2    6 1987.9 2011.9 -987.94   1975.9                         
+## fm1    7 1794.5 1822.5 -890.27   1780.5 195.33  1  < 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+d.resid.2 <- residuals(fm2, type = "deviance")
+sum(d.resid.2^2)
+```
+
+```
+## [1] 737.4204
+```
+
+```r
+df.residual(fm2)
+```
+
+```
+## [1] 397
+```
+
+```r
+# Interaction between year and elevation
+
+fm3  <- glmer(ticks ~ yr * elev.z + (1 | loc / brood / index), 
+              family = "poisson",
+              data = tick)
+```
+
+```
+## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+## Model failed to converge with max|grad| = 0.0053212 (tol = 0.002, component 1)
+```
+
+```r
+anova(fm1, fm3)  # can use LRT because models are nested, and both have been fit with ML
+```
+
+```
+## Data: tick
+## Models:
+## fm1: ticks ~ yr + elev.z + (1 | loc/brood/index)
+## fm3: ticks ~ yr * elev.z + (1 | loc/brood/index)
+##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)  
+## fm1    7 1794.5 1822.5 -890.27   1780.5                       
+## fm3    9 1793.0 1829.0 -887.52   1775.0 5.4987  2    0.06397 .
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
 

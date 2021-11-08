@@ -777,7 +777,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpA5tju8/model1eec1f193604.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp4uEgdD/model21a83a5851.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -798,7 +798,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpA5tju8/model1eec1445167b.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp4uEgdD/model21a87ee6831.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -1585,4 +1585,136 @@ summary(cod.hurdle.fm3)
 
 ## Generalized additive models (GAMs)
 
-forthcoming
+Recall that splines are essentially just another way of specifying the predictors in a regression model.  Generalized additive models (GAMs) are to additive models what generalized linear models are to (general) linear models.  In other words, GAMs use splines to create a linear predictor in a GLM that is a smooth function of a covariate.
+
+We illustrate GAMs by considering a data set that gives the size and annual survival of colonies of the stony coral *Acropora millepora*.  (Recall that stony corals are a colonial organism, so here a coral "colony" means a colony of polyps.  A colony is what most naive observers would recognize as an individual coral.)  We wish to understand how the size of the colony is related to its survival.  The size of the colony is measured as planar (top-down) area.  The units of area are unclear; perhaps it is m$^2$?  In the data file, the variable "mortality" is  a binary response coded as a 0 if the colony survived, and as a 1 if the colony died.  The size data have been log-transformed.  These data are from Madin et al., Ecology Letters 2014 17:1008-1015.  In R, we fit the GAM with the function `mgcv::gam`.
+
+<!-- Note: The original data file has size labeled as "ln_area_cm2", but if this is true, some of the colonies would be <0.01 cm^2 in size.  Can this be true?  Goddammit, Josh. -->
+
+
+```r
+require(mgcv)
+```
+
+```
+## Loading required package: mgcv
+```
+
+```
+## Loading required package: nlme
+```
+
+```
+## This is mgcv 1.8-35. For overview type 'help("mgcv-package")'.
+```
+
+```
+## 
+## Attaching package: 'mgcv'
+```
+
+```
+## The following object is masked from 'package:VGAM':
+## 
+##     s
+```
+
+```r
+coral <- read.csv("data/coral.csv", head = TRUE, stringsAsFactors = TRUE)
+head(coral)
+```
+
+```
+##              species growth_form   ln_area mortality
+## 1 Acropora millepora   corymbose -3.427419         0
+## 2 Acropora millepora   corymbose -3.964138         0
+## 3 Acropora millepora   corymbose -3.682131         0
+## 4 Acropora millepora   corymbose -5.144650         0
+## 5 Acropora millepora   corymbose -3.814405         0
+## 6 Acropora millepora   corymbose -3.661057         0
+```
+
+```r
+with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
+```
+
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-47-1.png" width="672" />
+
+We fit a GAM with a binomial response, logit link, and use a smoothing spline to capture the relationship between log size and (the log odds of) mortality.  Recall that a smoothing spline determines the degree of smoothness by generalized cross-validation.
+
+
+```r
+fm1 <- gam(mortality ~ s(ln_area), family = binomial(link = "logit"), data = coral)
+
+summary(fm1)
+```
+
+```
+## 
+## Family: binomial 
+## Link function: logit 
+## 
+## Formula:
+## mortality ~ s(ln_area)
+## 
+## Parametric coefficients:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)  -1.6068     0.1667  -9.636   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Approximate significance of smooth terms:
+##              edf Ref.df Chi.sq p-value   
+## s(ln_area) 1.921  2.433  10.52  0.0089 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## R-sq.(adj) =  0.0532   Deviance explained = 4.79%
+## UBRE = -0.098118  Scale est. = 1         n = 270
+```
+
+```r
+# plot data with fit overlaid
+
+with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
+
+x.vals <- with(coral, seq(from = min(ln_area), to = max(ln_area), length = 100))
+fm1.fit <- predict(fm1, newdata = data.frame(ln_area = x.vals), se = TRUE)
+
+inv.logit <- function(x) exp(x) / (1 + exp(x))
+
+lines(x.vals, inv.logit(fm1.fit$fit))
+lines(x.vals, inv.logit(fm1.fit$fit + 1.96 * fm1.fit$se.fit), lty = "dashed")
+lines(x.vals, inv.logit(fm1.fit$fit - 1.96 * fm1.fit$se.fit), lty = "dashed")
+```
+
+<img src="07-GeneralizedLinearModels_files/figure-html/coral-gam-1.png" width="672" />
+
+We might also try a complementary log-log link.
+
+
+```r
+fm2 <- gam(mortality ~ s(ln_area), family = binomial(link = "cloglog"), data = coral)
+
+with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
+
+fm2.fit <- predict(fm2, newdata = data.frame(ln_area = x.vals), se = TRUE)
+
+lines(x.vals, inv.logit(fm2.fit$fit), col = "red")
+lines(x.vals, inv.logit(fm2.fit$fit + 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
+lines(x.vals, inv.logit(fm2.fit$fit - 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
+```
+
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-48-1.png" width="672" />
+
+```r
+AIC(fm1, fm2)
+```
+
+```
+##           df      AIC
+## fm1 2.920822 243.5082
+## fm2 2.947335 243.0539
+```
+
+The AIC slightly favors the complementary log-log link.

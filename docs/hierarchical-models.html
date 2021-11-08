@@ -4,25 +4,27 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 6 Hierarchical Models | bookdown-demo</title>
-  <meta name="description" content="" />
+  <title>Chapter 6 Hierarchical Models | BMA / ST 590 computing companion</title>
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
   <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 6 Hierarchical Models | bookdown-demo" />
+  <meta property="og:title" content="Chapter 6 Hierarchical Models | BMA / ST 590 computing companion" />
   <meta property="og:type" content="book" />
   
   
-  
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 6 Hierarchical Models | bookdown-demo" />
+  <meta name="twitter:title" content="Chapter 6 Hierarchical Models | BMA / ST 590 computing companion" />
   
-  
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
   
 
+<meta name="author" content="Kevin Gross" />
 
 
+<meta name="date" content="2021-11-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -138,16 +140,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <nav role="navigation">
 
 <ul class="summary">
-<li class="chapter" data-level="1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html"><i class="fa fa-check"></i><b>1</b> Maximum likelihood estimation</a>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Maximum likelihood estimation</a>
 <ul>
-<li class="chapter" data-level="1.1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#a-very-simple-example-with-a-single-observation"><i class="fa fa-check"></i><b>1.1</b> A very simple example with a single observation</a></li>
-<li class="chapter" data-level="1.2" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#horse-kick-data"><i class="fa fa-check"></i><b>1.2</b> Horse-kick data</a>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#a-very-simple-example-with-a-single-observation"><i class="fa fa-check"></i><b>1.1</b> A very simple example with a single observation</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#horse-kick-data"><i class="fa fa-check"></i><b>1.2</b> Horse-kick data</a>
 <ul>
-<li class="chapter" data-level="1.2.1" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#calculate-and-plot-the-log-likelihood-function"><i class="fa fa-check"></i><b>1.2.1</b> Calculate and plot the log-likelihood function</a></li>
-<li class="chapter" data-level="1.2.2" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#find-the-mle-numerically-using-optimize"><i class="fa fa-check"></i><b>1.2.2</b> Find the MLE numerically using ‘optimize’</a></li>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#calculate-and-plot-the-log-likelihood-function"><i class="fa fa-check"></i><b>1.2.1</b> Calculate and plot the log-likelihood function</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#find-the-mle-numerically-using-optimize"><i class="fa fa-check"></i><b>1.2.2</b> Find the MLE numerically using ‘optimize’</a></li>
 </ul></li>
-<li class="chapter" data-level="1.3" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#myxomatosis-data"><i class="fa fa-check"></i><b>1.3</b> Myxomatosis data</a></li>
-<li class="chapter" data-level="1.4" data-path="maximum-likelihood-estimation.html"><a href="maximum-likelihood-estimation.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#myxomatosis-data"><i class="fa fa-check"></i><b>1.3</b> Myxomatosis data</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><i class="fa fa-check"></i><b>2</b> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</a>
 <ul>
@@ -211,15 +213,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="7.4.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-truncated-models"><i class="fa fa-check"></i><b>7.4.1</b> Zero-truncated models</a></li>
 <li class="chapter" data-level="7.4.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-inflated-models"><i class="fa fa-check"></i><b>7.4.2</b> Zero-inflated models</a></li>
-<li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
+<li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle,” models</a></li>
 </ul></li>
 <li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams-1"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html"><i class="fa fa-check"></i><b>8</b> Generalized linear mixed models</a>
 <ul>
-<li class="chapter" data-level="8.1" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#gees"><i class="fa fa-check"></i><b>8.1</b> GEEs</a></li>
-<li class="chapter" data-level="8.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#glmms"><i class="fa fa-check"></i><b>8.2</b> GLMMs</a></li>
-<li class="chapter" data-level="8.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#bayesian-fit"><i class="fa fa-check"></i><b>8.3</b> Bayesian fit</a></li>
+<li class="chapter" data-level="8.1" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#example-1-industrial-melanism-data"><i class="fa fa-check"></i><b>8.1</b> Example 1: Industrial melanism data</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#gees"><i class="fa fa-check"></i><b>8.1.1</b> GEEs</a></li>
+<li class="chapter" data-level="8.1.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#glmms"><i class="fa fa-check"></i><b>8.1.2</b> GLMMs</a></li>
+<li class="chapter" data-level="8.1.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#bayesian-fit"><i class="fa fa-check"></i><b>8.1.3</b> Bayesian fit</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#ticks-on-red-grouse"><i class="fa fa-check"></i><b>8.2</b> Ticks on red grouse</a></li>
 </ul></li>
 </ul>
 
@@ -230,7 +236,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">BMA / ST 590 computing companion</a>
           </h1>
         </div>
 
@@ -242,7 +248,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 6</span> Hierarchical Models</h1>
 <div id="one-factor-layout-dyestuff-data" class="section level2" number="6.1">
 <h2><span class="header-section-number">6.1</span> One-factor layout: Dyestuff data</h2>
-<p>We will illustrate the basic ideas of hierarchical models with the <code>Dyestuff</code> data contained in <code>lme4</code>. According to Bates (2012+), these data originally appeared in Davies (1947), and “are described in Davies and Goldsmith (1972, Table 6.3, p. 131) … as coming from ‘an investigation to find out how much the variation from batch to bach in the quality of an intermediate product contributes to the variation in the yield of the dyestuff made from it’”. The data consist of 6 batches, each of which gives rise to 5 observations.</p>
+<p>We will illustrate the basic ideas of hierarchical models with the <code>Dyestuff</code> data contained in <code>lme4</code>. According to Bates (2012+), these data originally appeared in Davies (1947), and “are described in Davies and Goldsmith (1972, Table 6.3, p. 131) … as coming from ‘an investigation to find out how much the variation from batch to bach in the quality of an intermediate product contributes to the variation in the yield of the dyestuff made from it’.” The data consist of 6 batches, each of which gives rise to 5 observations.</p>
 <p>Preparatory work:</p>
 <div class="sourceCode" id="cb397"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb397-1"><a href="hierarchical-models.html#cb397-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lme4)</span></code></pre></div>
 <pre><code>## Loading required package: lme4</code></pre>
@@ -572,7 +578,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb458"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb458-1"><a href="hierarchical-models.html#cb458-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmpwp7yHQ/model2ff435a56124.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmp2fsUGo/model1b0430ab49fc.txt&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -1579,10 +1585,20 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 ## (Intercept)  74.2631     0.9081  3.0093   81.78  3.9e-06 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>It is interesting to compare the standard deviations of the random effects.</p>
+<p>It is interesting to compare the standard deviations of the random effects. It is also interesting to use the profile function to see the asymmetry in the confidence intervals for these standard deviations.</p>
+<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb539-1"><a href="hierarchical-models.html#cb539-1" aria-hidden="true" tabindex="-1"></a>pp.golf <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm1)</span>
+<span id="cb539-2"><a href="hierarchical-models.html#cb539-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb539-3"><a href="hierarchical-models.html#cb539-3" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(pp.golf)</span></code></pre></div>
+<pre><code>##                  2.5 %    97.5 %
+## .sig01       0.0000000  1.551146
+## .sig02       0.8129721  3.837297
+## .sigma       3.0513011  3.666234
+## (Intercept) 72.2434040 76.265786</code></pre>
+<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb541-1"><a href="hierarchical-models.html#cb541-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pp.golf, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-56-1.png" width="672" /></p>
 <p>We can also extract the conditional modes for the players and rounds.</p>
-<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb539-1"><a href="hierarchical-models.html#cb539-1" aria-hidden="true" tabindex="-1"></a>player.modes <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>player</span>
-<span id="cb539-2"><a href="hierarchical-models.html#cb539-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(player.modes)</span></code></pre></div>
+<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb542-1"><a href="hierarchical-models.html#cb542-1" aria-hidden="true" tabindex="-1"></a>player.modes <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>player</span>
+<span id="cb542-2"><a href="hierarchical-models.html#cb542-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(player.modes)</span></code></pre></div>
 <pre><code>##             (Intercept)
 ## Akiyoshi      0.3983034
 ## Aphibarnrat  -0.3069054
@@ -1590,22 +1606,22 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 ## Babcock       0.1920115
 ## Baddeley     -0.1925652
 ## Berger       -0.4212456</code></pre>
-<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb541-1"><a href="hierarchical-models.html#cb541-1" aria-hidden="true" tabindex="-1"></a>(round.modes <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>round)</span></code></pre></div>
+<div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb544-1"><a href="hierarchical-models.html#cb544-1" aria-hidden="true" tabindex="-1"></a>(round.modes <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>round)</span></code></pre></div>
 <pre><code>##     (Intercept)
 ## rd1   1.7211234
 ## rd2  -0.9012137
 ## rd3   1.1661848
 ## rd4  -1.9860945</code></pre>
 <p>According to Wikipedia, on day 1 “conditions were extremely difficult as gusty winds hung around all day with sunny skies, making the course firm and fast.” This corresponds with the large conditional mode for round 1.</p>
-<p>Finally, it is interesting to compare the conditional modes for the players who qualified to play in rounds 3 and 4, vs. the players who were “cut”.</p>
-<div class="sourceCode" id="cb543"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb543-1"><a href="hierarchical-models.html#cb543-1" aria-hidden="true" tabindex="-1"></a>player.stats <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">name =</span> <span class="fu">row.names</span>(player.modes),</span>
-<span id="cb543-2"><a href="hierarchical-models.html#cb543-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">mode =</span> player.modes[, <span class="dv">1</span>],</span>
-<span id="cb543-3"><a href="hierarchical-models.html#cb543-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">rds  =</span> <span class="fu">with</span>(golf, <span class="fu">as.numeric</span>(<span class="fu">table</span>(player))))</span>
-<span id="cb543-4"><a href="hierarchical-models.html#cb543-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb543-5"><a href="hierarchical-models.html#cb543-5" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(player.stats, <span class="fu">stripchart</span>(mode <span class="sc">~</span> <span class="fu">as.factor</span>(rds), <span class="at">method =</span> <span class="st">&quot;jitter&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;rounds played&quot;</span>, </span>
-<span id="cb543-6"><a href="hierarchical-models.html#cb543-6" aria-hidden="true" tabindex="-1"></a>                              <span class="at">xlab =</span> <span class="st">&quot;conditional mode&quot;</span>, <span class="at">pch =</span> <span class="dv">1</span>))</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-57-1.png" width="672" /></p>
-<p>Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were “cut”. We might infer that these players played above their abilities on days 1 and 2.</p>
+<p>Finally, it is interesting to compare the conditional modes for the players who qualified to play in rounds 3 and 4, vs. the players who were “cut.”</p>
+<div class="sourceCode" id="cb546"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb546-1"><a href="hierarchical-models.html#cb546-1" aria-hidden="true" tabindex="-1"></a>player.stats <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">name =</span> <span class="fu">row.names</span>(player.modes),</span>
+<span id="cb546-2"><a href="hierarchical-models.html#cb546-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">mode =</span> player.modes[, <span class="dv">1</span>],</span>
+<span id="cb546-3"><a href="hierarchical-models.html#cb546-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">rds  =</span> <span class="fu">with</span>(golf, <span class="fu">as.numeric</span>(<span class="fu">table</span>(player))))</span>
+<span id="cb546-4"><a href="hierarchical-models.html#cb546-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb546-5"><a href="hierarchical-models.html#cb546-5" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(player.stats, <span class="fu">stripchart</span>(mode <span class="sc">~</span> <span class="fu">as.factor</span>(rds), <span class="at">method =</span> <span class="st">&quot;jitter&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;rounds played&quot;</span>, </span>
+<span id="cb546-6"><a href="hierarchical-models.html#cb546-6" aria-hidden="true" tabindex="-1"></a>                              <span class="at">xlab =</span> <span class="st">&quot;conditional mode&quot;</span>, <span class="at">pch =</span> <span class="dv">1</span>))</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-58-1.png" width="672" /></p>
+<p>Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were “cut.” We might infer that these players played above their abilities on days 1 and 2.</p>
 <p><img src="images/sports-comic.png" width="248" /></p>
 <p>Thanks to xkcd for the perspective.</p>
 

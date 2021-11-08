@@ -797,7 +797,15 @@ fm1 <- lmerTest::lmer(score ~ 1 + (1 | player) + (1 | round), data = golf)
 summary(fm1)  # comparison of the std devs of the random effects is interesting
 ```
 
-It is interesting to compare the standard deviations of the random effects.
+It is interesting to compare the standard deviations of the random effects.  It is also interesting to use the profile function to see the asymmetry in the confidence intervals for these standard deviations.
+
+```{r}
+pp.golf <- profile(fm1)
+
+confint(pp.golf)
+lattice::xyplot(pp.golf, absVal = TRUE)
+```
+
 
 We can also extract the conditional modes for the players and rounds.
 ```{r}

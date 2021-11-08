@@ -4,6 +4,8 @@
 setwd("C:/Users/krgross/Documents/GitHub/bma590-course-notes/")
 ```
 
+## Example 1: Industrial melanism data
+
 We will examine several possible approaches to analyzing the industrial melanism data.  Recall that these data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  In notation, the model that we seek to fit is
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
@@ -41,7 +43,7 @@ This approach tells us that the difference in log-odds slopes (defined as dark m
 
 The major disadvantage to the approach above is that it doesn't account for the fact that differing numbers of moths were placed at the different stations.  We could try to account for this with a weighted regression, but it's not clear what the weights should be.  We were also fortunate in the sense that there were no instances of either none or all of the moths being removed at a particular station, which would have led to an infinite empirical logit.
 
-## GEEs
+### GEEs
 
 Next we try a GEE with a compound symmetry ("exchangable") correlation structure imposed on the pair of measurements at each station.  Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure.  We fit the model using `geepack::geeglm`. 
 
@@ -95,7 +97,7 @@ options(digits = 7)
 dark.fit(20)
 ```
 
-## GLMMs
+### GLMMs
 
 Next, we will fit the same model with `lme4::glmer`.
 
@@ -153,7 +155,7 @@ abline(v = conditional.mean, col = "darkorange", lwd =2)
 abline(v = marginal.mean, col = "blue", lwd = 2)
 ```
 
-## Bayesian fit
+### Bayesian fit
 
 We now fit the model using JAGS and vague priors.
 
@@ -239,8 +241,6 @@ table(mcmc.output$b.diff > 0)
 
 Thus we would say that there is a `r round(sum(mcmc.output$b.diff > 0)/15000, 4)` posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
 
-
-
 We can plot the fit of the model using draws from the posterior distribution of the parameters.  The heavy lines below show the fits using the posterior means of the parameters.  Do these fits correspond to the marginal or conditional means?  (There's little difference here, but it's a useful thought exercise.)
 ```{r}
 
@@ -320,5 +320,86 @@ curve(fitted.mean.curve,
         lwd  = 2)
 
 points(x = dark$distance, y = dark$prop.removed, pch = 16)
+```
+
+## Ticks on red grouse
+
+This example comes from Ben Bolker's chapter in Fox et al. (2015).  Bolker describes the data as follows:
+
+> "Elston et al. (2001) used data on numbers of ticks sampled from the heads of red grouse chicks in Scotland to explore patterns of aggregation. Ticks have potentially large fitness and demographic consequences on red grouse individuals and populations, but Elston et al. 's goal was just to decompose patterns of variation into different scales (within-brood, within-site, by altitude and year). The response is the tick count (TICKS, again Poisson or negative binomial); altitude (HEIGHT, treated as continuous) and year (YEAR, treated as categorical) are fixed predictor variables. Individual within brood (INDEX) and brood within location are nested random-effect grouping variables, with the baseline expected number of ticks (intercept) varying among groups."
+
+An alternative analysis of these data can be found on Bolker's Github page at https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html.
+
+```{r echo = FALSE}
+rm(list = ls())
+```
+
+```{r}
+require(lme4)
+require(lattice)
+
+tick <- read.table("data/tick.txt", head = T)
+
+names(tick) <- c("index", "ticks", "brood", "elevation", "yr", "loc")
+
+tick$index <- as.factor(tick$index)
+tick$brood <- as.factor(tick$brood)
+tick$yr    <- as.factor(tick$yr)
+tick$loc   <- as.factor(tick$loc)
+
+# center and scale elevation
+
+tick$elev.z <- with(tick, (elevation - mean(elevation)) / sd(elevation))
+```
+
+Model fitting:
+
+```{r cache = TRUE}
+# GLMM with Poisson response
+
+fm1  <- glmer(ticks ~ yr + elev.z + (1 | loc / brood / index), 
+              family = "poisson",
+              data = tick)
+
+summary(fm1)
+
+pp <- profile(fm1)
+
+confint(pp)
+xyplot(pp, absVal = TRUE)
+
+d.resid <- residuals(fm1, type = "deviance")
+(residual.deviance <- sum(d.resid^2))
+
+df.residual(fm1)
+
+# residual diagnostics
+
+plot(fitted(fm1), d.resid)
+abline(h = 0, lty = "dashed")
+
+plot(tick$elev.z, d.resid)
+abline(h = 0, lty = "dashed")
+
+# model without observation-level random effect
+
+fm2  <- glmer(ticks ~ yr + elev.z + (1 | loc / brood), 
+              family = "poisson",
+              data = tick)
+
+anova(fm1, fm2)
+
+d.resid.2 <- residuals(fm2, type = "deviance")
+sum(d.resid.2^2)
+
+df.residual(fm2)
+
+# Interaction between year and elevation
+
+fm3  <- glmer(ticks ~ yr * elev.z + (1 | loc / brood / index), 
+              family = "poisson",
+              data = tick)
+
+anova(fm1, fm3)  # can use LRT because models are nested, and both have been fit with ML
 ```
 
