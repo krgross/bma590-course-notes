@@ -777,7 +777,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp4uEgdD/model21a83a5851.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIrF0nI/model1c6c68065d00.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -798,7 +798,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp4uEgdD/model21a87ee6831.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIrF0nI/model1c6c3c9b35c6.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -1276,7 +1276,7 @@ barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fit
 
 As the name suggests, zero-inflated (henceforth ZI) models are appropriate when zeros are more frequent than the distribution of the non-zero counts would suggest.  ZI models have two components.  In the "zero-inflation" component, a logistic regression (or some other generalized linear model for a binary response) captures whether the response is a "false" zero or a realization from a proper count distribution.  In the "count" component, a generalized linear model for count data (such as Poisson regression) is used to model the distribution of the non-false-zero counts.  The ZI model accords with the thinking that the data arise from a combination of two separate mechanisms: a first mechanism that determines whether or not the count is a "false" zero, and a second that determines the count if it is not a false zero.  In ecology, the zero-inflation component might correspond to (true) presence vs.\ absence, and the count component might correspond to the detected intensity conditional on presence.
 
-To illustrate ZI models, we will use the cod parasite data described in $\S$ 11.3.2 of Zuur et al. (2009).  These data are counts of the number of trypanosome blood parasites in individual cod, and were initially reported in Hemmingsen et al.\ (2005).  First we load the data and do some housekeeping.
+To illustrate ZI models, we will use the cod parasite data described in $\S$ 11.3.2 of @zuur2009.  These data are counts of the number of trypanosome blood parasites in individual cod, and were initially reported in Hemmingsen et al.\ (2005).  First we load the data and do some housekeeping.
 
 
 ```r
@@ -1587,7 +1587,7 @@ summary(cod.hurdle.fm3)
 
 Recall that splines are essentially just another way of specifying the predictors in a regression model.  Generalized additive models (GAMs) are to additive models what generalized linear models are to (general) linear models.  In other words, GAMs use splines to create a linear predictor in a GLM that is a smooth function of a covariate.
 
-We illustrate GAMs by considering a data set that gives the size and annual survival of colonies of the stony coral *Acropora millepora*.  (Recall that stony corals are a colonial organism, so here a coral "colony" means a colony of polyps.  A colony is what most naive observers would recognize as an individual coral.)  We wish to understand how the size of the colony is related to its survival.  The size of the colony is measured as planar (top-down) area.  The units of area are unclear; perhaps it is m$^2$?  In the data file, the variable "mortality" is  a binary response coded as a 0 if the colony survived, and as a 1 if the colony died.  The size data have been log-transformed.  These data are from Madin et al., Ecology Letters 2014 17:1008-1015.  In R, we fit the GAM with the function `mgcv::gam`.
+We illustrate GAMs by considering a data set that gives the size and annual survival of colonies of the stony coral *Acropora millepora*.  (Recall that stony corals are a colonial organism, so here a coral "colony" means a colony of polyps.  A colony is what most naive observers would recognize as an individual coral.)  We wish to understand how the size of the colony is related to its survival.  The size of the colony is measured as planar (top-down) area.  The units of area are unclear; perhaps it is m$^2$?  In the data file, the variable "mortality" is  a binary response coded as a 0 if the colony survived, and as a 1 if the colony died.  The size data have been log-transformed.  These data are from @madin2014.  In R, we fit the GAM with the function `mgcv::gam`.
 
 <!-- Note: The original data file has size labeled as "ln_area_cm2", but if this is true, some of the colonies would be <0.01 cm^2 in size.  Can this be true?  Goddammit, Josh. -->
 

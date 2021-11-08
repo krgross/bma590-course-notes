@@ -127,6 +127,28 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 </head>
 
@@ -227,6 +249,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="8.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#ticks-on-red-grouse"><i class="fa fa-check"></i><b>8.2</b> Ticks on red grouse</a></li>
 </ul></li>
+<li class="chapter" data-level="" data-path="bibliography.html"><a href="bibliography.html"><i class="fa fa-check"></i>Bibliography</a></li>
 </ul>
 
       </nav>
@@ -772,7 +795,7 @@ Because the extra-Poisson variation in the elephant data is small, the effect of
 -->
 <p>Formally, we can assess the need for the observation-level random effect by comparing the two models with the deviance information criterion (DIC), an information criterion that can be used to compare Bayesian models in the same way that AIC can be used to compare frequentist fits. DIC is provided as a portion to the output from the <code>print</code> command applied to a JAGS model fit.</p>
 <div class="sourceCode" id="cb610"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb610-1"><a href="generalized-linear-models.html#cb610-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmp4uEgdD/model21a83a5851.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpIrF0nI/model1c6c68065d00.txt&quot;, fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -787,7 +810,7 @@ Because the extra-Poisson variation in the elephant data is small, the effect of
 ## pD = 3.7 and DIC = 158.2
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
 <div class="sourceCode" id="cb612"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb612-1"><a href="generalized-linear-models.html#cb612-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit2)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmp4uEgdD/model21a87ee6831.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpIrF0nI/model1c6c3c9b35c6.txt&quot;, fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -1140,7 +1163,7 @@ L_j &amp; \sim \mathcal{N}(0, \sigma^2_L)
 <div id="zero-inflated-models" class="section level3" number="7.4.2">
 <h3><span class="header-section-number">7.4.2</span> Zero-inflated models</h3>
 <p>As the name suggests, zero-inflated (henceforth ZI) models are appropriate when zeros are more frequent than the distribution of the non-zero counts would suggest. ZI models have two components. In the “zero-inflation” component, a logistic regression (or some other generalized linear model for a binary response) captures whether the response is a “false” zero or a realization from a proper count distribution. In the “count” component, a generalized linear model for count data (such as Poisson regression) is used to model the distribution of the non-false-zero counts. The ZI model accords with the thinking that the data arise from a combination of two separate mechanisms: a first mechanism that determines whether or not the count is a “false” zero, and a second that determines the count if it is not a false zero. In ecology, the zero-inflation component might correspond to (true) presence vs. absence, and the count component might correspond to the detected intensity conditional on presence.</p>
-<p>To illustrate ZI models, we will use the cod parasite data described in <span class="math inline">\(\S\)</span> 11.3.2 of Zuur et al. (2009). These data are counts of the number of trypanosome blood parasites in individual cod, and were initially reported in Hemmingsen et al. (2005). First we load the data and do some housekeeping.</p>
+<p>To illustrate ZI models, we will use the cod parasite data described in <span class="math inline">\(\S\)</span> 11.3.2 of <span class="citation"><a href="#ref-zuur2009" role="doc-biblioref">Zuur et al.</a> (<a href="#ref-zuur2009" role="doc-biblioref">2009</a>)</span>. These data are counts of the number of trypanosome blood parasites in individual cod, and were initially reported in Hemmingsen et al. (2005). First we load the data and do some housekeeping.</p>
 <div class="sourceCode" id="cb641"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb641-1"><a href="generalized-linear-models.html#cb641-1" aria-hidden="true" tabindex="-1"></a>cod <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/ParasiteCod.txt&quot;</span>, <span class="at">head =</span> T)</span>
 <span id="cb641-2"><a href="generalized-linear-models.html#cb641-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb641-3"><a href="generalized-linear-models.html#cb641-3" aria-hidden="true" tabindex="-1"></a><span class="co"># remove observations with missing data</span></span>
@@ -1387,7 +1410,7 @@ L_j &amp; \sim \mathcal{N}(0, \sigma^2_L)
 <div id="generalized-additive-models-gams-1" class="section level2" number="7.5">
 <h2><span class="header-section-number">7.5</span> Generalized additive models (GAMs)</h2>
 <p>Recall that splines are essentially just another way of specifying the predictors in a regression model. Generalized additive models (GAMs) are to additive models what generalized linear models are to (general) linear models. In other words, GAMs use splines to create a linear predictor in a GLM that is a smooth function of a covariate.</p>
-<p>We illustrate GAMs by considering a data set that gives the size and annual survival of colonies of the stony coral <em>Acropora millepora</em>. (Recall that stony corals are a colonial organism, so here a coral “colony” means a colony of polyps. A colony is what most naive observers would recognize as an individual coral.) We wish to understand how the size of the colony is related to its survival. The size of the colony is measured as planar (top-down) area. The units of area are unclear; perhaps it is m<span class="math inline">\(^2\)</span>? In the data file, the variable “mortality” is a binary response coded as a 0 if the colony survived, and as a 1 if the colony died. The size data have been log-transformed. These data are from Madin et al., Ecology Letters 2014 17:1008-1015. In R, we fit the GAM with the function <code>mgcv::gam</code>.</p>
+<p>We illustrate GAMs by considering a data set that gives the size and annual survival of colonies of the stony coral <em>Acropora millepora</em>. (Recall that stony corals are a colonial organism, so here a coral “colony” means a colony of polyps. A colony is what most naive observers would recognize as an individual coral.) We wish to understand how the size of the colony is related to its survival. The size of the colony is measured as planar (top-down) area. The units of area are unclear; perhaps it is m<span class="math inline">\(^2\)</span>? In the data file, the variable “mortality” is a binary response coded as a 0 if the colony survived, and as a 1 if the colony died. The size data have been log-transformed. These data are from <span class="citation"><a href="#ref-madin2014" role="doc-biblioref">Madin et al.</a> (<a href="#ref-madin2014" role="doc-biblioref">2014</a>)</span>. In R, we fit the GAM with the function <code>mgcv::gam</code>.</p>
 <!-- Note: The original data file has size labeled as "ln_area_cm2", but if this is true, some of the colonies would be <0.01 cm^2 in size.  Can this be true?  Goddammit, Josh. -->
 <div class="sourceCode" id="cb656"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb656-1"><a href="generalized-linear-models.html#cb656-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(mgcv)</span></code></pre></div>
 <pre><code>## Loading required package: mgcv</code></pre>
@@ -1464,6 +1487,15 @@ L_j &amp; \sim \mathcal{N}(0, \sigma^2_L)
 ## fm2 2.947335 243.0539</code></pre>
 <p>The AIC slightly favors the complementary log-log link.</p>
 
+</div>
+</div>
+<h3>Bibliography</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-madin2014" class="csl-entry">
+Madin, Joshua S, Andrew H Baird, Maria Dornelas, and Sean R Connolly. 2014. <span>“Mechanical Vulnerability Explains Size-Dependent Mortality of Reef Corals.”</span> <em>Ecology Letters</em> 17 (8): 1008–15.
+</div>
+<div id="ref-zuur2009" class="csl-entry">
+Zuur, Alain F, Elena N Ieno, Neil J Walker, Anatoly A Saveliev, Graham M Smith, and others. 2009. <em>Mixed Effects Models and Extensions in Ecology with <span>R</span></em>. Vol. 574. Springer.
 </div>
 </div>
             </section>

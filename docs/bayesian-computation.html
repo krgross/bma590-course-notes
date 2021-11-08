@@ -127,6 +127,28 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 </head>
 
@@ -227,6 +249,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="8.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#ticks-on-red-grouse"><i class="fa fa-check"></i><b>8.2</b> Ticks on red grouse</a></li>
 </ul></li>
+<li class="chapter" data-level="" data-path="bibliography.html"><a href="bibliography.html"><i class="fa fa-check"></i>Bibliography</a></li>
 </ul>
 
       </nav>
@@ -368,35 +391,35 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ## Initializing model</code></pre>
 <p>Let’s take a look at some summary statistics of the fit</p>
 <div class="sourceCode" id="cb198"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb198-1"><a href="bayesian-computation.html#cb198-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpWOeLFV/modele9874b73d63.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpYBTJDv/model15885bd8279b.txt&quot;, fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.700   0.050   0.608   0.665   0.698   0.733   0.802 1.001  3800
-## deviance 629.303   1.396 628.310 628.405 628.771 629.630 633.025 1.001  2600
+## lambda     0.702   0.050   0.609   0.668   0.700   0.735   0.802 1.001  3800
+## deviance 629.289   1.354 628.310 628.412 628.757 629.603 633.087 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 1.0 and DIC = 630.3
+## pD = 0.9 and DIC = 630.2
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
 <p>The Rhat values suggest that our chains have converged, as we might hope for such a simple model. We can generate a trace plot using <code>traceplot</code> to inspect convergence visually, but beware that visual assessment of convergence is prone to error.</p>
 <p>For an rjags object, the raw MCMC samples are stored in <code>BUGSoutput$sims.list</code>. Sometimes it is helpful to analyze these samples directly. For example, with these samples we can estimate other posterior quantities, such as the posterior median of <span class="math inline">\(\lambda\)</span>, or generate a 95% central posterior confidence interval directly:</p>
 <div class="sourceCode" id="cb200"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb200-1"><a href="bayesian-computation.html#cb200-1" aria-hidden="true" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
 <span id="cb200-2"><a href="bayesian-computation.html#cb200-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mcmc.output)</span></code></pre></div>
 <pre><code>##     deviance         lambda      
-##  Min.   :628.3   Min.   :0.5471  
-##  1st Qu.:628.4   1st Qu.:0.6648  
-##  Median :628.8   Median :0.6980  
-##  Mean   :629.3   Mean   :0.7000  
-##  3rd Qu.:629.6   3rd Qu.:0.7329  
-##  Max.   :639.4   Max.   :0.8796</code></pre>
+##  Min.   :628.3   Min.   :0.5426  
+##  1st Qu.:628.4   1st Qu.:0.6678  
+##  Median :628.8   Median :0.7000  
+##  Mean   :629.3   Mean   :0.7018  
+##  3rd Qu.:629.6   3rd Qu.:0.7346  
+##  Max.   :641.7   Max.   :0.8996</code></pre>
 <div class="sourceCode" id="cb202"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb202-1"><a href="bayesian-computation.html#cb202-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(mcmc.output<span class="sc">$</span>lambda)</span></code></pre></div>
-<pre><code>## [1] 0.6979601</code></pre>
+<pre><code>## [1] 0.6999545</code></pre>
 <div class="sourceCode" id="cb204"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb204-1"><a href="bayesian-computation.html#cb204-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(mcmc.output<span class="sc">$</span>lambda, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code></pre></div>
 <pre><code>##      2.5%     97.5% 
-## 0.6076283 0.8018802</code></pre>
+## 0.6085058 0.8021332</code></pre>
 <p>We can also use the <code>lattice</code> package to construct smoothed estimates of the posterior density:</p>
 <div class="sourceCode" id="cb206"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb206-1"><a href="bayesian-computation.html#cb206-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lattice)</span></code></pre></div>
 <pre><code>## Loading required package: lattice</code></pre>
@@ -476,21 +499,21 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ## 
 ## Initializing model</code></pre>
 <div class="sourceCode" id="cb214"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb214-1"><a href="bayesian-computation.html#cb214-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpWOeLFV/modele982cba5019.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpYBTJDv/model158820b62291.txt&quot;, fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.308   3.373 -7.067 -2.425 -0.358  1.778  6.676 1.001  3800
-## b1         0.212   0.042  0.127  0.186  0.212  0.238  0.294 1.001  3800
-## sigma      1.040   0.224  0.712  0.882  1.006  1.158  1.574 1.001  2700
-## tau        1.044   0.409  0.404  0.746  0.989  1.285  1.973 1.001  2700
-## deviance  42.877   2.805 39.807 40.857 42.141 44.051 50.250 1.001  3800
+## b0        -0.318   3.366 -7.122 -2.471 -0.360  1.904  6.313 1.001  3500
+## b1         0.212   0.042  0.129  0.184  0.213  0.239  0.296 1.001  3100
+## sigma      1.031   0.217  0.710  0.879  0.998  1.142  1.545 1.001  3500
+## tau        1.059   0.411  0.419  0.766  1.005  1.295  1.984 1.001  3500
+## deviance  42.852   2.660 39.783 40.897 42.169 44.085 49.788 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.9 and DIC = 46.8
+## pD = 3.5 and DIC = 46.4
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
 <div class="sourceCode" id="cb216"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb216-1"><a href="bayesian-computation.html#cb216-1" aria-hidden="true" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-1.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-2.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-3.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-4.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-5.png" width="672" /></p>
@@ -498,27 +521,27 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb217-1"><a href="bayesian-computation.html#cb217-1" aria-hidden="true" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
 <span id="cb217-2"><a href="bayesian-computation.html#cb217-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mcmc.output)</span></code></pre></div>
 <pre><code>##        b0                 b1             deviance         sigma       
-##  Min.   :-12.8997   Min.   :0.04068   Min.   :39.56   Min.   :0.5849  
-##  1st Qu.: -2.4253   1st Qu.:0.18592   1st Qu.:40.86   1st Qu.:0.8821  
-##  Median : -0.3583   Median :0.21244   Median :42.14   Median :1.0056  
-##  Mean   : -0.3079   Mean   :0.21199   Mean   :42.88   Mean   :1.0395  
-##  3rd Qu.:  1.7784   3rd Qu.:0.23805   3rd Qu.:44.05   3rd Qu.:1.1578  
-##  Max.   : 14.1666   Max.   :0.36645   Max.   :65.81   Max.   :3.2327  
-##       tau         
-##  Min.   :0.09569  
-##  1st Qu.:0.74595  
-##  Median :0.98887  
-##  Mean   :1.04428  
-##  3rd Qu.:1.28523  
-##  Max.   :2.92321</code></pre>
+##  Min.   :-12.6887   Min.   :0.04298   Min.   :39.56   Min.   :0.5605  
+##  1st Qu.: -2.4712   1st Qu.:0.18431   1st Qu.:40.90   1st Qu.:0.8787  
+##  Median : -0.3600   Median :0.21261   Median :42.17   Median :0.9975  
+##  Mean   : -0.3179   Mean   :0.21209   Mean   :42.85   Mean   :1.0307  
+##  3rd Qu.:  1.9038   3rd Qu.:0.23916   3rd Qu.:44.09   3rd Qu.:1.1423  
+##  Max.   : 13.2251   Max.   :0.36700   Max.   :60.68   Max.   :2.3449  
+##       tau        
+##  Min.   :0.1819  
+##  1st Qu.:0.7663  
+##  Median :1.0050  
+##  Mean   :1.0590  
+##  3rd Qu.:1.2951  
+##  Max.   :3.1827</code></pre>
 <p>Now we’ll coerce the data frame <code>mcmc.output</code> to an MCMC object, and pass it to <code>HPDinterval</code>:</p>
 <div class="sourceCode" id="cb219"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb219-1"><a href="bayesian-computation.html#cb219-1" aria-hidden="true" tabindex="-1"></a><span class="fu">HPDinterval</span>(<span class="fu">as.mcmc</span>(mcmc.output))</span></code></pre></div>
 <pre><code>##               lower      upper
-## b0       -7.2689999  6.3060754
-## b1        0.1287652  0.2952518
-## deviance 39.5769055 48.2714015
-## sigma     0.6699610  1.4841676
-## tau       0.3152663  1.8227928
+## b0       -6.8709366  6.4812460
+## b1        0.1297225  0.2960815
+## deviance 39.5620467 48.2029662
+## sigma     0.6655248  1.4693540
+## tau       0.3508749  1.8464128
 ## attr(,&quot;Probability&quot;)
 ## [1] 0.9498667</code></pre>
 <p>One of the merits of the Bayesian approach is that the posterior samples provide an immediate tool for propagating uncertainty to (possibly derived) quantities of interest. We can summarize the uncertainty in the regression fit graphically by randomly sampling a subset of these samples (say, 100 of them) and using them to plot a collection of regression lines:</p>
@@ -539,14 +562,14 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <div class="sourceCode" id="cb222"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb222-1"><a href="bayesian-computation.html#cb222-1" aria-hidden="true" tabindex="-1"></a>avg.chirps<span class="fl">.85</span> <span class="ot">&lt;-</span> <span class="fu">with</span>(mcmc.output, b0 <span class="sc">+</span> b1 <span class="sc">*</span> <span class="dv">85</span>)</span>
 <span id="cb222-2"><a href="bayesian-computation.html#cb222-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(avg.chirps<span class="fl">.85</span>)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   16.15   17.49   17.71   17.71   17.93   19.54</code></pre>
+##   15.98   17.50   17.71   17.71   17.92   18.96</code></pre>
 <div class="sourceCode" id="cb224"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb224-1"><a href="bayesian-computation.html#cb224-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(avg.chirps<span class="fl">.85</span>, <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">025</span>, <span class="fl">0.975</span>))</span></code></pre></div>
 <pre><code>##     2.5%    97.5% 
-## 17.02705 18.38627</code></pre>
+## 17.04943 18.39998</code></pre>
 <p>We could use the <code>density</code> function to get a quick idea of the shape of the distribution:</p>
 <div class="sourceCode" id="cb226"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb226-1"><a href="bayesian-computation.html#cb226-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(avg.chirps<span class="fl">.85</span>))</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
-<p>Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.71, and a central 95% credible interval is (17.03, 18.39).</p>
+<p>Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.71, and a central 95% credible interval is (17.05, 18.4).</p>
 <p>Finally, we can use the posterior samples to estimate the uncertainty in a future observation. When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution. The posterior predictive distribution must also include the error around the regression line. We can estimate the posterior predictive distribution as follows. Suppose we denote sample <span class="math inline">\(i\)</span> from the posterior as <span class="math inline">\(\beta_{0, i}\)</span>, <span class="math inline">\(\beta_{1, i}\)</span>, and <span class="math inline">\(\sigma_i\)</span>. Then for each posterior sample we will generate a new hypothetical observation <span class="math inline">\(y_i^\star\)</span> by sampling from a Gaussian distribution with mean equal to $<em>{0,i} + </em>{1,i} x $ and standard deviation <span class="math inline">\(\sigma_i\)</span>, where <span class="math inline">\(x = 85\)</span>. The distribution of the <span class="math inline">\(y_i^*\)</span>’s then gives the posterior predictive distribution that we seek.</p>
 <div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb227-1"><a href="bayesian-computation.html#cb227-1" aria-hidden="true" tabindex="-1"></a>n.sims <span class="ot">&lt;-</span> <span class="fu">nrow</span>(mcmc.output)</span>
 <span id="cb227-2"><a href="bayesian-computation.html#cb227-2" aria-hidden="true" tabindex="-1"></a>new.errors <span class="ot">&lt;-</span> <span class="fu">with</span>(mcmc.output, <span class="fu">rnorm</span>(n.sims, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> sigma))</span>
@@ -555,11 +578,11 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 <div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb228-1"><a href="bayesian-computation.html#cb228-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(new.chirps<span class="fl">.85</span>)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   11.68   17.01   17.73   17.73   18.44   22.84</code></pre>
+##   13.19   17.01   17.69   17.70   18.39   22.19</code></pre>
 <div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb230-1"><a href="bayesian-computation.html#cb230-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(new.chirps<span class="fl">.85</span>, <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">025</span>, <span class="fl">0.975</span>))</span></code></pre></div>
 <pre><code>##     2.5%    97.5% 
-## 15.54616 19.96751</code></pre>
-<p>Thus, the posterior predictive distribution has a central 95% credible interval of (15.55, 19.97).</p>
+## 15.58082 19.89758</code></pre>
+<p>Thus, the posterior predictive distribution has a central 95% credible interval of (15.58, 19.9).</p>
 <p>Although it hasn’t caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior. We can visualize this posterior correlation:</p>
 <div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb232-1"><a href="bayesian-computation.html#cb232-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(hexbin)</span></code></pre></div>
 <pre><code>## Warning: package &#39;hexbin&#39; was built under R version 4.1.1</code></pre>
@@ -570,9 +593,9 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <p>We can estimate the posterior correlation between the intercept and the slope by accessing the raw MCMC samples</p>
 <div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="bayesian-computation.html#cb235-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(mcmc.output[, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>)])</span></code></pre></div>
 <pre><code>##              b0          b1         tau
-## b0   1.00000000 -0.99662562 -0.01085604
-## b1  -0.99662562  1.00000000  0.01159858
-## tau -0.01085604  0.01159858  1.00000000</code></pre>
+## b0   1.00000000 -0.99674285  0.01805106
+## b1  -0.99674285  1.00000000 -0.01826912
+## tau  0.01805106 -0.01826912  1.00000000</code></pre>
 <p>Thus we estimate that the intercept and slope have a posterior correlation of -0.997.</p>
 <p>We could make life easier on ourselves by centering the predictor and trying again:</p>
 <div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="bayesian-computation.html#cb237-1" aria-hidden="true" tabindex="-1"></a>cricket<span class="sc">$</span>temp.ctr <span class="ot">&lt;-</span> cricket<span class="sc">$</span>temperature <span class="sc">-</span> <span class="fu">mean</span>(cricket<span class="sc">$</span>temperature)</span></code></pre></div>
@@ -602,15 +625,15 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ## 
 ## Initializing model</code></pre>
 <div class="sourceCode" id="cb240"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb240-1"><a href="bayesian-computation.html#cb240-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpWOeLFV/modele984e7758df.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpYBTJDv/model15884dc43285.txt&quot;, fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.646   0.279 16.078 16.474 16.645 16.817 17.210 1.001  2500
-## b1         0.213   0.042  0.129  0.186  0.213  0.240  0.298 1.001  3800
-## sigma      1.028   0.223  0.696  0.874  0.991  1.137  1.587 1.002  1700
-## tau        1.069   0.417  0.397  0.773  1.018  1.310  2.064 1.002  1700
-## deviance  42.891   2.845 39.807 40.876 42.132 44.023 50.689 1.001  3800
+## b0        16.654   0.268 16.120 16.486 16.659 16.828 17.175 1.001  3100
+## b1         0.212   0.044  0.127  0.185  0.212  0.239  0.300 1.002  2500
+## sigma      1.035   0.226  0.701  0.874  1.003  1.154  1.583 1.001  3800
+## tau        1.061   0.427  0.399  0.750  0.994  1.308  2.037 1.001  3800
+## deviance  42.940   2.825 39.785 40.920 42.209 44.179 50.316 1.004  1300
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
@@ -628,10 +651,10 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
 <div class="sourceCode" id="cb244"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb244-1"><a href="bayesian-computation.html#cb244-1" aria-hidden="true" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
 <span id="cb244-2"><a href="bayesian-computation.html#cb244-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(mcmc.output[, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>)])</span></code></pre></div>
-<pre><code>##             b0          b1         tau
-## b0  1.00000000 0.004786600 0.020440327
-## b1  0.00478660 1.000000000 0.001805461
-## tau 0.02044033 0.001805461 1.000000000</code></pre>
+<pre><code>##               b0          b1          tau
+## b0   1.000000000  0.01542390 -0.007701777
+## b1   0.015423897  1.00000000 -0.010351925
+## tau -0.007701777 -0.01035193  1.000000000</code></pre>
 </div>
 <div id="rstanarm" class="section level2" number="3.3">
 <h2><span class="header-section-number">3.3</span> rstanarm</h2>
