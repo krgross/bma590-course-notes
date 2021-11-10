@@ -24,7 +24,7 @@ generalized-least-squares
 heterogeneous-variance
 temporal-serial-correlation
 spatial-data
-hierarchical-models
+hierarchical-mixed-models
 one-factor-layout-dyestuff-data
 bayesian-analysis
 negative-within-group-correlations
@@ -56,4 +56,5 @@ example-1-industrial-melanism-data
 gees
 glmms
 bayesian-fit
-ticks-on-red-grouse
+example-2-ticks-on-red-grouse
+gamms

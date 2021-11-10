@@ -777,7 +777,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIrF0nI/model1c6c68065d00.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpMxNkxx/model2114ce922d1.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -798,7 +798,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIrF0nI/model1c6c3c9b35c6.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpMxNkxx/model211468cb1e2.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -918,7 +918,7 @@ lines(x   = new.data$length,
 
 <img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
-Regression coefficients in logistic regression can be a bit hard to interpret.  Gelman et al. (2020) suggest a "divide by 4" rule, meaning that the maximum rate at which the fitted probability increases (which occurs when the fitted probability is one half) equals the estimated regression coefficient divided by 4.  In this case, that means that the maximum increase in the probability of TB is 0.0335 / 4 = 0.0084 per cm.  Make of that what you will. 
+Regression coefficients in logistic regression can be a bit hard to interpret.  One interpretation flows from exponentiating the regression coefficient to obtain an odds ratio.  For the boar data, the regression coefficient of 0.0335 corresponds to an odds ratio of $e^{0.0335}$ = 1.034.  This means that for two boars that differ by one cm in length, the larger boar's odds of having a TB-like lesion will be 1.034 times the smaller boar's odds of having such a lesion.  
 
 Overdispersion is typically not an issue with individual binary response data.  Nonetheless, the pseudo-$R^2$ here is fairly low.  We can try the probit and complementary log-log links to see if we obtain a better fit:
 

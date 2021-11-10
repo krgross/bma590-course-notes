@@ -6,7 +6,7 @@ setwd("C:/Users/krgross/Documents/GitHub/bma590-course-notes/")
 
 ## Example 1: Industrial melanism data
 
-We will examine several possible approaches to analyzing the industrial melanism data.  Recall that these data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  In notation, the model that we seek to fit is
+We will examine several possible approaches to analyzing the industrial melanism data.  The original source for these data is @bishop1972; I obtained them from @ramsey2002. Recall that these data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  In notation, the model that we seek to fit is
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
 \mathrm{logit}(p_{ij}) & = \eta_{ij} \\
@@ -322,13 +322,28 @@ curve(fitted.mean.curve,
 points(x = dark$distance, y = dark$prop.removed, pch = 16)
 ```
 
-## Ticks on red grouse
+## Example 2: Ticks on red grouse
 
 This example comes from Ben Bolker's chapter in @fox2015.  Bolker describes the data as follows:
 
-> "Elston et al. (2001) used data on numbers of ticks sampled from the heads of red grouse chicks in Scotland to explore patterns of aggregation. Ticks have potentially large fitness and demographic consequences on red grouse individuals and populations, but Elston et al. 's goal was just to decompose patterns of variation into different scales (within-brood, within-site, by altitude and year). The response is the tick count (TICKS, again Poisson or negative binomial); altitude (HEIGHT, treated as continuous) and year (YEAR, treated as categorical) are fixed predictor variables. Individual within brood (INDEX) and brood within location are nested random-effect grouping variables, with the baseline expected number of ticks (intercept) varying among groups."
+> "@elston2001 used data on numbers of ticks sampled from the heads of red grouse chicks in Scotland to explore patterns of aggregation. Ticks have potentially large fitness and demographic consequences on red grouse individuals and populations, but Elston et al.'s goal was just to decompose patterns of variation into different scales (within-brood, within-site, by altitude and year). The response is the tick count (TICKS, again Poisson or negative binomial); altitude (HEIGHT, treated as continuous) and year (YEAR, treated as categorical) are fixed predictor variables. Individual within brood (INDEX) and brood within location are nested random-effect grouping variables, with the baseline expected number of ticks (intercept) varying among groups."
 
 An alternative analysis of these data can be found on Bolker's Github page at https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html.
+
+The data include 3 years and 63 locations.  Location and year are crossed (some locations are sampled in multiple years), but not every location is sampled every year.  There are 118 broods, and each brood is nested within a year-location pair.  Each observation corresponds to one of 403 individuals.  Individuals are nested within broods.  There is also a measure of the location's elevation.
+
+To develop notation, let $i=1, \ldots, 3$ index the years, let $j = 1, \ldots, 63$ index the locations, let $k = 1, \ldots, n_{ij}$ index the broods sampled in each year-location pair (where we may have $n_{ij}=0$ for some combination of years and locations), and let $l = 1, \ldots, n_{ijk}$ index the separate individuals in each brood.  Let $y_{ijkl}$ (the response) be the number of ticks found on individual $l$ of brood $k$ at location $j$ in year $i$, and let $x_j$ be the elevation of location $j$.  We are interested in characterizing how tick load varies among locations, among broods within locations, and among individuals within broods.  We are also interested in characterizing the relationship between elevation and tick load.  It seems unlikely that 3 years are enough to estimate year-to-year variation, so we will use fixed-effect parameters to capture the differences among years.  We will begin by assuming that the tick load takes a Poisson distribution, and use the canonical log link.  We include an observation-level random effect so that we have a variance parameter that captures individual-to-individual variation among individuals in the same brood.
+
+In notation, our GLMM is
+\begin{align*}
+y_{ijkl} & \sim \mathrm{Pois}(\mu_{ijkl})\\
+\log(\mu_{ijkl}) & = \eta_{ijkl} \\
+\eta_{ijkl} & = a_i + b x_j + L_j + B_{ijk} + \varepsilon_{ijkl} \\
+L_j & \sim \mathcal{N}(0, \sigma^2_L) \\
+B_{ijk} & \sim \mathcal{N}(0, \sigma^2_B) \\
+\varepsilon_{ijkl} & \sim \mathcal{N}(0, \sigma^2_\varepsilon) \\
+\end{align*}
+
 
 ```{r echo = FALSE}
 rm(list = ls())
@@ -354,32 +369,33 @@ tick$elev.z <- with(tick, (elevation - mean(elevation)) / sd(elevation))
 
 Model fitting:
 
-<!-- ```{r cache = TRUE} -->
-<!-- # GLMM with Poisson response -->
+````{r cache = TRUE}
+fm1  <- glmer(ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index),
+              family = "poisson",
+              data = tick)
 
-<!-- fm1  <- glmer(ticks ~ yr + elev.z + (1 | loc / brood / index),  -->
-<!--               family = "poisson", -->
-<!--               data = tick) -->
+summary(fm1)
+```
 
-<!-- summary(fm1) -->
+<!-- We'll conduct some residual diagnostics by pulling out the deviance residuals and plotting them against elevation. -->
 
-<!-- pp <- profile(fm1) -->
-
-<!-- confint(pp) -->
-<!-- xyplot(pp, absVal = TRUE) -->
-
+<!-- ```{r} -->
 <!-- d.resid <- residuals(fm1, type = "deviance") -->
-<!-- (residual.deviance <- sum(d.resid^2)) -->
-
-<!-- df.residual(fm1) -->
-
-<!-- # residual diagnostics -->
-
-<!-- plot(fitted(fm1), d.resid) -->
-<!-- abline(h = 0, lty = "dashed") -->
 
 <!-- plot(tick$elev.z, d.resid) -->
 <!-- abline(h = 0, lty = "dashed") -->
+<!-- ``` -->
+
+We can have a look at the profile confidence intervals for each of the variance components.
+
+```{r cache = TRUE}
+pp <- profile(fm1)
+
+confint(pp)
+xyplot(pp, absVal = TRUE)
+```
+
+We see that the standard deviation of the location-level random effect has a 95\% confidence interval that includes 0.  We might conclude that the effect of location is reasonably well captured by the elevation covariate, and there doesn't need to be any additional location-to-location variation.  It is something of a judgment call as to whether it would make sense at this point to drop the location-level random effect, although it seems reasonable to retain it on the grounds that one expects some location-to-location variation beyond the effect of elevation, even if that variation is small.
 
 <!-- # model without observation-level random effect -->
 
@@ -403,3 +419,82 @@ Model fitting:
 <!-- anova(fm1, fm3)  # can use LRT because models are nested, and both have been fit with ML -->
 <!-- ``` -->
 
+## GAMMs
+
+Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlations.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
+
+As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.  These data can be found at http://academic.udayton.edu/kissock/http/weather/.  First, some housekeeping and exploratory analysis.
+
+```{r}
+rdu <- read.table("data/rdu-temperature.txt", head = T)
+
+# remove NA's, coded as -99
+with(rdu, table(temp == -99))
+
+rdu <- subset(rdu, temp > -99)
+
+with(rdu, plot(temp ~ time, type = "l", xlab = "day"))
+```
+
+We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature.  We also include an AR(1) structure on the errors.  The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so.  Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.
+
+```{r}
+require(mgcv)
+fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
+```
+
+The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit excepting the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
+```{r}
+summary(fm1$lme)
+summary(fm1$gam)
+plot(fm1$gam)
+```
+
+Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down.  Fall in the Piedmont is ever fleeting.
+
+Less substantially, but still interestingly, the estimate of the correlation between temperature anomalies on consecutive days is $\approx$ 0.68, which matches lived experience.
+
+The best-fitting smoothing spline for the among-year trend is linear.  Let's replace the smoothing spline by a linear term so that it is easier to extract the slope, which will now be contained in the `lme` portion.
+
+```{r cache = TRUE}
+fm2 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + time, data = rdu, correlation = corAR1(form = ~ 1 | yr))
+
+summary(fm2$lme)
+```
+
+The temperature trend is estimated as an increase of `r round(fm2$lme$coefficients$fixed['Xtime'], 6)` $^\circ$F per day.  That equates to a trend of `r round(365.25 * fm2$lme$coefficients$fixed['Xtime'], 6)` $^\circ$F per year, or `r round(3652.5 * fm2$lme$coefficients$fixed['Xtime'], 6)` per decade.  Yikes!
+
+TO see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
+
+```{r}
+fm1a <- gam(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu)
+
+plot(fm1a)
+abline(h = 0, col = "red")
+```
+
+Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both are telltale signs of overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
+
+Finally, we will use `gamm4::gamm4` to fit a new model to the tick data from @elston2001, this time using a smoothing spline to estimate the effect of elevation on tick abundance.  Like `mgcv::gamm`, `gamm4::gamm4` returns models with two compoments: one called `mer` that contains output from the portion of the model that invokes `lme4::(g)lmer`, and one called `gam` that contains the smoothing terms.
+
+```{r cache = TRUE}
+require(gamm4)
+
+fm4  <- gamm4(ticks ~ yr + s(elev.z), random = ~ (1 | loc) + (1 | brood) + (1 | index), 
+             family = "poisson",
+             data = tick)
+
+summary(fm4$mer)
+summary(fm4$gam)
+plot(fm4$gam)
+```
+
+Our best fitting model continues to contain a linear association between elevation and tick abundance.  Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.
+
+```{r}
+fm5  <- gam(ticks ~ yr + s(elev.z), 
+              family = "poisson",
+              data = tick)
+
+plot(fm5)
+```

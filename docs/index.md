@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2021-11-08"
+date: "2021-11-09"
 output: bookdown::gitbook
 documentclass: book
 bibliography: [bma590.bib]

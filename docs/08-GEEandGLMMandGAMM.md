@@ -4,7 +4,7 @@
 
 ## Example 1: Industrial melanism data
 
-We will examine several possible approaches to analyzing the industrial melanism data.  Recall that these data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  In notation, the model that we seek to fit is
+We will examine several possible approaches to analyzing the industrial melanism data.  The original source for these data is @bishop1972; I obtained them from @ramsey2002. Recall that these data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  In notation, the model that we seek to fit is
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
 \mathrm{logit}(p_{ij}) & = \eta_{ij} \\
@@ -287,7 +287,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3188184
+## [1] 0.3187974
 ```
 
 ```r
@@ -321,7 +321,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3503401
+## [1] 0.3506545
 ```
 
 ```r
@@ -416,7 +416,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpm8mKYX/model30a440e96ddb.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpEv7H1H/modelc4815d112ba.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
@@ -567,13 +567,28 @@ points(x = dark$distance, y = dark$prop.removed, pch = 16)
 
 <img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 
-## Ticks on red grouse
+## Example 2: Ticks on red grouse
 
 This example comes from Ben Bolker's chapter in @fox2015.  Bolker describes the data as follows:
 
-> "Elston et al. (2001) used data on numbers of ticks sampled from the heads of red grouse chicks in Scotland to explore patterns of aggregation. Ticks have potentially large fitness and demographic consequences on red grouse individuals and populations, but Elston et al. 's goal was just to decompose patterns of variation into different scales (within-brood, within-site, by altitude and year). The response is the tick count (TICKS, again Poisson or negative binomial); altitude (HEIGHT, treated as continuous) and year (YEAR, treated as categorical) are fixed predictor variables. Individual within brood (INDEX) and brood within location are nested random-effect grouping variables, with the baseline expected number of ticks (intercept) varying among groups."
+> "@elston2001 used data on numbers of ticks sampled from the heads of red grouse chicks in Scotland to explore patterns of aggregation. Ticks have potentially large fitness and demographic consequences on red grouse individuals and populations, but Elston et al.'s goal was just to decompose patterns of variation into different scales (within-brood, within-site, by altitude and year). The response is the tick count (TICKS, again Poisson or negative binomial); altitude (HEIGHT, treated as continuous) and year (YEAR, treated as categorical) are fixed predictor variables. Individual within brood (INDEX) and brood within location are nested random-effect grouping variables, with the baseline expected number of ticks (intercept) varying among groups."
 
 An alternative analysis of these data can be found on Bolker's Github page at https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html.
+
+The data include 3 years and 63 locations.  Location and year are crossed (some locations are sampled in multiple years), but not every location is sampled every year.  There are 118 broods, and each brood is nested within a year-location pair.  Each observation corresponds to one of 403 individuals.  Individuals are nested within broods.  There is also a measure of the location's elevation.
+
+To develop notation, let $i=1, \ldots, 3$ index the years, let $j = 1, \ldots, 63$ index the locations, let $k = 1, \ldots, n_{ij}$ index the broods sampled in each year-location pair (where we may have $n_{ij}=0$ for some combination of years and locations), and let $l = 1, \ldots, n_{ijk}$ index the separate individuals in each brood.  Let $y_{ijkl}$ (the response) be the number of ticks found on individual $l$ of brood $k$ at location $j$ in year $i$, and let $x_j$ be the elevation of location $j$.  We are interested in characterizing how tick load varies among locations, among broods within locations, and among individuals within broods.  We are also interested in characterizing the relationship between elevation and tick load.  It seems unlikely that 3 years are enough to estimate year-to-year variation, so we will use fixed-effect parameters to capture the differences among years.  We will begin by assuming that the tick load takes a Poisson distribution, and use the canonical log link.  We include an observation-level random effect so that we have a variance parameter that captures individual-to-individual variation among individuals in the same brood.
+
+In notation, our GLMM is
+\begin{align*}
+y_{ijkl} & \sim \mathrm{Pois}(\mu_{ijkl})\\
+\log(\mu_{ijkl}) & = \eta_{ijkl} \\
+\eta_{ijkl} & = a_i + b x_j + L_j + B_{ijk} + \varepsilon_{ijkl} \\
+L_j & \sim \mathcal{N}(0, \sigma^2_L) \\
+B_{ijk} & \sim \mathcal{N}(0, \sigma^2_B) \\
+\varepsilon_{ijkl} & \sim \mathcal{N}(0, \sigma^2_\varepsilon) \\
+\end{align*}
+
 
 
 
@@ -604,32 +619,88 @@ tick$elev.z <- with(tick, (elevation - mean(elevation)) / sd(elevation))
 
 Model fitting:
 
-<!-- ```{r cache = TRUE} -->
-<!-- # GLMM with Poisson response -->
 
-<!-- fm1  <- glmer(ticks ~ yr + elev.z + (1 | loc / brood / index),  -->
-<!--               family = "poisson", -->
-<!--               data = tick) -->
+```r
+fm1  <- glmer(ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index),
+              family = "poisson",
+              data = tick)
 
-<!-- summary(fm1) -->
+summary(fm1)
+```
 
-<!-- pp <- profile(fm1) -->
+```
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: poisson  ( log )
+## Formula: ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index)
+##    Data: tick
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   1794.5   1822.5   -890.3   1780.5      396 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.6123 -0.5536 -0.1486  0.2850  2.4430 
+## 
+## Random effects:
+##  Groups Name        Variance Std.Dev.
+##  index  (Intercept) 0.2932   0.5415  
+##  brood  (Intercept) 0.5625   0.7500  
+##  loc    (Intercept) 0.2796   0.5287  
+## Number of obs: 403, groups:  index, 403; brood, 118; loc, 63
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)   0.3728     0.1964   1.898 0.057648 .  
+## yr96          1.1804     0.2381   4.957 7.15e-07 ***
+## yr97         -0.9787     0.2628  -3.724 0.000196 ***
+## elev.z       -0.8543     0.1236  -6.910 4.83e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##        (Intr) yr96   yr97  
+## yr96   -0.728              
+## yr97   -0.610  0.514       
+## elev.z  0.011  0.048  0.047
+```
 
-<!-- confint(pp) -->
-<!-- xyplot(pp, absVal = TRUE) -->
+<!-- We'll conduct some residual diagnostics by pulling out the deviance residuals and plotting them against elevation. -->
 
+<!-- ```{r} -->
 <!-- d.resid <- residuals(fm1, type = "deviance") -->
-<!-- (residual.deviance <- sum(d.resid^2)) -->
-
-<!-- df.residual(fm1) -->
-
-<!-- # residual diagnostics -->
-
-<!-- plot(fitted(fm1), d.resid) -->
-<!-- abline(h = 0, lty = "dashed") -->
 
 <!-- plot(tick$elev.z, d.resid) -->
 <!-- abline(h = 0, lty = "dashed") -->
+<!-- ``` -->
+
+We can have a look at the profile confidence intervals for each of the variance components.
+
+
+```r
+pp <- profile(fm1)
+
+confint(pp)
+```
+
+```
+##                   2.5 %     97.5 %
+## .sig01       0.45148404  0.6451853
+## .sig02       0.52127895  1.0569669
+## .sig03       0.00000000  0.8928761
+## (Intercept) -0.02822434  0.7485780
+## yr96         0.71308876  1.6583695
+## yr97        -1.50239878 -0.4606277
+## elev.z      -1.10589097 -0.6090506
+```
+
+```r
+xyplot(pp, absVal = TRUE)
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+
+We see that the standard deviation of the location-level random effect has a 95\% confidence interval that includes 0.  We might conclude that the effect of location is reasonably well captured by the elevation covariate, and there doesn't need to be any additional location-to-location variation.  It is something of a judgment call as to whether it would make sense at this point to drop the location-level random effect, although it seems reasonable to retain it on the grounds that one expects some location-to-location variation beyond the effect of elevation, even if that variation is small.
 
 <!-- # model without observation-level random effect -->
 
@@ -653,3 +724,334 @@ Model fitting:
 <!-- anova(fm1, fm3)  # can use LRT because models are nested, and both have been fit with ML -->
 <!-- ``` -->
 
+## GAMMs
+
+Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlations.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
+
+As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.  These data can be found at http://academic.udayton.edu/kissock/http/weather/.  First, some housekeeping and exploratory analysis.
+
+
+```r
+rdu <- read.table("data/rdu-temperature.txt", head = T)
+
+# remove NA's, coded as -99
+with(rdu, table(temp == -99))
+```
+
+```
+## 
+## FALSE  TRUE 
+##  9250    15
+```
+
+```r
+rdu <- subset(rdu, temp > -99)
+
+with(rdu, plot(temp ~ time, type = "l", xlab = "day"))
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+
+We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature.  We also include an AR(1) structure on the errors.  The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so.  Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.
+
+
+```r
+require(mgcv)
+```
+
+```
+## Loading required package: mgcv
+```
+
+```
+## Loading required package: nlme
+```
+
+```
+## 
+## Attaching package: 'nlme'
+```
+
+```
+## The following object is masked from 'package:lme4':
+## 
+##     lmList
+```
+
+```
+## This is mgcv 1.8-35. For overview type 'help("mgcv-package")'.
+```
+
+```r
+fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
+```
+
+The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit excepting the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
+
+```r
+summary(fm1$lme)
+```
+
+```
+## Linear mixed-effects model fit by maximum likelihood
+##   Data: strip.offset(mf) 
+##        AIC     BIC   logLik
+##   58047.81 58090.6 -29017.9
+## 
+## Random effects:
+##  Formula: ~Xr - 1 | g
+##  Structure: pdIdnot
+##               Xr1       Xr2       Xr3       Xr4       Xr5       Xr6       Xr7
+## StdDev: 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296
+##               Xr8       Xr9      Xr10      Xr11      Xr12      Xr13      Xr14
+## StdDev: 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296
+##              Xr15      Xr16      Xr17      Xr18
+## StdDev: 0.5311296 0.5311296 0.5311296 0.5311296
+## 
+##  Formula: ~Xr.0 - 1 | g.0 %in% g
+##  Structure: pdIdnot
+##               Xr.01       Xr.02       Xr.03       Xr.04       Xr.05       Xr.06
+## StdDev: 0.001644831 0.001644831 0.001644831 0.001644831 0.001644831 0.001644831
+##               Xr.07       Xr.08 Residual
+## StdDev: 0.001644831 0.001644831 7.596932
+## 
+## Correlation Structure: AR(1)
+##  Formula: ~1 | g/g.0/yr 
+##  Parameter estimate(s):
+##       Phi 
+## 0.6815075 
+## Fixed effects:  y ~ X - 1 
+##                 Value Std.Error   DF  t-value p-value
+## X(Intercept) 60.55577 0.1805467 9248 335.4022   0e+00
+## Xs(time)Fx1   0.70615 0.1804134 9248   3.9140   1e-04
+##  Correlation: 
+##             X(Int)
+## Xs(time)Fx1 0     
+## 
+## Standardized Within-Group Residuals:
+##          Min           Q1          Med           Q3          Max 
+## -4.071281352 -0.648513253 -0.002229428  0.590788103  3.645626473 
+## 
+## Number of Observations: 9250
+## Number of Groups: 
+##          g g.0 %in% g 
+##          1          1
+```
+
+```r
+summary(fm1$gam)
+```
+
+```
+## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## temp ~ s(doy, bs = "cc", k = 20) + s(time)
+## 
+## Parametric coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  60.5558     0.1805   335.4   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Approximate significance of smooth terms:
+##           edf Ref.df      F  p-value    
+## s(doy)  10.13     18 310.51  < 2e-16 ***
+## s(time)  1.00      1  15.32 9.15e-05 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## R-sq.(adj) =   0.76   
+##   Scale est. = 57.713    n = 9250
+```
+
+```r
+plot(fm1$gam)
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-25-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-25-2.png" width="672" />
+
+Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down.  Fall in the Piedmont is ever fleeting.
+
+Less substantially, but still interestingly, the estimate of the correlation between temperature anomalies on consecutive days is $\approx$ 0.68, which matches lived experience.
+
+The best-fitting smoothing spline for the among-year trend is linear.  Let's replace the smoothing spline by a linear term so that it is easier to extract the slope, which will now be contained in the `lme` portion.
+
+
+```r
+fm2 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + time, data = rdu, correlation = corAR1(form = ~ 1 | yr))
+
+summary(fm2$lme)
+```
+
+```
+## Linear mixed-effects model fit by maximum likelihood
+##   Data: strip.offset(mf) 
+##        AIC      BIC   logLik
+##   58045.81 58081.47 -29017.9
+## 
+## Random effects:
+##  Formula: ~Xr - 1 | g
+##  Structure: pdIdnot
+##               Xr1       Xr2       Xr3       Xr4       Xr5       Xr6       Xr7
+## StdDev: 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421
+##               Xr8       Xr9      Xr10      Xr11      Xr12      Xr13      Xr14
+## StdDev: 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421
+##              Xr15      Xr16      Xr17      Xr18 Residual
+## StdDev: 0.5311421 0.5311421 0.5311421 0.5311421 7.596946
+## 
+## Correlation Structure: AR(1)
+##  Formula: ~1 | g/yr 
+##  Parameter estimate(s):
+##       Phi 
+## 0.6815089 
+## Fixed effects:  y ~ X - 1 
+##                 Value Std.Error   DF   t-value p-value
+## X(Intercept) 59.33167 0.3611717 9248 164.27550   0e+00
+## Xtime         0.00026 0.0000675 9248   3.91405   1e-04
+##  Correlation: 
+##       X(Int)
+## Xtime -0.866
+## 
+## Standardized Within-Group Residuals:
+##          Min           Q1          Med           Q3          Max 
+## -4.071273711 -0.648512192 -0.002229388  0.590786426  3.645621018 
+## 
+## Number of Observations: 9250
+## Number of Groups: 1
+```
+
+The temperature trend is estimated as an increase of 2.64\times 10^{-4} $^\circ$F per day.  That equates to a trend of 0.096431 $^\circ$F per year, or 0.964307 per decade.  Yikes!
+
+TO see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
+
+
+```r
+fm1a <- gam(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu)
+
+plot(fm1a)
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+
+```r
+abline(h = 0, col = "red")
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-27-2.png" width="672" />
+
+Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both are telltale signs of overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
+
+Finally, we will use `gamm4::gamm4` to fit a new model to the tick data from @elston2001, this time using a smoothing spline to estimate the effect of elevation on tick abundance.  Like `mgcv::gamm`, `gamm4::gamm4` returns models with two compoments: one called `mer` that contains output from the portion of the model that invokes `lme4::(g)lmer`, and one called `gam` that contains the smoothing terms.
+
+
+```r
+require(gamm4)
+```
+
+```
+## Loading required package: gamm4
+```
+
+```
+## Warning: package 'gamm4' was built under R version 4.1.1
+```
+
+```
+## This is gamm4 0.2-6
+```
+
+```r
+fm4  <- gamm4(ticks ~ yr + s(elev.z), random = ~ (1 | loc) + (1 | brood) + (1 | index), 
+             family = "poisson",
+             data = tick)
+
+summary(fm4$mer)
+```
+
+```
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: poisson  ( log )
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   1796.5   1828.5   -890.3   1780.5      395 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.6123 -0.5536 -0.1486  0.2850  2.4430 
+## 
+## Random effects:
+##  Groups Name        Variance  Std.Dev. 
+##  index  (Intercept) 2.932e-01 0.5415074
+##  brood  (Intercept) 5.626e-01 0.7500344
+##  loc    (Intercept) 2.795e-01 0.5287032
+##  Xr     s(elev.z)   7.351e-08 0.0002711
+## Number of obs: 403, groups:  index, 403; brood, 118; loc, 63; Xr, 8
+## 
+## Fixed effects:
+##               Estimate Std. Error z value Pr(>|z|)    
+## X(Intercept)    0.3728     0.1964   1.899 0.057630 .  
+## Xyr96           1.1804     0.2381   4.957 7.15e-07 ***
+## Xyr97          -0.9787     0.2628  -3.725 0.000196 ***
+## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.83e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             X(Int) Xyr96  Xyr97 
+## Xyr96       -0.728              
+## Xyr97       -0.610  0.514       
+## Xs(lv.z)Fx1  0.011  0.048  0.047
+```
+
+```r
+summary(fm4$gam)
+```
+
+```
+## 
+## Family: poisson 
+## Link function: log 
+## 
+## Formula:
+## ticks ~ yr + s(elev.z)
+## 
+## Parametric coefficients:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)   0.3728     0.1904   1.958 0.050223 .  
+## yr96          1.1804     0.2356   5.010 5.45e-07 ***
+## yr97         -0.9787     0.2630  -3.722 0.000198 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Approximate significance of smooth terms:
+##           edf Ref.df Chi.sq p-value    
+## s(elev.z)   1      1  48.03  <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## R-sq.(adj) =  0.156   
+## glmer.ML = 220.93  Scale est. = 1         n = 403
+```
+
+```r
+plot(fm4$gam)
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+
+Our best fitting model continues to contain a linear association between elevation and tick abundance.  Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.
+
+
+```r
+fm5  <- gam(ticks ~ yr + s(elev.z), 
+              family = "poisson",
+              data = tick)
+
+plot(fm5)
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-1.png" width="672" />

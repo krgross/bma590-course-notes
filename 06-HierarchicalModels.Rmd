@@ -1,4 +1,4 @@
-# Hierarchical Models
+# Hierarchical (mixed) models
 
 ```{r echo = FALSE}
 setwd("C:/Users/krgross/Documents/GitHub/bma590-course-notes/")
