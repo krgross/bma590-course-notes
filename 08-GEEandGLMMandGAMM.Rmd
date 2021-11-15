@@ -111,7 +111,19 @@ summary(fm3)
 confint(fm3, parm = c("distance:morph1"))
 ```
 
-Nothing here is radically different.  The parameter estimates are so similar to those from the GEE that a plot of the GEE and GLMM fits would be indistinguishable to the eye.  To get a sense of how the conditional means compare to the marginal means, we will compute the conditional mean removal rate of dark morphs at a distance 20 km from the city center.  
+Nothing here is radically different.  The parameter estimates are so similar to those from the GEE that a plot of the GEE and GLMM fits would be indistinguishable to the eye.  
+
+Although `summary.glmer` doesn't report the deviance, functions exist to obtain this information.  We can use the deviance to assess overdispersion in the same way that we would in a GLM.  
+
+<!-- Note: Is this true?  I'm not sure. -->
+```{r}
+deviance(fm3)
+df.residual(fm3)
+```
+
+The ratio of the deviance to the residual df is approximately 1, suggesting that the data are not overdispersed.  Note that including the location random effect in the GLMM has eliminated the mild overdispersion that we detected in the GLM without the location random effect.
+
+To get a sense of how the conditional means compare to the marginal means, we will compute the conditional mean removal rate of dark morphs at a distance 20 km from the city center.  
 
 ```{r}
 dark.linpred.glmm <- function(d) -0.71979 - 0.41113 + (-0.00934 + 0.02782) * d
@@ -330,9 +342,9 @@ This example comes from Ben Bolker's chapter in @fox2015.  Bolker describes the 
 
 An alternative analysis of these data can be found on Bolker's Github page at https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html.
 
-The data include 3 years and 63 locations.  Location and year are crossed (some locations are sampled in multiple years), but not every location is sampled every year.  There are 118 broods, and each brood is nested within a year-location pair.  Each observation corresponds to one of 403 individuals.  Individuals are nested within broods.  There is also a measure of the location's elevation.
+The data include 3 years and 63 locations.  Location and year are crossed (some locations are sampled in multiple years), but not every location is sampled every year.  There are 118 broods, and each brood is nested within a year-location pair.  Each observation corresponds to one of 403 individuals.  Individuals are nested within broods.  We also know each location's elevation.
 
-To develop notation, let $i=1, \ldots, 3$ index the years, let $j = 1, \ldots, 63$ index the locations, let $k = 1, \ldots, n_{ij}$ index the broods sampled in each year-location pair (where we may have $n_{ij}=0$ for some combination of years and locations), and let $l = 1, \ldots, n_{ijk}$ index the separate individuals in each brood.  Let $y_{ijkl}$ (the response) be the number of ticks found on individual $l$ of brood $k$ at location $j$ in year $i$, and let $x_j$ be the elevation of location $j$.  We are interested in characterizing how tick load varies among locations, among broods within locations, and among individuals within broods.  We are also interested in characterizing the relationship between elevation and tick load.  It seems unlikely that 3 years are enough to estimate year-to-year variation, so we will use fixed-effect parameters to capture the differences among years.  We will begin by assuming that the tick load takes a Poisson distribution, and use the canonical log link.  We include an observation-level random effect so that we have a variance parameter that captures individual-to-individual variation among individuals in the same brood.
+To develop notation, let $i=1, \ldots, 3$ index the years, let $j = 1, \ldots, 63$ index the locations, let $k = 1, \ldots, n_{ij}$ index the broods sampled in each year-location pair, and let $l = 1, \ldots, n_{ijk}$ index the separate individuals in each brood.  Note that almost all year-location pairs will be represented by at most 1 brood ($n_{ij}=0$ or $=1$ for almost all combination of years and locations) but there is at least one year-location pair with multiple broods ($n_{ij} > 1$). Let $y_{ijkl}$ (the response) be the number of ticks found on individual $l$ of brood $k$ at location $j$ in year $i$, and let $x_j$ be the elevation of location $j$.  We are interested in characterizing how tick load varies among locations, among broods within locations, and among individuals within broods.  We are also interested in characterizing the relationship between elevation and tick load.  It seems unlikely that 3 years are enough to estimate year-to-year variation, so we will use fixed-effect parameters to capture the differences among years.  We will begin by assuming that the tick load takes a Poisson distribution, and use the canonical log link.  We include an observation-level random effect so that we have a variance parameter that captures individual-to-individual variation among individuals in the same brood.
 
 In notation, our GLMM is
 \begin{align*}
@@ -386,16 +398,41 @@ summary(fm1)
 <!-- abline(h = 0, lty = "dashed") -->
 <!-- ``` -->
 
-We can have a look at the profile confidence intervals for each of the variance components.
+We can have a look at the profile confidence intervals and profile confidence regions for each of the model parameters.
 
-```{r cache = TRUE}
+```{r}
 pp <- profile(fm1)
 
 confint(pp)
 xyplot(pp, absVal = TRUE)
+splom(pp)
 ```
 
-We see that the standard deviation of the location-level random effect has a 95\% confidence interval that includes 0.  We might conclude that the effect of location is reasonably well captured by the elevation covariate, and there doesn't need to be any additional location-to-location variation.  It is something of a judgment call as to whether it would make sense at this point to drop the location-level random effect, although it seems reasonable to retain it on the grounds that one expects some location-to-location variation beyond the effect of elevation, even if that variation is small.
+We see that the standard deviation of the location-level random effect (".sig03") has a 95\% confidence interval that includes 0.  We might conclude that the location-level random effect is unnecessary. In other words, there is no evidence of additional variation among the locations beyond the variation attributable to differences in elevation.  The bivariate confidence regions show us that the estimated SD of the location-level random effect is negatively correlated with the estimated SD of the brood-level random effect (".sig02").  Thus, the location-to-location variability (above and beyond the elevation effect) from brood-to-brood variability are confounded, which makes sense, given that most locations are represented by a small number of broods. 
+
+It is something of a judgment call as to whether it would make sense at this point to drop the location-level random effect.  We could retain it on the grounds that one expects some location-to-location variation beyond the effect of elevation, even if that variation is small.  Further, some (such as Bolker) would argue that model selection on the random effects is risky.  In his GLMM FAQ page, Bolker writes:
+
+> Consider *not* testing the significance of random effects. If the random effect is part of the experimental design, this procedure may be considered ‘sacrificial pseudoreplication’ (@hurlbert1984). Using stepwise approaches to eliminate non-significant terms in order to squeeze more significance out of the remaining terms is dangerous in any case.  
+
+However, these red grouse data do not come from a designed experiment.  
+
+If one is interested in testing for the significance of a random effect, the usual approach is to conduct a likelihood-ratio test to compare models with and without the random effect.  In this case, the null hypothesis is that the variance of the tested random effect is 0, which is on the boundary of the allowable values for a variance.  Thus, the $p$-value from a LRT is conservative (too big).  In simple models, the $p$-value for the LRT is twice as big as it should be, suggesting that the appropriate correction is to divide the $p$-value by 2 (@pinheiro2000).  For more complex models, however, the divide-by-2 rule is only a rough rule of thumb.  We illustrate by comparing a model with the location-level random effect to one without it.  (In notation, we are testing $\sigma^2_L = 0$.)
+
+```{r echo = FALSE}
+options(digits = 7)
+```
+
+```{r}
+fm2  <- glmer(ticks ~ yr + elev.z + (1 | brood) + (1 | index),
+              family = "poisson",
+              data = tick)
+
+anova(fm2, fm1)
+```
+
+If we use the rough divide-by-2 rule, the approximate $p$-value is $p \approx 0.11$.  Thus, the model with the location-level random effect does not improve significantly on the model without the location-level random effect.  We might conclude that the location-level random effect is unnecessary.
+
+<!-- In any case, all of this seems to beg the question: What is the cost, if any, of overspecifying the random effects? -->
 
 <!-- # model without observation-level random effect -->
 
@@ -443,7 +480,7 @@ require(mgcv)
 fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
 ```
 
-The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit excepting the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
+The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit except the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
 ```{r}
 summary(fm1$lme)
 summary(fm1$gam)
@@ -462,9 +499,9 @@ fm2 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + time, data = rdu, correlation = c
 summary(fm2$lme)
 ```
 
-The temperature trend is estimated as an increase of `r round(fm2$lme$coefficients$fixed['Xtime'], 6)` $^\circ$F per day.  That equates to a trend of `r round(365.25 * fm2$lme$coefficients$fixed['Xtime'], 6)` $^\circ$F per year, or `r round(3652.5 * fm2$lme$coefficients$fixed['Xtime'], 6)` per decade.  Yikes!
+The temperature trend is estimated as an increase of `r round(fm2$lme$coefficients$fixed['Xtime'], 6)` $^\circ$F per day.  That equates to a trend of `r round(365.25 * fm2$lme$coefficients$fixed['Xtime'], 4)` $^\circ$F per year, or `r round(3652.5 * fm2$lme$coefficients$fixed['Xtime'], 3)` per decade.  Yikes!
 
-TO see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
+To see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
 
 ```{r}
 fm1a <- gam(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu)
@@ -473,7 +510,7 @@ plot(fm1a)
 abline(h = 0, col = "red")
 ```
 
-Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both are telltale signs of overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
+Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both indicate overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
 
 Finally, we will use `gamm4::gamm4` to fit a new model to the tick data from @elston2001, this time using a smoothing spline to estimate the effect of elevation on tick abundance.  Like `mgcv::gamm`, `gamm4::gamm4` returns models with two compoments: one called `mer` that contains output from the portion of the model that invokes `lme4::(g)lmer`, and one called `gam` that contains the smoothing terms.
 

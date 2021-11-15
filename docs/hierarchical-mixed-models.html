@@ -24,7 +24,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2021-11-09" />
+<meta name="date" content="2021-11-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -485,7 +485,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma_B^2).
 <p>We can also obtain bivariate confidence regions from the profile likelihood using the <code>lattice::splom</code> command.</p>
 <div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb434-1"><a href="hierarchical-mixed-models.html#cb434-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">splom</span>(pr)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/dyestuff%20bivariate%20confidence%20regions-1.png" width="672" /></p>
-<p>Panels above the diagonal show bivariate, profile-based confidence regions for each pair of parameters. Within each panel, we see 50%, 80%, 90%, 95%, and 99% confidence regions. (You should be able to figure out which is which.) The panels show, for example, that the estimate of the observation-level standard deviation is slightly negatively correlated with the estimate of the batch-level standard deviation. Panels below the diagoanl show the same plots on the <span class="math inline">\(\zeta\)</span> scale. See Bates (2012+) 1.5.3 for a detailed description of how to interpret these plots.</p>
+<p>Panels above the diagonal show bivariate, profile-based confidence regions for each pair of parameters. Within each panel, we see 50%, 80%, 90%, 95%, and 99% confidence regions. (You should be able to figure out which is which.) The panels show, for example, that the estimate of the observation-level standard deviation is slightly negatively correlated with the estimate of the batch-level standard deviation. Panels below the diagonal show the same plots on the <span class="math inline">\(\zeta\)</span> scale. See Bates (2012+) 1.5.3 for a detailed description of how to interpret these plots.</p>
 <p>There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters. Famously, <code>lme4::lmer</code> does not provide degrees of freedom for the estimates of the fixed effects. The package <code>lmerTest</code> uses the Satterthwaite approximation to estimate these df.</p>
 <div class="sourceCode" id="cb435"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb435-1"><a href="hierarchical-mixed-models.html#cb435-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lmerTest)</span></code></pre></div>
 <pre><code>## Loading required package: lmerTest</code></pre>
@@ -602,7 +602,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb458"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb458-1"><a href="hierarchical-mixed-models.html#cb458-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmpsh40S7/model2f2479f6418.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpKk2UCd/model9987aa65b86.txt&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
