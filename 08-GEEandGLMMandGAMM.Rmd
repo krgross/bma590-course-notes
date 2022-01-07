@@ -432,6 +432,27 @@ anova(fm2, fm1)
 
 If we use the rough divide-by-2 rule, the approximate $p$-value is $p \approx 0.11$.  Thus, the model with the location-level random effect does not improve significantly on the model without the location-level random effect.  We might conclude that the location-level random effect is unnecessary.
 
+Although this analysis focused on how different random effects contributed to the overall variation in tick load, it is also helpful to visualize the fit of the model.  The plot below shows the tick load for each individual (plotted on a log scale) vs.\ the centered and scaled elevation variable, along with the fitted mean line for each year.
+
+```{r}
+par(mfrow = c(1, 3))
+
+plot.subset <- function(year, a, b) {
+   
+   with(tick, plot(log(ticks + 1) ~ elev.z, type = "n", main = year))
+   
+   with(subset(tick, yr == year), points(jitter(log(ticks + 1)) ~ elev.z))
+   
+   fit <- function(x) log(1 + exp(a + b * x))
+   curve(fit, from = min(tick$elev.z), to = max(tick$elev.z), add = TRUE, col = "red")
+}
+
+plot.subset("95", a = 0.3728, b = -0.8543)
+plot.subset("96", a = 0.3728 + 1.1804, b = -0.8543)
+plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
+```
+
+
 <!-- In any case, all of this seems to beg the question: What is the cost, if any, of overspecifying the random effects? -->
 
 <!-- # model without observation-level random effect -->

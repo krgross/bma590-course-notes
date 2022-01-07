@@ -1,0 +1,11 @@
+base
+geepack
+Matrix
+lme4
+coda
+rjags
+R2jags
+lattice
+nlme
+mgcv
+gamm4
