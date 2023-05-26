@@ -2,7 +2,15 @@
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
 date: "`r Sys.Date()`"
-output: bookdown::gitbook
+output: 
+  bookdown::gitbook:
+    config:
+      toc:
+        collapse: section
+      fontsettings:
+        theme: white
+        family: serif
+        size: 2
 documentclass: book
 bibliography: [bma590.bib]
 biblio-style: apalike
