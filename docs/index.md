@@ -1,8 +1,16 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2021-11-15"
-output: bookdown::gitbook
+date: "2023-05-26"
+output: 
+  bookdown::gitbook:
+    config:
+      toc:
+        collapse: section
+      fontsettings:
+        theme: white
+        family: serif
+        size: 2
 documentclass: book
 bibliography: [bma590.bib]
 biblio-style: apalike

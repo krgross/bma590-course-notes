@@ -6,11 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | BMA / ST 590 computing companion</title>
   <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
-  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | BMA / ST 590 computing companion" />
   <meta property="og:type" content="book" />
-  
   
   <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
   
@@ -24,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2021-11-15" />
+<meta name="date" content="2023-05-26" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +32,8 @@
   
 <link rel="prev" href="index.html"/>
 <link rel="next" href="bayesian-computation.html"/>
-<script src="libs/header-attrs-2.9/header-attrs.js"></script>
-<script src="libs/jquery-3.5.1/jquery.min.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,16 +49,16 @@
 
 
 
-
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
-<script src="libs/plotly-binding-4.10.0/plotly.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.10.1/plotly.js"></script>
 <script src="libs/typedarray-0.1/typedarray.min.js"></script>
-<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
-<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
-<link href="libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
+<link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 
 
 <style type="text/css">
@@ -100,7 +99,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -113,7 +112,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -127,6 +126,10 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
 <style type="text/css">
 /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
 div.csl-bib-body { }
@@ -235,7 +238,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="7.4.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-truncated-models"><i class="fa fa-check"></i><b>7.4.1</b> Zero-truncated models</a></li>
 <li class="chapter" data-level="7.4.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-inflated-models"><i class="fa fa-check"></i><b>7.4.2</b> Zero-inflated models</a></li>
-<li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle,” models</a></li>
+<li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
 </ul></li>
 <li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams-1"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
@@ -268,11 +271,11 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function" class="section level1" number="2">
-<h1><span class="header-section-number">Chapter 2</span> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</h1>
+<div id="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>Likelihood can be used for more than simply isolating the MLE. The likelihood can also be used to generate confidence intervals for single parameters, or confidence regions for several parameters. We’ll start by using the horse-kick data to see how to generate a confidence interval for a single parameter, and then move on to considering models with more than one parameter.</p>
-<div id="confidence-intervals-for-single-parameters" class="section level2" number="2.1">
-<h2><span class="header-section-number">2.1</span> Confidence intervals for single parameters</h2>
+<div id="confidence-intervals-for-single-parameters" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> Confidence intervals for single parameters<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#confidence-intervals-for-single-parameters" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>First we’ll read in the data and recreate the negative log likelihood function.</p>
 <div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="do">#################</span></span>
 <span id="cb62-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Preparation</span></span>
@@ -370,8 +373,8 @@ div.csl-indent {
 <span id="cb71-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code></pre></div>
 <p>Thus, the 95% CI for <span class="math inline">\(\lambda\)</span> is <span class="math inline">\((0.607, 0.803)\)</span>.</p>
 </div>
-<div id="two-param-mle" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> Confidence regions, profile likelihoods, and associated univariate intervals</h2>
+<div id="two-param-mle" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Confidence regions, profile likelihoods, and associated univariate intervals<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#two-param-mle" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>With a 2-parameter model, we can plot a confidence region directly. First some housekeeping to get started:</p>
 <div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emdbook)</span>
 <span id="cb72-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;ReedfrogFuncresp&quot;</span>)</span>
@@ -513,8 +516,8 @@ div.csl-indent {
 <p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>So, the 95% profile CI for <span class="math inline">\(a\)</span> is (0.402, 0.682).</p>
 </div>
-<div id="locally-quadratic-approximations-to-confidence-intervals-and-regions" class="section level2" number="2.3">
-<h2><span class="header-section-number">2.3</span> Locally quadratic approximations to confidence intervals and regions</h2>
+<div id="locally-quadratic-approximations-to-confidence-intervals-and-regions" class="section level2 hasAnchor" number="2.3">
+<h2><span class="header-section-number">2.3</span> Locally quadratic approximations to confidence intervals and regions<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#locally-quadratic-approximations-to-confidence-intervals-and-regions" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Likelihood profiling provides a straightforward way to summarize a high-dimensional confidence region by univariate confidence intervals. However, these profile intervals can still involve quite a bit of computation. Further, they are not able to capture possible correlations among parameter estimates, which are revealed in (two-dimensional) confidence regions. (Recall the shape of the joint confidence region for the parameters <span class="math inline">\(a\)</span> and <span class="math inline">\(h\)</span> in the tadpole data.) Locally quadratic approximations provide a way to approximate the (already approximate) univariate confidence intervals and bivariate confidence regions using only information about the curvature of the likelihood surface at the MLE.</p>
 <p>We’ll first start by revisiting the horse-kick data again. Of course, with the more precise <span class="math inline">\(\chi^2\)</span> based confidence interval in hand, there is no reason to seek an approximation. But doing so allows us to illustrate the calculations involved, and to see how well the approximation fares in this case.</p>
 <p>First some housekeepign to read the data into memory, etc.</p>
@@ -660,10 +663,10 @@ div.csl-indent {
 <pre><code>## [1] 0.3865830 0.6651283</code></pre>
 <p>Recall that the 95% confidence interval we calculated by the profile likelihood was <span class="math inline">\((0.402, 0.682)\)</span>. So the quadratic approximation has gotten the width of the interval more or less correct, but it has fared less at capturing the asymmetry of the interval.</p>
 </div>
-<div id="comparing-models-likelihood-ratio-test-and-aic" class="section level2" number="2.4">
-<h2><span class="header-section-number">2.4</span> Comparing models: Likelihood ratio test and AIC</h2>
-<p>Obtaining a parsimonious statistical description of data often requires arbitrating between competing model fits. Likelihood provides two tools for comparing models: likelihood ratio tests (LRTs) and information criteria. Of the latter, the best known information criterion is due to Akaike, and takes the name AIC. (Akaike didn’t name AIC after himself; he used AIC to refer to “An information criterion.” In his honor, the acronym is now largely taken to stand for “Akaike’s information criterion.”)</p>
-<p>LRTs and information criteria have complementary strengths and weaknesses. LRTs are direct, head-to-head comparisons of nested models. By “nested,” we mean that one model can be obtained as a special case of the other. The “reduced,” or less flexible (and thus more parsimonious) model plays the role of the null hypothesis, and the “full,” or more flexible (and thus less parsimonious) model plays the role of the alternative hypothesis. The LRT then formally evaluates whether the improvement in fit offered by the full model is statistically significant, that is, greater than what we would expect merely by chance.</p>
+<div id="comparing-models-likelihood-ratio-test-and-aic" class="section level2 hasAnchor" number="2.4">
+<h2><span class="header-section-number">2.4</span> Comparing models: Likelihood ratio test and AIC<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#comparing-models-likelihood-ratio-test-and-aic" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Obtaining a parsimonious statistical description of data often requires arbitrating between competing model fits. Likelihood provides two tools for comparing models: likelihood ratio tests (LRTs) and information criteria. Of the latter, the best known information criterion is due to Akaike, and takes the name AIC. (Akaike didn’t name AIC after himself; he used AIC to refer to “An information criterion”. In his honor, the acronym is now largely taken to stand for “Akaike’s information criterion”.)</p>
+<p>LRTs and information criteria have complementary strengths and weaknesses. LRTs are direct, head-to-head comparisons of nested models. By “nested”, we mean that one model can be obtained as a special case of the other. The “reduced”, or less flexible (and thus more parsimonious) model plays the role of the null hypothesis, and the “full”, or more flexible (and thus less parsimonious) model plays the role of the alternative hypothesis. The LRT then formally evaluates whether the improvement in fit offered by the full model is statistically significant, that is, greater than what we would expect merely by chance.</p>
 <p>On the other hand, information criteria provide a penalized goodness-of-fit measure that can be used to compare many models at once. Information criteria produce a ranking of model fits, and thus a best-fitting model. The downside to information criteria is that there are no hard and fast guidelines to determine when one model provides a significantly better fit than another. The properties of information criteria are also less well understood than the properties of LRTs.</p>
 <p>To illustrate both, we will use the study of cone production by fir trees studied in <span class="math inline">\(\S\)</span> 6.6 of Bolker. These data are originally from work by Dodd and Silvertown. The data are much richer than we will examine here. Like Bolker, we will focus on whether the relationship between tree size (as measured by diameter at breast height, or dbh) and the number of cones produces differs between populations that “have experienced wave-like die-offs” and those that have not.</p>
 <p>First some preparatory work to import and assemble the data:</p>
@@ -717,9 +720,9 @@ div.csl-indent {
 <p>Like Bolker, we will assume that the average number of cones produced (<span class="math inline">\(\mu\)</span>) has a power-law relationship with tree dbh (<span class="math inline">\(x\)</span>). We will also assume that the actual number of cones produced (<span class="math inline">\(Y\)</span>) takes a negative binomial distribution with size-dependent mean and overdispersion parameter <span class="math inline">\(k\)</span>. That is, our model is
 <span class="math display">\[\begin{align*}
 \mu(x) &amp; = a x ^ b \\
-Y &amp; \sim \mbox{NB}(\mu(x), k) 
+Y &amp; \sim \mbox{NB}(\mu(x), k)
 \end{align*}\]</span></p>
-<p>To head in a slightly different direction from Bolker, we will compare two models. In the first, or reduced, model the same parameters will prevail for both wave and non-wave populations. Thus this model has three parameters: <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(k\)</span>. In the second, or full, model, we will allow the <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> parameters to differ between the wave and non-wave populations. (We will continue to assume a common <span class="math inline">\(k\)</span> for both population types.) Using subscripts on <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> to distinguish population types, the full model then has 5 parameters: <span class="math inline">\(a_w\)</span>, <span class="math inline">\(a_n\)</span>, <span class="math inline">\(b_w\)</span>, <span class="math inline">\(b_n\)</span>, and <span class="math inline">\(k\)</span>. We’ll fit the reduced model first. To do so, we’ll use the <code>dnbinom</code> function in R, in which the <span class="math inline">\(k\)</span> parameter is located in the formal argument “size.”</p>
+<p>To head in a slightly different direction from Bolker, we will compare two models. In the first, or reduced, model the same parameters will prevail for both wave and non-wave populations. Thus this model has three parameters: <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(k\)</span>. In the second, or full, model, we will allow the <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> parameters to differ between the wave and non-wave populations. (We will continue to assume a common <span class="math inline">\(k\)</span> for both population types.) Using subscripts on <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> to distinguish population types, the full model then has 5 parameters: <span class="math inline">\(a_w\)</span>, <span class="math inline">\(a_n\)</span>, <span class="math inline">\(b_w\)</span>, <span class="math inline">\(b_n\)</span>, and <span class="math inline">\(k\)</span>. We’ll fit the reduced model first. To do so, we’ll use the <code>dnbinom</code> function in R, in which the <span class="math inline">\(k\)</span> parameter is located in the formal argument “size”.</p>
 <div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-1" aria-hidden="true" tabindex="-1"></a>fir.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(parms, x, y){</span>
 <span id="cb127-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-2" aria-hidden="true" tabindex="-1"></a> </span>
 <span id="cb127-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb127-3" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> parms[<span class="dv">1</span>]</span>
@@ -933,8 +936,8 @@ Y &amp; \sim \mbox{NB}(\mu(x), k)
 <span id="cb150-18"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb150-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">bty =</span> <span class="st">&quot;n&quot;</span>)</span></code></pre></div>
 <p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
 </div>
-<div id="transformable-constraints" class="section level2" number="2.5">
-<h2><span class="header-section-number">2.5</span> Transformable constraints</h2>
+<div id="transformable-constraints" class="section level2 hasAnchor" number="2.5">
+<h2><span class="header-section-number">2.5</span> Transformable constraints<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#transformable-constraints" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>So far, we have not thought much about the numerical optimization routines that R uses to find MLEs. If time allowed, we really should think more deeply about how these routines work. Indeed, Bolker devotes an entire chapter (his chapter 7) to numerical optimization. Because time is short, we won’t go that deeply into understanding these methods now, although Bolker’s chapter is worth a read if you are so inclined.</p>
 <p>There is one topic that deserves more of our attention, which is the issue of constriants on the allowable parameter space. (Bolker touches on this in his <span class="math inline">\(\S\)</span> 7.4.5.) Many times, we write down models with parameters that only make biological sense in a certain range. For example, in the fir data, we know that the parameter <span class="math inline">\(a\)</span> (the average cone production for trees of size <span class="math inline">\(x = 1\)</span>) must be positive. We also know that <span class="math inline">\(k\)</span>, the overdispersion parameter in the negative binomial model, must also be positive. However, most numerical optimization routines are not terribly well suited to optimizing over a constrained space. (The presence of constraints is one of the reasons why it is important to initiate numerical optimization routines with reasonalbe starting values.) One exception is the “L-BFGS-B” method, available in <code>optim</code>, which will permit so-called rectangular constraints. An alternative approach that will work with any numerical optimization scheme is to transform the constraints away. That is, transform the parameterization to a new scale that is unconstrained. Because of the invariance principle of MLEs, these transformations won’t change the MLEs that we eventually find, as long as the MLEs are not on the edge of the original, constrained space.</p>
 <p>To illustrate, consider the fir data again, and consider the negative-binomial model fit to the entire data set, ignoring differences between wave vs. non-wave populations. To transform away the constraints on <span class="math inline">\(a\)</span> and <span class="math inline">\(k\)</span>, re-parameterize the model in terms of the logs of both parameters. That is, define
@@ -945,7 +948,7 @@ k^* &amp; = \ln (k) \\
 so that the model is now
 <span class="math display">\[\begin{align*}
 \mu(x) &amp; = \exp(a^*) \times x ^ b \\
-Y &amp; \sim \mbox{NB}(\mu(x), \exp(k^*)) 
+Y &amp; \sim \mbox{NB}(\mu(x), \exp(k^*))
 \end{align*}\]</span>
 Fitting proceeds in the usual way:</p>
 <div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb151-1" aria-hidden="true" tabindex="-1"></a>fir.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(parms, x, y){</span>
@@ -994,9 +997,9 @@ Fitting proceeds in the usual way:</p>
 <p>Another example that one frequently encounters in ecology are parameters that are constrained to lie between 0 and 1, such as a survival probability. A logit (or log odds) transformation will eliminate the constraints on a parameter that lies between 0 and 1.</p>
 <!-- Finally, one might also encounter parameters whose sum must lie between 0 and 1.  For example, in size-based demographic modeling, it is common to describe the demographic fates of individuals in a particular age or size class by two parameters --- survival without growth (say) and survival with growth.  Writing these two parameters as  -->
 </div>
-<div id="the-negative-binomial-distriution-revisited" class="section level2" number="2.6">
-<h2><span class="header-section-number">2.6</span> The negative binomial distriution, revisited</h2>
-<p>The negative binomial distribution is a funny distribution that is frequently misunderstood by ecologists. In ecology, the negative binomial distribution is typically parameterized by the distribution’s mean (which we typically write as <span class="math inline">\(\mu\)</span>) and the “overdispersion parameter,” almost always written as <span class="math inline">\(k\)</span>. In this parameterization, if <span class="math inline">\(X\)</span> has a negative binomial distribution with mean <span class="math inline">\(\mu\)</span> and overdispersion parameter <span class="math inline">\(k\)</span>, then the variance of <span class="math inline">\(X\)</span> is
+<div id="the-negative-binomial-distriution-revisited" class="section level2 hasAnchor" number="2.6">
+<h2><span class="header-section-number">2.6</span> The negative binomial distriution, revisited<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#the-negative-binomial-distriution-revisited" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The negative binomial distribution is a funny distribution that is frequently misunderstood by ecologists. In ecology, the negative binomial distribution is typically parameterized by the distribution’s mean (which we typically write as <span class="math inline">\(\mu\)</span>) and the “overdispersion parameter”, almost always written as <span class="math inline">\(k\)</span>. In this parameterization, if <span class="math inline">\(X\)</span> has a negative binomial distribution with mean <span class="math inline">\(\mu\)</span> and overdispersion parameter <span class="math inline">\(k\)</span>, then the variance of <span class="math inline">\(X\)</span> is
 <span class="math display">\[
 Var(X) = \mu + \frac{\mu^2}{k}
 \]</span>
@@ -1084,7 +1087,6 @@ Thus, for fixed <span class="math inline">\(\mu\)</span>, the variance increases
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -1108,7 +1110,7 @@ gitbook.start({
 },
 "fontsettings": {
 "theme": "white",
-"family": "sans",
+"family": "serif",
 "size": 2
 },
 "edit": {
@@ -1124,8 +1126,12 @@ gitbook.start({
 "text": null
 },
 "download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
 "toc": {
-"collapse": "subsection"
+"collapse": "section"
 }
 });
 });
@@ -1137,7 +1143,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');

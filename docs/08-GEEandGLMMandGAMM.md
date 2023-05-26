@@ -311,7 +311,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3187888
+## [1] 0.3187781
 ```
 
 ```r
@@ -345,7 +345,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3501409
+## [1] 0.3500437
 ```
 
 ```r
@@ -365,14 +365,6 @@ We now fit the model using JAGS and vague priors.
 
 ```r
 require(R2jags)
-```
-
-```
-## Warning: package 'R2jags' was built under R version 4.1.1
-```
-
-```
-## Warning: package 'rjags' was built under R version 4.1.1
 ```
 
 
@@ -440,7 +432,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp6BH8lo/model301823e41c9e.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpeCs9Ks/model57ec74b52e57.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
@@ -675,7 +667,7 @@ summary(fm1)
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)   0.3728     0.1964   1.898 0.057648 .  
+## (Intercept)   0.3728     0.1964   1.898 0.057639 .  
 ## yr96          1.1804     0.2381   4.957 7.15e-07 ***
 ## yr97         -0.9787     0.2628  -3.724 0.000196 ***
 ## elev.z       -0.8543     0.1236  -6.910 4.83e-12 ***
@@ -709,13 +701,13 @@ confint(pp)
 
 ```
 ##                   2.5 %     97.5 %
-## .sig01       0.45148404  0.6451853
-## .sig02       0.52127895  1.0569669
+## .sig01       0.45148400  0.6451853
+## .sig02       0.52127907  1.0569688
 ## .sig03       0.00000000  0.8928761
-## (Intercept) -0.02822434  0.7485780
-## yr96         0.71308876  1.6583695
-## yr97        -1.50239878 -0.4606277
-## elev.z      -1.10589097 -0.6090506
+## (Intercept) -0.02822382  0.7485777
+## yr96         0.71308911  1.6583691
+## yr97        -1.50239867 -0.4606278
+## elev.z      -1.10589101 -0.6090505
 ```
 
 ```r
@@ -762,6 +754,30 @@ anova(fm2, fm1)
 ```
 
 If we use the rough divide-by-2 rule, the approximate $p$-value is $p \approx 0.11$.  Thus, the model with the location-level random effect does not improve significantly on the model without the location-level random effect.  We might conclude that the location-level random effect is unnecessary.
+
+Although this analysis focused on how different random effects contributed to the overall variation in tick load, it is also helpful to visualize the fit of the model.  The plot below shows the tick load for each individual (plotted on a log scale) vs.\ the centered and scaled elevation variable, along with the fitted mean line for each year.
+
+
+```r
+par(mfrow = c(1, 3))
+
+plot.subset <- function(year, a, b) {
+   
+   with(tick, plot(log(ticks + 1) ~ elev.z, type = "n", main = year))
+   
+   with(subset(tick, yr == year), points(jitter(log(ticks + 1)) ~ elev.z))
+   
+   fit <- function(x) log(1 + exp(a + b * x))
+   curve(fit, from = min(tick$elev.z), to = max(tick$elev.z), add = TRUE, col = "red")
+}
+
+plot.subset("95", a = 0.3728, b = -0.8543)
+plot.subset("96", a = 0.3728 + 1.1804, b = -0.8543)
+plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+
 
 <!-- In any case, all of this seems to beg the question: What is the cost, if any, of overspecifying the random effects? -->
 
@@ -813,7 +829,7 @@ rdu <- subset(rdu, temp > -99)
 with(rdu, plot(temp ~ time, type = "l", xlab = "day"))
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-27-1.png" width="672" />
 
 We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature.  We also include an AR(1) structure on the errors.  The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so.  Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.
 
@@ -842,14 +858,14 @@ require(mgcv)
 ```
 
 ```
-## This is mgcv 1.8-35. For overview type 'help("mgcv-package")'.
+## This is mgcv 1.8-42. For overview type 'help("mgcv-package")'.
 ```
 
 ```r
 fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
 ```
 
-The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit excepting the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
+The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit except the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
 
 ```r
 summary(fm1$lme)
@@ -874,9 +890,9 @@ summary(fm1$lme)
 ##  Formula: ~Xr.0 - 1 | g.0 %in% g
 ##  Structure: pdIdnot
 ##               Xr.01       Xr.02       Xr.03       Xr.04       Xr.05       Xr.06
-## StdDev: 0.001644831 0.001644831 0.001644831 0.001644831 0.001644831 0.001644831
+## StdDev: 0.001644904 0.001644904 0.001644904 0.001644904 0.001644904 0.001644904
 ##               Xr.07       Xr.08 Residual
-## StdDev: 0.001644831 0.001644831 7.596932
+## StdDev: 0.001644904 0.001644904 7.596932
 ## 
 ## Correlation Structure: AR(1)
 ##  Formula: ~1 | g/g.0/yr 
@@ -934,7 +950,7 @@ summary(fm1$gam)
 plot(fm1$gam)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-28-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-28-2.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-2.png" width="672" />
 
 Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down.  Fall in the Piedmont is ever fleeting.
 
@@ -980,15 +996,15 @@ summary(fm2$lme)
 ## 
 ## Standardized Within-Group Residuals:
 ##          Min           Q1          Med           Q3          Max 
-## -4.071273711 -0.648512192 -0.002229388  0.590786426  3.645621018 
+## -4.071273712 -0.648512192 -0.002229388  0.590786427  3.645621019 
 ## 
 ## Number of Observations: 9250
 ## Number of Groups: 1
 ```
 
-The temperature trend is estimated as an increase of 2.64\times 10^{-4} $^\circ$F per day.  That equates to a trend of 0.096431 $^\circ$F per year, or 0.964307 per decade.  Yikes!
+The temperature trend is estimated as an increase of 2.64\times 10^{-4} $^\circ$F per day.  That equates to a trend of 0.0964 $^\circ$F per year, or 0.964 per decade.  Yikes!
 
-TO see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
+To see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
 
 
 ```r
@@ -997,36 +1013,22 @@ fm1a <- gam(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu)
 plot(fm1a)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-1.png" width="672" />
 
 ```r
 abline(h = 0, col = "red")
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-30-2.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-2.png" width="672" />
 
-Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both are telltale signs of overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
+Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both indicate overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
 
 Finally, we will use `gamm4::gamm4` to fit a new model to the tick data from @elston2001, this time using a smoothing spline to estimate the effect of elevation on tick abundance.  Like `mgcv::gamm`, `gamm4::gamm4` returns models with two compoments: one called `mer` that contains output from the portion of the model that invokes `lme4::(g)lmer`, and one called `gam` that contains the smoothing terms.
 
 
 ```r
 require(gamm4)
-```
 
-```
-## Loading required package: gamm4
-```
-
-```
-## Warning: package 'gamm4' was built under R version 4.1.1
-```
-
-```
-## This is gamm4 0.2-6
-```
-
-```r
 fm4  <- gamm4(ticks ~ yr + s(elev.z), random = ~ (1 | loc) + (1 | brood) + (1 | index), 
              family = "poisson",
              data = tick)
@@ -1048,15 +1050,15 @@ summary(fm4$mer)
 ## 
 ## Random effects:
 ##  Groups Name        Variance  Std.Dev. 
-##  index  (Intercept) 2.932e-01 0.5415074
-##  brood  (Intercept) 5.626e-01 0.7500344
-##  loc    (Intercept) 2.795e-01 0.5287032
-##  Xr     s(elev.z)   7.351e-08 0.0002711
+##  index  (Intercept) 2.932e-01 0.5415102
+##  brood  (Intercept) 5.626e-01 0.7500340
+##  loc    (Intercept) 2.795e-01 0.5287104
+##  Xr     s(elev.z)   7.387e-08 0.0002718
 ## Number of obs: 403, groups:  index, 403; brood, 118; loc, 63; Xr, 8
 ## 
 ## Fixed effects:
 ##               Estimate Std. Error z value Pr(>|z|)    
-## X(Intercept)    0.3728     0.1964   1.899 0.057630 .  
+## X(Intercept)    0.3728     0.1964   1.899 0.057628 .  
 ## Xyr96           1.1804     0.2381   4.957 7.15e-07 ***
 ## Xyr97          -0.9787     0.2628  -3.725 0.000196 ***
 ## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.83e-12 ***
@@ -1084,7 +1086,7 @@ summary(fm4$gam)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)   0.3728     0.1904   1.958 0.050223 .  
+## (Intercept)   0.3728     0.1904   1.958 0.050221 .  
 ## yr96          1.1804     0.2356   5.010 5.45e-07 ***
 ## yr97         -0.9787     0.2630  -3.722 0.000198 ***
 ## ---
@@ -1097,14 +1099,14 @@ summary(fm4$gam)
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## R-sq.(adj) =  0.156   
-## glmer.ML = 220.93  Scale est. = 1         n = 403
+## glmer.ML = 220.92  Scale est. = 1         n = 403
 ```
 
 ```r
 plot(fm4$gam)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 Our best fitting model continues to contain a linear association between elevation and tick abundance.  Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.
 
@@ -1117,4 +1119,4 @@ fm5  <- gam(ticks ~ yr + s(elev.z),
 plot(fm5)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" />

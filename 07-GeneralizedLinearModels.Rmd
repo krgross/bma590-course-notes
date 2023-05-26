@@ -663,10 +663,12 @@ Coef(corbet.fit)
 mu.hat <- Coef(corbet.fit)["munb"]
 k.hat  <- Coef(corbet.fit)["size"]
 
-fitted.probs <- dgaitnbinom(x = corbet$ofreq, k.hat, munb.p = fitted(corbet.fit), truncate = 0)
-fitted.vals <- sum(corbet$species) * fitted.probs
+# 2023-05-26: dgainnbinom seems to have been deprecated from VGAM
 
-barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fitted"))
+# fitted.probs <- dgaitnbinom(x = corbet$ofreq, k.hat, munb.p = fitted(corbet.fit), truncate = 0)
+# fitted.vals <- sum(corbet$species) * fitted.probs
+
+# barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fitted"))
 ```
 
 ```{r echo = FALSE}

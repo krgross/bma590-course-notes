@@ -46,10 +46,6 @@ summary(fm1)
 ## glm(formula = matings ~ age, family = poisson(link = "log"), 
 ##     data = elephant)
 ## 
-## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -2.80798  -0.86137  -0.08629   0.60087   2.17777  
-## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
 ## (Intercept) -1.58201    0.54462  -2.905  0.00368 ** 
@@ -111,10 +107,6 @@ summary(fm2)
 ## Call:
 ## glm(formula = matings ~ age, family = poisson(link = "identity"), 
 ##     data = elephant)
-## 
-## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -2.87228  -0.97171  -0.09509   0.57794   2.07192  
 ## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
@@ -184,10 +176,6 @@ summary(fm3)
 ## glm(formula = matings ~ age, family = quasipoisson(link = "identity"), 
 ##     data = elephant)
 ## 
-## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -2.87228  -0.97171  -0.09509   0.57794   2.07192  
-## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
 ## (Intercept) -4.55205    1.42164  -3.202  0.00272 ** 
@@ -245,10 +233,6 @@ summary(fm4)
 ## Call:
 ## glm.nb(formula = matings ~ age, data = elephant, link = identity, 
 ##     init.theta = 15.80269167)
-## 
-## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -2.70899  -0.92077  -0.08966   0.54500   1.78248  
 ## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
@@ -315,7 +299,7 @@ require(rstanarm)
 ```
 
 ```
-## This is rstanarm version 2.21.1
+## This is rstanarm version 2.21.4
 ```
 
 ```
@@ -418,8 +402,8 @@ print(fm5, digits = 3)
 ##  predictors:   2
 ## ------
 ##             Median MAD_SD
-## (Intercept) -4.588  1.390
-## age          0.204  0.042
+## (Intercept) -4.444  1.320
+## age          0.200  0.039
 ## 
 ## ------
 ## * For help interpreting the printed output see ?print.stanreg
@@ -516,15 +500,7 @@ require(R2jags)
 ```
 
 ```
-## Warning: package 'R2jags' was built under R version 4.1.1
-```
-
-```
 ## Loading required package: rjags
-```
-
-```
-## Warning: package 'rjags' was built under R version 4.1.1
 ```
 
 ```
@@ -532,7 +508,7 @@ require(R2jags)
 ```
 
 ```
-## Linked to JAGS 4.3.0
+## Linked to JAGS 4.3.1
 ```
 
 ```
@@ -777,7 +753,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpQJwilZ/model320c27d0554c.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpUR3lUB/model401cbcc3997.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -798,7 +774,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpQJwilZ/model320c13226d11.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpUR3lUB/model401cb4e4f11.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -866,10 +842,6 @@ summary(fm1)
 ## Call:
 ## glm(formula = tb ~ length, family = binomial(link = "logit"), 
 ##     data = boar)
-## 
-## Deviance Residuals: 
-##     Min       1Q   Median       3Q      Max  
-## -1.6327  -1.1157  -0.6829   1.1263   2.0011  
 ## 
 ## Coefficients:
 ##              Estimate Std. Error z value Pr(>|z|)    
@@ -982,10 +954,6 @@ summary(fm2)
 ## glm(formula = tb ~ length + sex * as.factor(age), family = binomial, 
 ##     data = boar)
 ## 
-## Deviance Residuals: 
-##    Min      1Q  Median      3Q     Max  
-## -1.603  -1.108  -0.669   1.123   1.844  
-## 
 ## Coefficients:
 ##                       Estimate Std. Error z value Pr(>|z|)
 ## (Intercept)          -16.55356  724.50177  -0.023    0.982
@@ -993,7 +961,7 @@ summary(fm2)
 ## sex2                  14.19739  724.50190   0.020    0.984
 ## as.factor(age)2       13.83446  724.50169   0.019    0.985
 ## as.factor(age)3       14.31136  724.50191   0.020    0.984
-## as.factor(age)4       14.68141  724.50218   0.020    0.984
+## as.factor(age)4       14.68141  724.50219   0.020    0.984
 ## sex2:as.factor(age)2 -14.53254  724.50204  -0.020    0.984
 ## sex2:as.factor(age)3 -14.36861  724.50196  -0.020    0.984
 ## sex2:as.factor(age)4 -14.53354  724.50196  -0.020    0.984
@@ -1045,10 +1013,6 @@ summary(fm3)
 ## glm(formula = tb ~ length + sex + as.factor(age), family = binomial, 
 ##     data = boar)
 ## 
-## Deviance Residuals: 
-##     Min       1Q   Median       3Q      Max  
-## -1.5889  -1.1114  -0.6614   1.1112   1.8837  
-## 
 ## Coefficients:
 ##                 Estimate Std. Error z value Pr(>|z|)  
 ## (Intercept)     -2.67730    1.07306  -2.495   0.0126 *
@@ -1091,10 +1055,6 @@ summary(fm1)
 ## glm(formula = cbind(removed, placed - removed) ~ morph * distance, 
 ##     family = binomial(link = "logit"), data = moth)
 ## 
-## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -2.21183  -0.39883   0.01155   0.68292   1.31242  
-## 
 ## Coefficients:
 ##                      Estimate Std. Error z value Pr(>|z|)    
 ## (Intercept)         -1.128987   0.197906  -5.705 1.17e-08 ***
@@ -1129,10 +1089,6 @@ summary(fm1q)
 ## Call:
 ## glm(formula = cbind(removed, placed - removed) ~ morph * distance, 
 ##     family = quasibinomial(link = "logit"), data = moth)
-## 
-## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -2.21183  -0.39883   0.01155   0.68292   1.31242  
 ## 
 ## Coefficients:
 ##                      Estimate Std. Error t value Pr(>|t|)    
@@ -1215,10 +1171,6 @@ We illustrate the use of a zero-truncated distribution with a species-abundance 
 require(VGAM)
 ```
 
-```
-## Warning: package 'VGAM' was built under R version 4.1.1
-```
-
 
 ```r
 data(corbet)
@@ -1262,13 +1214,13 @@ Coef(corbet.fit)
 mu.hat <- Coef(corbet.fit)["munb"]
 k.hat  <- Coef(corbet.fit)["size"]
 
-fitted.probs <- dgaitnbinom(x = corbet$ofreq, k.hat, munb.p = fitted(corbet.fit), truncate = 0)
-fitted.vals <- sum(corbet$species) * fitted.probs
+# 2023-05-26: dgainnbinom seems to have been deprecated from VGAM
 
-barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fitted"))
+# fitted.probs <- dgaitnbinom(x = corbet$ofreq, k.hat, munb.p = fitted(corbet.fit), truncate = 0)
+# fitted.vals <- sum(corbet$species) * fitted.probs
+
+# barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fitted"))
 ```
-
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 
 
@@ -1404,7 +1356,7 @@ summary(cod.nb.fm1)
 ## as.factor(Year)2001:as.factor(Area)2   -3.20740    0.83596  -3.837 0.000125 ***
 ## as.factor(Year)2000:as.factor(Area)3   -0.79465    2.15756  -0.368 0.712642    
 ## as.factor(Year)2001:as.factor(Area)3   -3.50409    0.83000  -4.222 2.42e-05 ***
-## as.factor(Year)2000:as.factor(Area)4  -13.65190 1572.67469  -0.009 0.993074    
+## as.factor(Year)2000:as.factor(Area)4  -13.65190 1572.67468  -0.009 0.993074    
 ## as.factor(Year)2001:as.factor(Area)4   -2.91045    1.10462  -2.635 0.008419 ** 
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
@@ -1605,7 +1557,7 @@ require(mgcv)
 ```
 
 ```
-## This is mgcv 1.8-35. For overview type 'help("mgcv-package")'.
+## This is mgcv 1.8-42. For overview type 'help("mgcv-package")'.
 ```
 
 ```
