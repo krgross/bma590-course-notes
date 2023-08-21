@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2023-05-26"
+date: "2023-08-21"
 output: 
   bookdown::gitbook:
     config:
@@ -43,9 +43,11 @@ dpois(x = 2, lambda = c(2, 2.5))
 Now let's evaluate the likelihood at a sequence of $\lambda$ values:
 
 ```r
-lambda.vals <- seq(from = 0, to = 5, by = 0.01)
-my.lhood <- dpois(x = 2, lambda = lambda.vals)
-plot(lambda.vals, my.lhood, xlab = expression(lambda), ylab = "Likelihood", type = "l")
+my.lhood <- function(lambda) dpois(x = 2, lambda = lambda)
+
+curve(my.lhood, from = 0, to = 5,
+      xlab = expression(lambda), 
+      ylab = "Likelihood")
 ```
 
 <img src="index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
@@ -53,7 +55,10 @@ plot(lambda.vals, my.lhood, xlab = expression(lambda), ylab = "Likelihood", type
 We might guess that the likelihood is maximized at $\lambda = 2$.  We'd be right.
 
 ```r
-plot(lambda.vals, my.lhood, xlab = expression(lambda), ylab = "Likelihood", type = "l")
+curve(my.lhood, from = 0, to = 5,
+      xlab = expression(lambda), 
+      ylab = "Likelihood")
+
 abline(v = 2, col = "red")
 ```
 

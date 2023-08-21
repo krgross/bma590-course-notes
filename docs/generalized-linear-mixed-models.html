@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-05-26" />
+<meta name="date" content="2023-08-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -461,7 +461,7 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 <span id="cb686-4"><a href="generalized-linear-mixed-models.html#cb686-4" aria-hidden="true" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
 <div class="sourceCode" id="cb688"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb688-1"><a href="generalized-linear-mixed-models.html#cb688-1" aria-hidden="true" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
-<pre><code>## [1] 0.3187781</code></pre>
+<pre><code>## [1] 0.3188146</code></pre>
 <div class="sourceCode" id="cb690"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb690-1"><a href="generalized-linear-mixed-models.html#cb690-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb690-2"><a href="generalized-linear-mixed-models.html#cb690-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
 <span id="cb690-3"><a href="generalized-linear-mixed-models.html#cb690-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
@@ -476,7 +476,7 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 <span id="cb691-4"><a href="generalized-linear-mixed-models.html#cb691-4" aria-hidden="true" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
 <div class="sourceCode" id="cb693"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb693-1"><a href="generalized-linear-mixed-models.html#cb693-1" aria-hidden="true" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
-<pre><code>## [1] 0.3500437</code></pre>
+<pre><code>## [1] 0.3500295</code></pre>
 <div class="sourceCode" id="cb695"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb695-1"><a href="generalized-linear-mixed-models.html#cb695-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb695-2"><a href="generalized-linear-mixed-models.html#cb695-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
 <span id="cb695-3"><a href="generalized-linear-mixed-models.html#cb695-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
@@ -540,7 +540,7 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 <pre><code>## module glm loaded</code></pre>
 <p>For some reason this works without specifying initial values for <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> (now both vectors). Maybe the initial values are drawn from the prior?</p>
 <div class="sourceCode" id="cb699"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb699-1"><a href="generalized-linear-mixed-models.html#cb699-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpeCs9Ks/model57ec74b52e57.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmpk1uTNX/modelb1987c8423a5.txt&quot;, fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff

@@ -559,7 +559,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp4QJWAd/model4a7049fa30b4.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpQPy8GA/modelaf58573f41.txt", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -736,7 +736,7 @@ Like all data from Zuur et al. (2009), the data are available for download from 
 require(lme4)
 require(lmerTest)
 
-rikz <- read.table("C:/Users/krgross/Documents/Teaching/bma590/ZuurDataMixedModelling/RIKZ.txt", head = T)
+rikz <- read.table("data/RIKZ.txt", head = T)
 
 with(rikz, plot(Richness ~ NAP, pch = Beach))  # raw response; note the non-constant variance
 ```
@@ -1923,7 +1923,7 @@ confint(pp.golf)
 
 ```
 ##                  2.5 %    97.5 %
-## .sig01       0.0000000  1.551145
+## .sig01       0.0000000  1.551146
 ## .sig02       0.8129721  3.837297
 ## .sigma       3.0513011  3.666234
 ## (Intercept) 72.2434040 76.265786

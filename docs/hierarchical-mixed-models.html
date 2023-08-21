@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-05-26" />
+<meta name="date" content="2023-08-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -602,7 +602,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb448"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb448-1"><a href="hierarchical-mixed-models.html#cb448-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmp4QJWAd/model4a7049fa30b4.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpQPy8GA/modelaf58573f41.txt&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -723,7 +723,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <div class="sourceCode" id="cb463"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb463-1"><a href="hierarchical-mixed-models.html#cb463-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lme4)</span>
 <span id="cb463-2"><a href="hierarchical-mixed-models.html#cb463-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lmerTest)</span>
 <span id="cb463-3"><a href="hierarchical-mixed-models.html#cb463-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb463-4"><a href="hierarchical-mixed-models.html#cb463-4" aria-hidden="true" tabindex="-1"></a>rikz <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;C:/Users/krgross/Documents/Teaching/bma590/ZuurDataMixedModelling/RIKZ.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb463-4"><a href="hierarchical-mixed-models.html#cb463-4" aria-hidden="true" tabindex="-1"></a>rikz <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/RIKZ.txt&quot;</span>, <span class="at">head =</span> T)</span>
 <span id="cb463-5"><a href="hierarchical-mixed-models.html#cb463-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb463-6"><a href="hierarchical-mixed-models.html#cb463-6" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">plot</span>(Richness <span class="sc">~</span> NAP, <span class="at">pch =</span> Beach))  <span class="co"># raw response; note the non-constant variance</span></span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
@@ -1614,7 +1614,7 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 <span id="cb529-2"><a href="hierarchical-mixed-models.html#cb529-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb529-3"><a href="hierarchical-mixed-models.html#cb529-3" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(pp.golf)</span></code></pre></div>
 <pre><code>##                  2.5 %    97.5 %
-## .sig01       0.0000000  1.551145
+## .sig01       0.0000000  1.551146
 ## .sig02       0.8129721  3.837297
 ## .sigma       3.0513011  3.666234
 ## (Intercept) 72.2434040 76.265786</code></pre>

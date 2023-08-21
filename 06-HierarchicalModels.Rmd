@@ -301,7 +301,7 @@ Like all data from Zuur et al. (2009), the data are available for download from 
 require(lme4)
 require(lmerTest)
 
-rikz <- read.table("C:/Users/krgross/Documents/Teaching/bma590/ZuurDataMixedModelling/RIKZ.txt", head = T)
+rikz <- read.table("data/RIKZ.txt", head = T)
 
 with(rikz, plot(Richness ~ NAP, pch = Beach))  # raw response; note the non-constant variance
 with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach))  # transformation stabilizes the variance
