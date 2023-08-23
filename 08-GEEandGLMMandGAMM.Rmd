@@ -381,7 +381,7 @@ tick$elev.z <- with(tick, (elevation - mean(elevation)) / sd(elevation))
 
 Model fitting:
 
-````{r cache = TRUE}
+```{r cache = TRUE}
 fm1  <- glmer(ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index),
               family = "poisson",
               data = tick)

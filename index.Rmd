@@ -18,11 +18,47 @@ link-citations: yes
 description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021."
 ---
 
+\renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
+\newcommand{\L}[1]{\mathcal{L}\!\left(#1\right)}
+\newcommand{\vecy}{\mathbf{Y}}
+\newcommand{\vecyhat}{\mathbf{\hat{Y}}}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\vecx}{\mathbf{x}}
+\newcommand{\vecX}{\mathbf{X}}
+\newcommand{\vecb}{\mathbf{\beta}}
+\newcommand{\vecbhat}{\hat{\mathbf{\beta}}}
+\newcommand{\veceps}{\mathbf{\epsilon}}
+\newcommand{\vece}{\mathbf{e}}
+\newcommand{\Exp}[1]{\mathrm{E}\left[#1\right]}
+\newcommand{\Var}[1]{\mbox{Var}\left(#1\right)}
+\newcommand{\SD}[1]{\mbox{SD}\left(#1\right)}
+\newcommand{\Cov}[2]{\mbox{Cov}\left(#1, #2\right)}
+\newcommand{\Cor}[2]{\mbox{Cor}\left(#1, #2\right)}
+\newcommand{\vcov}[1]{\mbox{Cov}\left(#1\right)}
+\newcommand{\vcor}[1]{\mbox{Cor}\left(#1\right)}
+
 # Maximum likelihood estimation
 
-## A very simple example with a single observation
+The *likelihood function* is the mathematical object that underlies many of the methods that we will study in this course.  In this chapter, we will study the properties of the likelihood function for some simple models and data sets.  We will see that the likelihood can be used to generate parameter estimates and associated measures of uncertainty (e.g., standard errors and confidence intervals). For most of the methods that we study later in this course, we will use software in which someone else has written code to analyze the likelihood function; thus we won't have to worry about coding the likelihood function ourselves.  However, it is helpful to know how to derive and analyze a likelihood function when needed, because likelihood analysis is flexible and can often be applied in specialized situations where code for a specific analysis may not already exist.
 
-Suppose we observe a single observation from a Poisson distribution.  Suppose that observation is $X=2$.  We can use the `dpois` function to evaluate the likelihood for this single observation.  For example, we can evaluate the likelihood at $\lambda = 1.5$:
+## Mathematical basics
+
+The mathematical expression for a likelihood function is identical to the mathematical expression that one would use to find the probability mass or density associated with a particular value of a random variable.  For example, suppose that we have a very simple data set that consists of only one observation from a Poisson distribution.  Let $X$ denote the value of the single data point, and let $\lambda$ denote the parameter of the Poisson distribution.  In a probability class, we learn that we can find the probability mass associated with any particular value of $X$ using the formula
+\[
+\Pr{X=x; \lambda} = \dfrac{e^{-\lambda} \lambda^x}{x!}.
+\]
+In R, we can access this probability mass function using the `dpois` function.  For example, if we wanted to find the probability mass associated with $X=1$ when $\lambda = 1.5$, we could use
+```{r}
+dpois(x = 1, lambda = 1.5)
+```
+
+In likelihood analysis, we use the same mathematical expression for the probability mass function (pmf) of a data set, but we change our perspective.  Instead of regarding the parameter as a known quantity and computing the probability associated with various possible values for the data, in likelihood analysis we regard the data as the known quantity and evaluate the same mathematical expression for different parameter values.  In notation, this logic translates into an expression that we can write as
+\[
+\L{\lambda; x} = \Pr{X=x; \lambda}.
+\]
+where we have used $\L{\lambda; x}$ to denote the likelihood function for $\lambda$ when we have a data set with value $x$.  The expression above seems strange, because nothing seems to be happening; we are simply taking the same mathematical expression and calling it two different things depending on the context.  But that is all there is to it, at least with regard to constructing the likelihood function.
+
+Because a likelihood function uses the same mathematical formulas as a probability mass function, we can use the same functions that `R` provides for computing probability masses for discretely valued data (or probability densities for continuously valued data) to compute the a likelihood function. Let's return to our simple example of observing a single observation from a Poisson distribution.  Suppose that observation is $X=2$.  We can use the `dpois` function to evaluate the likelihood for this single observation.  For example, we can evaluate the likelihood at $\lambda = 1.5$:
 ```{r}
 dpois(x = 2, lambda = 1.5)
 ```
@@ -39,7 +75,7 @@ curve(my.lhood, from = 0, to = 5,
       ylab = "Likelihood")
 ```
 
-We might guess that the likelihood is maximized at $\lambda = 2$.  We'd be right.
+We might guess that the likelihood is maximized at $\lambda = 2$.  We'd be right, as the plot below suggests.
 ```{r}
 curve(my.lhood, from = 0, to = 5,
       xlab = expression(lambda), 
@@ -50,7 +86,7 @@ abline(v = 2, col = "red")
 
 ## Horse-kick data
 
-Most real data sets contain more than a single observation.  Here is a data set that we can use to illustrate maximum likelihood estimation with a single parameter.  Famously, Ladislaus van Bortkewitsch (1868 - 1931) published how many members of the Prussiam army were killed by horse kicks in each of 20 years, for each of 14 army corps.  As a caveat, these data are often used to illustrate the Poisson distribution, as we will use them.  They match the Poisson distribution more neatly than we might expect for most data sets.
+Most real data sets contain more than a single observation.  Here is a data set that we can use to illustrate maximum likelihood estimation with a single parameter.  Famously, Ladislaus van Bortkewitsch (1868 -- 1931) published how many members of the Prussian army were killed by horse kicks in each of 20 years, for each of 14 army corps.  In this analysis, we will ignore both the temporal structure and the grouping among corps and treat the data as just a simple random sample^[Recall that when we refer to a data set as a "simple random sample", we mean that the data are independent and identically distributed.  That is, they are independent draws from the same underlying probability distribution.] from a Poisson distribution with $n=280$ data points.  As a caveat, these data are often used to illustrate the Poisson distribution, as we will use them.  They match the Poisson distribution more neatly than we might expect for most data sets.
 
 First import the data.  Note that the path name used here is specific to the file directory that was used to create this file.  The path name that you use will likely differ.
 ```{r}
@@ -68,7 +104,7 @@ or we can see the last few records using the `tail` command:
 ```{r}
 tail(horse)
 ```
-Another useful function to keep in mind is the `str' function which tells you about the [str]ucture of an R object:
+Another useful function to keep in mind is the `str` function which tells you about the [str]ucture of an R object:
 ```{r}
 str(horse)
 ```
@@ -83,7 +119,7 @@ hist(horse$deaths,
 
 ### Calculate and plot the log-likelihood function
 
-Create a function that calculates the log-likelihood for a value of $\lambda$:
+Let's create a function that calculates the log-likelihood for a value of $\lambda$:
 
 ```{r}
 horse.ll <- function(my.lambda){

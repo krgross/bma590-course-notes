@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2023-08-21"
+date: "2023-08-23"
 output: 
   bookdown::gitbook:
     config:
@@ -18,11 +18,52 @@ link-citations: yes
 description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021."
 ---
 
+\renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
+\newcommand{\L}[1]{\mathcal{L}\!\left(#1\right)}
+\newcommand{\vecy}{\mathbf{Y}}
+\newcommand{\vecyhat}{\mathbf{\hat{Y}}}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\vecx}{\mathbf{x}}
+\newcommand{\vecX}{\mathbf{X}}
+\newcommand{\vecb}{\mathbf{\beta}}
+\newcommand{\vecbhat}{\hat{\mathbf{\beta}}}
+\newcommand{\veceps}{\mathbf{\epsilon}}
+\newcommand{\vece}{\mathbf{e}}
+\newcommand{\Exp}[1]{\mathrm{E}\left[#1\right]}
+\newcommand{\Var}[1]{\mbox{Var}\left(#1\right)}
+\newcommand{\SD}[1]{\mbox{SD}\left(#1\right)}
+\newcommand{\Cov}[2]{\mbox{Cov}\left(#1, #2\right)}
+\newcommand{\Cor}[2]{\mbox{Cor}\left(#1, #2\right)}
+\newcommand{\vcov}[1]{\mbox{Cov}\left(#1\right)}
+\newcommand{\vcor}[1]{\mbox{Cor}\left(#1\right)}
+
 # Maximum likelihood estimation
 
-## A very simple example with a single observation
+The *likelihood function* is the mathematical object that underlies many of the methods that we will study in this course.  In this chapter, we will study the properties of the likelihood function for some simple models and data sets.  We will see that the likelihood can be used to generate parameter estimates and associated measures of uncertainty (e.g., standard errors and confidence intervals). For most of the methods that we study later in this course, we will use software in which someone else has written code to analyze the likelihood function; thus we won't have to worry about coding the likelihood function ourselves.  However, it is helpful to know how to derive and analyze a likelihood function when needed, because likelihood analysis is flexible and can often be applied in specialized situations where code for a specific analysis may not already exist.
 
-Suppose we observe a single observation from a Poisson distribution.  Suppose that observation is $X=2$.  We can use the `dpois` function to evaluate the likelihood for this single observation.  For example, we can evaluate the likelihood at $\lambda = 1.5$:
+## Mathematical basics
+
+The mathematical expression for a likelihood function is identical to the mathematical expression that one would use to find the probability mass or density associated with a particular value of a random variable.  For example, suppose that we have a very simple data set that consists of only one observation from a Poisson distribution.  Let $X$ denote the value of the single data point, and let $\lambda$ denote the parameter of the Poisson distribution.  In a probability class, we learn that we can find the probability mass associated with any particular value of $X$ using the formula
+\[
+\Pr{X=x; \lambda} = \dfrac{e^{-\lambda} \lambda^x}{x!}.
+\]
+In R, we can access this probability mass function using the `dpois` function.  For example, if we wanted to find the probability mass associated with $X=1$ when $\lambda = 1.5$, we could use
+
+```r
+dpois(x = 1, lambda = 1.5)
+```
+
+```
+## [1] 0.3346952
+```
+
+In likelihood analysis, we use the same mathematical expression for the probability mass function (pmf) of a data set, but we change our perspective.  Instead of regarding the parameter as a known quantity and computing the probability associated with various possible values for the data, in likelihood analysis we regard the data as the known quantity and evaluate the same mathematical expression for different parameter values.  In notation, this logic translates into an expression that we can write as
+\[
+\L{\lambda; x} = \Pr{X=x; \lambda}.
+\]
+where we have used $\L{\lambda; x}$ to denote the likelihood function for $\lambda$ when we have a data set with value $x$.  The expression above seems strange, because nothing seems to be happening; we are simply taking the same mathematical expression and calling it two different things depending on the context.  But that is all there is to it, at least with regard to constructing the likelihood function.
+
+Because a likelihood function uses the same mathematical formulas as a probability mass function, we can use the same functions that `R` provides for computing probability masses for discretely valued data (or probability densities for continuously valued data) to compute the a likelihood function. Let's return to our simple example of observing a single observation from a Poisson distribution.  Suppose that observation is $X=2$.  We can use the `dpois` function to evaluate the likelihood for this single observation.  For example, we can evaluate the likelihood at $\lambda = 1.5$:
 
 ```r
 dpois(x = 2, lambda = 1.5)
@@ -50,9 +91,9 @@ curve(my.lhood, from = 0, to = 5,
       ylab = "Likelihood")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
 
-We might guess that the likelihood is maximized at $\lambda = 2$.  We'd be right.
+We might guess that the likelihood is maximized at $\lambda = 2$.  We'd be right, as the plot below suggests.
 
 ```r
 curve(my.lhood, from = 0, to = 5,
@@ -62,11 +103,11 @@ curve(my.lhood, from = 0, to = 5,
 abline(v = 2, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 
 ## Horse-kick data
 
-Most real data sets contain more than a single observation.  Here is a data set that we can use to illustrate maximum likelihood estimation with a single parameter.  Famously, Ladislaus van Bortkewitsch (1868 - 1931) published how many members of the Prussiam army were killed by horse kicks in each of 20 years, for each of 14 army corps.  As a caveat, these data are often used to illustrate the Poisson distribution, as we will use them.  They match the Poisson distribution more neatly than we might expect for most data sets.
+Most real data sets contain more than a single observation.  Here is a data set that we can use to illustrate maximum likelihood estimation with a single parameter.  Famously, Ladislaus van Bortkewitsch (1868 -- 1931) published how many members of the Prussian army were killed by horse kicks in each of 20 years, for each of 14 army corps.  In this analysis, we will ignore both the temporal structure and the grouping among corps and treat the data as just a simple random sample^[Recall that when we refer to a data set as a "simple random sample", we mean that the data are independent and identically distributed.  That is, they are independent draws from the same underlying probability distribution.] from a Poisson distribution with $n=280$ data points.  As a caveat, these data are often used to illustrate the Poisson distribution, as we will use them.  They match the Poisson distribution more neatly than we might expect for most data sets.
 
 First import the data.  Note that the path name used here is specific to the file directory that was used to create this file.  The path name that you use will likely differ.
 
@@ -118,7 +159,7 @@ tail(horse)
 ## 279 1893   C15      0
 ## 280 1894   C15      0
 ```
-Another useful function to keep in mind is the `str' function which tells you about the [str]ucture of an R object:
+Another useful function to keep in mind is the `str` function which tells you about the [str]ucture of an R object:
 
 ```r
 str(horse)
@@ -140,11 +181,11 @@ hist(horse$deaths,
                   by = 1))
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
 
 ### Calculate and plot the log-likelihood function
 
-Create a function that calculates the log-likelihood for a value of $\lambda$:
+Let's create a function that calculates the log-likelihood for a value of $\lambda$:
 
 
 ```r
@@ -187,7 +228,7 @@ plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "log likelihood", type = "l"
 abline(v = 0.7, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-15-1.png" width="672" />
 
 ### Find the MLE numerically using 'optimize'
 
@@ -266,7 +307,7 @@ Out of curiosity, let's make a scatterplot of the titer vs.\ the day
 with(myxo, plot(titer ~ day))
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
 For the sake of this example, we will ignore the apparent (and unsurprising) relationship between titer and day, and instead will consider only the titer data.  We will regard these data as a random sample from a normal distribution.  For the sake of illustration, we will estimate the mean and variance of the normal distribution using the `optim` function in R.
 
@@ -381,7 +422,7 @@ plot(rep(m.vals, length(v.vals)), rep(v.vals, rep(length(m.vals), length(v.vals)
      ylab = expression(sigma^2))
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
 Now we will define the matrix that will store the values of the log-likelihood for each combination of $\mu$ and $\sigma^2$ in the lattice shown above.
 
@@ -409,7 +450,7 @@ contour(x = m.vals, y = v.vals, z = ll.vals, nlevels = 100,
 points(x = myxo.mle$par[1], y = myxo.mle$par[2], col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-31-1.png" width="672" />
 
 ## Tadpole data
 
@@ -461,7 +502,7 @@ head(frog)
 plot(Killed ~ Initial, data = frog)
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-33-1.png" width="672" />
 
 Following Bolker, we'll assume that the number of individuals killed takes a binomial distribution, where the number of trials equals the initial tadpole density, and the probability that a tadpole is killed is given by the expression
 $$
@@ -535,7 +576,7 @@ pred.values <- a.mle * init.values / (1 + a.mle * h.mle * init.values)
 lines(x = init.values, y = pred.values, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 
 Finally, we'll plot the likelihood contours.
 
@@ -559,6 +600,6 @@ contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
 points(x = a.mle, y = h.mle, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 Note that, in contrast to the Myxomatosis data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes.  We'll reflect on the implications of this shape in the next section.
