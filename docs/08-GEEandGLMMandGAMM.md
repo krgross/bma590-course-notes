@@ -311,7 +311,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3187956
+## [1] 0.3188204
 ```
 
 ```r
@@ -345,7 +345,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3502785
+## [1] 0.3505095
 ```
 
 ```r
@@ -432,7 +432,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpKSD88R/model43404a615f4a.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpMTJOiA/model2fd84f5416cb.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
@@ -612,13 +612,7 @@ B_{ijk} & \sim \mathcal{N}(0, \sigma^2_B) \\
 ```r
 require(lme4)
 require(lattice)
-```
 
-```
-## Loading required package: lattice
-```
-
-```r
 tick <- read.table("data/tick.txt", head = T)
 
 names(tick) <- c("index", "ticks", "brood", "elevation", "yr", "loc")
@@ -836,32 +830,6 @@ We will fit a model that is the sum of two splines: a cyclic spine to capture th
 
 ```r
 require(mgcv)
-```
-
-```
-## Loading required package: mgcv
-```
-
-```
-## Loading required package: nlme
-```
-
-```
-## 
-## Attaching package: 'nlme'
-```
-
-```
-## The following object is masked from 'package:lme4':
-## 
-##     lmList
-```
-
-```
-## This is mgcv 1.8-42. For overview type 'help("mgcv-package")'.
-```
-
-```r
 fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
 ```
 

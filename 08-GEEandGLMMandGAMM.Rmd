@@ -175,7 +175,7 @@ We now fit the model using JAGS and vague priors.
 require(R2jags)
 ```
 
-```{r results = 'hide'}
+```{r results = 'hide', cache = TRUE}
 moth.model <- function() {
    
    for (j in 1:J) {             # J = number of data points
@@ -400,7 +400,7 @@ summary(fm1)
 
 We can have a look at the profile confidence intervals and profile confidence regions for each of the model parameters.
 
-```{r}
+```{r cache = TRUE}
 pp <- profile(fm1)
 
 confint(pp)
@@ -496,7 +496,7 @@ with(rdu, plot(temp ~ time, type = "l", xlab = "day"))
 
 We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature.  We also include an AR(1) structure on the errors.  The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so.  Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.
 
-```{r}
+```{r cache = TRUE}
 require(mgcv)
 fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
 ```
@@ -549,7 +549,7 @@ plot(fm4$gam)
 
 Our best fitting model continues to contain a linear association between elevation and tick abundance.  Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.
 
-```{r}
+```{r cache = TRUE}
 fm5  <- gam(ticks ~ yr + s(elev.z), 
               family = "poisson",
               data = tick)

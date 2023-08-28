@@ -177,7 +177,7 @@ prior_summary(fm5)
 ```
 
 `rstanarm` parameterizes the normal distribution by its mean and standard deviation.  Thus, the prior for the slope has a mean of 0 and standard deviation of 2.5.  (I think: I don't yet understand the difference between the 'specified prior' and the 'adjusted prior'.)  This relatively strong prior reflects the views of the developers of `rstanarm`, who think there is benefit to shrinking most estimated effects slightly towards 0.  If we want to override this default and use weaker priors, we can do so as follows.  
-```{r results = 'hide'}
+```{r results = 'hide', cache = TRUE}
 fm5 <- stan_glm(matings ~ age, 
                 family = poisson(link = "identity"), 
                 data   = elephant,
@@ -255,7 +255,7 @@ pp_check(fm5, plotfun = "stat", stat = "sd", binwidth = .1)
 
 We can also code the model up directly in JAGS.  Notice that the code here is barely more complicated than OLS regression.  The code below shows the JAGS implementation of the elephant GLM with a Poisson distribution for the response and a log link.
 
-```{r results = 'hide'}
+```{r results = 'hide', cache = TRUE}
 require(R2jags)
 
 elephant.model <- function() {
@@ -347,7 +347,7 @@ y_i & \sim \mathrm{Pois}(\mu_i)\\
 \end{align*}
 
 Priors on $a$, $b$, and $\sigma^2_\eta$ would complete the Bayesian specification.  Implemeting the model in JAGS is straightforward:
-```{r results = 'hide'}
+```{r results = 'hide', cache = TRUE}
 elephant.model.2 <- function() {
    
    for (j in 1:J) {             # J = number of data points

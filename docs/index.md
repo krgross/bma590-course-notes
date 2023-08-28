@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2023-08-23"
+date: "2023-08-28"
 output: 
   bookdown::gitbook:
     config:
@@ -185,6 +185,27 @@ hist(horse$deaths,
 
 ### Calculate and plot the log-likelihood function
 
+The first step in likelihood analysis is to construct the likelihood function.  The likelihood function is given by the same mathematical expression as the expression for the joint probability mass function of the data.  This joint pmf should follow from our probability model for the data.
+
+In this case, we will assume that the data are an iid sample from a Poisson distribution with parameter $\lambda$.  Denoting the random sample as $X_1, X_2, \ldots, X_n$, we might write this model as
+\[
+X_i \stackrel{\text{iid}}{\sim} \mathrm{Pois}(\lambda).
+\]
+To make the notation a bit easier, we'll write the entire data set as a vector $\mathbf{X} = \left[ X_1  \;  X_2 \; \cdots \;  X_n\right]^T$, where we use uppercase $\mathbf{X}$ to denote the unobserved random vector and lowercase $\mathbf{x}$ to denote a single realization of $\mathbf{X}$.  The likelihood function is then given by
+\begin{align}
+\mathcal{L}(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
+& = \Pr{X_1 = x_1, X_2 = x_2, \ldots X_n = x_n; \lambda} \\
+& = \Pr{X_1 = x_1; \lambda} \times \Pr{X_2 = x_2; \lambda} \times \cdots \times \Pr{X_n = x_n; \lambda} \\
+& = \prod_{i=1}^n \Pr{X_i = x_i; \lambda}.
+\end{align}
+The third equality above follows from the independence of the data points.
+
+To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\mathcal{l} = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+\begin{align}
+\mathcal{l}(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
+& = \sum_{i=1}^n \ln \Pr{X_i = x_i; \lambda}
+\end{align}
+
 Let's create a function that calculates the log-likelihood for a value of $\lambda$:
 
 
@@ -248,118 +269,95 @@ Bolker's book illustrates numerical optimization using the `optim` function.  Th
 
 The `optimize` function returns a 'list'.  A list is an R object that contains components of different types. The numerically calculated MLE is $\hat{\lambda} \approx 0.7$.  The 'objective' component of \texttt{horse.mle} gives the value of the log-likelihood at that point.
 
-## Myxomatosis data
+## Pulse rate data
 
-The myxomatosis data are in Bolker's library `emdbook`.  First load the library.  If the library is not found, you will first have to download and install the library on your computer, using the Packages tab in RStudio.  The call to `data` loads the particular myxomatosis data set that we want into memory.
+The data set `pulse.csv` contains the heights (in cm) and resting pulse rates (in beats per minute) of 43 graduate students at NCSU.  We will use the pulse-rate data as an example to illustrate estimating the mean and variance of a Gaussian distribution from a simple random sample.  The purpose of this example is two-fold: first, to illustrate maximum-likelihood estimation with more than one parameter, and second, to illustrate an important result about the MLE of the variance for normally distributed data. 
+
+<!-- The myxomatosis data are in Bolker's library `emdbook`.  First load the library.  If the library is not found, you will first have to download and install the library on your computer, using the Packages tab in RStudio.  The call to `data` loads the particular myxomatosis data set that we want into memory. -->
 
 ```r
-library(emdbook)
-data(MyxoTiter_sum)
+pulse <- read.csv("data/pulse.csv", head = T)
 ```
 Inspect the data to make sure they have been imported correctly.
 
 ```r
-summary(MyxoTiter_sum)
+summary(pulse)
 ```
 
 ```
-##      grade            day             titer      
-##  Min.   :1.000   Min.   : 2.000   Min.   :1.958  
-##  1st Qu.:3.000   1st Qu.: 4.000   1st Qu.:5.400  
-##  Median :4.000   Median : 8.000   Median :6.612  
-##  Mean   :3.604   Mean   : 9.564   Mean   :6.331  
-##  3rd Qu.:5.000   3rd Qu.:13.000   3rd Qu.:7.489  
-##  Max.   :5.000   Max.   :28.000   Max.   :9.021
+##      height           rate    
+##  Min.   :152.0   Min.   : 52  
+##  1st Qu.:163.0   1st Qu.: 66  
+##  Median :168.0   Median : 72  
+##  Mean   :168.2   Mean   : 72  
+##  3rd Qu.:173.0   3rd Qu.: 78  
+##  Max.   :185.0   Max.   :100
 ```
-
-```r
-head(MyxoTiter_sum)
-```
-
-```
-##   grade day titer
-## 1     1   2 5.207
-## 2     1   2 5.734
-## 3     1   2 6.613
-## 4     1   3 5.997
-## 5     1   3 6.612
-## 6     1   3 6.810
-```
-Extract the subset of the data that corresponds to the "grade 1" viral strain.
 
 ```r
-myxo <- subset(MyxoTiter_sum, grade == 1)
-summary(myxo)
+head(pulse)
 ```
 
 ```
-##      grade        day            titer      
-##  Min.   :1   Min.   :2.000   Min.   :4.196  
-##  1st Qu.:1   1st Qu.:3.500   1st Qu.:6.556  
-##  Median :1   Median :5.000   Median :7.112  
-##  Mean   :1   Mean   :5.037   Mean   :6.924  
-##  3rd Qu.:1   3rd Qu.:6.000   3rd Qu.:7.543  
-##  Max.   :1   Max.   :9.000   Max.   :8.499
+##   height rate
+## 1    152   68
+## 2    173   68
+## 3    165   82
+## 4    160   60
+## 5    168   74
+## 6    170   80
 ```
-Out of curiosity, let's make a scatterplot of the titer vs.\ the day
-
-```r
-with(myxo, plot(titer ~ day))
-```
-
-<img src="index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
-
-For the sake of this example, we will ignore the apparent (and unsurprising) relationship between titer and day, and instead will consider only the titer data.  We will regard these data as a random sample from a normal distribution.  For the sake of illustration, we will estimate the mean and variance of the normal distribution using the `optim` function in R.
+For the sake of illustration, we will estimate the mean and variance of the normal distribution using the `optim` function in R.
 
 First, we write a function to calculate the log likelihood.
 
 ```r
-myxo.ll <- function(m, v){
+pulse.ll <- function(m, v){
 
-  ll.vals <- dnorm(myxo$titer, mean = m, sd = sqrt(v), log = TRUE)
+  ll.vals <- dnorm(pulse$rate, mean = m, sd = sqrt(v), log = TRUE)
   sum(ll.vals)
 }
 ```
 Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.  (It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the {\em invarance property} of MLEs.)
 
-We can use our function to calculate the likelihood for any choice of mean and variance.  For example, let's try $\mu = 6$ and $\sigma^2 = 1$.
+We can use our function to calculate the likelihood for any choice of mean and variance.  For example, let's try $\mu = 60$ and $\sigma^2 = 100$.
 
 ```r
-myxo.ll(m = 6, v = 1)
+pulse.ll(m = 60, v = 100)
 ```
 
 ```
-## [1] -47.91229
+## [1] -189.6155
 ```
-We want to maximize the likelihood using `optim`.  Unfortuantely, `optim` is a little finicky.  To use `optim`, we have to re-write our function `myxo.ll` so that the parameters to be estimated are passed to the function as a single vector.  Also, by default, `optim` performs minimization instead of maximization.  We can change this behavior when we call `optim`.  Alternatively, we can just re-define the function to return the negative log likelihood.  
+We want to maximize the likelihood using `optim`.  Unfortuantely, `optim` is a little finicky.  To use `optim`, we have to re-write our function `pulse.ll` so that the parameters to be estimated are passed to the function as a single vector.  Also, by default, `optim` performs minimization instead of maximization.  We can change this behavior when we call `optim`.  Alternatively, we can just re-define the function to return the negative log likelihood.  
 
 ```r
-myxo.neg.ll <- function(pars){
+pulse.neg.ll <- function(pars){
 
   m <- pars[1]
   v <- pars[2]
   
-  ll.vals <- dnorm(myxo$titer, mean = m, sd = sqrt(v), log = TRUE)
+  ll.vals <- dnorm(pulse$rate, mean = m, sd = sqrt(v), log = TRUE)
   -sum(ll.vals)
 }
 ```
 Now we can use `optim`:
 
 ```r
-(myxo.mle <- optim(par = c(7, 1),  # starting values, just a ballpark guess 
-                  fn  = myxo.neg.ll))
+(pulse.mle <- optim(par = c(60, 100),  # starting values, just a ballpark guess 
+                  fn  = pulse.neg.ll))
 ```
 
 ```
 ## $par
-## [1] 6.9241029 0.8571471
+## [1] 71.99897 93.65332
 ## 
 ## $value
-## [1] 36.23228
+## [1] 158.6099
 ## 
 ## $counts
 ## function gradient 
-##       55       NA 
+##       51       NA 
 ## 
 ## $convergence
 ## [1] 0
@@ -374,14 +372,14 @@ Note that the MLE of the variance is
 Let's verify this by calculating the same quantity at the command line:
 
 ```r
-residuals <- with(myxo, titer - mean(titer))
+residuals <- with(pulse, rate - mean(rate))
 ss <- sum(residuals^2)
-n <- length(myxo$titer)
+n <- nrow(pulse)
 ss / n
 ```
 
 ```
-## [1] 0.8572684
+## [1] 93.62791
 ```
 
 Compare this to the answer given by `var`, and to the more usual calculation of the variance as
@@ -394,15 +392,15 @@ $$
 ```
 
 ```
-## [1] 0.8902403
+## [1] 95.85714
 ```
 
 ```r
-var(myxo$titer)
+var(pulse$rate)
 ```
 
 ```
-## [1] 0.8902403
+## [1] 95.85714
 ```
 
 One main take-home of this example is that when we use maximum likelihood to estimate variances for normally distributed data, the MLE is biased low.  In other words, it underestimates the true variance.  When we study hierarchical models later in the semester, we will regularly find ourselves estimating variances for normally distributed effects, and will have to deal with the consequences of the fact that the MLEs of these variances are biased low.
@@ -410,19 +408,16 @@ One main take-home of this example is that when we use maximum likelihood to est
 For models with 2 parameters, we can visualize the likelihood surface with a contour plot.  To do so, the first step is to define a lattice of values at which we want to calculate the log-likelihood.  We'll do so by defining vectors for $\mu$ and $\sigma^2$:
 
 ```r
-m.vals <- seq(from = 6, to = 8, by = 0.05)
-v.vals <- seq(from = 0.3, to = 2.5, by = 0.05)
+m.vals <- seq(from = 60, to = 80, by = 0.5)
+v.vals <- seq(from = 70, to = 125, by = 0.5)
 ```
 
-Here is some fancy R code that shows this lattice.  Don't worry about how this plot is created, as it isn't critical for what follows.
-
-```r
-plot(rep(m.vals, length(v.vals)), rep(v.vals, rep(length(m.vals), length(v.vals))),
-     xlab = expression(mu),
-     ylab = expression(sigma^2))
-```
-
-<img src="index_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+<!-- Here is some fancy R code that shows this lattice.  Don't worry about how this plot is created, as it isn't critical for what follows. -->
+<!-- ```{r} -->
+<!-- plot(rep(m.vals, length(v.vals)), rep(v.vals, rep(length(m.vals), length(v.vals))), -->
+<!--      xlab = expression(mu), -->
+<!--      ylab = expression(sigma^2)) -->
+<!-- ``` -->
 
 Now we will define the matrix that will store the values of the log-likelihood for each combination of $\mu$ and $\sigma^2$ in the lattice shown above.
 
@@ -435,7 +430,7 @@ Next, we will write a nested loop that cycles through the lattice points, calcul
 ```r
 for (i.m in 1:length(m.vals)) {
   for(i.v in 1:length(v.vals)) {
-    ll.vals[i.m, i.v] <- myxo.ll(m = m.vals[i.m], v = v.vals[i.v])
+    ll.vals[i.m, i.v] <- pulse.ll(m = m.vals[i.m], v = v.vals[i.v])
   }
 }
 ```
@@ -447,10 +442,10 @@ contour(x = m.vals, y = v.vals, z = ll.vals, nlevels = 100,
         xlab = expression(mu), ylab = expression(sigma^2))
 
 # show the MLE
-points(x = myxo.mle$par[1], y = myxo.mle$par[2], col = "red")
+points(x = pulse.mle$par[1], y = pulse.mle$par[2], col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
 ## Tadpole data
 
@@ -502,7 +497,7 @@ head(frog)
 plot(Killed ~ Initial, data = frog)
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 Following Bolker, we'll assume that the number of individuals killed takes a binomial distribution, where the number of trials equals the initial tadpole density, and the probability that a tadpole is killed is given by the expression
 $$
@@ -576,7 +571,7 @@ pred.values <- a.mle * init.values / (1 + a.mle * h.mle * init.values)
 lines(x = init.values, y = pred.values, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-33-1.png" width="672" />
 
 Finally, we'll plot the likelihood contours.
 
@@ -600,6 +595,6 @@ contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
 points(x = a.mle, y = h.mle, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-34-1.png" width="672" />
 
 Note that, in contrast to the Myxomatosis data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes.  We'll reflect on the implications of this shape in the next section.
