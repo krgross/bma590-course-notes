@@ -496,8 +496,10 @@ with(rdu, plot(temp ~ time, type = "l", xlab = "day"))
 
 We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature.  We also include an AR(1) structure on the errors.  The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so.  Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.
 
-```{r cache = TRUE}
+```{r}
 require(mgcv)
+```
+```{r cache = TRUE}
 fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
 ```
 

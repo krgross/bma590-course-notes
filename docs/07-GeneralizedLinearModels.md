@@ -490,7 +490,6 @@ pp_check(fm5, plotfun = "stat", stat = "sd", binwidth = .1)
 
 We can also code the model up directly in JAGS.  Notice that the code here is barely more complicated than OLS regression.  The code below shows the JAGS implementation of the elephant GLM with a Poisson distribution for the response and a log link.
 
-
 ```r
 require(R2jags)
 ```
@@ -525,6 +524,7 @@ require(R2jags)
 ## 
 ##     traceplot
 ```
+
 
 ```r
 elephant.model <- function() {
@@ -626,7 +626,7 @@ curve(my.fit,
       add  = TRUE)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-23-1.png" width="672" />
 
 Suppose we wanted to fit this model using JAGS with the identity link, so that the relationship between mean matings and age was linear.  To do so, we would have to be careful, because we would have to make sure that the MCMC sampler did not stray into regions that generated negative values for the observation-level mean, $\mu$.  Mathematically, we simply want to construct a likelihood that evaluates to 0 whenever $\mu \leq 0$.  However, as of this writing, I haven't figured out what the best approach is for implementing such a model in JAGS.
 
@@ -753,7 +753,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp8WpoI3/model60e85aa8db.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpywblRj/model62a8671b38a3.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -774,7 +774,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp8WpoI3/model60e8607e7fb2.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpywblRj/model62a83a311810.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -888,7 +888,7 @@ lines(x   = new.data$length,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-29-1.png" width="672" />
 
 Regression coefficients in logistic regression can be a bit hard to interpret.  One interpretation flows from exponentiating the regression coefficient to obtain an odds ratio.  For the boar data, the regression coefficient of 0.0335 corresponds to an odds ratio of $e^{0.0335}$ = 1.034.  This means that for two boars that differ by one cm in length, the larger boar's odds of having a TB-like lesion will be 1.034 times the smaller boar's odds of having such a lesion.  
 
@@ -931,7 +931,7 @@ legend("left",
        pch = 16)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-29-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 The logit and probit links are nearly identical.  The complementary log-log link differs slightly, but the logit link is AIC-best.
 
@@ -1122,7 +1122,7 @@ plot(x = moth$distance,
 abline(h = 0, lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 The plot of the residuals suggests that we should include a random effect for the sampling station.  This makes complete sense.  The data for the two color morphs at each station share whatever other characteristics make the station unique, and are thus correlated.  To account for this correlation, we need to introduce a random effect for the station.  This again gets us into the world of generalized linear mixed models.  Before proceeding, we'll write the model down.  Let $i=1,2$ index the two color morphs, and let $j = 1, \ldots, 7$ index the stations.  Let $y_{ij}$ be the number of moths removed, let $n_{ij}$ be the number of moths placed, and let $x_j$ be the distance of the station from Liverpool.  We wish to fit the model
 \begin{align*}
@@ -1193,7 +1193,7 @@ with(corbet, barplot(species, names = ofreq,
                      ylab = "frequency"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 We will fit a zero-truncated negative binomial distribution to these data, and compare the fitted zero-truncated distribution to the data.
 
@@ -1286,7 +1286,7 @@ mtext("length", side = 1, outer = T, line = 2)
 mtext("parasite intensity", side = 2, outer = T, line = 5, las = 0)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-40-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-41-1.png" width="672" />
 
 With ZI models, one can use separate model combinations of predictors for the two components.  Indeed, if we think of the two components as capturing two different natural processes, then there is no reason that the predictors should have the same affect on both components.  Following Zuur et al., however, we will start with a ZINB model that includes length, year, area, and an interaction between year and area for both components.  Because both components are generalized linear models, both include a link function.  Here, we will use the default logit link for the zero-inflation component and log link for the count component.
 
@@ -1474,7 +1474,7 @@ mtext("length", side = 1, outer = T, line = 2)
 mtext("parasite intensity", side = 2, outer = T, line = 6, las = 0)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-45-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-46-1.png" width="672" />
 
 ### Zero-altered, or "hurdle", models
 
@@ -1590,7 +1590,7 @@ head(coral)
 with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-47-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-48-1.png" width="672" />
 
 We fit a GAM with a binomial response, logit link, and use a smoothing spline to capture the relationship between log size and (the log odds of) mortality.  Recall that a smoothing spline determines the degree of smoothness by generalized cross-validation.
 
@@ -1657,7 +1657,7 @@ lines(x.vals, inv.logit(fm2.fit$fit + 1.96 * fm2.fit$se.fit), col = "red", lty =
 lines(x.vals, inv.logit(fm2.fit$fit - 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-48-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-49-1.png" width="672" />
 
 ```r
 AIC(fm1, fm2)

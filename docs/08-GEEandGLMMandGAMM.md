@@ -311,7 +311,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3188204
+## [1] 0.3187889
 ```
 
 ```r
@@ -345,7 +345,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3505095
+## [1] 0.3501211
 ```
 
 ```r
@@ -612,7 +612,13 @@ B_{ijk} & \sim \mathcal{N}(0, \sigma^2_B) \\
 ```r
 require(lme4)
 require(lattice)
+```
 
+```
+## Loading required package: lattice
+```
+
+```r
 tick <- read.table("data/tick.txt", head = T)
 
 names(tick) <- c("index", "ticks", "brood", "elevation", "yr", "loc")
@@ -830,6 +836,32 @@ We will fit a model that is the sum of two splines: a cyclic spine to capture th
 
 ```r
 require(mgcv)
+```
+
+```
+## Loading required package: mgcv
+```
+
+```
+## Loading required package: nlme
+```
+
+```
+## 
+## Attaching package: 'nlme'
+```
+
+```
+## The following object is masked from 'package:lme4':
+## 
+##     lmList
+```
+
+```
+## This is mgcv 1.8-42. For overview type 'help("mgcv-package")'.
+```
+
+```r
 fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
 ```
 
@@ -918,7 +950,7 @@ summary(fm1$gam)
 plot(fm1$gam)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-2.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-30-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-30-2.png" width="672" />
 
 Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down.  Fall in the Piedmont is ever fleeting.
 
@@ -981,13 +1013,13 @@ fm1a <- gam(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu)
 plot(fm1a)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 ```r
 abline(h = 0, col = "red")
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-2.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-2.png" width="672" />
 
 Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both indicate overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
 
@@ -1014,22 +1046,22 @@ summary(fm4$mer)
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -1.6123 -0.5536 -0.1486  0.2850  2.4430 
+## -1.6123 -0.5536 -0.1486  0.2849  2.4430 
 ## 
 ## Random effects:
 ##  Groups Name        Variance  Std.Dev. 
-##  index  (Intercept) 2.932e-01 0.5415102
-##  brood  (Intercept) 5.626e-01 0.7500340
-##  loc    (Intercept) 2.795e-01 0.5287104
-##  Xr     s(elev.z)   7.387e-08 0.0002718
+##  index  (Intercept) 2.932e-01 0.5415175
+##  brood  (Intercept) 5.625e-01 0.7499952
+##  loc    (Intercept) 2.796e-01 0.5287786
+##  Xr     s(elev.z)   1.359e-08 0.0001166
 ## Number of obs: 403, groups:  index, 403; brood, 118; loc, 63; Xr, 8
 ## 
 ## Fixed effects:
 ##               Estimate Std. Error z value Pr(>|z|)    
-## X(Intercept)    0.3728     0.1964   1.899 0.057628 .  
-## Xyr96           1.1804     0.2381   4.957 7.15e-07 ***
-## Xyr97          -0.9787     0.2628  -3.725 0.000196 ***
-## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.83e-12 ***
+## X(Intercept)    0.3727     0.1964   1.898 0.057694 .  
+## Xyr96           1.1805     0.2381   4.958 7.14e-07 ***
+## Xyr97          -0.9787     0.2628  -3.724 0.000196 ***
+## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.84e-12 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -1054,8 +1086,8 @@ summary(fm4$gam)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)   0.3728     0.1904   1.958 0.050221 .  
-## yr96          1.1804     0.2356   5.010 5.45e-07 ***
+## (Intercept)   0.3727     0.1904   1.958 0.050278 .  
+## yr96          1.1805     0.2356   5.010 5.44e-07 ***
 ## yr97         -0.9787     0.2630  -3.722 0.000198 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1074,7 +1106,7 @@ summary(fm4$gam)
 plot(fm4$gam)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" />
 
 Our best fitting model continues to contain a linear association between elevation and tick abundance.  Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.
 
@@ -1087,4 +1119,4 @@ fm5  <- gam(ticks ~ yr + s(elev.z),
 plot(fm5)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-34-1.png" width="672" />

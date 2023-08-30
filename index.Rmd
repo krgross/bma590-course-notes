@@ -15,11 +15,11 @@ documentclass: book
 bibliography: [bma590.bib]
 biblio-style: apalike
 link-citations: yes
-description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021."
+description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023."
 ---
 
 \renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
-\newcommand{\L}[1]{\mathcal{L}\!\left(#1\right)}
+\newcommand{\L}[1]{\ell\!\left(#1\right)}
 \newcommand{\vecy}{\mathbf{Y}}
 \newcommand{\vecyhat}{\mathbf{\hat{Y}}}
 \newcommand{\X}{\mathbf{X}}
@@ -126,19 +126,19 @@ In this case, we will assume that the data are an iid sample from a Poisson dist
 X_i \stackrel{\text{iid}}{\sim} \mathrm{Pois}(\lambda).
 \]
 To make the notation a bit easier, we'll write the entire data set as a vector $\mathbf{X} = \left[ X_1  \;  X_2 \; \cdots \;  X_n\right]^T$, where we use uppercase $\mathbf{X}$ to denote the unobserved random vector and lowercase $\mathbf{x}$ to denote a single realization of $\mathbf{X}$.  The likelihood function is then given by
-\begin{align}
-\mathcal{L}(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
+\begin{align*}
+\ell(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
 & = \Pr{X_1 = x_1, X_2 = x_2, \ldots X_n = x_n; \lambda} \\
 & = \Pr{X_1 = x_1; \lambda} \times \Pr{X_2 = x_2; \lambda} \times \cdots \times \Pr{X_n = x_n; \lambda} \\
 & = \prod_{i=1}^n \Pr{X_i = x_i; \lambda}.
-\end{align}
+\end{align*}
 The third equality above follows from the independence of the data points.
 
-To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\mathcal{l} = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
-\begin{align}
-\mathcal{l}(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
+To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \ell$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+\begin{align*}
+\ell(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
 & = \sum_{i=1}^n \ln \Pr{X_i = x_i; \lambda}
-\end{align}
+\end{align*}
 
 Let's create a function that calculates the log-likelihood for a value of $\lambda$:
 
@@ -290,7 +290,7 @@ points(x = pulse.mle$par[1], y = pulse.mle$par[2], col = "red")
 
 ## Tadpole data
 
-Finally, we'll take a look at the data from the functional response experiment of Vonesh \& Bolker (2005), described in section 6.3.1.1 of Bolker's book.  This is another example of using likelihood to estimate parameters in a two-parameter model.  This example differs from the previous two examples because we won't assume that the data constitute a simple random sample from some known distribution like the Gaussian or Poisson distribution.  Instead, we'll build a somewhat more customized model for these data that incorporates some ecological ideas.  This process of building a customized model is more typical of how one would analyze a "real" data set.  We'll start by using the `rm` command to clean up the workspace.
+Finally, we'll take a look at the data from the functional response experiment of @vonesh2005compensatory, described in section 6.3.1.1 of Bolker's book.  This is another example of using likelihood to estimate parameters in a two-parameter model.  This example differs from the previous two examples because we won't assume that the data constitute a simple random sample from some known distribution like the Gaussian or Poisson distribution.  Instead, we'll build a somewhat more customized model for these data that incorporates some ecological ideas.  This process of building a customized model is more typical of how one would analyze a "real" data set.  We'll start by using the `rm` command to clean up the workspace.
 ```{r}
 rm(list = ls())
 ```
@@ -313,9 +313,15 @@ plot(Killed ~ Initial, data = frog)
 
 Following Bolker, we'll assume that the number of individuals killed takes a binomial distribution, where the number of trials equals the initial tadpole density, and the probability that a tadpole is killed is given by the expression
 $$
-p_i = \dfrac{a}{1 + a h N_i}
+p_i = \dfrac{a}{1 + a h N_i}.
 $$
-The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  We'll first construct the negative log-likelihood function.
+The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  If we write the number of individuals killed in each trial as $Y_i$, The full model can then be written as 
+\begin{align*}
+Y_i & \sim \mathrm{Binom}\left(p_i, N_i \right) \\
+p_i & = \dfrac{a}{1 + a h N_i}.
+\end{align*}
+
+We'll first construct the negative log-likelihood function.
 ```{r}
 # negative log-likelihood, for use with optim
 
@@ -336,15 +342,16 @@ Now we'll find the MLE using `optim`
 ```{r}
 (frog.mle <- optim(par = c(0.5, 1/40),
                    fn  = frog.neg.ll))
-
-# note the warnings
-
-a.mle <- frog.mle$par[1]
-h.mle <- frog.mle$par[2]
 ```
+Why did this code produce warnings?  Should we care?
+
+Let's extract the MLEs and add a fitted to our data plot.
 
 We'll plot the data and overlay a fitted line.
 ```{r}
+a.mle <- frog.mle$par[1]
+h.mle <- frog.mle$par[2]
+
 # add a line to our plot to show the fitted curve
 
 plot(Killed ~ Initial, data = frog)
@@ -376,4 +383,4 @@ contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
 points(x = a.mle, y = h.mle, col = "red")
 ```
 
-Note that, in contrast to the Myxomatosis data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes.  We'll reflect on the implications of this shape in the next section.
+Note that, in contrast to the pulse-rate data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes.  We'll reflect on the implications of this shape in the next section.

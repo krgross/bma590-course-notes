@@ -254,10 +254,11 @@ pp_check(fm5, plotfun = "stat", stat = "sd", binwidth = .1)
 ### JAGS
 
 We can also code the model up directly in JAGS.  Notice that the code here is barely more complicated than OLS regression.  The code below shows the JAGS implementation of the elephant GLM with a Poisson distribution for the response and a log link.
+```{r}
+require(R2jags)
+```
 
 ```{r results = 'hide', cache = TRUE}
-require(R2jags)
-
 elephant.model <- function() {
    
    for (j in 1:J) {             # J = number of data points
