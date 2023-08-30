@@ -315,7 +315,9 @@ Following Bolker, we'll assume that the number of individuals killed takes a bin
 $$
 p_i = \dfrac{a}{1 + a h N_i}.
 $$
-The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  If we write the number of individuals killed in each trial as $Y_i$, The full model can then be written as 
+The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  This model is motivated by the so-called "Type II" functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows.  In this case, using the Type II functional curve for these data is a pedagogical simplification; as @vonesh2005compensatory observe, Holling's functional responses give the predation rate when the prey density is constant.  However, this experiment ran for two weeks and prey densities declined over the course of the experiment. A more appropriate analysis, and one that @vonesh2005compensatory pursue in their paper, takes account of the declining prey densities.  For the purposes of this example, though, we'll ignore this aspect of the analysis (as @bolker2008 does) and fit the data assuming that the probability of predation is given by the Type II functional response.
+
+If we write the number of individuals killed in each trial as $Y_i$, The full model can then be written as 
 \begin{align*}
 Y_i & \sim \mathrm{Binom}\left(p_i, N_i \right) \\
 p_i & = \dfrac{a}{1 + a h N_i}.

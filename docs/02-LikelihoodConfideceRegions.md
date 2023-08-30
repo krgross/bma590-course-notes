@@ -8,12 +8,6 @@ First we'll read in the data and recreate the negative log likelihood function.
 
 
 ```r
-#################
-## Preparation
-################
-
-# read in the data
-
 horse <- read.table("data/horse.txt", header = TRUE)
 
 horse.neg.ll <- function(my.lambda) {
@@ -37,7 +31,7 @@ plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "negative log likelihood", t
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-1-1.png" width="672" />
 
-Now we'll find the a (asymptotic) 95\% confidence interval for $\lambda$ directly.
+To find an asymptotic confidence interval for $\lambda$ with confidence level $100 \times (1-\alpha)\%$, we want to find all the values of $\lambda$ for which the negative log-likelihood is no greater than $\frac{1}{2}\chi^2_1(1-\alpha)$ larger than the negative log-likelihood at the MLE.^[See $\S$6.4.1.1 to see how this follows from a result about the likelihood ratio.]  (In other words, if we think about the negative log likelihood as quantifying the "badness of fit", as Bolker suggests, then we want to find all values of $\lambda$ that give a fit that is no more than $\frac{1}{2}\chi^2_1(1-\alpha)$ worse than the fit at the MLE.)  By $\chi^2_1(1-\alpha)$, we mean $1-\alpha$ quantile of a $\chi^2_1$ distribution, which can be found with the function `qchisq` in R.  The code below uses the function `uniroot` to find the upper and lower bounds of a 95\% CI for $\lambda$.
 
 ```r
 cutoff.ll <- horse.neg.ll(0.7) + qchisq(0.95, df = 1) / 2
@@ -98,7 +92,7 @@ my.function <- function(my.lambda){
 ## [1] 6.103516e-05
 ```
 
-As an alternative programming style, we could have defined the objective function on the fly, and not bothered to create `my.function`.
+As an alternative programming style, we could have defined the objective function on the fly without bothering to create `my.function`.
 
 
 ```r
@@ -139,6 +133,8 @@ abline(v = c(lower$root, upper$root), col = "red")
 rm(list = ls())
 ```
 Thus, the 95\% CI for $\lambda$ is $(0.607, 0.803)$.
+
+There are two important caveats about the CIs constructed from the likelihood function in this way.  First, the coverage is asymptotic, which means that the actual coverage is only guaranteed to match the nominal coverage (e.g., the 95% value) in the limit as the volume of data grows large.  As Bolker (p.\ 194) notes, though, analysts use these asymptotic CIs "very freely".  Secondly, the CI is only valid if the MLE lies in the interior of its range of allowable values. (In other words, the CI isn't valid if the MLE lies at the edge of the parameter's allowable values.) We'll have to worry about this most when constructing likelihood-based CIs for variances.  To foreshadow, in mixed models we sometimes encounter a variance whose MLE is 0 --- its smallest allowable value.  In those case, we'll have to modify the method detailed here to get a valid CI.
 
 ## Confidence regions, profile likelihoods, and associated univariate intervals{#two-param-mle}
 

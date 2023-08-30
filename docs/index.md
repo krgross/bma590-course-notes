@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2023-08-28"
+date: "2023-08-30"
 output: 
   bookdown::gitbook:
     config:
@@ -15,11 +15,11 @@ documentclass: book
 bibliography: [bma590.bib]
 biblio-style: apalike
 link-citations: yes
-description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021."
+description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023."
 ---
 
 \renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
-\newcommand{\L}[1]{\mathcal{L}\!\left(#1\right)}
+\newcommand{\L}[1]{\ell\!\left(#1\right)}
 \newcommand{\vecy}{\mathbf{Y}}
 \newcommand{\vecyhat}{\mathbf{\hat{Y}}}
 \newcommand{\X}{\mathbf{X}}
@@ -193,16 +193,16 @@ X_i \stackrel{\text{iid}}{\sim} \mathrm{Pois}(\lambda).
 \]
 To make the notation a bit easier, we'll write the entire data set as a vector $\mathbf{X} = \left[ X_1  \;  X_2 \; \cdots \;  X_n\right]^T$, where we use uppercase $\mathbf{X}$ to denote the unobserved random vector and lowercase $\mathbf{x}$ to denote a single realization of $\mathbf{X}$.  The likelihood function is then given by
 \begin{align*}
-\mathcal{L}(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
+\ell(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
 & = \Pr{X_1 = x_1, X_2 = x_2, \ldots X_n = x_n; \lambda} \\
 & = \Pr{X_1 = x_1; \lambda} \times \Pr{X_2 = x_2; \lambda} \times \cdots \times \Pr{X_n = x_n; \lambda} \\
 & = \prod_{i=1}^n \Pr{X_i = x_i; \lambda}.
 \end{align*}
 The third equality above follows from the independence of the data points.
 
-To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\mathcal{l} = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \ell$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
 \begin{align*}
-\mathcal{l}(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
+\ell(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
 & = \sum_{i=1}^n \ln \Pr{X_i = x_i; \lambda}
 \end{align*}
 
@@ -503,7 +503,9 @@ Following Bolker, we'll assume that the number of individuals killed takes a bin
 $$
 p_i = \dfrac{a}{1 + a h N_i}.
 $$
-The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  If we write the number of individuals killed in each trial as $Y_i$, The full model can then be written as 
+The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  This model is motivated by the so-called "Type II" functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows.  In this case, using the Type II functional curve for these data is a pedagogical simplification; as @vonesh2005compensatory observe, Holling's functional responses give the predation rate when the prey density is constant.  However, this experiment ran for two weeks and prey densities declined over the course of the experiment. A more appropriate analysis, and one that @vonesh2005compensatory pursue in their paper, takes account of the declining prey densities.  For the purposes of this example, though, we'll ignore this aspect of the analysis (as @bolker2008 does) and fit the data assuming that the probability of predation is given by the Type II functional response.
+
+If we write the number of individuals killed in each trial as $Y_i$, The full model can then be written as 
 \begin{align*}
 Y_i & \sim \mathrm{Binom}\left(p_i, N_i \right) \\
 p_i & = \dfrac{a}{1 + a h N_i}.

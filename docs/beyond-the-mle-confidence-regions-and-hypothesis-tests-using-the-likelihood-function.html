@@ -5,25 +5,25 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | BMA / ST 590 computing companion</title>
-  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | BMA / ST 590 computing companion" />
   <meta property="og:type" content="book" />
   
-  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Chapter 2 Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function | BMA / ST 590 computing companion" />
   
-  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   
 
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-08-28" />
+<meta name="date" content="2023-08-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -277,33 +277,27 @@ div.csl-indent {
 <div id="confidence-intervals-for-single-parameters" class="section level2 hasAnchor" number="2.1">
 <h2><span class="header-section-number">2.1</span> Confidence intervals for single parameters<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#confidence-intervals-for-single-parameters" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>First we’ll read in the data and recreate the negative log likelihood function.</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="do">#################</span></span>
-<span id="cb59-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Preparation</span></span>
-<span id="cb59-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="do">################</span></span>
-<span id="cb59-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the data</span></span>
-<span id="cb59-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-7" aria-hidden="true" tabindex="-1"></a>horse <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/horse.txt&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb59-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-9" aria-hidden="true" tabindex="-1"></a>horse.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(my.lambda) {</span>
-<span id="cb59-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-10" aria-hidden="true" tabindex="-1"></a>  ll.vals <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="at">x =</span> horse<span class="sc">$</span>deaths, <span class="at">lambda =</span> my.lambda, <span class="at">log =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb59-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-11" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.vals) </span>
-<span id="cb59-12"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-1" aria-hidden="true" tabindex="-1"></a>horse <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/horse.txt&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb59-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-3" aria-hidden="true" tabindex="-1"></a>horse.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(my.lambda) {</span>
+<span id="cb59-4"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-4" aria-hidden="true" tabindex="-1"></a>  ll.vals <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="at">x =</span> horse<span class="sc">$</span>deaths, <span class="at">lambda =</span> my.lambda, <span class="at">log =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb59-5"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-5" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.vals) </span>
+<span id="cb59-6"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb59-7"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-8"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-8" aria-hidden="true" tabindex="-1"></a><span class="co"># create a vector of lambda values using the &#39;seq&#39;uence command</span></span>
+<span id="cb59-9"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-9" aria-hidden="true" tabindex="-1"></a>lambda.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fl">0.5</span>, <span class="at">to =</span> <span class="fl">1.0</span>, <span class="at">by =</span> <span class="fl">0.01</span>)</span>
+<span id="cb59-10"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-11"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-11" aria-hidden="true" tabindex="-1"></a><span class="co"># create an empty vector to store the values of the log-likelihood</span></span>
+<span id="cb59-12"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-12" aria-hidden="true" tabindex="-1"></a>ll.vals <span class="ot">&lt;-</span> <span class="fu">double</span>(<span class="at">length =</span> <span class="fu">length</span>(lambda.vals))</span>
 <span id="cb59-13"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-14"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-14" aria-hidden="true" tabindex="-1"></a><span class="co"># create a vector of lambda values using the &#39;seq&#39;uence command</span></span>
-<span id="cb59-15"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-15" aria-hidden="true" tabindex="-1"></a>lambda.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fl">0.5</span>, <span class="at">to =</span> <span class="fl">1.0</span>, <span class="at">by =</span> <span class="fl">0.01</span>)</span>
-<span id="cb59-16"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-17"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-17" aria-hidden="true" tabindex="-1"></a><span class="co"># create an empty vector to store the values of the log-likelihood</span></span>
-<span id="cb59-18"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-18" aria-hidden="true" tabindex="-1"></a>ll.vals <span class="ot">&lt;-</span> <span class="fu">double</span>(<span class="at">length =</span> <span class="fu">length</span>(lambda.vals))</span>
-<span id="cb59-19"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-20"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-20" aria-hidden="true" tabindex="-1"></a><span class="co"># use a loop to find the log-likelihood for each value in lambda.vals</span></span>
-<span id="cb59-21"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i.lambda <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(lambda.vals)) {</span>
-<span id="cb59-22"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-22" aria-hidden="true" tabindex="-1"></a>  ll.vals[i.lambda] <span class="ot">&lt;-</span> <span class="fu">horse.neg.ll</span>(lambda.vals[i.lambda])</span>
-<span id="cb59-23"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb59-24"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-25"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-25" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ll.vals <span class="sc">~</span> lambda.vals, <span class="at">xlab =</span> <span class="st">&quot;lambda&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;negative log likelihood&quot;</span>, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>)</span></code></pre></div>
+<span id="cb59-14"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-14" aria-hidden="true" tabindex="-1"></a><span class="co"># use a loop to find the log-likelihood for each value in lambda.vals</span></span>
+<span id="cb59-15"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i.lambda <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(lambda.vals)) {</span>
+<span id="cb59-16"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-16" aria-hidden="true" tabindex="-1"></a>  ll.vals[i.lambda] <span class="ot">&lt;-</span> <span class="fu">horse.neg.ll</span>(lambda.vals[i.lambda])</span>
+<span id="cb59-17"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb59-18"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-19"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ll.vals <span class="sc">~</span> lambda.vals, <span class="at">xlab =</span> <span class="st">&quot;lambda&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;negative log likelihood&quot;</span>, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>)</span></code></pre></div>
 <p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<p>Now we’ll find the a (asymptotic) 95% confidence interval for <span class="math inline">\(\lambda\)</span> directly.</p>
+<p>To find an asymptotic confidence interval for <span class="math inline">\(\lambda\)</span> with confidence level <span class="math inline">\(100 \times (1-\alpha)\%\)</span>, we want to find all the values of <span class="math inline">\(\lambda\)</span> for which the negative log-likelihood is no greater than <span class="math inline">\(\frac{1}{2}\chi^2_1(1-\alpha)\)</span> larger than the negative log-likelihood at the MLE.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> (In other words, if we think about the negative log likelihood as quantifying the “badness of fit”, as Bolker suggests, then we want to find all values of <span class="math inline">\(\lambda\)</span> that give a fit that is no more than <span class="math inline">\(\frac{1}{2}\chi^2_1(1-\alpha)\)</span> worse than the fit at the MLE.) By <span class="math inline">\(\chi^2_1(1-\alpha)\)</span>, we mean <span class="math inline">\(1-\alpha\)</span> quantile of a <span class="math inline">\(\chi^2_1\)</span> distribution, which can be found with the function <code>qchisq</code> in R. The code below uses the function <code>uniroot</code> to find the upper and lower bounds of a 95% CI for <span class="math inline">\(\lambda\)</span>.</p>
 <div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb60-1" aria-hidden="true" tabindex="-1"></a>cutoff.ll <span class="ot">&lt;-</span> <span class="fu">horse.neg.ll</span>(<span class="fl">0.7</span>) <span class="sc">+</span> <span class="fu">qchisq</span>(<span class="fl">0.95</span>, <span class="at">df =</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">2</span></span>
 <span id="cb60-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb60-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="co"># recreate the plot and add a line</span></span>
@@ -347,7 +341,7 @@ div.csl-indent {
 ## 
 ## $estim.prec
 ## [1] 6.103516e-05</code></pre>
-<p>As an alternative programming style, we could have defined the objective function on the fly, and not bothered to create <code>my.function</code>.</p>
+<p>As an alternative programming style, we could have defined the objective function on the fly without bothering to create <code>my.function</code>.</p>
 <div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb65-1" aria-hidden="true" tabindex="-1"></a>(lower <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(<span class="at">f =</span> <span class="cf">function</span>(x) <span class="fu">horse.neg.ll</span>(<span class="fl">0.7</span>) <span class="sc">+</span> <span class="fu">qchisq</span>(<span class="fl">0.95</span>, <span class="at">df =</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">2</span> <span class="sc">-</span> <span class="fu">horse.neg.ll</span>(x) ,</span>
 <span id="cb65-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb65-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">interval =</span> <span class="fu">c</span>(<span class="fl">0.6</span>, <span class="fl">0.7</span>)))</span></code></pre></div>
 <pre><code>## $root
@@ -372,6 +366,7 @@ div.csl-indent {
 <div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># clean up the workspace</span></span>
 <span id="cb68-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code></pre></div>
 <p>Thus, the 95% CI for <span class="math inline">\(\lambda\)</span> is <span class="math inline">\((0.607, 0.803)\)</span>.</p>
+<p>There are two important caveats about the CIs constructed from the likelihood function in this way. First, the coverage is asymptotic, which means that the actual coverage is only guaranteed to match the nominal coverage (e.g., the 95% value) in the limit as the volume of data grows large. As Bolker (p. 194) notes, though, analysts use these asymptotic CIs “very freely”. Secondly, the CI is only valid if the MLE lies in the interior of its range of allowable values. (In other words, the CI isn’t valid if the MLE lies at the edge of the parameter’s allowable values.) We’ll have to worry about this most when constructing likelihood-based CIs for variances. To foreshadow, in mixed models we sometimes encounter a variance whose MLE is 0 — its smallest allowable value. In those case, we’ll have to modify the method detailed here to get a valid CI.</p>
 </div>
 <div id="two-param-mle" class="section level2 hasAnchor" number="2.2">
 <h2><span class="header-section-number">2.2</span> Confidence regions, profile likelihoods, and associated univariate intervals<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#two-param-mle" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -1076,6 +1071,12 @@ Thus, for fixed <span class="math inline">\(\mu\)</span>, the variance increases
 <p>Recall that the AIC value for the original fit was 2278.0. Thus the model with the alternative parameterization is considerably better by AIC.</p>
 
 </div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="2">
+<li id="fn2"><p>See $$6.4.1.1 to see how this follows from a result about the likelihood ratio.<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#fnref2" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
             </section>
 

@@ -5,25 +5,25 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>BMA / ST 590 computing companion</title>
-  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
 
   <meta property="og:title" content="BMA / ST 590 computing companion" />
   <meta property="og:type" content="book" />
   
-  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="BMA / ST 590 computing companion" />
   
-  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2021." />
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   
 
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-08-28" />
+<meta name="date" content="2023-08-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -274,7 +274,7 @@ div.csl-indent {
 <div id="header">
 <h1 class="title">BMA / ST 590 computing companion</h1>
 <p class="author"><em>Kevin Gross</em></p>
-<p class="date"><em>2023-08-28</em></p>
+<p class="date"><em>2023-08-30</em></p>
 </div>
 <div id="maximum-likelihood-estimation" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Maximum likelihood estimation<a href="index.html#maximum-likelihood-estimation" class="anchor-section" aria-label="Anchor link to header"></a></h1>
@@ -290,9 +290,9 @@ In R, we can access this probability mass function using the <code>dpois</code> 
 <pre><code>## [1] 0.3346952</code></pre>
 <p>In likelihood analysis, we use the same mathematical expression for the probability mass function (pmf) of a data set, but we change our perspective. Instead of regarding the parameter as a known quantity and computing the probability associated with various possible values for the data, in likelihood analysis we regard the data as the known quantity and evaluate the same mathematical expression for different parameter values. In notation, this logic translates into an expression that we can write as
 <span class="math display">\[
-\mathcal{L}\!\left(\lambda; x\right) = \mathrm{Pr}\!\left\{X=x; \lambda\right\}.
+\ell\!\left(\lambda; x\right) = \mathrm{Pr}\!\left\{X=x; \lambda\right\}.
 \]</span>
-where we have used <span class="math inline">\(\mathcal{L}\!\left(\lambda; x\right)\)</span> to denote the likelihood function for <span class="math inline">\(\lambda\)</span> when we have a data set with value <span class="math inline">\(x\)</span>. The expression above seems strange, because nothing seems to be happening; we are simply taking the same mathematical expression and calling it two different things depending on the context. But that is all there is to it, at least with regard to constructing the likelihood function.</p>
+where we have used <span class="math inline">\(\ell\!\left(\lambda; x\right)\)</span> to denote the likelihood function for <span class="math inline">\(\lambda\)</span> when we have a data set with value <span class="math inline">\(x\)</span>. The expression above seems strange, because nothing seems to be happening; we are simply taking the same mathematical expression and calling it two different things depending on the context. But that is all there is to it, at least with regard to constructing the likelihood function.</p>
 <p>Because a likelihood function uses the same mathematical formulas as a probability mass function, we can use the same functions that <code>R</code> provides for computing probability masses for discretely valued data (or probability densities for continuously valued data) to compute the a likelihood function. Let’s return to our simple example of observing a single observation from a Poisson distribution. Suppose that observation is <span class="math inline">\(X=2\)</span>. We can use the <code>dpois</code> function to evaluate the likelihood for this single observation. For example, we can evaluate the likelihood at <span class="math inline">\(\lambda = 1.5\)</span>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="index.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dpois</span>(<span class="at">x =</span> <span class="dv">2</span>, <span class="at">lambda =</span> <span class="fl">1.5</span>)</span></code></pre></div>
 <pre><code>## [1] 0.2510214</code></pre>
@@ -367,15 +367,15 @@ X_i \stackrel{\text{iid}}{\sim} \mathrm{Pois}(\lambda).
 \]</span>
 To make the notation a bit easier, we’ll write the entire data set as a vector <span class="math inline">\(\mathbf{X} = \left[ X_1 \; X_2 \; \cdots \; X_n\right]^T\)</span>, where we use uppercase <span class="math inline">\(\mathbf{X}\)</span> to denote the unobserved random vector and lowercase <span class="math inline">\(\mathbf{x}\)</span> to denote a single realization of <span class="math inline">\(\mathbf{X}\)</span>. The likelihood function is then given by
 <span class="math display">\[\begin{align*}
-\mathcal{L}(\lambda; \mathbf{x}) &amp; = \mathrm{Pr}\!\left\{\mathbf{X} = \mathbf{x}; \lambda\right\} \\
+\ell(\lambda; \mathbf{x}) &amp; = \mathrm{Pr}\!\left\{\mathbf{X} = \mathbf{x}; \lambda\right\} \\
 &amp; = \mathrm{Pr}\!\left\{X_1 = x_1, X_2 = x_2, \ldots X_n = x_n; \lambda\right\} \\
 &amp; = \mathrm{Pr}\!\left\{X_1 = x_1; \lambda\right\} \times \mathrm{Pr}\!\left\{X_2 = x_2; \lambda\right\} \times \cdots \times \mathrm{Pr}\!\left\{X_n = x_n; \lambda\right\} \\
 &amp; = \prod_{i=1}^n \mathrm{Pr}\!\left\{X_i = x_i; \lambda\right\}.
 \end{align*}\]</span>
 The third equality above follows from the independence of the data points.</p>
-<p>To prevent numerical underflow, we’ll work on the log-likelihood instead of the likelihood itself. Throughout these notes, we’ll use lowercase <span class="math inline">\(\mathcal{l} = \ln \mathcal{L}\)</span> to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+<p>To prevent numerical underflow, we’ll work on the log-likelihood instead of the likelihood itself. Throughout these notes, we’ll use lowercase <span class="math inline">\(\ell = \ln \ell\)</span> to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
 <span class="math display">\[\begin{align*}
-\mathcal{l}(\lambda; \mathbf{x}) &amp; = \ln \prod_{i=1}^n \mathrm{Pr}\!\left\{X_i = x_i; \lambda\right\} \\
+\ell(\lambda; \mathbf{x}) &amp; = \ln \prod_{i=1}^n \mathrm{Pr}\!\left\{X_i = x_i; \lambda\right\} \\
 &amp; = \sum_{i=1}^n \ln \mathrm{Pr}\!\left\{X_i = x_i; \lambda\right\}
 \end{align*}\]</span></p>
 <p>Let’s create a function that calculates the log-likelihood for a value of <span class="math inline">\(\lambda\)</span>:</p>
@@ -554,7 +554,8 @@ s^2 = \frac{\sum_i (x_i - \bar{x})}{n-1}.
 <span class="math display">\[
 p_i = \dfrac{a}{1 + a h N_i}.
 \]</span>
-The two parameters to estimate are <span class="math inline">\(a\)</span>, which we interpret as the attack rate when the prey density is low, and <span class="math inline">\(h\)</span>, which is the handling time. If we write the number of individuals killed in each trial as <span class="math inline">\(Y_i\)</span>, The full model can then be written as
+The two parameters to estimate are <span class="math inline">\(a\)</span>, which we interpret as the attack rate when the prey density is low, and <span class="math inline">\(h\)</span>, which is the handling time. This model is motivated by the so-called “Type II” functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows. In this case, using the Type II functional curve for these data is a pedagogical simplification; as <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory" role="doc-biblioref">2005</a>)</span> observe, Holling’s functional responses give the predation rate when the prey density is constant. However, this experiment ran for two weeks and prey densities declined over the course of the experiment. A more appropriate analysis, and one that <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory" role="doc-biblioref">2005</a>)</span> pursue in their paper, takes account of the declining prey densities. For the purposes of this example, though, we’ll ignore this aspect of the analysis (as <span class="citation">Bolker (<a href="#ref-bolker2008" role="doc-biblioref">2008</a>)</span> does) and fit the data assuming that the probability of predation is given by the Type II functional response.</p>
+<p>If we write the number of individuals killed in each trial as <span class="math inline">\(Y_i\)</span>, The full model can then be written as
 <span class="math display">\[\begin{align*}
 Y_i &amp; \sim \mathrm{Binom}\left(p_i, N_i \right) \\
 p_i &amp; = \dfrac{a}{1 + a h N_i}.
@@ -633,6 +634,9 @@ p_i &amp; = \dfrac{a}{1 + a h N_i}.
 </div>
 <h3>Bibliography<a href="bibliography.html#bibliography" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-bolker2008" class="csl-entry">
+Bolker, Benjamin M. 2008. <em>Ecological Models and Data in <span>R</span></em>. Princeton University Press.
+</div>
 <div id="ref-vonesh2005compensatory" class="csl-entry">
 Vonesh, James R, and Benjamin M Bolker. 2005. <span>“Compensatory Larval Responses Shift Trade-Offs Associated with Predator-Induced Hatching Plasticity.”</span> <em>Ecology</em> 86 (6): 1580–91.
 </div>
