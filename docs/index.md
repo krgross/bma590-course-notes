@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2023-08-30"
+date: "2023-08-31"
 output: 
   bookdown::gitbook:
     config:
@@ -19,6 +19,7 @@ description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in
 ---
 
 \renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
+\DeclareMathOperator*{\argmax}{arg\,max}
 \newcommand{\L}[1]{\ell\!\left(#1\right)}
 \newcommand{\vecy}{\mathbf{Y}}
 \newcommand{\vecyhat}{\mathbf{\hat{Y}}}

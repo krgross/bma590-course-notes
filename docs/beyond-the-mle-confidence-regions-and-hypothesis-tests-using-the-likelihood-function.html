@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-08-30" />
+<meta name="date" content="2023-08-31" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -297,7 +297,7 @@ div.csl-indent {
 <span id="cb59-18"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb59-19"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb59-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ll.vals <span class="sc">~</span> lambda.vals, <span class="at">xlab =</span> <span class="st">&quot;lambda&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;negative log likelihood&quot;</span>, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>)</span></code></pre></div>
 <p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<p>To find an asymptotic confidence interval for <span class="math inline">\(\lambda\)</span> with confidence level <span class="math inline">\(100 \times (1-\alpha)\%\)</span>, we want to find all the values of <span class="math inline">\(\lambda\)</span> for which the negative log-likelihood is no greater than <span class="math inline">\(\frac{1}{2}\chi^2_1(1-\alpha)\)</span> larger than the negative log-likelihood at the MLE.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> (In other words, if we think about the negative log likelihood as quantifying the “badness of fit”, as Bolker suggests, then we want to find all values of <span class="math inline">\(\lambda\)</span> that give a fit that is no more than <span class="math inline">\(\frac{1}{2}\chi^2_1(1-\alpha)\)</span> worse than the fit at the MLE.) By <span class="math inline">\(\chi^2_1(1-\alpha)\)</span>, we mean <span class="math inline">\(1-\alpha\)</span> quantile of a <span class="math inline">\(\chi^2_1\)</span> distribution, which can be found with the function <code>qchisq</code> in R. The code below uses the function <code>uniroot</code> to find the upper and lower bounds of a 95% CI for <span class="math inline">\(\lambda\)</span>.</p>
+<p>To find an asymptotic confidence interval for <span class="math inline">\(\lambda\)</span> with confidence level <span class="math inline">\(100 \times (1-\alpha)\%\)</span>, we want to find all the values of <span class="math inline">\(\lambda\)</span> for which the negative log-likelihood is no greater than <span class="math inline">\(\frac{1}{2}\chi^2_1(1-\alpha)\)</span> larger than the negative log-likelihood at the MLE.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> In other words, if we think about the negative log likelihood as quantifying the “badness of fit”, as Bolker suggests, then we want to find all values of <span class="math inline">\(\lambda\)</span> that give a fit that is no more than <span class="math inline">\(\frac{1}{2}\chi^2_1(1-\alpha)\)</span> worse than the fit at the MLE. By <span class="math inline">\(\chi^2_1(1-\alpha)\)</span>, we mean <span class="math inline">\(1-\alpha\)</span> quantile of a <span class="math inline">\(\chi^2_1\)</span> distribution, which can be found with the function <code>qchisq</code> in R. The code below uses the function <code>uniroot</code> to find the upper and lower bounds of a 95% CI for <span class="math inline">\(\lambda\)</span>.</p>
 <div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb60-1" aria-hidden="true" tabindex="-1"></a>cutoff.ll <span class="ot">&lt;-</span> <span class="fu">horse.neg.ll</span>(<span class="fl">0.7</span>) <span class="sc">+</span> <span class="fu">qchisq</span>(<span class="fl">0.95</span>, <span class="at">df =</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">2</span></span>
 <span id="cb60-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb60-3"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="co"># recreate the plot and add a line</span></span>
@@ -366,7 +366,23 @@ div.csl-indent {
 <div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># clean up the workspace</span></span>
 <span id="cb68-2"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code></pre></div>
 <p>Thus, the 95% CI for <span class="math inline">\(\lambda\)</span> is <span class="math inline">\((0.607, 0.803)\)</span>.</p>
-<p>There are two important caveats about the CIs constructed from the likelihood function in this way. First, the coverage is asymptotic, which means that the actual coverage is only guaranteed to match the nominal coverage (e.g., the 95% value) in the limit as the volume of data grows large. As Bolker (p. 194) notes, though, analysts use these asymptotic CIs “very freely”. Secondly, the CI is only valid if the MLE lies in the interior of its range of allowable values. (In other words, the CI isn’t valid if the MLE lies at the edge of the parameter’s allowable values.) We’ll have to worry about this most when constructing likelihood-based CIs for variances. To foreshadow, in mixed models we sometimes encounter a variance whose MLE is 0 — its smallest allowable value. In those case, we’ll have to modify the method detailed here to get a valid CI.</p>
+<p>There are two important caveats about the CIs constructed from the likelihood function in this way. First, the coverage is asymptotic, which means that the actual coverage is only guaranteed to match the nominal coverage (e.g., the 95% value) in the limit as the volume of data grows large. As Bolker (p. 194) notes, though, analysts use these asymptotic CIs “very freely”. Secondly, the CI is only valid if the MLE lies in the interior of its range of allowable values. Said the other way, the CI isn’t valid if the MLE lies at the edge of the parameter’s allowable values. We’ll have to worry about this most when constructing likelihood-based CIs for variances. To foreshadow, in mixed models we sometimes encounter a variance whose MLE is 0 — its smallest allowable value. In those case, we’ll have to modify the method detailed here to get a valid CI.</p>
+<hr />
+<p><span style="color: gray;"> Here’s a bit of the theory behind the result above for generating asymptotic CIs from the likelihood function. This is only a sketch of the theory (and omits the key step); for a more complete explanation, <span class="citation">Bolker (<a href="#ref-bolker2008" role="doc-biblioref">2008</a>)</span> suggests consulting <span class="citation">Kendall and Stuart (<a href="#ref-kendall1979" role="doc-biblioref">1979</a>)</span>.</span></p>
+<p><span style="color: gray;"> Consider a model with <span class="math inline">\(k\)</span> parameters and write those parameters generically as <span class="math inline">\(\theta_1, \theta_2, \ldots, \theta_k\)</span>. Write the likelihood as <span class="math inline">\(\mathcal{L}(\theta_1,\ldots,\theta_k)\)</span>, and write the MLEs as <span class="math inline">\(\hat{\theta_1}\)</span>, etc., in the usual way. Now consider a subset of <span class="math inline">\(r \leq k\)</span> of the parameters — and we might as well write these as the first <span class="math inline">\(r\)</span> parameters, <span class="math inline">\(\theta_1, \ldots, \theta_r\)</span> — and fix these at any particular value, and proceed to maximize the likelihood with respect to the remaining parameters. Write the values of the remaining parameters that maximize the likelihood as <span class="math inline">\(\tilde{\theta}_{r+1}, \ldots, \tilde{\theta}_k\)</span>. (It’s common to call these values the restricted MLEs, because they maximize the likelihood restricted to the values <span class="math inline">\(\theta_1, \ldots, \theta_r\)</span>, but in using this terminology we should not confuse these with REML estimates, which are yet to come and are a separate thing.) In other words,
+<span class="math display">\[
+\tilde{\theta}_{r+1}, \ldots, \tilde{\theta}_k = \mathop{\mathrm{arg\,max}}_{\theta_{r+1},\ldots,\theta_{k}} \mathcal{L}(\theta_1, \ldots, \theta_r, \theta_{r+1},\ldots, \theta_k).
+\]</span>
+Now (and this is the key step that we’ll just assert here) it can be shown that, asymptotically (e.g., in the limit as <span class="math inline">\(n\)</span> becomes large)
+<span class="math display">\[
+2 \ln \dfrac{\mathcal{L}(\hat{\theta}_1,\ldots,\hat{\theta}_k)}{\mathcal{L}(\theta_1, \ldots, \theta_r, \tilde{\theta}_{r+1},\ldots, \tilde{\theta}_k)} \sim \chi^2_r.
+\]</span>
+From here, it’s simple algebra to pass the log through the fraction and re-express in terms of the negative log likelihood to yield
+<span class="math display">\[
+2 \times \left[-\ell(\theta_1, \ldots, \theta_r, \tilde{\theta}_{r+1},\ldots, \tilde{\theta}_k) - (-\ell(\hat{\theta}_1,\ldots,\hat{\theta}_k)) \right] \sim \chi^2_r
+\]</span>
+from which the needed result follows.</span></p>
+<hr />
 </div>
 <div id="two-param-mle" class="section level2 hasAnchor" number="2.2">
 <h2><span class="header-section-number">2.2</span> Confidence regions, profile likelihoods, and associated univariate intervals<a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#two-param-mle" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -1070,6 +1086,15 @@ Thus, for fixed <span class="math inline">\(\mu\)</span>, the variance increases
 <pre><code>## [1] 2262.805</code></pre>
 <p>Recall that the AIC value for the original fit was 2278.0. Thus the model with the alternative parameterization is considerably better by AIC.</p>
 
+</div>
+</div>
+<h3>Bibliography<a href="bibliography.html#bibliography" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-bolker2008" class="csl-entry">
+Bolker, Benjamin M. 2008. <em>Ecological Models and Data in <span>R</span></em>. Princeton University Press.
+</div>
+<div id="ref-kendall1979" class="csl-entry">
+Kendall, Maurice George, and Alan Stuart. 1979. <em>The Advanced Theory of Statistics. Vol. 2: Inference and Relationship</em>. 4th ed. London: Griffin.
 </div>
 </div>
 <div class="footnotes">

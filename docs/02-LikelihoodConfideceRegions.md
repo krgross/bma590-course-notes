@@ -31,7 +31,7 @@ plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "negative log likelihood", t
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-1-1.png" width="672" />
 
-To find an asymptotic confidence interval for $\lambda$ with confidence level $100 \times (1-\alpha)\%$, we want to find all the values of $\lambda$ for which the negative log-likelihood is no greater than $\frac{1}{2}\chi^2_1(1-\alpha)$ larger than the negative log-likelihood at the MLE.^[See $\S$6.4.1.1 to see how this follows from a result about the likelihood ratio.]  (In other words, if we think about the negative log likelihood as quantifying the "badness of fit", as Bolker suggests, then we want to find all values of $\lambda$ that give a fit that is no more than $\frac{1}{2}\chi^2_1(1-\alpha)$ worse than the fit at the MLE.)  By $\chi^2_1(1-\alpha)$, we mean $1-\alpha$ quantile of a $\chi^2_1$ distribution, which can be found with the function `qchisq` in R.  The code below uses the function `uniroot` to find the upper and lower bounds of a 95\% CI for $\lambda$.
+To find an asymptotic confidence interval for $\lambda$ with confidence level $100 \times (1-\alpha)\%$, we want to find all the values of $\lambda$ for which the negative log-likelihood is no greater than $\frac{1}{2}\chi^2_1(1-\alpha)$ larger than the negative log-likelihood at the MLE.^[See $\S$6.4.1.1 to see how this follows from a result about the likelihood ratio.]  In other words, if we think about the negative log likelihood as quantifying the "badness of fit", as Bolker suggests, then we want to find all values of $\lambda$ that give a fit that is no more than $\frac{1}{2}\chi^2_1(1-\alpha)$ worse than the fit at the MLE.  By $\chi^2_1(1-\alpha)$, we mean $1-\alpha$ quantile of a $\chi^2_1$ distribution, which can be found with the function `qchisq` in R.  The code below uses the function `uniroot` to find the upper and lower bounds of a 95\% CI for $\lambda$.
 
 ```r
 cutoff.ll <- horse.neg.ll(0.7) + qchisq(0.95, df = 1) / 2
@@ -134,7 +134,27 @@ rm(list = ls())
 ```
 Thus, the 95\% CI for $\lambda$ is $(0.607, 0.803)$.
 
-There are two important caveats about the CIs constructed from the likelihood function in this way.  First, the coverage is asymptotic, which means that the actual coverage is only guaranteed to match the nominal coverage (e.g., the 95% value) in the limit as the volume of data grows large.  As Bolker (p.\ 194) notes, though, analysts use these asymptotic CIs "very freely".  Secondly, the CI is only valid if the MLE lies in the interior of its range of allowable values. (In other words, the CI isn't valid if the MLE lies at the edge of the parameter's allowable values.) We'll have to worry about this most when constructing likelihood-based CIs for variances.  To foreshadow, in mixed models we sometimes encounter a variance whose MLE is 0 --- its smallest allowable value.  In those case, we'll have to modify the method detailed here to get a valid CI.
+There are two important caveats about the CIs constructed from the likelihood function in this way.  First, the coverage is asymptotic, which means that the actual coverage is only guaranteed to match the nominal coverage (e.g., the 95% value) in the limit as the volume of data grows large.  As Bolker (p.\ 194) notes, though, analysts use these asymptotic CIs "very freely".  Secondly, the CI is only valid if the MLE lies in the interior of its range of allowable values. Said the other way, the CI isn't valid if the MLE lies at the edge of the parameter's allowable values. We'll have to worry about this most when constructing likelihood-based CIs for variances.  To foreshadow, in mixed models we sometimes encounter a variance whose MLE is 0 --- its smallest allowable value.  In those case, we'll have to modify the method detailed here to get a valid CI.
+
+---
+
+<span style="color: gray;"> Here's a bit of the theory behind the result above for generating asymptotic CIs from the likelihood function.  This is only a sketch of the theory (and omits the key step); for a more complete explanation, @bolker2008 suggests consulting @kendall1979.</span>
+
+<span style="color: gray;"> Consider a model with $k$ parameters and write those parameters generically as $\theta_1, \theta_2, \ldots, \theta_k$.  Write the likelihood as $\mathcal{L}(\theta_1,\ldots,\theta_k)$, and write the MLEs as $\hat{\theta_1}$, etc., in the usual way.  Now consider a subset of $r \leq k$ of the parameters --- and we might as well write these as the first $r$ parameters, $\theta_1, \ldots, \theta_r$ --- and fix these at any particular value, and proceed to maximize the likelihood with respect to the remaining parameters.  Write the values of the remaining parameters that maximize the likelihood as $\tilde{\theta}_{r+1}, \ldots, \tilde{\theta}_k$.  (It's common to call these values the restricted MLEs, because they maximize the likelihood restricted to the values $\theta_1, \ldots, \theta_r$, but in using this terminology we should not confuse these with REML estimates, which are yet to come and are a separate thing.)   In other words,
+\[
+\tilde{\theta}_{r+1}, \ldots, \tilde{\theta}_k = \argmax_{\theta_{r+1},\ldots,\theta_{k}} \mathcal{L}(\theta_1, \ldots, \theta_r, \theta_{r+1},\ldots, \theta_k).
+\]
+Now (and this is the key step that we'll just assert here) it can be shown that, asymptotically (e.g., in the limit as $n$ becomes large) 
+\[
+2 \ln \dfrac{\mathcal{L}(\hat{\theta}_1,\ldots,\hat{\theta}_k)}{\mathcal{L}(\theta_1, \ldots, \theta_r, \tilde{\theta}_{r+1},\ldots, \tilde{\theta}_k)} \sim \chi^2_r.
+\]
+From here, it's simple algebra to pass the log through the fraction and re-express in terms of the negative log likelihood to yield
+\[
+2 \times \left[-\ell(\theta_1, \ldots, \theta_r, \tilde{\theta}_{r+1},\ldots, \tilde{\theta}_k) - (-\ell(\hat{\theta}_1,\ldots,\hat{\theta}_k)) \right] \sim \chi^2_r
+\]
+from which the needed result follows.</span>
+
+---
 
 ## Confidence regions, profile likelihoods, and associated univariate intervals{#two-param-mle}
 
