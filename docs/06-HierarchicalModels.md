@@ -559,7 +559,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpGURnQ0/model4ae875d41e7f.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpw516YD/model292815c62f72.txt", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -1923,7 +1923,7 @@ confint(pp.golf)
 
 ```
 ##                  2.5 %    97.5 %
-## .sig01       0.0000000  1.551146
+## .sig01       0.0000000  1.551145
 ## .sig02       0.8129721  3.837297
 ## .sigma       3.0513011  3.666234
 ## (Intercept) 72.2434040 76.265786

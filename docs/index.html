@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-08-31" />
+<meta name="date" content="2023-09-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -175,6 +175,7 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#pulse-rate-data"><i class="fa fa-check"></i><b>1.3</b> Pulse rate data</a></li>
 <li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#transformable-constraints"><i class="fa fa-check"></i><b>1.5</b> Transformable constraints</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><i class="fa fa-check"></i><b>2</b> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</a>
 <ul>
@@ -182,8 +183,7 @@ div.csl-indent {
 <li class="chapter" data-level="2.2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#two-param-mle"><i class="fa fa-check"></i><b>2.2</b> Confidence regions, profile likelihoods, and associated univariate intervals</a></li>
 <li class="chapter" data-level="2.3" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#locally-quadratic-approximations-to-confidence-intervals-and-regions"><i class="fa fa-check"></i><b>2.3</b> Locally quadratic approximations to confidence intervals and regions</a></li>
 <li class="chapter" data-level="2.4" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#comparing-models-likelihood-ratio-test-and-aic"><i class="fa fa-check"></i><b>2.4</b> Comparing models: Likelihood ratio test and AIC</a></li>
-<li class="chapter" data-level="2.5" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#transformable-constraints"><i class="fa fa-check"></i><b>2.5</b> Transformable constraints</a></li>
-<li class="chapter" data-level="2.6" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#the-negative-binomial-distriution-revisited"><i class="fa fa-check"></i><b>2.6</b> The negative binomial distriution, revisited</a></li>
+<li class="chapter" data-level="2.5" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#the-negative-binomial-distriution-revisited"><i class="fa fa-check"></i><b>2.5</b> The negative binomial distriution, revisited</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="bayesian-computation.html"><a href="bayesian-computation.html"><i class="fa fa-check"></i><b>3</b> Bayesian computation</a>
 <ul>
@@ -274,7 +274,7 @@ div.csl-indent {
 <div id="header">
 <h1 class="title">BMA / ST 590 computing companion</h1>
 <p class="author"><em>Kevin Gross</em></p>
-<p class="date"><em>2023-08-31</em></p>
+<p class="date"><em>2023-09-04</em></p>
 </div>
 <div id="maximum-likelihood-estimation" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Maximum likelihood estimation<a href="index.html#maximum-likelihood-estimation" class="anchor-section" aria-label="Anchor link to header"></a></h1>
@@ -594,7 +594,7 @@ p_i &amp; = \dfrac{a}{1 + a h N_i}.
 ## 
 ## $message
 ## NULL</code></pre>
-<p>Why did this code produce warnings? Should we care?</p>
+<p>Why did this code produce warnings? Should we care? See section <a href="index.html#transformable-constraints">1.5</a> below.</p>
 <p>Let’s extract the MLEs and add a fitted to our data plot.</p>
 <p>We’ll plot the data and overlay a fitted line.</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="index.html#cb57-1" aria-hidden="true" tabindex="-1"></a>a.mle <span class="ot">&lt;-</span> frog.mle<span class="sc">$</span>par[<span class="dv">1</span>]</span>
@@ -629,6 +629,64 @@ p_i &amp; = \dfrac{a}{1 + a h N_i}.
 <span id="cb58-17"><a href="index.html#cb58-17" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> a.mle, <span class="at">y =</span> h.mle, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
 <p><img src="index_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
 <p>Note that, in contrast to the pulse-rate data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes. We’ll reflect on the implications of this shape in the next section.</p>
+</div>
+<div id="transformable-constraints" class="section level2 hasAnchor" number="1.5">
+<h2><span class="header-section-number">1.5</span> Transformable constraints<a href="index.html#transformable-constraints" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>So far, we have not thought much about the numerical optimization routines that R uses to find MLEs. If time allowed, we really should think more deeply about how these routines work. Indeed, Bolker devotes an entire chapter (his chapter 7) to numerical optimization. Because time is short, we won’t go that deeply into understanding these methods now, although Bolker’s chapter is worth a read if you are so inclined.</p>
+<p>There is one topic that deserves more of our attention, which is the issue of constriants on the allowable parameter space. (Bolker touches on this in his <span class="math inline">\(\S\)</span> 7.4.5.) Many times, we write down models with parameters that only make biological sense in a certain range. For example, in the horse-kick data, we know that <span class="math inline">\(\lambda\)</span> must be positive. However, most numerical optimization routines are not terribly well suited to optimizing over a constrained space. (The presence of constraints is one of the reasons why it is important to initiate numerical optimization routines with reasonable starting values.) One exception is the <code>L-BFGS-B</code> method, available in <code>optim</code>, which will permit so-called rectangular constraints. An alternative approach that will work with any numerical optimization scheme is to transform the constraints away. That is, transform the parameterization to a new scale that is unconstrained. Because of the invariance principle of MLEs, these transformations won’t change the MLEs that we eventually find, as long as the MLEs are not on the edge of the original, constrained space.</p>
+<p>To illustrate, consider the parameters in the tadpole predation data again. Clearly, both the parameters <span class="math inline">\(a\)</span> and <span class="math inline">\(h\)</span> must be positive. However, there is another constraint on <span class="math inline">\(a\)</span>. The probability that a tadpole is eaten must be <span class="math inline">\(\leq 1\)</span>, and thus we must have <span class="math inline">\(a \leq 1 +ahN\)</span> for all <span class="math inline">\(N\)</span>. A little algebra shows that this is equivalent to
+<span class="math display">\[
+a \leq \dfrac{1}{1-hN}.
+\]</span>
+The right-hand side above is increasing in <span class="math inline">\(N\)</span>, and thus if the above expression is to be true for all <span class="math inline">\(N&gt;0\)</span>, then we must have <span class="math inline">\(a \leq 1\)</span>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<p>Thus we will illustrate two handy transformations here. For parameters that are constrained to lie on the unit interval, such as <span class="math inline">\(a\)</span> in this case, we can re-define the model in terms of the logit (or log-odds) of <span class="math inline">\(a\)</span>. In fact, the logit transformation will work for any parameter that is constrained to lie on an interval; we just have to rescale the transformation accordingly. For a parameter that is constrained to be positive, such as <span class="math inline">\(h\)</span>, we can use the log transformation. That is, define
+<span class="math display">\[\begin{align*}
+a^* &amp; = \ln \left(\dfrac{a}{1-a}\right) \\
+k^* &amp; = \ln (k). \\
+\end{align*}\]</span>
+Fitting proceeds in the usual way; we just have to invert the transformation before evaluating the likelihood:</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="index.html#cb59-1" aria-hidden="true" tabindex="-1"></a>logit <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">log</span>(p <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p))</span>
+<span id="cb59-2"><a href="index.html#cb59-2" aria-hidden="true" tabindex="-1"></a>invLogit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
+<span id="cb59-3"><a href="index.html#cb59-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-4"><a href="index.html#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="co"># negative log-likelihood, for use with optim</span></span>
+<span id="cb59-5"><a href="index.html#cb59-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-6"><a href="index.html#cb59-6" aria-hidden="true" tabindex="-1"></a>frog.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(params){</span>
+<span id="cb59-7"><a href="index.html#cb59-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb59-8"><a href="index.html#cb59-8" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">invLogit</span>(params[<span class="dv">1</span>])</span>
+<span id="cb59-9"><a href="index.html#cb59-9" aria-hidden="true" tabindex="-1"></a>  h <span class="ot">&lt;-</span> <span class="fu">exp</span>(params[<span class="dv">2</span>])</span>
+<span id="cb59-10"><a href="index.html#cb59-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb59-11"><a href="index.html#cb59-11" aria-hidden="true" tabindex="-1"></a>  prob.vals <span class="ot">&lt;-</span> a <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> a <span class="sc">*</span> h <span class="sc">*</span> frog<span class="sc">$</span>Initial)</span>
+<span id="cb59-12"><a href="index.html#cb59-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb59-13"><a href="index.html#cb59-13" aria-hidden="true" tabindex="-1"></a>  ll.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(frog, <span class="fu">dbinom</span>(Killed, </span>
+<span id="cb59-14"><a href="index.html#cb59-14" aria-hidden="true" tabindex="-1"></a>                               <span class="at">size =</span> Initial, </span>
+<span id="cb59-15"><a href="index.html#cb59-15" aria-hidden="true" tabindex="-1"></a>                               <span class="at">prob =</span> prob.vals, </span>
+<span id="cb59-16"><a href="index.html#cb59-16" aria-hidden="true" tabindex="-1"></a>                               <span class="at">log  =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb59-17"><a href="index.html#cb59-17" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.vals)</span>
+<span id="cb59-18"><a href="index.html#cb59-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb59-19"><a href="index.html#cb59-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-20"><a href="index.html#cb59-20" aria-hidden="true" tabindex="-1"></a>(frog.mle <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">par =</span> <span class="fu">c</span>(<span class="fu">logit</span>(<span class="fl">0.5</span>), <span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">60</span>)),</span>
+<span id="cb59-21"><a href="index.html#cb59-21" aria-hidden="true" tabindex="-1"></a>                   <span class="at">fn  =</span> frog.neg.ll))</span></code></pre></div>
+<pre><code>## $par
+## [1]  0.1038349 -4.0981694
+## 
+## $value
+## [1] 46.72136
+## 
+## $counts
+## function gradient 
+##       43       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL</code></pre>
+<p>Back-transforming to the original scale recovers the previous MLEs:</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="index.html#cb61-1" aria-hidden="true" tabindex="-1"></a>(a.mle <span class="ot">&lt;-</span> <span class="fu">invLogit</span>(frog.mle<span class="sc">$</span>par[<span class="dv">1</span>]))</span></code></pre></div>
+<pre><code>## [1] 0.5259354</code></pre>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="index.html#cb63-1" aria-hidden="true" tabindex="-1"></a>(h.mle <span class="ot">&lt;-</span> <span class="fu">exp</span>(frog.mle<span class="sc">$</span>par[<span class="dv">2</span>]))</span></code></pre></div>
+<pre><code>## [1] 0.01660304</code></pre>
+<!-- Finally, one might also encounter parameters whose sum must lie between 0 and 1.  For example, in size-based demographic modeling, it is common to describe the demographic fates of individuals in a particular age or size class by two parameters --- survival without growth (say) and survival with growth.  Writing these two parameters as  -->
 
 </div>
 </div>
@@ -645,6 +703,7 @@ Vonesh, James R, and Benjamin M Bolker. 2005. <span>“Compensatory Larval Respo
 <hr />
 <ol start="1">
 <li id="fn1"><p>Recall that when we refer to a data set as a “simple random sample”, we mean that the data are independent and identically distributed. That is, they are independent draws from the same underlying probability distribution.<a href="index.html#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>The upper bound on <span class="math inline">\(a\)</span> is odd and possibly confusing. In standard predation models, there is no upper bound on <span class="math inline">\(a\)</span>. The reason why we have an upper bound on <span class="math inline">\(a\)</span> in this case is because we’ve taken the usual functional expression for Type II predation — which gives a predation <em>rate</em> — and re-interpreted it as the <em>number</em> of tadpoles eaten over a finite time interval. This was probably never a great idea to begin with, and now we are seeing the cost. The <span class="math inline">\(a \leq 1\)</span> constraint arises in this case because the number of tadpoles eaten in this experiment can’t exceed the number that were originally placed in the experimental mesocosm. This emphasizes that if we’re really only using the Type II functional response here for pedagogical convenience. If we really wanted to learn something about the underlying predation <em>rate</em>, then we have to account for the prey depletion over the course of the experiment, as <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory" role="doc-biblioref">2005</a>)</span> do in their study.<a href="index.html#fnref2" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>

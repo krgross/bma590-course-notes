@@ -138,9 +138,9 @@ There are two important caveats about the CIs constructed from the likelihood fu
 
 ---
 
-<span style="color: gray;"> Here's a bit of the theory behind the result above for generating asymptotic CIs from the likelihood function.  This is only a sketch of the theory (and omits the key step); for a more complete explanation, @bolker2008 suggests consulting @kendall1979.</span>
+<span style="color: gray;"> Here's a bit of the theory behind the result above for generating asymptotic CIs from the likelihood function.  This is only a sketch of the theory (as it doesn't justify the key step); for a more complete explanation, @bolker2008 suggests consulting @kendall1979.</span>
 
-<span style="color: gray;"> Consider a model with $k$ parameters and write those parameters generically as $\theta_1, \theta_2, \ldots, \theta_k$.  Write the likelihood as $\mathcal{L}(\theta_1,\ldots,\theta_k)$, and write the MLEs as $\hat{\theta_1}$, etc., in the usual way.  Now consider a subset of $r \leq k$ of the parameters --- and we might as well write these as the first $r$ parameters, $\theta_1, \ldots, \theta_r$ --- and fix these at any particular value, and proceed to maximize the likelihood with respect to the remaining parameters.  Write the values of the remaining parameters that maximize the likelihood as $\tilde{\theta}_{r+1}, \ldots, \tilde{\theta}_k$.  (It's common to call these values the restricted MLEs, because they maximize the likelihood restricted to the values $\theta_1, \ldots, \theta_r$, but in using this terminology we should not confuse these with REML estimates, which are yet to come and are a separate thing.)   In other words,
+<span style="color: gray;"> Consider a model with $k$ parameters, and write those parameters generically as $\theta_1, \theta_2, \ldots, \theta_k$.  Write the likelihood as $\mathcal{L}(\theta_1,\ldots,\theta_k)$, and write the MLEs as $\hat{\theta_1}$, etc., in the usual way.  Now consider a subset of $r \leq k$ of the parameters --- and we might as well write these as the first $r$ parameters, $\theta_1, \ldots, \theta_r$ --- and fix these at any particular value, and proceed to maximize the likelihood with respect to the remaining parameters.  Write the values of the remaining parameters that maximize the likelihood as $\tilde{\theta}_{r+1}, \ldots, \tilde{\theta}_k$.  (It's common to call these values the restricted MLEs, because they maximize the likelihood restricted to the values $\theta_1, \ldots, \theta_r$, but in using this terminology we should not confuse these with REML estimates, which are yet to come and are a separate thing.)   In other words,
 \[
 \tilde{\theta}_{r+1}, \ldots, \tilde{\theta}_k = \argmax_{\theta_{r+1},\ldots,\theta_{k}} \mathcal{L}(\theta_1, \ldots, \theta_r, \theta_{r+1},\ldots, \theta_k).
 \]
@@ -148,7 +148,7 @@ Now (and this is the key step that we'll just assert here) it can be shown that,
 \[
 2 \ln \dfrac{\mathcal{L}(\hat{\theta}_1,\ldots,\hat{\theta}_k)}{\mathcal{L}(\theta_1, \ldots, \theta_r, \tilde{\theta}_{r+1},\ldots, \tilde{\theta}_k)} \sim \chi^2_r.
 \]
-From here, it's simple algebra to pass the log through the fraction and re-express in terms of the negative log likelihood to yield
+From here, it's simple algebra to re-express the above in terms of the negative log likelihood to yield
 \[
 2 \times \left[-\ell(\theta_1, \ldots, \theta_r, \tilde{\theta}_{r+1},\ldots, \tilde{\theta}_k) - (-\ell(\hat{\theta}_1,\ldots,\hat{\theta}_k)) \right] \sim \chi^2_r
 \]
@@ -1011,97 +1011,6 @@ legend(x = 4, y = 280,
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
-## Transformable constraints
-
-So far, we have not thought much about the numerical optimization routines that R uses to find MLEs.  If time allowed, we really should think more deeply about how these routines work.  Indeed, Bolker devotes an entire chapter (his chapter 7) to numerical optimization.  Because time is short, we won't go that deeply into understanding these methods now, although Bolker's chapter is worth a read if you are so inclined.  
-
-There is one topic that deserves more of our attention, which is the issue of constriants on the allowable parameter space.  (Bolker touches on this in his $\S$ 7.4.5.)  Many times, we write down models with parameters that only make biological sense in a certain range.  For example, in the fir data, we know that the parameter $a$ (the average cone production for trees of size $x = 1$) must be positive.  We also know that $k$, the overdispersion parameter in the negative binomial model, must also be positive.  However, most numerical optimization routines are not terribly well suited to optimizing over a constrained space.  (The presence of constraints is one of the reasons why it is important to initiate numerical optimization routines with reasonalbe starting values.)  One exception is the "L-BFGS-B" method, available in `optim`, which will permit so-called rectangular constraints.  An alternative approach that will work with any numerical optimization scheme is to transform the constraints away.  That is, transform the parameterization to a new scale that is unconstrained.  Because of the invariance principle of MLEs, these transformations won't change the MLEs that we eventually find, as long as the MLEs are not on the edge of the original, constrained space.
-
-To illustrate, consider the fir data again, and consider the negative-binomial model fit to the entire data set, ignoring differences between wave vs.\ non-wave populations.  To transform away the constraints on $a$ and $k$, re-parameterize the model in terms of the logs of both parameters.  That is, define
-\begin{align*}
-a^* & = \ln (a) \\
-k^* & = \ln (k) \\
-\end{align*}
-so that the model is now
-\begin{align*}
-\mu(x) & = \exp(a^*) \times x ^ b \\
-Y & \sim \mbox{NB}(\mu(x), \exp(k^*)) 
-\end{align*}
-Fitting proceeds in the usual way:
-
-```r
-fir.neg.ll <- function(parms, x, y){
-  
-  a <- exp(parms[1])
-  b <- parms[2]
-  k <- exp(parms[3])
-  
-  my.mu <- a * x^b
-  ll.values <- dnbinom(y, size = k, mu = my.mu, log = TRUE)
-  
-  -1 * sum(ll.values)
-}
-
-(fir.reduced <- optim(f   = fir.neg.ll,
-                      par = c(a = 0, b = 1, k = 0),
-                      x   = fir$dbh,
-                      y   = fir$cones))
-```
-
-```
-## $par
-##          a          b          k 
-## -1.1914367  2.3195050  0.4074672 
-## 
-## $value
-## [1] 1136.015
-## 
-## $counts
-## function gradient 
-##      158       NA 
-## 
-## $convergence
-## [1] 0
-## 
-## $message
-## NULL
-```
-
-Back-transforming to the original scale recovers the previous MLEs:
-
-```r
-(a.mle <- exp(fir.reduced$par[1]))
-```
-
-```
-##         a 
-## 0.3037845
-```
-
-```r
-(b.mle <- fir.reduced$par[2])
-```
-
-```
-##        b 
-## 2.319505
-```
-
-```r
-(k.mle <- exp(fir.reduced$par[3]))
-```
-
-```
-##        k 
-## 1.503006
-```
-
-The constraint issue also explains why we received warnings from R when we first found the MLEs for the tadpole predation data in Section \@ref(two-param-mle).
-
-Another example that one frequently encounters in ecology are parameters that are constrained to lie between 0 and 1, such as a survival probability.  A logit (or log odds) transformation will eliminate the constraints on a parameter that lies between 0 and 1.  
-
-<!-- Finally, one might also encounter parameters whose sum must lie between 0 and 1.  For example, in size-based demographic modeling, it is common to describe the demographic fates of individuals in a particular age or size class by two parameters --- survival without growth (say) and survival with growth.  Writing these two parameters as  -->
-
 ## The negative binomial distriution, revisited
 
 The negative binomial distribution is a funny distribution that is frequently misunderstood by ecologists.  In ecology, the negative binomial distribution is typically parameterized by the distribution's mean (which we typically write as $\mu$) and the "overdispersion parameter", almost always written as $k$.  In this parameterization, if $X$ has a negative binomial distribution with mean $\mu$ and overdispersion parameter $k$, then the variance of $X$ is
@@ -1195,7 +1104,7 @@ lines(fit.vals.alt ~ dbh.vals, col = "red")
 legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alternate"))
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-34-1.png" width="672" />
 
 However, the two models imply very different relationships between the variance in cone production and tree size.  Let's look at the implied relationship between the standard deviation of cone production and tree size:
 
@@ -1210,7 +1119,7 @@ lines(mu.vals, sd.vals.nb2, col = "red")
 legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alternate"))
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 We can calculate the AIC for this alternate parameterization as well:
 

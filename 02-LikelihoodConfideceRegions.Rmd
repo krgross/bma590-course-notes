@@ -618,55 +618,6 @@ legend(x = 4, y = 280,
        bty = "n")
 ```
 
-## Transformable constraints
-
-So far, we have not thought much about the numerical optimization routines that R uses to find MLEs.  If time allowed, we really should think more deeply about how these routines work.  Indeed, Bolker devotes an entire chapter (his chapter 7) to numerical optimization.  Because time is short, we won't go that deeply into understanding these methods now, although Bolker's chapter is worth a read if you are so inclined.  
-
-There is one topic that deserves more of our attention, which is the issue of constriants on the allowable parameter space.  (Bolker touches on this in his $\S$ 7.4.5.)  Many times, we write down models with parameters that only make biological sense in a certain range.  For example, in the fir data, we know that the parameter $a$ (the average cone production for trees of size $x = 1$) must be positive.  We also know that $k$, the overdispersion parameter in the negative binomial model, must also be positive.  However, most numerical optimization routines are not terribly well suited to optimizing over a constrained space.  (The presence of constraints is one of the reasons why it is important to initiate numerical optimization routines with reasonalbe starting values.)  One exception is the "L-BFGS-B" method, available in `optim`, which will permit so-called rectangular constraints.  An alternative approach that will work with any numerical optimization scheme is to transform the constraints away.  That is, transform the parameterization to a new scale that is unconstrained.  Because of the invariance principle of MLEs, these transformations won't change the MLEs that we eventually find, as long as the MLEs are not on the edge of the original, constrained space.
-
-To illustrate, consider the fir data again, and consider the negative-binomial model fit to the entire data set, ignoring differences between wave vs.\ non-wave populations.  To transform away the constraints on $a$ and $k$, re-parameterize the model in terms of the logs of both parameters.  That is, define
-\begin{align*}
-a^* & = \ln (a) \\
-k^* & = \ln (k) \\
-\end{align*}
-so that the model is now
-\begin{align*}
-\mu(x) & = \exp(a^*) \times x ^ b \\
-Y & \sim \mbox{NB}(\mu(x), \exp(k^*)) 
-\end{align*}
-Fitting proceeds in the usual way:
-```{r}
-fir.neg.ll <- function(parms, x, y){
-  
-  a <- exp(parms[1])
-  b <- parms[2]
-  k <- exp(parms[3])
-  
-  my.mu <- a * x^b
-  ll.values <- dnbinom(y, size = k, mu = my.mu, log = TRUE)
-  
-  -1 * sum(ll.values)
-}
-
-(fir.reduced <- optim(f   = fir.neg.ll,
-                      par = c(a = 0, b = 1, k = 0),
-                      x   = fir$dbh,
-                      y   = fir$cones))
-```
-
-Back-transforming to the original scale recovers the previous MLEs:
-```{r}
-(a.mle <- exp(fir.reduced$par[1]))
-(b.mle <- fir.reduced$par[2])
-(k.mle <- exp(fir.reduced$par[3]))
-```
-
-The constraint issue also explains why we received warnings from R when we first found the MLEs for the tadpole predation data in Section \@ref(two-param-mle).
-
-Another example that one frequently encounters in ecology are parameters that are constrained to lie between 0 and 1, such as a survival probability.  A logit (or log odds) transformation will eliminate the constraints on a parameter that lies between 0 and 1.  
-
-<!-- Finally, one might also encounter parameters whose sum must lie between 0 and 1.  For example, in size-based demographic modeling, it is common to describe the demographic fates of individuals in a particular age or size class by two parameters --- survival without growth (say) and survival with growth.  Writing these two parameters as  -->
-
 ## The negative binomial distriution, revisited
 
 The negative binomial distribution is a funny distribution that is frequently misunderstood by ecologists.  In ecology, the negative binomial distribution is typically parameterized by the distribution's mean (which we typically write as $\mu$) and the "overdispersion parameter", almost always written as $k$.  In this parameterization, if $X$ has a negative binomial distribution with mean $\mu$ and overdispersion parameter $k$, then the variance of $X$ is

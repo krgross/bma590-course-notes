@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2023-08-31"
+date: "2023-09-04"
 output: 
   bookdown::gitbook:
     config:
@@ -559,7 +559,7 @@ Now we'll find the MLE using `optim`
 ## $message
 ## NULL
 ```
-Why did this code produce warnings?  Should we care?
+Why did this code produce warnings?  Should we care?  See section \@ref(transformable-constraints) below.
 
 Let's extract the MLEs and add a fitted to our data plot.
 
@@ -606,3 +606,85 @@ points(x = a.mle, y = h.mle, col = "red")
 <img src="index_files/figure-html/unnamed-chunk-34-1.png" width="672" />
 
 Note that, in contrast to the pulse-rate data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes.  We'll reflect on the implications of this shape in the next section.
+
+## Transformable constraints {#transformable-constraints}
+
+So far, we have not thought much about the numerical optimization routines that R uses to find MLEs.  If time allowed, we really should think more deeply about how these routines work.  Indeed, Bolker devotes an entire chapter (his chapter 7) to numerical optimization.  Because time is short, we won't go that deeply into understanding these methods now, although Bolker's chapter is worth a read if you are so inclined.  
+
+There is one topic that deserves more of our attention, which is the issue of constriants on the allowable parameter space.  (Bolker touches on this in his $\S$ 7.4.5.)  Many times, we write down models with parameters that only make biological sense in a certain range.  For example, in the horse-kick data, we know that $\lambda$ must be positive.  However, most numerical optimization routines are not terribly well suited to optimizing over a constrained space.  (The presence of constraints is one of the reasons why it is important to initiate numerical optimization routines with reasonable starting values.)  One exception is the `L-BFGS-B` method, available in `optim`, which will permit so-called rectangular constraints.  An alternative approach that will work with any numerical optimization scheme is to transform the constraints away.  That is, transform the parameterization to a new scale that is unconstrained.  Because of the invariance principle of MLEs, these transformations won't change the MLEs that we eventually find, as long as the MLEs are not on the edge of the original, constrained space.
+
+To illustrate, consider the parameters in the tadpole predation data again.  Clearly, both the parameters $a$ and $h$ must be positive.  However, there is another constraint on $a$.  The probability that a tadpole is eaten must be $\leq 1$, and thus we must have $a \leq 1 +ahN$ for all $N$.  A little algebra shows that this is equivalent to 
+\[
+a \leq \dfrac{1}{1-hN}.
+\]
+The right-hand side above is increasing in $N$, and thus if the above expression is to be true for all $N>0$, then we must have $a \leq 1$.^[The upper bound on $a$ is odd and possibly confusing.  In standard predation models, there is no upper bound on $a$.  The reason why we have an upper bound on $a$ in this case is because we've taken the usual functional expression for Type II predation --- which gives a predation *rate* --- and re-interpreted it as the *number* of tadpoles eaten over a finite time interval.  This was probably never a great idea to begin with, and now we are seeing the cost.  The $a \leq 1$ constraint arises in this case because the number of tadpoles eaten in this experiment can't exceed the number that were originally placed in the experimental mesocosm.  This emphasizes that if we're really only using the Type II functional response here for pedagogical convenience.  If we really wanted to learn something about the underlying predation *rate*, then we have to account for the prey depletion over the course of the experiment, as @vonesh2005compensatory do in their study.]
+
+Thus we will illustrate two handy transformations here.  For parameters that are constrained to lie on the unit interval, such as $a$ in this case, we can re-define the model in terms of the logit (or log-odds) of $a$.  In fact, the logit transformation will work for any parameter that is constrained to lie on an interval; we just have to rescale the transformation accordingly.  For a parameter that is constrained to be positive, such as $h$, we can use the log transformation.  That is, define
+\begin{align*}
+a^* & = \ln \left(\dfrac{a}{1-a}\right) \\
+k^* & = \ln (k). \\
+\end{align*}
+Fitting proceeds in the usual way; we just have to invert the transformation before evaluating the likelihood:
+
+```r
+logit <- function(p) log(p / (1 - p))
+invLogit <- function(x) exp(x) / (1 + exp(x))
+
+# negative log-likelihood, for use with optim
+
+frog.neg.ll <- function(params){
+  
+  a <- invLogit(params[1])
+  h <- exp(params[2])
+  
+  prob.vals <- a / (1 + a * h * frog$Initial)
+  
+  ll.vals <- with(frog, dbinom(Killed, 
+                               size = Initial, 
+                               prob = prob.vals, 
+                               log  = TRUE))
+  -1 * sum(ll.vals)
+}
+
+(frog.mle <- optim(par = c(logit(0.5), log(1/60)),
+                   fn  = frog.neg.ll))
+```
+
+```
+## $par
+## [1]  0.1038349 -4.0981694
+## 
+## $value
+## [1] 46.72136
+## 
+## $counts
+## function gradient 
+##       43       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+```
+
+Back-transforming to the original scale recovers the previous MLEs:
+
+```r
+(a.mle <- invLogit(frog.mle$par[1]))
+```
+
+```
+## [1] 0.5259354
+```
+
+```r
+(h.mle <- exp(frog.mle$par[2]))
+```
+
+```
+## [1] 0.01660304
+```
+
+<!-- Finally, one might also encounter parameters whose sum must lie between 0 and 1.  For example, in size-based demographic modeling, it is common to describe the demographic fates of individuals in a particular age or size class by two parameters --- survival without growth (say) and survival with growth.  Writing these two parameters as  -->
+
