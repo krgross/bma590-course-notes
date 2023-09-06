@@ -1,5 +1,5 @@
 --- 
-title: "BMA / ST 590 computing companion"
+title: "BMA / ST 590 course notes"
 author: "Kevin Gross"
 date: "2023-09-06"
 output: 
@@ -201,7 +201,28 @@ To make the notation a bit easier, we'll write the entire data set as a vector $
 \end{align*}
 The third equality above follows from the independence of the data points.
 
-To prevent numerical underflow^[Numerical underflow occurs when positive numbers become too close to zero for the computer to perform sufficiently precise calculations.  In `R`, we can find the smallest positive value that meets the IEEE technical standard using `.Machine$double.xmin`.  Although `R` may show answers for computations involving values less than this value, those computations are not trustworthy and may generate strange results.], we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+Here's a function that we can use to compute likelihood for any particular value of $\lambda$ for the horse data:
+
+```r
+horse.lhood <- function(my.lambda){
+  
+  ll.vals <- dpois(x = horse$deaths, lambda = my.lambda)
+  prod(ll.vals)
+}
+```
+
+Notice, however, that the values of the likelihood are very close to zero, even for reasonable choices of $\lambda$:
+
+```r
+horse.lhood(0.75)
+```
+
+```
+## [1] 2.275728e-137
+```
+Small values of the likelihood create the risk of *numerical underflow*.  Numerical underflow occurs when positive numbers become too close to zero for the computer to perform sufficiently precise calculations.^[In `R`, we can find the smallest positive value that meets the IEEE technical standard using `.Machine$double.xmin`.  Although `R` may show answers for computations involving values less than this value, those computations are not trustworthy and may generate strange results.]
+
+To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
 \begin{align*}
 \ell(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
 & = \sum_{i=1}^n \ln \Pr{X_i = x_i; \lambda}
@@ -250,7 +271,7 @@ plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "log likelihood", type = "l"
 abline(v = 0.7, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
 ### Find the MLE numerically using 'optimize'
 
@@ -446,7 +467,7 @@ contour(x = m.vals, y = v.vals, z = ll.vals, nlevels = 100,
 points(x = pulse.mle$par[1], y = pulse.mle$par[2], col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 ## Tadpole data
 
@@ -498,7 +519,7 @@ head(frog)
 plot(Killed ~ Initial, data = frog)
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 Following Bolker, we'll assume that the number of individuals killed takes a binomial distribution, where the number of trials equals the initial tadpole density, and the probability that a tadpole is killed is given by the expression
 $$
@@ -579,7 +600,7 @@ pred.values <- a.mle * init.values / (1 + a.mle * h.mle * init.values)
 lines(x = init.values, y = pred.values, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 Finally, we'll plot the likelihood contours.
 
@@ -603,7 +624,7 @@ contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
 points(x = a.mle, y = h.mle, col = "red")
 ```
 
-<img src="index_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+<img src="index_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 
 Note that, in contrast to the pulse-rate data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes.  We'll reflect on the implications of this shape in the next section.
 

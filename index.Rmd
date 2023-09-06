@@ -135,7 +135,22 @@ To make the notation a bit easier, we'll write the entire data set as a vector $
 \end{align*}
 The third equality above follows from the independence of the data points.
 
-To prevent numerical underflow^[Numerical underflow occurs when positive numbers become too close to zero for the computer to perform sufficiently precise calculations.  In `R`, we can find the smallest positive value that meets the IEEE technical standard using `.Machine$double.xmin`.  Although `R` may show answers for computations involving values less than this value, those computations are not trustworthy and may generate strange results.], we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+Here's a function that we can use to compute likelihood for any particular value of $\lambda$ for the horse data:
+```{r}
+horse.lhood <- function(my.lambda){
+  
+  ll.vals <- dpois(x = horse$deaths, lambda = my.lambda)
+  prod(ll.vals)
+}
+```
+
+Notice, however, that the values of the likelihood are very close to zero, even for reasonable choices of $\lambda$:
+```{r}
+horse.lhood(0.75)
+```
+Small values of the likelihood create the risk of *numerical underflow*.  Numerical underflow occurs when positive numbers become too close to zero for the computer to perform sufficiently precise calculations.^[In `R`, we can find the smallest positive value that meets the IEEE technical standard using `.Machine$double.xmin`.  Although `R` may show answers for computations involving values less than this value, those computations are not trustworthy and may generate strange results.]
+
+To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
 \begin{align*}
 \ell(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
 & = \sum_{i=1}^n \ln \Pr{X_i = x_i; \lambda}

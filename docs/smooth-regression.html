@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 4 Smooth regression | BMA / ST 590 computing companion</title>
+  <title>Chapter 4 Smooth regression | BMA / ST 590 course notes</title>
   <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 4 Smooth regression | BMA / ST 590 computing companion" />
+  <meta property="og:title" content="Chapter 4 Smooth regression | BMA / ST 590 course notes" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 4 Smooth regression | BMA / ST 590 computing companion" />
+  <meta name="twitter:title" content="Chapter 4 Smooth regression | BMA / ST 590 course notes" />
   
   <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
   
@@ -263,7 +263,7 @@ div.csl-indent {
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">BMA / ST 590 computing companion</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">BMA / ST 590 course notes</a>
           </h1>
         </div>
 
@@ -276,23 +276,23 @@ div.csl-indent {
 <div id="loess-smoothers" class="section level2 hasAnchor" number="4.1">
 <h2><span class="header-section-number">4.1</span> Loess smoothers<a href="smooth-regression.html#loess-smoothers" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set. These data can be found by visiting the webpage for the book ``Mixed Effects Models and Extensions in Ecology with R’’ by Zuur et al. (2009). A link to this webpage appears on the course website.</p>
-<div class="sourceCode" id="cb257"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb257-1"><a href="smooth-regression.html#cb257-1" aria-hidden="true" tabindex="-1"></a><span class="do">## download the data from the book&#39;s website</span></span>
-<span id="cb257-2"><a href="smooth-regression.html#cb257-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb257-3"><a href="smooth-regression.html#cb257-3" aria-hidden="true" tabindex="-1"></a>isit <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/ISIT.txt&quot;</span>, <span class="at">head =</span> T)</span>
-<span id="cb257-4"><a href="smooth-regression.html#cb257-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb257-5"><a href="smooth-regression.html#cb257-5" aria-hidden="true" tabindex="-1"></a><span class="do">## extract the data from station 16</span></span>
-<span id="cb257-6"><a href="smooth-regression.html#cb257-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb257-7"><a href="smooth-regression.html#cb257-7" aria-hidden="true" tabindex="-1"></a>st16 <span class="ot">&lt;-</span> <span class="fu">subset</span>(isit, Station <span class="sc">==</span> <span class="dv">16</span>)</span>
-<span id="cb257-8"><a href="smooth-regression.html#cb257-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb257-9"><a href="smooth-regression.html#cb257-9" aria-hidden="true" tabindex="-1"></a><span class="do">## retain just the variables that we want, and rename</span></span>
-<span id="cb257-10"><a href="smooth-regression.html#cb257-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb257-11"><a href="smooth-regression.html#cb257-11" aria-hidden="true" tabindex="-1"></a>st16 <span class="ot">&lt;-</span> st16[, <span class="fu">c</span>(<span class="st">&quot;SampleDepth&quot;</span>, <span class="st">&quot;Sources&quot;</span>)]</span>
-<span id="cb257-12"><a href="smooth-regression.html#cb257-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(st16) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;depth&quot;</span>, <span class="st">&quot;sources&quot;</span>)</span>
-<span id="cb257-13"><a href="smooth-regression.html#cb257-13" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))</span></code></pre></div>
+<div class="sourceCode" id="cb260"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb260-1"><a href="smooth-regression.html#cb260-1" aria-hidden="true" tabindex="-1"></a><span class="do">## download the data from the book&#39;s website</span></span>
+<span id="cb260-2"><a href="smooth-regression.html#cb260-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb260-3"><a href="smooth-regression.html#cb260-3" aria-hidden="true" tabindex="-1"></a>isit <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/ISIT.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb260-4"><a href="smooth-regression.html#cb260-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb260-5"><a href="smooth-regression.html#cb260-5" aria-hidden="true" tabindex="-1"></a><span class="do">## extract the data from station 16</span></span>
+<span id="cb260-6"><a href="smooth-regression.html#cb260-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb260-7"><a href="smooth-regression.html#cb260-7" aria-hidden="true" tabindex="-1"></a>st16 <span class="ot">&lt;-</span> <span class="fu">subset</span>(isit, Station <span class="sc">==</span> <span class="dv">16</span>)</span>
+<span id="cb260-8"><a href="smooth-regression.html#cb260-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb260-9"><a href="smooth-regression.html#cb260-9" aria-hidden="true" tabindex="-1"></a><span class="do">## retain just the variables that we want, and rename</span></span>
+<span id="cb260-10"><a href="smooth-regression.html#cb260-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb260-11"><a href="smooth-regression.html#cb260-11" aria-hidden="true" tabindex="-1"></a>st16 <span class="ot">&lt;-</span> st16[, <span class="fu">c</span>(<span class="st">&quot;SampleDepth&quot;</span>, <span class="st">&quot;Sources&quot;</span>)]</span>
+<span id="cb260-12"><a href="smooth-regression.html#cb260-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(st16) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;depth&quot;</span>, <span class="st">&quot;sources&quot;</span>)</span>
+<span id="cb260-13"><a href="smooth-regression.html#cb260-13" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p>Fit a loess smoother using the factory settings:</p>
-<div class="sourceCode" id="cb258"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb258-1"><a href="smooth-regression.html#cb258-1" aria-hidden="true" tabindex="-1"></a>st16.lo <span class="ot">&lt;-</span> <span class="fu">loess</span>(sources <span class="sc">~</span> depth, <span class="at">data =</span> st16)</span>
-<span id="cb258-2"><a href="smooth-regression.html#cb258-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(st16.lo)</span></code></pre></div>
+<div class="sourceCode" id="cb261"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb261-1"><a href="smooth-regression.html#cb261-1" aria-hidden="true" tabindex="-1"></a>st16.lo <span class="ot">&lt;-</span> <span class="fu">loess</span>(sources <span class="sc">~</span> depth, <span class="at">data =</span> st16)</span>
+<span id="cb261-2"><a href="smooth-regression.html#cb261-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(st16.lo)</span></code></pre></div>
 <pre><code>## Call:
 ## loess(formula = sources ~ depth, data = st16)
 ## 
@@ -310,86 +310,86 @@ div.csl-indent {
 ##  parametric:  FALSE
 ## drop.square:  FALSE</code></pre>
 <p>Plot the fit, this takes a little work</p>
-<div class="sourceCode" id="cb260"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb260-1"><a href="smooth-regression.html#cb260-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
-<span id="cb260-2"><a href="smooth-regression.html#cb260-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
-<span id="cb260-3"><a href="smooth-regression.html#cb260-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
-<span id="cb260-4"><a href="smooth-regression.html#cb260-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb260-5"><a href="smooth-regression.html#cb260-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> st16.lo,</span>
-<span id="cb260-6"><a href="smooth-regression.html#cb260-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> depth.vals,</span>
-<span id="cb260-7"><a href="smooth-regression.html#cb260-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb260-8"><a href="smooth-regression.html#cb260-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb260-9"><a href="smooth-regression.html#cb260-9" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))</span>
-<span id="cb260-10"><a href="smooth-regression.html#cb260-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
-<span id="cb260-11"><a href="smooth-regression.html#cb260-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb260-12"><a href="smooth-regression.html#cb260-12" aria-hidden="true" tabindex="-1"></a><span class="co"># add 95% error bars</span></span>
-<span id="cb260-13"><a href="smooth-regression.html#cb260-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x   =</span> depth.vals, </span>
-<span id="cb260-14"><a href="smooth-regression.html#cb260-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">y   =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> st16.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> st16.fit<span class="sc">$</span>df),</span>
-<span id="cb260-15"><a href="smooth-regression.html#cb260-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
-<span id="cb260-16"><a href="smooth-regression.html#cb260-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb260-17"><a href="smooth-regression.html#cb260-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb260-18"><a href="smooth-regression.html#cb260-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x   =</span> depth.vals, </span>
-<span id="cb260-19"><a href="smooth-regression.html#cb260-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">y   =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> st16.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> st16.fit<span class="sc">$</span>df),</span>
-<span id="cb260-20"><a href="smooth-regression.html#cb260-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
-<span id="cb260-21"><a href="smooth-regression.html#cb260-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb263"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb263-1"><a href="smooth-regression.html#cb263-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
+<span id="cb263-2"><a href="smooth-regression.html#cb263-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
+<span id="cb263-3"><a href="smooth-regression.html#cb263-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
+<span id="cb263-4"><a href="smooth-regression.html#cb263-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb263-5"><a href="smooth-regression.html#cb263-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> st16.lo,</span>
+<span id="cb263-6"><a href="smooth-regression.html#cb263-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> depth.vals,</span>
+<span id="cb263-7"><a href="smooth-regression.html#cb263-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb263-8"><a href="smooth-regression.html#cb263-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb263-9"><a href="smooth-regression.html#cb263-9" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))</span>
+<span id="cb263-10"><a href="smooth-regression.html#cb263-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb263-11"><a href="smooth-regression.html#cb263-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb263-12"><a href="smooth-regression.html#cb263-12" aria-hidden="true" tabindex="-1"></a><span class="co"># add 95% error bars</span></span>
+<span id="cb263-13"><a href="smooth-regression.html#cb263-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x   =</span> depth.vals, </span>
+<span id="cb263-14"><a href="smooth-regression.html#cb263-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">y   =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> st16.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> st16.fit<span class="sc">$</span>df),</span>
+<span id="cb263-15"><a href="smooth-regression.html#cb263-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb263-16"><a href="smooth-regression.html#cb263-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb263-17"><a href="smooth-regression.html#cb263-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb263-18"><a href="smooth-regression.html#cb263-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x   =</span> depth.vals, </span>
+<span id="cb263-19"><a href="smooth-regression.html#cb263-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">y   =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> st16.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> st16.fit<span class="sc">$</span>df),</span>
+<span id="cb263-20"><a href="smooth-regression.html#cb263-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb263-21"><a href="smooth-regression.html#cb263-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <p>Examine the residuals:</p>
-<div class="sourceCode" id="cb261"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb261-1"><a href="smooth-regression.html#cb261-1" aria-hidden="true" tabindex="-1"></a><span class="do">## see what the fit returns; maybe the residuals are already there</span></span>
-<span id="cb261-2"><a href="smooth-regression.html#cb261-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb261-3"><a href="smooth-regression.html#cb261-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(st16.lo)  <span class="co"># they are!</span></span></code></pre></div>
+<div class="sourceCode" id="cb264"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb264-1"><a href="smooth-regression.html#cb264-1" aria-hidden="true" tabindex="-1"></a><span class="do">## see what the fit returns; maybe the residuals are already there</span></span>
+<span id="cb264-2"><a href="smooth-regression.html#cb264-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb264-3"><a href="smooth-regression.html#cb264-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(st16.lo)  <span class="co"># they are!</span></span></code></pre></div>
 <pre><code>##  [1] &quot;n&quot;         &quot;fitted&quot;    &quot;residuals&quot; &quot;enp&quot;       &quot;s&quot;         &quot;one.delta&quot;
 ##  [7] &quot;two.delta&quot; &quot;trace.hat&quot; &quot;divisor&quot;   &quot;robust&quot;    &quot;pars&quot;      &quot;kd&quot;       
 ## [13] &quot;call&quot;      &quot;terms&quot;     &quot;xnames&quot;    &quot;x&quot;         &quot;y&quot;         &quot;weights&quot;</code></pre>
-<div class="sourceCode" id="cb263"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb263-1"><a href="smooth-regression.html#cb263-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.lo<span class="sc">$</span>residuals <span class="sc">~</span> st16<span class="sc">$</span>depth)</span>
-<span id="cb263-2"><a href="smooth-regression.html#cb263-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb266"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb266-1"><a href="smooth-regression.html#cb266-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.lo<span class="sc">$</span>residuals <span class="sc">~</span> st16<span class="sc">$</span>depth)</span>
+<span id="cb266-2"><a href="smooth-regression.html#cb266-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>Let’s look at how changing the span changes the fit. We’ll write a custom function to fit a LOESS curve, and then call the function with various values for the span.</p>
-<div class="sourceCode" id="cb264"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb264-1"><a href="smooth-regression.html#cb264-1" aria-hidden="true" tabindex="-1"></a>PlotLoessFit <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, <span class="at">return.fit =</span> <span class="cn">FALSE</span>, ...){</span>
-<span id="cb264-2"><a href="smooth-regression.html#cb264-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb264-3"><a href="smooth-regression.html#cb264-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Caluclates a loess fit with the &#39;loess&#39; function, and makes a plot</span></span>
-<span id="cb264-4"><a href="smooth-regression.html#cb264-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
-<span id="cb264-5"><a href="smooth-regression.html#cb264-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Args:</span></span>
-<span id="cb264-6"><a href="smooth-regression.html#cb264-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   x: predictor</span></span>
-<span id="cb264-7"><a href="smooth-regression.html#cb264-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   y: response</span></span>
-<span id="cb264-8"><a href="smooth-regression.html#cb264-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   return.fit: logical</span></span>
-<span id="cb264-9"><a href="smooth-regression.html#cb264-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   ...: Optional arguments to loess</span></span>
-<span id="cb264-10"><a href="smooth-regression.html#cb264-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
-<span id="cb264-11"><a href="smooth-regression.html#cb264-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Returns:</span></span>
-<span id="cb264-12"><a href="smooth-regression.html#cb264-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   the loess fit</span></span>
-<span id="cb264-13"><a href="smooth-regression.html#cb264-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb264-14"><a href="smooth-regression.html#cb264-14" aria-hidden="true" tabindex="-1"></a>  my.lo <span class="ot">&lt;-</span> <span class="fu">loess</span>(y <span class="sc">~</span> x, ...)</span>
-<span id="cb264-15"><a href="smooth-regression.html#cb264-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb264-16"><a href="smooth-regression.html#cb264-16" aria-hidden="true" tabindex="-1"></a>  x.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(x), <span class="at">to =</span> <span class="fu">max</span>(x), <span class="at">length =</span> <span class="dv">100</span>)</span>
-<span id="cb264-17"><a href="smooth-regression.html#cb264-17" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb264-18"><a href="smooth-regression.html#cb264-18" aria-hidden="true" tabindex="-1"></a>  my.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> my.lo,</span>
-<span id="cb264-19"><a href="smooth-regression.html#cb264-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> x.vals,</span>
-<span id="cb264-20"><a href="smooth-regression.html#cb264-20" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb264-21"><a href="smooth-regression.html#cb264-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb264-22"><a href="smooth-regression.html#cb264-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(x, y)</span>
-<span id="cb264-23"><a href="smooth-regression.html#cb264-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x =</span> x.vals, <span class="at">y =</span> my.fit<span class="sc">$</span>fit, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
-<span id="cb264-24"><a href="smooth-regression.html#cb264-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb264-25"><a href="smooth-regression.html#cb264-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x   =</span> x.vals, </span>
-<span id="cb264-26"><a href="smooth-regression.html#cb264-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">y   =</span> my.fit<span class="sc">$</span>fit <span class="sc">+</span> my.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> my.fit<span class="sc">$</span>df),</span>
-<span id="cb264-27"><a href="smooth-regression.html#cb264-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
-<span id="cb264-28"><a href="smooth-regression.html#cb264-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb264-29"><a href="smooth-regression.html#cb264-29" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb264-30"><a href="smooth-regression.html#cb264-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x   =</span> x.vals, </span>
-<span id="cb264-31"><a href="smooth-regression.html#cb264-31" aria-hidden="true" tabindex="-1"></a>        <span class="at">y   =</span> my.fit<span class="sc">$</span>fit <span class="sc">-</span> my.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> my.fit<span class="sc">$</span>df),</span>
-<span id="cb264-32"><a href="smooth-regression.html#cb264-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
-<span id="cb264-33"><a href="smooth-regression.html#cb264-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb264-34"><a href="smooth-regression.html#cb264-34" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb264-35"><a href="smooth-regression.html#cb264-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (return.fit) {</span>
-<span id="cb264-36"><a href="smooth-regression.html#cb264-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(my.lo)</span>
-<span id="cb264-37"><a href="smooth-regression.html#cb264-37" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb264-38"><a href="smooth-regression.html#cb264-38" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb267"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb267-1"><a href="smooth-regression.html#cb267-1" aria-hidden="true" tabindex="-1"></a>PlotLoessFit <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, <span class="at">return.fit =</span> <span class="cn">FALSE</span>, ...){</span>
+<span id="cb267-2"><a href="smooth-regression.html#cb267-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb267-3"><a href="smooth-regression.html#cb267-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Caluclates a loess fit with the &#39;loess&#39; function, and makes a plot</span></span>
+<span id="cb267-4"><a href="smooth-regression.html#cb267-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb267-5"><a href="smooth-regression.html#cb267-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Args:</span></span>
+<span id="cb267-6"><a href="smooth-regression.html#cb267-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   x: predictor</span></span>
+<span id="cb267-7"><a href="smooth-regression.html#cb267-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   y: response</span></span>
+<span id="cb267-8"><a href="smooth-regression.html#cb267-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   return.fit: logical</span></span>
+<span id="cb267-9"><a href="smooth-regression.html#cb267-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   ...: Optional arguments to loess</span></span>
+<span id="cb267-10"><a href="smooth-regression.html#cb267-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb267-11"><a href="smooth-regression.html#cb267-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Returns:</span></span>
+<span id="cb267-12"><a href="smooth-regression.html#cb267-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   the loess fit</span></span>
+<span id="cb267-13"><a href="smooth-regression.html#cb267-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb267-14"><a href="smooth-regression.html#cb267-14" aria-hidden="true" tabindex="-1"></a>  my.lo <span class="ot">&lt;-</span> <span class="fu">loess</span>(y <span class="sc">~</span> x, ...)</span>
+<span id="cb267-15"><a href="smooth-regression.html#cb267-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb267-16"><a href="smooth-regression.html#cb267-16" aria-hidden="true" tabindex="-1"></a>  x.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(x), <span class="at">to =</span> <span class="fu">max</span>(x), <span class="at">length =</span> <span class="dv">100</span>)</span>
+<span id="cb267-17"><a href="smooth-regression.html#cb267-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb267-18"><a href="smooth-regression.html#cb267-18" aria-hidden="true" tabindex="-1"></a>  my.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> my.lo,</span>
+<span id="cb267-19"><a href="smooth-regression.html#cb267-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> x.vals,</span>
+<span id="cb267-20"><a href="smooth-regression.html#cb267-20" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb267-21"><a href="smooth-regression.html#cb267-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb267-22"><a href="smooth-regression.html#cb267-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(x, y)</span>
+<span id="cb267-23"><a href="smooth-regression.html#cb267-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x =</span> x.vals, <span class="at">y =</span> my.fit<span class="sc">$</span>fit, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb267-24"><a href="smooth-regression.html#cb267-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb267-25"><a href="smooth-regression.html#cb267-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x   =</span> x.vals, </span>
+<span id="cb267-26"><a href="smooth-regression.html#cb267-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">y   =</span> my.fit<span class="sc">$</span>fit <span class="sc">+</span> my.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> my.fit<span class="sc">$</span>df),</span>
+<span id="cb267-27"><a href="smooth-regression.html#cb267-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb267-28"><a href="smooth-regression.html#cb267-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb267-29"><a href="smooth-regression.html#cb267-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb267-30"><a href="smooth-regression.html#cb267-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x   =</span> x.vals, </span>
+<span id="cb267-31"><a href="smooth-regression.html#cb267-31" aria-hidden="true" tabindex="-1"></a>        <span class="at">y   =</span> my.fit<span class="sc">$</span>fit <span class="sc">-</span> my.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> my.fit<span class="sc">$</span>df),</span>
+<span id="cb267-32"><a href="smooth-regression.html#cb267-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb267-33"><a href="smooth-regression.html#cb267-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb267-34"><a href="smooth-regression.html#cb267-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb267-35"><a href="smooth-regression.html#cb267-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (return.fit) {</span>
+<span id="cb267-36"><a href="smooth-regression.html#cb267-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(my.lo)</span>
+<span id="cb267-37"><a href="smooth-regression.html#cb267-37" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb267-38"><a href="smooth-regression.html#cb267-38" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Now we’ll call the function several times, each time chanigng the value of the <code>span</code> argument to the <code>loess</code> function:</p>
-<div class="sourceCode" id="cb265"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb265-1"><a href="smooth-regression.html#cb265-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb268"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb268-1"><a href="smooth-regression.html#cb268-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.5</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-<div class="sourceCode" id="cb266"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb266-1"><a href="smooth-regression.html#cb266-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.25</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb269"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb269-1"><a href="smooth-regression.html#cb269-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.25</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
-<div class="sourceCode" id="cb267"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb267-1"><a href="smooth-regression.html#cb267-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb270"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb270-1"><a href="smooth-regression.html#cb270-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.1</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-3.png" width="672" /></p>
 <p>Let’s try a loess fit with a locally linear regression:</p>
-<div class="sourceCode" id="cb268"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb268-1"><a href="smooth-regression.html#cb268-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.25</span>, <span class="at">degree =</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb271"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb271-1"><a href="smooth-regression.html#cb271-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st16<span class="sc">$</span>depth, <span class="at">y =</span> st16<span class="sc">$</span>sources, <span class="at">span =</span> <span class="fl">0.25</span>, <span class="at">degree =</span> <span class="dv">1</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 <div id="splines" class="section level2 hasAnchor" number="4.2">
@@ -401,31 +401,31 @@ div.csl-indent {
 \]</span></p>
 <p>The <code>s()</code> component of the model formula designates a spline, and specifies details about the particular type of spline to be fit. The <code>fx = TRUE</code> component of the formula indicates that the amount of smoothing is fixed. The default value for the <code>fx</code> argument is <code>fx = FALSE</code>, in which case the amount of smoothing is determined by (generalized) cross-validation. When <code>fx = TRUE</code>, the parameter <code>k</code> determines the dimensionality (degree of flexibility) of the spline. Larger values of <code>k</code> correspond to greater flexibility, and a less smooth fit. I think that the number of knots is <span class="math inline">\(k-4\)</span>, such that setting <span class="math inline">\(k=4\)</span> fits a familiar cubic polynomial with no knots. Setting <span class="math inline">\(k=5\)</span> then fits a regression spline with one knot, etc. I have not been able to figure out where the knots are placed.</p>
 <p>In any case, we’ll fit a regression spline with two knots:</p>
-<div class="sourceCode" id="cb269"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb269-1"><a href="smooth-regression.html#cb269-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span></code></pre></div>
+<div class="sourceCode" id="cb272"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb272-1"><a href="smooth-regression.html#cb272-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span></code></pre></div>
 <pre><code>## Loading required package: nlme</code></pre>
 <pre><code>## This is mgcv 1.8-42. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
-<div class="sourceCode" id="cb272"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb272-1"><a href="smooth-regression.html#cb272-1" aria-hidden="true" tabindex="-1"></a>st16.rspline <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(sources <span class="sc">~</span> <span class="fu">s</span>(depth, <span class="at">k =</span> <span class="dv">6</span>, <span class="at">fx =</span> <span class="cn">TRUE</span>), <span class="at">data =</span> st16)</span>
-<span id="cb272-2"><a href="smooth-regression.html#cb272-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.rspline, <span class="at">se =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb275"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb275-1"><a href="smooth-regression.html#cb275-1" aria-hidden="true" tabindex="-1"></a>st16.rspline <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(sources <span class="sc">~</span> <span class="fu">s</span>(depth, <span class="at">k =</span> <span class="dv">6</span>, <span class="at">fx =</span> <span class="cn">TRUE</span>), <span class="at">data =</span> st16)</span>
+<span id="cb275-2"><a href="smooth-regression.html#cb275-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.rspline, <span class="at">se =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>Note that the plot includes only the portion of the model attributable to the covariate effect. This is because we have actually fit an additive model (e.g., a GAM).</p>
 <p>The plot shows only the spline component, which thus does not include the intercept. To visualize the fit, we’ll need to do a bit more work.</p>
-<div class="sourceCode" id="cb273"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb273-1"><a href="smooth-regression.html#cb273-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))  </span>
-<span id="cb273-2"><a href="smooth-regression.html#cb273-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb273-3"><a href="smooth-regression.html#cb273-3" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st16.rspline, </span>
-<span id="cb273-4"><a href="smooth-regression.html#cb273-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
-<span id="cb273-5"><a href="smooth-regression.html#cb273-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb273-6"><a href="smooth-regression.html#cb273-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb273-7"><a href="smooth-regression.html#cb273-7" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit)</span>
-<span id="cb273-8"><a href="smooth-regression.html#cb273-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb273-9"><a href="smooth-regression.html#cb273-9" aria-hidden="true" tabindex="-1"></a><span class="do">## add +/- 2 SE following Zuur; this is only approximate.</span></span>
-<span id="cb273-10"><a href="smooth-regression.html#cb273-10" aria-hidden="true" tabindex="-1"></a><span class="do">## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 5 = 46 df</span></span>
-<span id="cb273-11"><a href="smooth-regression.html#cb273-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb273-12"><a href="smooth-regression.html#cb273-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb273-13"><a href="smooth-regression.html#cb273-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb276"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb276-1"><a href="smooth-regression.html#cb276-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))  </span>
+<span id="cb276-2"><a href="smooth-regression.html#cb276-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb276-3"><a href="smooth-regression.html#cb276-3" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st16.rspline, </span>
+<span id="cb276-4"><a href="smooth-regression.html#cb276-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
+<span id="cb276-5"><a href="smooth-regression.html#cb276-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb276-6"><a href="smooth-regression.html#cb276-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb276-7"><a href="smooth-regression.html#cb276-7" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit)</span>
+<span id="cb276-8"><a href="smooth-regression.html#cb276-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb276-9"><a href="smooth-regression.html#cb276-9" aria-hidden="true" tabindex="-1"></a><span class="do">## add +/- 2 SE following Zuur; this is only approximate.</span></span>
+<span id="cb276-10"><a href="smooth-regression.html#cb276-10" aria-hidden="true" tabindex="-1"></a><span class="do">## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 5 = 46 df</span></span>
+<span id="cb276-11"><a href="smooth-regression.html#cb276-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb276-12"><a href="smooth-regression.html#cb276-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb276-13"><a href="smooth-regression.html#cb276-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>We see that this particular fit is not flexible enough to capture the trend in luminescence at low depth.</p>
 <p>Let’s take a look at the information produced by a call to <code>summary</code>:</p>
-<div class="sourceCode" id="cb274"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb274-1"><a href="smooth-regression.html#cb274-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(st16.rspline)</span></code></pre></div>
+<div class="sourceCode" id="cb277"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb277-1"><a href="smooth-regression.html#cb277-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(st16.rspline)</span></code></pre></div>
 <pre><code>## 
 ## Family: gaussian 
 ## Link function: identity 
@@ -449,26 +449,26 @@ div.csl-indent {
 ## GCV = 19.837  Scale est. = 17.503    n = 51</code></pre>
 <p>This summary requires a bit more explanation as well. In this GAM, the spline component of the model effectively creates a set of new predictor variables. A regression spline with <span class="math inline">\(x\)</span> knots requires <span class="math inline">\(x+3\)</span> new regression predictors to fit the spline. In this fit, there are two knots, so the spline requires 5 new predictor variables. Because the predictors are determined in advance with regression splines, we can use the usual theory of <span class="math inline">\(F\)</span>-tests from regression to assess the statistical significance of the spline terms. In the section of the output labeled “Approximate significance of smooth terms”, we see that these 5 predictors together provide a significantly better fit than a model that does not include the spline. I believe this test is actually exact. I think that it is labeled “approximate” because the default behavior of <code>mgcv::gam</code> is to fit a smoothing spline, for which the test is indeed only approximate. We’ll discuss this more when we study a smoothing spline fit.</p>
 <p>Now we’ll fit and plot a smoothing spline. A smoothing spline differs from a regression spline by using generalized cross-validation to determine the appropriate smoothness.</p>
-<div class="sourceCode" id="cb276"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb276-1"><a href="smooth-regression.html#cb276-1" aria-hidden="true" tabindex="-1"></a>st16.spline <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(sources <span class="sc">~</span> <span class="fu">s</span>(depth), <span class="at">data =</span> st16)</span>
-<span id="cb276-2"><a href="smooth-regression.html#cb276-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.spline, <span class="at">se =</span> <span class="cn">TRUE</span>)  <span class="co"># note that the plot does not include the intercept</span></span></code></pre></div>
+<div class="sourceCode" id="cb279"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb279-1"><a href="smooth-regression.html#cb279-1" aria-hidden="true" tabindex="-1"></a>st16.spline <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(sources <span class="sc">~</span> <span class="fu">s</span>(depth), <span class="at">data =</span> st16)</span>
+<span id="cb279-2"><a href="smooth-regression.html#cb279-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(st16.spline, <span class="at">se =</span> <span class="cn">TRUE</span>)  <span class="co"># note that the plot does not include the intercept</span></span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <p>Again, we make a plot that includes both the points and the fit</p>
-<div class="sourceCode" id="cb277"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb277-1"><a href="smooth-regression.html#cb277-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))  </span>
-<span id="cb277-2"><a href="smooth-regression.html#cb277-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb277-3"><a href="smooth-regression.html#cb277-3" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st16.spline, </span>
-<span id="cb277-4"><a href="smooth-regression.html#cb277-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
-<span id="cb277-5"><a href="smooth-regression.html#cb277-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb277-6"><a href="smooth-regression.html#cb277-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb277-7"><a href="smooth-regression.html#cb277-7" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit)</span>
-<span id="cb277-8"><a href="smooth-regression.html#cb277-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb277-9"><a href="smooth-regression.html#cb277-9" aria-hidden="true" tabindex="-1"></a><span class="do">## add +/- 2 SE following Zuur; this is only approximate.</span></span>
-<span id="cb277-10"><a href="smooth-regression.html#cb277-10" aria-hidden="true" tabindex="-1"></a><span class="do">## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 9.81 = 41.19 df</span></span>
-<span id="cb277-11"><a href="smooth-regression.html#cb277-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb277-12"><a href="smooth-regression.html#cb277-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb277-13"><a href="smooth-regression.html#cb277-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb280"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb280-1"><a href="smooth-regression.html#cb280-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(st16, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))  </span>
+<span id="cb280-2"><a href="smooth-regression.html#cb280-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb280-3"><a href="smooth-regression.html#cb280-3" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st16.spline, </span>
+<span id="cb280-4"><a href="smooth-regression.html#cb280-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
+<span id="cb280-5"><a href="smooth-regression.html#cb280-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb280-6"><a href="smooth-regression.html#cb280-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb280-7"><a href="smooth-regression.html#cb280-7" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit)</span>
+<span id="cb280-8"><a href="smooth-regression.html#cb280-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb280-9"><a href="smooth-regression.html#cb280-9" aria-hidden="true" tabindex="-1"></a><span class="do">## add +/- 2 SE following Zuur; this is only approximate.</span></span>
+<span id="cb280-10"><a href="smooth-regression.html#cb280-10" aria-hidden="true" tabindex="-1"></a><span class="do">## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 9.81 = 41.19 df</span></span>
+<span id="cb280-11"><a href="smooth-regression.html#cb280-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb280-12"><a href="smooth-regression.html#cb280-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb280-13"><a href="smooth-regression.html#cb280-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>Let’s ask for a summary:</p>
-<div class="sourceCode" id="cb278"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb278-1"><a href="smooth-regression.html#cb278-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(st16.spline)</span></code></pre></div>
+<div class="sourceCode" id="cb281"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb281-1"><a href="smooth-regression.html#cb281-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(st16.spline)</span></code></pre></div>
 <pre><code>## 
 ## Family: gaussian 
 ## Link function: identity 
@@ -492,24 +492,24 @@ div.csl-indent {
 ## GCV = 9.7081  Scale est. = 7.8402    n = 51</code></pre>
 <p>Note especially the <code>edf</code> component in the “Approximate significance of smooth terms” section. The label <code>edf</code> stands for effective degrees of freedom. We can think of the edf as the effective number of new predictors that have been added to the model to accommodate the spline. For a smoothing spline, the number and values of the newly created predictors are determined by fitting the model to the data. Because the predictors are calculated in this way, the usual theory of <span class="math inline">\(F\)</span>-testing does not apply. This is why the <span class="math inline">\(F\)</span>-test shown for the smoothing spline is labeled as “approximate”.</p>
 <p>Find the AIC for the smoothing spline fit:</p>
-<div class="sourceCode" id="cb280"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb280-1"><a href="smooth-regression.html#cb280-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(st16.spline)</span></code></pre></div>
+<div class="sourceCode" id="cb283"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb283-1"><a href="smooth-regression.html#cb283-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(st16.spline)</span></code></pre></div>
 <pre><code>## [1] 260.4811</code></pre>
 <p>Here’s a small detail. Notice that the syntax of the call to <code>predict</code> is slightly different when making a prediction for a <code>loess</code> object vs. making a prediction for a <code>gam</code> object (which the spline fit is). For a call to <code>predict</code> with a <code>loess</code> object, the new predictor values can be provided in the form of a vector. So, we were able to use</p>
-<div class="sourceCode" id="cb282"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb282-1"><a href="smooth-regression.html#cb282-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
-<span id="cb282-2"><a href="smooth-regression.html#cb282-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
-<span id="cb282-3"><a href="smooth-regression.html#cb282-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
-<span id="cb282-4"><a href="smooth-regression.html#cb282-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb282-5"><a href="smooth-regression.html#cb282-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> st16.lo,</span>
-<span id="cb282-6"><a href="smooth-regression.html#cb282-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> depth.vals,</span>
-<span id="cb282-7"><a href="smooth-regression.html#cb282-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb285"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb285-1"><a href="smooth-regression.html#cb285-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
+<span id="cb285-2"><a href="smooth-regression.html#cb285-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
+<span id="cb285-3"><a href="smooth-regression.html#cb285-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
+<span id="cb285-4"><a href="smooth-regression.html#cb285-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb285-5"><a href="smooth-regression.html#cb285-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> st16.lo,</span>
+<span id="cb285-6"><a href="smooth-regression.html#cb285-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> depth.vals,</span>
+<span id="cb285-7"><a href="smooth-regression.html#cb285-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>However, for a call to <code>predict</code> with a <code>gam</code> object, the new predictor values must be provided in the form of a new data frame, with variable names that match the variables in the <code>gam</code> model. So, to get predicted values for the spline fit, we needed to use the more cumbersome</p>
-<div class="sourceCode" id="cb283"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb283-1"><a href="smooth-regression.html#cb283-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
-<span id="cb283-2"><a href="smooth-regression.html#cb283-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
-<span id="cb283-3"><a href="smooth-regression.html#cb283-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
-<span id="cb283-4"><a href="smooth-regression.html#cb283-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb283-5"><a href="smooth-regression.html#cb283-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st16.spline, </span>
-<span id="cb283-6"><a href="smooth-regression.html#cb283-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
-<span id="cb283-7"><a href="smooth-regression.html#cb283-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb286"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb286-1"><a href="smooth-regression.html#cb286-1" aria-hidden="true" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st16, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
+<span id="cb286-2"><a href="smooth-regression.html#cb286-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
+<span id="cb286-3"><a href="smooth-regression.html#cb286-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
+<span id="cb286-4"><a href="smooth-regression.html#cb286-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb286-5"><a href="smooth-regression.html#cb286-5" aria-hidden="true" tabindex="-1"></a>st16.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st16.spline, </span>
+<span id="cb286-6"><a href="smooth-regression.html#cb286-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
+<span id="cb286-7"><a href="smooth-regression.html#cb286-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
 <div id="generalized-additive-models-gams" class="section level2 hasAnchor" number="4.3">
 <h2><span class="header-section-number">4.3</span> Generalized additive models (GAMs)<a href="smooth-regression.html#generalized-additive-models-gams" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -526,12 +526,12 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 <p>We will illustrate additive modeling using the bird data found in Appendix A of Zuur et al. (2009). Zuur et al. report that these data originally appeared in Loyn (1987) and were featured in Quinn &amp; Keough (2002)’s text. Zuur et al. describe these data in the following way:</p>
 <p>“Forest bird densities were measured in 56 forest patches in south-eastern Victoria, Australia. The aim of the study was to relate bird densities to six habitat variables; size of the forest patch, distance to the nearest patch, distance to the nearest larger patch, mean altitude of the patch, year of isolation by clearing, and an index of stock grazing history (1 = light, 5 = intensive).”</p>
 <p>We first read the data and perform some light exploratory analysis and housekeeping.</p>
-<div class="sourceCode" id="cb284"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb284-1"><a href="smooth-regression.html#cb284-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb284-2"><a href="smooth-regression.html#cb284-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(mgcv)</span>
-<span id="cb284-3"><a href="smooth-regression.html#cb284-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb284-4"><a href="smooth-regression.html#cb284-4" aria-hidden="true" tabindex="-1"></a>bird <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/Loyn.txt&quot;</span>, <span class="at">head =</span> T)</span>
-<span id="cb284-5"><a href="smooth-regression.html#cb284-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb284-6"><a href="smooth-regression.html#cb284-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
+<div class="sourceCode" id="cb287"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb287-1"><a href="smooth-regression.html#cb287-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb287-2"><a href="smooth-regression.html#cb287-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(mgcv)</span>
+<span id="cb287-3"><a href="smooth-regression.html#cb287-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb287-4"><a href="smooth-regression.html#cb287-4" aria-hidden="true" tabindex="-1"></a>bird <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/Loyn.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb287-5"><a href="smooth-regression.html#cb287-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb287-6"><a href="smooth-regression.html#cb287-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
 <pre><code>##       Site           ABUND            AREA              DIST       
 ##  Min.   : 1.00   Min.   : 1.50   Min.   :   0.10   Min.   :  26.0  
 ##  1st Qu.:14.75   1st Qu.:12.40   1st Qu.:   2.00   1st Qu.:  93.0  
@@ -546,24 +546,24 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ##  Mean   : 733.3   Mean   :1950   Mean   :2.982   Mean   :146.2  
 ##  3rd Qu.: 913.8   3rd Qu.:1966   3rd Qu.:4.000   3rd Qu.:182.5  
 ##  Max.   :4426.0   Max.   :1976   Max.   :5.000   Max.   :260.0</code></pre>
-<div class="sourceCode" id="cb286"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb286-1"><a href="smooth-regression.html#cb286-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of the &#39;Site&#39; variable; it is redundant with the row label</span></span>
-<span id="cb286-2"><a href="smooth-regression.html#cb286-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb286-3"><a href="smooth-regression.html#cb286-3" aria-hidden="true" tabindex="-1"></a>bird <span class="ot">&lt;-</span> bird[, <span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb286-4"><a href="smooth-regression.html#cb286-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb286-5"><a href="smooth-regression.html#cb286-5" aria-hidden="true" tabindex="-1"></a><span class="co"># log-transform area, distance, ldistance, to remove right-skew</span></span>
-<span id="cb286-6"><a href="smooth-regression.html#cb286-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb286-7"><a href="smooth-regression.html#cb286-7" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>L.AREA <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>AREA)</span>
-<span id="cb286-8"><a href="smooth-regression.html#cb286-8" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>L.DIST <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>DIST)</span>
-<span id="cb286-9"><a href="smooth-regression.html#cb286-9" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>L.LDIST <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>LDIST)</span>
-<span id="cb286-10"><a href="smooth-regression.html#cb286-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb286-11"><a href="smooth-regression.html#cb286-11" aria-hidden="true" tabindex="-1"></a><span class="co"># change YR.ISOL to years since isolation (study was published in 1987)</span></span>
-<span id="cb286-12"><a href="smooth-regression.html#cb286-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb286-13"><a href="smooth-regression.html#cb286-13" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>YR.ISOL <span class="ot">&lt;-</span> <span class="dv">1987</span> <span class="sc">-</span> bird<span class="sc">$</span>YR.ISOL</span>
-<span id="cb286-14"><a href="smooth-regression.html#cb286-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb286-15"><a href="smooth-regression.html#cb286-15" aria-hidden="true" tabindex="-1"></a><span class="co"># keep the only the variables we want</span></span>
-<span id="cb286-16"><a href="smooth-regression.html#cb286-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb286-17"><a href="smooth-regression.html#cb286-17" aria-hidden="true" tabindex="-1"></a>bird <span class="ot">&lt;-</span> bird[, <span class="fu">c</span>(<span class="st">&quot;ABUND&quot;</span>, <span class="st">&quot;L.AREA&quot;</span>, <span class="st">&quot;L.DIST&quot;</span>, <span class="st">&quot;L.LDIST&quot;</span>, <span class="st">&quot;YR.ISOL&quot;</span>, <span class="st">&quot;ALT&quot;</span>, <span class="st">&quot;GRAZE&quot;</span>)]</span>
-<span id="cb286-18"><a href="smooth-regression.html#cb286-18" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
+<div class="sourceCode" id="cb289"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb289-1"><a href="smooth-regression.html#cb289-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of the &#39;Site&#39; variable; it is redundant with the row label</span></span>
+<span id="cb289-2"><a href="smooth-regression.html#cb289-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb289-3"><a href="smooth-regression.html#cb289-3" aria-hidden="true" tabindex="-1"></a>bird <span class="ot">&lt;-</span> bird[, <span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb289-4"><a href="smooth-regression.html#cb289-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb289-5"><a href="smooth-regression.html#cb289-5" aria-hidden="true" tabindex="-1"></a><span class="co"># log-transform area, distance, ldistance, to remove right-skew</span></span>
+<span id="cb289-6"><a href="smooth-regression.html#cb289-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb289-7"><a href="smooth-regression.html#cb289-7" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>L.AREA <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>AREA)</span>
+<span id="cb289-8"><a href="smooth-regression.html#cb289-8" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>L.DIST <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>DIST)</span>
+<span id="cb289-9"><a href="smooth-regression.html#cb289-9" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>L.LDIST <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>LDIST)</span>
+<span id="cb289-10"><a href="smooth-regression.html#cb289-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb289-11"><a href="smooth-regression.html#cb289-11" aria-hidden="true" tabindex="-1"></a><span class="co"># change YR.ISOL to years since isolation (study was published in 1987)</span></span>
+<span id="cb289-12"><a href="smooth-regression.html#cb289-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb289-13"><a href="smooth-regression.html#cb289-13" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>YR.ISOL <span class="ot">&lt;-</span> <span class="dv">1987</span> <span class="sc">-</span> bird<span class="sc">$</span>YR.ISOL</span>
+<span id="cb289-14"><a href="smooth-regression.html#cb289-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb289-15"><a href="smooth-regression.html#cb289-15" aria-hidden="true" tabindex="-1"></a><span class="co"># keep the only the variables we want</span></span>
+<span id="cb289-16"><a href="smooth-regression.html#cb289-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb289-17"><a href="smooth-regression.html#cb289-17" aria-hidden="true" tabindex="-1"></a>bird <span class="ot">&lt;-</span> bird[, <span class="fu">c</span>(<span class="st">&quot;ABUND&quot;</span>, <span class="st">&quot;L.AREA&quot;</span>, <span class="st">&quot;L.DIST&quot;</span>, <span class="st">&quot;L.LDIST&quot;</span>, <span class="st">&quot;YR.ISOL&quot;</span>, <span class="st">&quot;ALT&quot;</span>, <span class="st">&quot;GRAZE&quot;</span>)]</span>
+<span id="cb289-18"><a href="smooth-regression.html#cb289-18" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
 <pre><code>##      ABUND           L.AREA            L.DIST         L.LDIST     
 ##  Min.   : 1.50   Min.   :-2.3026   Min.   :3.258   Min.   :3.258  
 ##  1st Qu.:12.40   1st Qu.: 0.6931   1st Qu.:4.533   1st Qu.:5.064  
@@ -579,9 +579,9 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ##  3rd Qu.:59.50   3rd Qu.:182.5   3rd Qu.:4.000  
 ##  Max.   :97.00   Max.   :260.0   Max.   :5.000</code></pre>
 <p>Our first attempt at a GAM will entertain smoothing splines for all of the continuous predictors in the model. We will use a linear term for GRAZE because there are too few unique values to support a smooth term:</p>
-<div class="sourceCode" id="cb288"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb288-1"><a href="smooth-regression.html#cb288-1" aria-hidden="true" tabindex="-1"></a>bird.gam1 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> <span class="fu">s</span>(L.DIST) <span class="sc">+</span> <span class="fu">s</span>(L.LDIST) <span class="sc">+</span> <span class="fu">s</span>(YR.ISOL) <span class="sc">+</span> GRAZE <span class="sc">+</span> <span class="fu">s</span>(ALT), <span class="at">data =</span> bird)</span>
-<span id="cb288-2"><a href="smooth-regression.html#cb288-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb288-3"><a href="smooth-regression.html#cb288-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam1)</span></code></pre></div>
+<div class="sourceCode" id="cb291"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb291-1"><a href="smooth-regression.html#cb291-1" aria-hidden="true" tabindex="-1"></a>bird.gam1 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> <span class="fu">s</span>(L.DIST) <span class="sc">+</span> <span class="fu">s</span>(L.LDIST) <span class="sc">+</span> <span class="fu">s</span>(YR.ISOL) <span class="sc">+</span> GRAZE <span class="sc">+</span> <span class="fu">s</span>(ALT), <span class="at">data =</span> bird)</span>
+<span id="cb291-2"><a href="smooth-regression.html#cb291-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb291-3"><a href="smooth-regression.html#cb291-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam1)</span></code></pre></div>
 <pre><code>## 
 ## Family: gaussian 
 ## Link function: identity 
@@ -610,11 +610,11 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ## R-sq.(adj) =   0.72   Deviance explained = 77.6%
 ## GCV = 40.987  Scale est. = 32.238    n = 56</code></pre>
 <p>The output reports the partial regression coefficient for the lone quantitative predictor GRAZE, and approximate significance tests for the smooth terms for each of the other predictors. We can visualize these smooth terms with a call to <code>plot</code>:</p>
-<div class="sourceCode" id="cb290"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb290-1"><a href="smooth-regression.html#cb290-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bird.gam1)</span></code></pre></div>
+<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="smooth-regression.html#cb293-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bird.gam1)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-2.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-3.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-4.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-5.png" width="672" /></p>
 <p>In the interest of time, we take a casual approach to variable selection here. We’ll drop smooth terms that are clearly not significant to obtain:</p>
-<div class="sourceCode" id="cb291"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb291-1"><a href="smooth-regression.html#cb291-1" aria-hidden="true" tabindex="-1"></a>bird.gam2 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
-<span id="cb291-2"><a href="smooth-regression.html#cb291-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam2)</span></code></pre></div>
+<div class="sourceCode" id="cb294"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb294-1"><a href="smooth-regression.html#cb294-1" aria-hidden="true" tabindex="-1"></a>bird.gam2 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb294-2"><a href="smooth-regression.html#cb294-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam2)</span></code></pre></div>
 <pre><code>## 
 ## Family: gaussian 
 ## Link function: identity 
@@ -637,11 +637,11 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ## 
 ## R-sq.(adj) =   0.68   Deviance explained = 69.9%
 ## GCV = 39.992  Scale est. = 36.932    n = 56</code></pre>
-<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="smooth-regression.html#cb293-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bird.gam2)</span></code></pre></div>
+<div class="sourceCode" id="cb296"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb296-1"><a href="smooth-regression.html#cb296-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bird.gam2)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <p>Note that the GRAZE variable is currently treated as a numerical predictor. We’ll try fitting a model with GRAZE as a factor. First we’ll create a new variable that treats GRAZE as a factor. We’ll use the <code>summary</code> command to confirm that the new variable fGRAZE is indeed a factor.</p>
-<div class="sourceCode" id="cb294"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb294-1"><a href="smooth-regression.html#cb294-1" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>fGRAZE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(bird<span class="sc">$</span>GRAZE)</span>
-<span id="cb294-2"><a href="smooth-regression.html#cb294-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
+<div class="sourceCode" id="cb297"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb297-1"><a href="smooth-regression.html#cb297-1" aria-hidden="true" tabindex="-1"></a>bird<span class="sc">$</span>fGRAZE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(bird<span class="sc">$</span>GRAZE)</span>
+<span id="cb297-2"><a href="smooth-regression.html#cb297-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
 <pre><code>##      ABUND           L.AREA            L.DIST         L.LDIST     
 ##  Min.   : 1.50   Min.   :-2.3026   Min.   :3.258   Min.   :3.258  
 ##  1st Qu.:12.40   1st Qu.: 0.6931   1st Qu.:4.533   1st Qu.:5.064  
@@ -657,10 +657,10 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ##  3rd Qu.:59.50   3rd Qu.:182.5   3rd Qu.:4.000   5:13  
 ##  Max.   :97.00   Max.   :260.0   Max.   :5.000</code></pre>
 <p>Now we’ll proceed to fit the model</p>
-<div class="sourceCode" id="cb296"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb296-1"><a href="smooth-regression.html#cb296-1" aria-hidden="true" tabindex="-1"></a>bird.gam3 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
-<span id="cb296-2"><a href="smooth-regression.html#cb296-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bird.gam3)</span></code></pre></div>
+<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="smooth-regression.html#cb299-1" aria-hidden="true" tabindex="-1"></a>bird.gam3 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb299-2"><a href="smooth-regression.html#cb299-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bird.gam3)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
-<div class="sourceCode" id="cb297"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb297-1"><a href="smooth-regression.html#cb297-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam3)</span></code></pre></div>
+<div class="sourceCode" id="cb300"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb300-1"><a href="smooth-regression.html#cb300-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam3)</span></code></pre></div>
 <pre><code>## 
 ## Family: gaussian 
 ## Link function: identity 
@@ -687,9 +687,9 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ## R-sq.(adj) =  0.723   Deviance explained = 75.7%
 ## GCV = 37.013  Scale est. = 31.883    n = 56</code></pre>
 <p>To formally compare the models with GRAZE as a numerical vs. categorical predictor, we’ll have to use AIC. We can’t use an <span class="math inline">\(F\)</span>-test here because we have used smoothing splines to capture the effect of L.AREA. Thus, the models are not nested. (If we had used regression splines for L.AREA, then the models would have been nested.) We can extract the AICs for these models by a simple call to the <code>AIC</code> function.</p>
-<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="smooth-regression.html#cb299-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(bird.gam2)</span></code></pre></div>
+<div class="sourceCode" id="cb302"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb302-1"><a href="smooth-regression.html#cb302-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(bird.gam2)</span></code></pre></div>
 <pre><code>## [1] 367.1413</code></pre>
-<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb301-1"><a href="smooth-regression.html#cb301-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(bird.gam3)</span></code></pre></div>
+<div class="sourceCode" id="cb304"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb304-1"><a href="smooth-regression.html#cb304-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(bird.gam3)</span></code></pre></div>
 <pre><code>## [1] 361.9655</code></pre>
 <!-- Compare the design matrices for these two models (only the first few rows of each matrix are shown in this transcript): -->
 <!-- ```{r} -->
@@ -697,7 +697,7 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 <!-- head(model.matrix(bird.gam4)) -->
 <!-- ``` -->
 <p>We can see the contrasts used to incorporate the factor fGRAZE in the model by a call to <code>contrasts</code>:</p>
-<div class="sourceCode" id="cb303"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb303-1"><a href="smooth-regression.html#cb303-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(bird, <span class="fu">contrasts</span>(fGRAZE))</span></code></pre></div>
+<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="smooth-regression.html#cb306-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(bird, <span class="fu">contrasts</span>(fGRAZE))</span></code></pre></div>
 <pre><code>##   2 3 4 5
 ## 1 0 0 0 0
 ## 2 1 0 0 0
@@ -706,17 +706,17 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ## 5 0 0 0 1</code></pre>
 <p>The output here is somewhat opaque because the levels of fGRAZE are 1, 2, <span class="math inline">\(\ldots\)</span>, 5. The output of the call to <code>contrasts</code> shows each of the newly created indicator variables as a column. For example, the first column shows that the predictor named <code>fGRAZE2</code> takes the value of 1 when the variable fGRAZE equals 2, and is 0 otherwise.</p>
 <p>Fit an additive model with only a smooth effect of L.AREA, in order to show residuals vs. GRAZE:</p>
-<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb305-1"><a href="smooth-regression.html#cb305-1" aria-hidden="true" tabindex="-1"></a>bird.gam4 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA), <span class="at">data =</span> bird)</span>
-<span id="cb305-2"><a href="smooth-regression.html#cb305-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb305-3"><a href="smooth-regression.html#cb305-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> bird<span class="sc">$</span>GRAZE, <span class="at">y =</span> bird.gam4<span class="sc">$</span>residuals)</span>
-<span id="cb305-4"><a href="smooth-regression.html#cb305-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="smooth-regression.html#cb308-1" aria-hidden="true" tabindex="-1"></a>bird.gam4 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA), <span class="at">data =</span> bird)</span>
+<span id="cb308-2"><a href="smooth-regression.html#cb308-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb308-3"><a href="smooth-regression.html#cb308-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> bird<span class="sc">$</span>GRAZE, <span class="at">y =</span> bird.gam4<span class="sc">$</span>residuals)</span>
+<span id="cb308-4"><a href="smooth-regression.html#cb308-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
 <p>Both the plot and the model output suggest that the effect of grazing is primarily due to lower bird abundance in the most heavily grazed category.</p>
 <p>To conclude, we’ll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE. In this case, we have to use regression splines for the smooth effect of L.AREA. We’ll use regression “splines” without any internal knots, (which are actually not splines at all, just a cubic trend) because the effect of log area seems to be reasonably well captured by a cubic trend anyway:</p>
-<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="smooth-regression.html#cb306-1" aria-hidden="true" tabindex="-1"></a>bird.gam5 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">4</span>, <span class="at">fx =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
-<span id="cb306-2"><a href="smooth-regression.html#cb306-2" aria-hidden="true" tabindex="-1"></a>bird.gam6 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">4</span>, <span class="at">fx =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
-<span id="cb306-3"><a href="smooth-regression.html#cb306-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb306-4"><a href="smooth-regression.html#cb306-4" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(bird.gam5, bird.gam6, <span class="at">test =</span> <span class="st">&quot;F&quot;</span>)  </span></code></pre></div>
+<div class="sourceCode" id="cb309"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb309-1"><a href="smooth-regression.html#cb309-1" aria-hidden="true" tabindex="-1"></a>bird.gam5 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">4</span>, <span class="at">fx =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb309-2"><a href="smooth-regression.html#cb309-2" aria-hidden="true" tabindex="-1"></a>bird.gam6 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">4</span>, <span class="at">fx =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb309-3"><a href="smooth-regression.html#cb309-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb309-4"><a href="smooth-regression.html#cb309-4" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(bird.gam5, bird.gam6, <span class="at">test =</span> <span class="st">&quot;F&quot;</span>)  </span></code></pre></div>
 <pre><code>## Analysis of Deviance Table
 ## 
 ## Model 1: ABUND ~ s(L.AREA, k = 4, fx = TRUE) + GRAZE
