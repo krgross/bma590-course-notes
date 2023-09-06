@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 computing companion"
 author: "Kevin Gross"
-date: "2023-09-04"
+date: "2023-09-06"
 output: 
   bookdown::gitbook:
     config:
@@ -20,7 +20,7 @@ description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in
 
 \renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
 \DeclareMathOperator*{\argmax}{arg\,max}
-\newcommand{\L}[1]{\ell\!\left(#1\right)}
+\newcommand{\L}[1]{\mathcal{L}\!\left(#1\right)}
 \newcommand{\vecy}{\mathbf{Y}}
 \newcommand{\vecyhat}{\mathbf{\hat{Y}}}
 \newcommand{\X}{\mathbf{X}}
@@ -194,14 +194,14 @@ X_i \stackrel{\text{iid}}{\sim} \mathrm{Pois}(\lambda).
 \]
 To make the notation a bit easier, we'll write the entire data set as a vector $\mathbf{X} = \left[ X_1  \;  X_2 \; \cdots \;  X_n\right]^T$, where we use uppercase $\mathbf{X}$ to denote the unobserved random vector and lowercase $\mathbf{x}$ to denote a single realization of $\mathbf{X}$.  The likelihood function is then given by
 \begin{align*}
-\ell(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
+\mathcal{L}(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
 & = \Pr{X_1 = x_1, X_2 = x_2, \ldots X_n = x_n; \lambda} \\
 & = \Pr{X_1 = x_1; \lambda} \times \Pr{X_2 = x_2; \lambda} \times \cdots \times \Pr{X_n = x_n; \lambda} \\
 & = \prod_{i=1}^n \Pr{X_i = x_i; \lambda}.
 \end{align*}
 The third equality above follows from the independence of the data points.
 
-To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \ell$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+To prevent numerical underflow^[Numerical underflow occurs when positive numbers become too close to zero for the computer to perform sufficiently precise calculations.  In `R`, we can find the smallest positive value that meets the IEEE technical standard using `.Machine$double.xmin`.  Although `R` may show answers for computations involving values less than this value, those computations are not trustworthy and may generate strange results.], we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
 \begin{align*}
 \ell(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
 & = \sum_{i=1}^n \ln \Pr{X_i = x_i; \lambda}
@@ -617,14 +617,14 @@ To illustrate, consider the parameters in the tadpole predation data again.  Cle
 \[
 a \leq \dfrac{1}{1-hN}.
 \]
-The right-hand side above is increasing in $N$, and thus if the above expression is to be true for all $N>0$, then we must have $a \leq 1$.^[The upper bound on $a$ is odd and possibly confusing.  In standard predation models, there is no upper bound on $a$.  The reason why we have an upper bound on $a$ in this case is because we've taken the usual functional expression for Type II predation --- which gives a predation *rate* --- and re-interpreted it as the *number* of tadpoles eaten over a finite time interval.  This was probably never a great idea to begin with, and now we are seeing the cost.  The $a \leq 1$ constraint arises in this case because the number of tadpoles eaten in this experiment can't exceed the number that were originally placed in the experimental mesocosm.  This emphasizes that if we're really only using the Type II functional response here for pedagogical convenience.  If we really wanted to learn something about the underlying predation *rate*, then we have to account for the prey depletion over the course of the experiment, as @vonesh2005compensatory do in their study.]
+The right-hand side above is increasing in $N$, and thus if the above expression is to be true for all $N>0$, then we must have $a \leq 1$.^[The upper bound on $a$ is odd and possibly confusing.  In standard predation models, there is no upper bound on $a$.  The reason why we have an upper bound on $a$ in this case is because we've taken the usual functional expression for Type II predation --- which gives a predation *rate* --- and re-interpreted it as the *number* of tadpoles eaten over a finite time interval.  This was probably never a great idea to begin with, and now we are seeing the cost.  The $a \leq 1$ constraint arises in this case because the number of tadpoles eaten in this experiment can't exceed the number that were originally placed in the experimental mesocosm.  This emphasizes that we're really only using the Type II functional response here for pedagogical convenience.  If we really wanted to learn something about the underlying predation *rate*, then we have to account for the prey depletion over the course of the experiment, as @vonesh2005compensatory do in their study.]
 
 Thus we will illustrate two handy transformations here.  For parameters that are constrained to lie on the unit interval, such as $a$ in this case, we can re-define the model in terms of the logit (or log-odds) of $a$.  In fact, the logit transformation will work for any parameter that is constrained to lie on an interval; we just have to rescale the transformation accordingly.  For a parameter that is constrained to be positive, such as $h$, we can use the log transformation.  That is, define
 \begin{align*}
 a^* & = \ln \left(\dfrac{a}{1-a}\right) \\
 k^* & = \ln (k). \\
 \end{align*}
-Fitting proceeds in the usual way; we just have to invert the transformation before evaluating the likelihood:
+Fitting proceeds in the usual way.  Note that we supply starting values on the transformed scale, and that we invert the transformation before evaluating the likelihood:
 
 ```r
 logit <- function(p) log(p / (1 - p))
@@ -668,7 +668,7 @@ frog.neg.ll <- function(params){
 ## NULL
 ```
 
-Back-transforming to the original scale recovers the previous MLEs:
+Note that we no longer receive the warnings that we had received previously, because now we are guaranteed that the model will yield probabilities between 0 and 1.  Back-transforming to the original scale recovers the previous MLEs:
 
 ```r
 (a.mle <- invLogit(frog.mle$par[1]))

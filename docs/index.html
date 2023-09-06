@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-09-04" />
+<meta name="date" content="2023-09-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -274,7 +274,7 @@ div.csl-indent {
 <div id="header">
 <h1 class="title">BMA / ST 590 computing companion</h1>
 <p class="author"><em>Kevin Gross</em></p>
-<p class="date"><em>2023-09-04</em></p>
+<p class="date"><em>2023-09-06</em></p>
 </div>
 <div id="maximum-likelihood-estimation" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Maximum likelihood estimation<a href="index.html#maximum-likelihood-estimation" class="anchor-section" aria-label="Anchor link to header"></a></h1>
@@ -290,9 +290,9 @@ In R, we can access this probability mass function using the <code>dpois</code> 
 <pre><code>## [1] 0.3346952</code></pre>
 <p>In likelihood analysis, we use the same mathematical expression for the probability mass function (pmf) of a data set, but we change our perspective. Instead of regarding the parameter as a known quantity and computing the probability associated with various possible values for the data, in likelihood analysis we regard the data as the known quantity and evaluate the same mathematical expression for different parameter values. In notation, this logic translates into an expression that we can write as
 <span class="math display">\[
-\ell\!\left(\lambda; x\right) = \mathrm{Pr}\!\left\{X=x; \lambda\right\}.
+\mathcal{L}\!\left(\lambda; x\right) = \mathrm{Pr}\!\left\{X=x; \lambda\right\}.
 \]</span>
-where we have used <span class="math inline">\(\ell\!\left(\lambda; x\right)\)</span> to denote the likelihood function for <span class="math inline">\(\lambda\)</span> when we have a data set with value <span class="math inline">\(x\)</span>. The expression above seems strange, because nothing seems to be happening; we are simply taking the same mathematical expression and calling it two different things depending on the context. But that is all there is to it, at least with regard to constructing the likelihood function.</p>
+where we have used <span class="math inline">\(\mathcal{L}\!\left(\lambda; x\right)\)</span> to denote the likelihood function for <span class="math inline">\(\lambda\)</span> when we have a data set with value <span class="math inline">\(x\)</span>. The expression above seems strange, because nothing seems to be happening; we are simply taking the same mathematical expression and calling it two different things depending on the context. But that is all there is to it, at least with regard to constructing the likelihood function.</p>
 <p>Because a likelihood function uses the same mathematical formulas as a probability mass function, we can use the same functions that <code>R</code> provides for computing probability masses for discretely valued data (or probability densities for continuously valued data) to compute the a likelihood function. Let’s return to our simple example of observing a single observation from a Poisson distribution. Suppose that observation is <span class="math inline">\(X=2\)</span>. We can use the <code>dpois</code> function to evaluate the likelihood for this single observation. For example, we can evaluate the likelihood at <span class="math inline">\(\lambda = 1.5\)</span>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="index.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dpois</span>(<span class="at">x =</span> <span class="dv">2</span>, <span class="at">lambda =</span> <span class="fl">1.5</span>)</span></code></pre></div>
 <pre><code>## [1] 0.2510214</code></pre>
@@ -367,13 +367,13 @@ X_i \stackrel{\text{iid}}{\sim} \mathrm{Pois}(\lambda).
 \]</span>
 To make the notation a bit easier, we’ll write the entire data set as a vector <span class="math inline">\(\mathbf{X} = \left[ X_1 \; X_2 \; \cdots \; X_n\right]^T\)</span>, where we use uppercase <span class="math inline">\(\mathbf{X}\)</span> to denote the unobserved random vector and lowercase <span class="math inline">\(\mathbf{x}\)</span> to denote a single realization of <span class="math inline">\(\mathbf{X}\)</span>. The likelihood function is then given by
 <span class="math display">\[\begin{align*}
-\ell(\lambda; \mathbf{x}) &amp; = \mathrm{Pr}\!\left\{\mathbf{X} = \mathbf{x}; \lambda\right\} \\
+\mathcal{L}(\lambda; \mathbf{x}) &amp; = \mathrm{Pr}\!\left\{\mathbf{X} = \mathbf{x}; \lambda\right\} \\
 &amp; = \mathrm{Pr}\!\left\{X_1 = x_1, X_2 = x_2, \ldots X_n = x_n; \lambda\right\} \\
 &amp; = \mathrm{Pr}\!\left\{X_1 = x_1; \lambda\right\} \times \mathrm{Pr}\!\left\{X_2 = x_2; \lambda\right\} \times \cdots \times \mathrm{Pr}\!\left\{X_n = x_n; \lambda\right\} \\
 &amp; = \prod_{i=1}^n \mathrm{Pr}\!\left\{X_i = x_i; \lambda\right\}.
 \end{align*}\]</span>
 The third equality above follows from the independence of the data points.</p>
-<p>To prevent numerical underflow, we’ll work on the log-likelihood instead of the likelihood itself. Throughout these notes, we’ll use lowercase <span class="math inline">\(\ell = \ln \ell\)</span> to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+<p>To prevent numerical underflow<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>, we’ll work on the log-likelihood instead of the likelihood itself. Throughout these notes, we’ll use lowercase <span class="math inline">\(\ell = \ln \mathcal{L}\)</span> to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
 <span class="math display">\[\begin{align*}
 \ell(\lambda; \mathbf{x}) &amp; = \ln \prod_{i=1}^n \mathrm{Pr}\!\left\{X_i = x_i; \lambda\right\} \\
 &amp; = \sum_{i=1}^n \ln \mathrm{Pr}\!\left\{X_i = x_i; \lambda\right\}
@@ -638,13 +638,13 @@ p_i &amp; = \dfrac{a}{1 + a h N_i}.
 <span class="math display">\[
 a \leq \dfrac{1}{1-hN}.
 \]</span>
-The right-hand side above is increasing in <span class="math inline">\(N\)</span>, and thus if the above expression is to be true for all <span class="math inline">\(N&gt;0\)</span>, then we must have <span class="math inline">\(a \leq 1\)</span>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+The right-hand side above is increasing in <span class="math inline">\(N\)</span>, and thus if the above expression is to be true for all <span class="math inline">\(N&gt;0\)</span>, then we must have <span class="math inline">\(a \leq 1\)</span>.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
 <p>Thus we will illustrate two handy transformations here. For parameters that are constrained to lie on the unit interval, such as <span class="math inline">\(a\)</span> in this case, we can re-define the model in terms of the logit (or log-odds) of <span class="math inline">\(a\)</span>. In fact, the logit transformation will work for any parameter that is constrained to lie on an interval; we just have to rescale the transformation accordingly. For a parameter that is constrained to be positive, such as <span class="math inline">\(h\)</span>, we can use the log transformation. That is, define
 <span class="math display">\[\begin{align*}
 a^* &amp; = \ln \left(\dfrac{a}{1-a}\right) \\
 k^* &amp; = \ln (k). \\
 \end{align*}\]</span>
-Fitting proceeds in the usual way; we just have to invert the transformation before evaluating the likelihood:</p>
+Fitting proceeds in the usual way. Note that we supply starting values on the transformed scale, and that we invert the transformation before evaluating the likelihood:</p>
 <div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="index.html#cb59-1" aria-hidden="true" tabindex="-1"></a>logit <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">log</span>(p <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p))</span>
 <span id="cb59-2"><a href="index.html#cb59-2" aria-hidden="true" tabindex="-1"></a>invLogit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
 <span id="cb59-3"><a href="index.html#cb59-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -681,7 +681,7 @@ Fitting proceeds in the usual way; we just have to invert the transformation bef
 ## 
 ## $message
 ## NULL</code></pre>
-<p>Back-transforming to the original scale recovers the previous MLEs:</p>
+<p>Note that we no longer receive the warnings that we had received previously, because now we are guaranteed that the model will yield probabilities between 0 and 1. Back-transforming to the original scale recovers the previous MLEs:</p>
 <div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="index.html#cb61-1" aria-hidden="true" tabindex="-1"></a>(a.mle <span class="ot">&lt;-</span> <span class="fu">invLogit</span>(frog.mle<span class="sc">$</span>par[<span class="dv">1</span>]))</span></code></pre></div>
 <pre><code>## [1] 0.5259354</code></pre>
 <div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="index.html#cb63-1" aria-hidden="true" tabindex="-1"></a>(h.mle <span class="ot">&lt;-</span> <span class="fu">exp</span>(frog.mle<span class="sc">$</span>par[<span class="dv">2</span>]))</span></code></pre></div>
@@ -703,7 +703,8 @@ Vonesh, James R, and Benjamin M Bolker. 2005. <span>“Compensatory Larval Respo
 <hr />
 <ol start="1">
 <li id="fn1"><p>Recall that when we refer to a data set as a “simple random sample”, we mean that the data are independent and identically distributed. That is, they are independent draws from the same underlying probability distribution.<a href="index.html#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>The upper bound on <span class="math inline">\(a\)</span> is odd and possibly confusing. In standard predation models, there is no upper bound on <span class="math inline">\(a\)</span>. The reason why we have an upper bound on <span class="math inline">\(a\)</span> in this case is because we’ve taken the usual functional expression for Type II predation — which gives a predation <em>rate</em> — and re-interpreted it as the <em>number</em> of tadpoles eaten over a finite time interval. This was probably never a great idea to begin with, and now we are seeing the cost. The <span class="math inline">\(a \leq 1\)</span> constraint arises in this case because the number of tadpoles eaten in this experiment can’t exceed the number that were originally placed in the experimental mesocosm. This emphasizes that if we’re really only using the Type II functional response here for pedagogical convenience. If we really wanted to learn something about the underlying predation <em>rate</em>, then we have to account for the prey depletion over the course of the experiment, as <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory" role="doc-biblioref">2005</a>)</span> do in their study.<a href="index.html#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Numerical underflow occurs when positive numbers become too close to zero for the computer to perform sufficiently precise calculations. In <code>R</code>, we can find the smallest positive value that meets the IEEE technical standard using <code>.Machine$double.xmin</code>. Although <code>R</code> may show answers for computations involving values less than this value, those computations are not trustworthy and may generate strange results.<a href="index.html#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>The upper bound on <span class="math inline">\(a\)</span> is odd and possibly confusing. In standard predation models, there is no upper bound on <span class="math inline">\(a\)</span>. The reason why we have an upper bound on <span class="math inline">\(a\)</span> in this case is because we’ve taken the usual functional expression for Type II predation — which gives a predation <em>rate</em> — and re-interpreted it as the <em>number</em> of tadpoles eaten over a finite time interval. This was probably never a great idea to begin with, and now we are seeing the cost. The <span class="math inline">\(a \leq 1\)</span> constraint arises in this case because the number of tadpoles eaten in this experiment can’t exceed the number that were originally placed in the experimental mesocosm. This emphasizes that we’re really only using the Type II functional response here for pedagogical convenience. If we really wanted to learn something about the underlying predation <em>rate</em>, then we have to account for the prey depletion over the course of the experiment, as <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory" role="doc-biblioref">2005</a>)</span> do in their study.<a href="index.html#fnref3" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>

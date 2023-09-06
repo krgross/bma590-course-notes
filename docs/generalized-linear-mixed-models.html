@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-09-04" />
+<meta name="date" content="2023-09-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -461,7 +461,7 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 <span id="cb681-4"><a href="generalized-linear-mixed-models.html#cb681-4" aria-hidden="true" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
 <div class="sourceCode" id="cb683"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb683-1"><a href="generalized-linear-mixed-models.html#cb683-1" aria-hidden="true" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
-<pre><code>## [1] 0.3188078</code></pre>
+<pre><code>## [1] 0.3188371</code></pre>
 <div class="sourceCode" id="cb685"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb685-1"><a href="generalized-linear-mixed-models.html#cb685-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb685-2"><a href="generalized-linear-mixed-models.html#cb685-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
 <span id="cb685-3"><a href="generalized-linear-mixed-models.html#cb685-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
@@ -476,7 +476,7 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 <span id="cb686-4"><a href="generalized-linear-mixed-models.html#cb686-4" aria-hidden="true" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
 <div class="sourceCode" id="cb688"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb688-1"><a href="generalized-linear-mixed-models.html#cb688-1" aria-hidden="true" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
-<pre><code>## [1] 0.3507397</code></pre>
+<pre><code>## [1] 0.3502016</code></pre>
 <div class="sourceCode" id="cb690"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb690-1"><a href="generalized-linear-mixed-models.html#cb690-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb690-2"><a href="generalized-linear-mixed-models.html#cb690-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
 <span id="cb690-3"><a href="generalized-linear-mixed-models.html#cb690-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>

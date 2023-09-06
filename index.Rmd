@@ -1,5 +1,5 @@
 --- 
-title: "BMA / ST 590 computing companion"
+title: "BMA / ST 590 course notes"
 author: "Kevin Gross"
 date: "`r Sys.Date()`"
 output: 
@@ -20,7 +20,7 @@ description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in
 
 \renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
 \DeclareMathOperator*{\argmax}{arg\,max}
-\newcommand{\L}[1]{\ell\!\left(#1\right)}
+\newcommand{\L}[1]{\mathcal{L}\!\left(#1\right)}
 \newcommand{\vecy}{\mathbf{Y}}
 \newcommand{\vecyhat}{\mathbf{\hat{Y}}}
 \newcommand{\X}{\mathbf{X}}
@@ -128,14 +128,14 @@ X_i \stackrel{\text{iid}}{\sim} \mathrm{Pois}(\lambda).
 \]
 To make the notation a bit easier, we'll write the entire data set as a vector $\mathbf{X} = \left[ X_1  \;  X_2 \; \cdots \;  X_n\right]^T$, where we use uppercase $\mathbf{X}$ to denote the unobserved random vector and lowercase $\mathbf{x}$ to denote a single realization of $\mathbf{X}$.  The likelihood function is then given by
 \begin{align*}
-\ell(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
+\mathcal{L}(\lambda; \mathbf{x}) & = \Pr{\mathbf{X} = \mathbf{x}; \lambda} \\
 & = \Pr{X_1 = x_1, X_2 = x_2, \ldots X_n = x_n; \lambda} \\
 & = \Pr{X_1 = x_1; \lambda} \times \Pr{X_2 = x_2; \lambda} \times \cdots \times \Pr{X_n = x_n; \lambda} \\
 & = \prod_{i=1}^n \Pr{X_i = x_i; \lambda}.
 \end{align*}
 The third equality above follows from the independence of the data points.
 
-To prevent numerical underflow, we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \ell$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
+To prevent numerical underflow^[Numerical underflow occurs when positive numbers become too close to zero for the computer to perform sufficiently precise calculations.  In `R`, we can find the smallest positive value that meets the IEEE technical standard using `.Machine$double.xmin`.  Although `R` may show answers for computations involving values less than this value, those computations are not trustworthy and may generate strange results.], we'll work on the log-likelihood instead of the likelihood itself.  Throughout these notes, we'll use lowercase $\ell = \ln \mathcal{L}$ to denote the log likelihood. Note that when we use the log likelihood, the product of the marginal pmfs above becomes a sum:
 \begin{align*}
 \ell(\lambda; \mathbf{x}) & = \ln \prod_{i=1}^n \Pr{X_i = x_i; \lambda} \\
 & = \sum_{i=1}^n \ln \Pr{X_i = x_i; \lambda}
