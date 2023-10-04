@@ -198,7 +198,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="4.1" data-path="smooth-regression.html"><a href="smooth-regression.html#loess-smoothers"><i class="fa fa-check"></i><b>4.1</b> Loess smoothers</a></li>
 <li class="chapter" data-level="4.2" data-path="smooth-regression.html"><a href="smooth-regression.html#splines"><i class="fa fa-check"></i><b>4.2</b> Splines</a></li>
-<li class="chapter" data-level="4.3" data-path="smooth-regression.html"><a href="smooth-regression.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
+<li class="chapter" data-level="4.3" data-path="smooth-regression.html"><a href="smooth-regression.html#GAMs"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html"><i class="fa fa-check"></i><b>5</b> Generalized Least Squares</a>
 <ul>
@@ -243,7 +243,7 @@ div.csl-indent {
 <li class="chapter" data-level="7.4.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-inflated-models"><i class="fa fa-check"></i><b>7.4.2</b> Zero-inflated models</a></li>
 <li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
 </ul></li>
-<li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams-1"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
+<li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html"><i class="fa fa-check"></i><b>8</b> Generalized linear mixed models</a>
 <ul>
@@ -605,7 +605,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb446"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb446-1"><a href="hierarchical-mixed-models.html#cb446-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpIrmoFC/model123f0544f180.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpeqUViA/model1ba244aee20bf.txt&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat

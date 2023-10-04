@@ -162,7 +162,7 @@ lines(x = depth.vals, y = st16.fit$fit + qt(0.975, df = 45) * st16.fit$se.fit, l
 lines(x = depth.vals, y = st16.fit$fit + qt(0.025, df = 45) * st16.fit$se.fit, lty = "dashed")
 ```
 
-We see that this particular fit is not flexible enough to capture the trend in luminescence at low depth.
+We see that this particular fit is not flexible enough to capture the trend in luminescence at shallow depth.
 
 Let's take a look at the information produced by a call to `summary`:
 
@@ -172,9 +172,10 @@ summary(st16.rspline)
 
 This summary requires a bit more explanation as well.  In this GAM, the spline component of the model effectively creates a set of new predictor variables.  A regression spline with $x$ knots requires $x+3$ new regression predictors to fit the spline.  In this fit, there are two knots, so the spline requires 5 new predictor variables. Because the predictors are determined in advance with regression splines, we can use the usual theory of $F$-tests from regression to assess the statistical significance of the spline terms.  In the section of the output labeled "Approximate significance of smooth terms", we see that these 5 predictors together provide a significantly better fit than a model that does not include the spline.  I believe this test is actually exact.  I think that it is labeled "approximate" because the default behavior of `mgcv::gam` is to fit a smoothing spline, for which the test is indeed only approximate.  We'll discuss this more when we study a smoothing spline fit.
 
-Now we'll fit and plot a smoothing spline.  A smoothing spline differs from a regression spline by using generalized cross-validation to determine the appropriate smoothness.
+Now we'll fit and plot a smoothing spline.  A smoothing spline fits a regression spline with a large number of knots, but fits the spline using a quadratic penalty.  The most appropriate value for the penalty is determined by (generalized) cross validation.  In this way, the smoothing spline automatically determines the appropriate amount of smoothness.  We still have to specify $k$ to make sure that the initial regression spline has enough flexibility.
+
 ```{r}
-st16.spline <- mgcv::gam(sources ~ s(depth), data = st16)
+st16.spline <- mgcv::gam(sources ~ s(depth, k = 20), data = st16)
 plot(st16.spline, se = TRUE)  # note that the plot does not include the intercept
 ```
 
@@ -189,11 +190,8 @@ st16.fit <- predict(st16.spline,
 
 lines(x = depth.vals, y = st16.fit$fit)
 
-## add +/- 2 SE following Zuur; this is only approximate.
-## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 9.81 = 41.19 df
-
-lines(x = depth.vals, y = st16.fit$fit + 2 * st16.fit$se.fit, lty = "dashed")
-lines(x = depth.vals, y = st16.fit$fit - 2 * st16.fit$se.fit, lty = "dashed")
+lines(x = depth.vals, y = st16.fit$fit + qt(0.975, df = 51 - 13.41) * st16.fit$se.fit, lty = "dashed")
+lines(x = depth.vals, y = st16.fit$fit + qt(0.025, df = 51 - 13.41) * st16.fit$se.fit, lty = "dashed")
 ```
 
 Let's ask for a summary:
@@ -231,7 +229,7 @@ st16.fit <- predict(st16.spline,
                     se      = TRUE)
 ```
 
-## Generalized additive models (GAMs)
+## Generalized additive models (GAMs) {#GAMs}
 
 Generalized additive models replace the usual linear terms that appear in multiple regression models with splines.  That is, suppose we seek to model the relationship between a response $y$ and two predictors, $x_1$ and $x_2$.  A standard regression model without polynomial effects or interactions would be written as 
 $$

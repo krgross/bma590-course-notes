@@ -20,7 +20,7 @@ rstanarm
 smooth-regression
 loess-smoothers
 splines
-generalized-additive-models-gams
+GAMs
 generalized-least-squares
 heterogeneous-variance
 temporal-serial-correlation
@@ -51,7 +51,7 @@ zero-adjusted-models-for-count-data
 zero-truncated-models
 zero-inflated-models
 zero-altered-or-hurdle-models
-generalized-additive-models-gams-1
+generalized-additive-models-gams
 generalized-linear-mixed-models
 example-1-industrial-melanism-data
 gees

@@ -198,7 +198,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="4.1" data-path="smooth-regression.html"><a href="smooth-regression.html#loess-smoothers"><i class="fa fa-check"></i><b>4.1</b> Loess smoothers</a></li>
 <li class="chapter" data-level="4.2" data-path="smooth-regression.html"><a href="smooth-regression.html#splines"><i class="fa fa-check"></i><b>4.2</b> Splines</a></li>
-<li class="chapter" data-level="4.3" data-path="smooth-regression.html"><a href="smooth-regression.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
+<li class="chapter" data-level="4.3" data-path="smooth-regression.html"><a href="smooth-regression.html#GAMs"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html"><i class="fa fa-check"></i><b>5</b> Generalized Least Squares</a>
 <ul>
@@ -243,7 +243,7 @@ div.csl-indent {
 <li class="chapter" data-level="7.4.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-inflated-models"><i class="fa fa-check"></i><b>7.4.2</b> Zero-inflated models</a></li>
 <li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
 </ul></li>
-<li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams-1"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
+<li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html"><i class="fa fa-check"></i><b>8</b> Generalized linear mixed models</a>
 <ul>
@@ -1376,8 +1376,8 @@ L_j &amp; \sim \mathcal{N}(0, \sigma^2_L)
 ## Log-likelihood: -2448 on 20 Df</code></pre>
 </div>
 </div>
-<div id="generalized-additive-models-gams-1" class="section level2 hasAnchor" number="7.5">
-<h2><span class="header-section-number">7.5</span> Generalized additive models (GAMs)<a href="generalized-linear-models.html#generalized-additive-models-gams-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="generalized-additive-models-gams" class="section level2 hasAnchor" number="7.5">
+<h2><span class="header-section-number">7.5</span> Generalized additive models (GAMs)<a href="generalized-linear-models.html#generalized-additive-models-gams" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Recall that splines are essentially just another way of specifying the predictors in a regression model. Generalized additive models (GAMs) are to additive models what generalized linear models are to (general) linear models. In other words, GAMs use splines to create a linear predictor in a GLM that is a smooth function of a covariate.</p>
 <p>We illustrate GAMs by considering a data set that gives the size and annual survival of colonies of the stony coral <em>Acropora millepora</em>. (Recall that stony corals are a colonial organism, so here a coral “colony” means a colony of polyps. A colony is what most naive observers would recognize as an individual coral.) We wish to understand how the size of the colony is related to its survival. The size of the colony is measured as planar (top-down) area. The units of area are unclear; perhaps it is m<span class="math inline">\(^2\)</span>? In the data file, the variable “mortality” is a binary response coded as a 0 if the colony survived, and as a 1 if the colony died. The size data have been log-transformed. These data are from <span class="citation">Madin et al. (<a href="#ref-madin2014" role="doc-biblioref">2014</a>)</span>. In R, we fit the GAM with the function <code>mgcv::gam</code>.</p>
 <!-- Note: The original data file has size labeled as "ln_area_cm2", but if this is true, some of the colonies would be <0.01 cm^2 in size.  Can this be true?  Goddammit, Josh. -->

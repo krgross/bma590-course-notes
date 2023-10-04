@@ -231,7 +231,7 @@ lines(x = depth.vals, y = st16.fit$fit + qt(0.025, df = 45) * st16.fit$se.fit, l
 
 <img src="04-SmoothRegression_files/figure-html/unnamed-chunk-10-1.png" width="672" />
 
-We see that this particular fit is not flexible enough to capture the trend in luminescence at low depth.
+We see that this particular fit is not flexible enough to capture the trend in luminescence at shallow depth.
 
 Let's take a look at the information produced by a call to `summary`:
 
@@ -266,10 +266,11 @@ summary(st16.rspline)
 
 This summary requires a bit more explanation as well.  In this GAM, the spline component of the model effectively creates a set of new predictor variables.  A regression spline with $x$ knots requires $x+3$ new regression predictors to fit the spline.  In this fit, there are two knots, so the spline requires 5 new predictor variables. Because the predictors are determined in advance with regression splines, we can use the usual theory of $F$-tests from regression to assess the statistical significance of the spline terms.  In the section of the output labeled "Approximate significance of smooth terms", we see that these 5 predictors together provide a significantly better fit than a model that does not include the spline.  I believe this test is actually exact.  I think that it is labeled "approximate" because the default behavior of `mgcv::gam` is to fit a smoothing spline, for which the test is indeed only approximate.  We'll discuss this more when we study a smoothing spline fit.
 
-Now we'll fit and plot a smoothing spline.  A smoothing spline differs from a regression spline by using generalized cross-validation to determine the appropriate smoothness.
+Now we'll fit and plot a smoothing spline.  A smoothing spline fits a regression spline with a large number of knots, but fits the spline using a quadratic penalty.  The most appropriate value for the penalty is determined by (generalized) cross validation.  In this way, the smoothing spline automatically determines the appropriate amount of smoothness.  We still have to specify $k$ to make sure that the initial regression spline has enough flexibility.
+
 
 ```r
-st16.spline <- mgcv::gam(sources ~ s(depth), data = st16)
+st16.spline <- mgcv::gam(sources ~ s(depth, k = 20), data = st16)
 plot(st16.spline, se = TRUE)  # note that the plot does not include the intercept
 ```
 
@@ -287,11 +288,8 @@ st16.fit <- predict(st16.spline,
 
 lines(x = depth.vals, y = st16.fit$fit)
 
-## add +/- 2 SE following Zuur; this is only approximate.
-## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 9.81 = 41.19 df
-
-lines(x = depth.vals, y = st16.fit$fit + 2 * st16.fit$se.fit, lty = "dashed")
-lines(x = depth.vals, y = st16.fit$fit - 2 * st16.fit$se.fit, lty = "dashed")
+lines(x = depth.vals, y = st16.fit$fit + qt(0.975, df = 51 - 13.41) * st16.fit$se.fit, lty = "dashed")
+lines(x = depth.vals, y = st16.fit$fit + qt(0.025, df = 51 - 13.41) * st16.fit$se.fit, lty = "dashed")
 ```
 
 <img src="04-SmoothRegression_files/figure-html/unnamed-chunk-13-1.png" width="672" />
@@ -308,22 +306,22 @@ summary(st16.spline)
 ## Link function: identity 
 ## 
 ## Formula:
-## sources ~ s(depth)
+## sources ~ s(depth, k = 20)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)  12.4771     0.3921   31.82   <2e-16 ***
+## (Intercept)  12.4771     0.3222   38.73   <2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Approximate significance of smooth terms:
 ##            edf Ref.df     F p-value    
-## s(depth) 8.813   8.99 158.2  <2e-16 ***
+## s(depth) 12.41  14.31 148.6  <2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## R-sq.(adj) =  0.966   Deviance explained = 97.2%
-## GCV = 9.7081  Scale est. = 7.8402    n = 51
+## R-sq.(adj) =  0.977   Deviance explained = 98.3%
+## GCV = 7.1813  Scale est. = 5.2928    n = 51
 ```
 
 Note especially the `edf` component in the "Approximate significance of smooth terms" section.  The label `edf` stands for effective degrees of freedom.  We can think of the edf as the effective number of new predictors that have been added to the model to accommodate the spline.  For a smoothing spline, the number and values of the newly created predictors are determined by fitting the model to the data.  Because the predictors are calculated in this way, the usual theory of $F$-testing does not apply.  This is why the $F$-test shown for the smoothing spline is labeled as "approximate".  
@@ -336,7 +334,7 @@ AIC(st16.spline)
 ```
 
 ```
-## [1] 260.4811
+## [1] 242.9773
 ```
 Here's a small detail.  Notice that the syntax of the call to `predict` is slightly different when making a prediction for a `loess`  object vs.\ making a prediction for a `gam` object (which the spline fit is).  For a call to `predict` with a `loess` object, the new predictor values can be provided in the form of a vector.  So, we were able to use
 
@@ -363,7 +361,7 @@ st16.fit <- predict(st16.spline,
                     se      = TRUE)
 ```
 
-## Generalized additive models (GAMs)
+## Generalized additive models (GAMs) {#GAMs}
 
 Generalized additive models replace the usual linear terms that appear in multiple regression models with splines.  That is, suppose we seek to model the relationship between a response $y$ and two predictors, $x_1$ and $x_2$.  A standard regression model without polynomial effects or interactions would be written as 
 $$
@@ -651,7 +649,7 @@ abline(h = 0, lty = "dashed")
 
 Both the plot and the model output suggest that the effect of grazing is primarily due to lower bird abundance in the most heavily grazed category.
 
-To conclude, we'll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE.  In this case, we have to use regression splines for the smooth effect of L.AREA.  We'll use regression "splines" without any internal knots, (which are actually not splines at all, just a cubic trend) because the effect of log area seems to be reasonably well captured by a cubic trend anyway:
+To conclude, we'll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE.  In this case, we have to use regression splines for the smooth effect of L.AREA.  We'll use regression "splines" without any internal knots^[I would have thought that a spline without any internal knots would have been exactly the same as a cubic fit.  However, a cubic fit is slightly different, though not by much.  I can't figure out why.] because the effect of log area seems to be reasonably well captured by a cubic trend anyway:
 
 ```r
 bird.gam5 <- gam(ABUND ~ s(L.AREA, k = 4, fx = TRUE) + GRAZE, data = bird)
