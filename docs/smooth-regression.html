@@ -279,7 +279,8 @@ div.csl-indent {
 <div id="loess-smoothers" class="section level2 hasAnchor" number="4.1">
 <h2><span class="header-section-number">4.1</span> Loess smoothers<a href="smooth-regression.html#loess-smoothers" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set. These data are featured in <span class="citation">Zuur et al. (<a href="#ref-zuur2009" role="doc-biblioref">2009</a>)</span>, and can be found by visiting the webpage associated with the book. A link to this webpage appears on the course website. The data were originally reported in <span class="citation">Gillibrand et al. (<a href="#ref-gillibrand2007seasonal" role="doc-biblioref">2007</a>)</span>, and detail the number of sources of bioluminescence detected along a depth gradient in the North Atlantic. The name of the data set (“ISIT”) refers to the type of camera used in the study.</p>
-<p>An important caveat to this example is that because these data represent a locations along a transect, they are likely characterized by substantial autocorrelation. The methods that we illustrate in this section ignore that autocorrelation and instead assume that the residual errors are independent. See the discussion of <a href="generalized-linear-mixed-models.html#GAMMs">GAMMs</a> to learn about coping with autocorrelation in generalized additive models.</p>
+<p>The methods that we discuss in this chapter allow a flexible specification of how the predictor(s) are associated with the mean response. All of the methods we discuss are variations on regression. As such, they inherent all of the usual regression assumptions about the distribution of the errors, namely, that the errors are iid draws from a Gaussian distribution.</p>
+<p>Unfortunately, the bioluminescence data discussed in this chapter violate these assumptions rather severely. We will see right away that the data display the usual non-constant variance that we expect when measuring an ecological abundance, namely, larger responses are also more variable. In addition, because these data are collected at locations along a transect, they are likely characterized by substantial autocorrelation. For the sake of illustration, we ignore both the non-constant variance and the autocorrelation in the analyses that follow. See the discussion of <a href="generalized-linear-mixed-models.html#GAMMs">GAMMs</a> to learn about coping with autocorrelation in generalized additive models.</p>
 <div class="sourceCode" id="cb260"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb260-1"><a href="smooth-regression.html#cb260-1" aria-hidden="true" tabindex="-1"></a><span class="do">## download the data from the book&#39;s website</span></span>
 <span id="cb260-2"><a href="smooth-regression.html#cb260-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb260-3"><a href="smooth-regression.html#cb260-3" aria-hidden="true" tabindex="-1"></a>isit <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/ISIT.txt&quot;</span>, <span class="at">head =</span> T)</span>
@@ -581,7 +582,7 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ##  3rd Qu.:59.50   3rd Qu.:182.5   3rd Qu.:4.000  
 ##  Max.   :97.00   Max.   :260.0   Max.   :5.000</code></pre>
 <p>Our first attempt at a GAM will entertain smoothing splines for all of the continuous predictors in the model. We will use a linear term for GRAZE because there are too few unique values to support a smooth term:</p>
-<div class="sourceCode" id="cb291"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb291-1"><a href="smooth-regression.html#cb291-1" aria-hidden="true" tabindex="-1"></a>bird.gam1 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> <span class="fu">s</span>(L.DIST) <span class="sc">+</span> <span class="fu">s</span>(L.LDIST) <span class="sc">+</span> <span class="fu">s</span>(YR.ISOL) <span class="sc">+</span> GRAZE <span class="sc">+</span> <span class="fu">s</span>(ALT), <span class="at">data =</span> bird)</span>
+<div class="sourceCode" id="cb291"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb291-1"><a href="smooth-regression.html#cb291-1" aria-hidden="true" tabindex="-1"></a>bird.gam1 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="fu">s</span>(L.DIST, <span class="at">k =</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="fu">s</span>(L.LDIST, <span class="at">k =</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="fu">s</span>(YR.ISOL, <span class="at">k =</span> <span class="dv">10</span>) <span class="sc">+</span> GRAZE <span class="sc">+</span> <span class="fu">s</span>(ALT, <span class="at">k =</span> <span class="dv">10</span>), <span class="at">data =</span> bird)</span>
 <span id="cb291-2"><a href="smooth-regression.html#cb291-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb291-3"><a href="smooth-regression.html#cb291-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam1)</span></code></pre></div>
 <pre><code>## 
@@ -589,8 +590,8 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA) + s(L.DIST) + s(L.LDIST) + s(YR.ISOL) + GRAZE + 
-##     s(ALT)
+## ABUND ~ s(L.AREA, k = 10) + s(L.DIST, k = 10) + s(L.LDIST, k = 10) + 
+##     s(YR.ISOL, k = 10) + GRAZE + s(ALT, k = 10)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
@@ -615,14 +616,14 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 <div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="smooth-regression.html#cb293-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bird.gam1)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-2.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-3.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-4.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-5.png" width="672" /></p>
 <p>In the interest of time, we take a casual approach to variable selection here. We’ll drop smooth terms that are clearly not significant to obtain:</p>
-<div class="sourceCode" id="cb294"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb294-1"><a href="smooth-regression.html#cb294-1" aria-hidden="true" tabindex="-1"></a>bird.gam2 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
+<div class="sourceCode" id="cb294"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb294-1"><a href="smooth-regression.html#cb294-1" aria-hidden="true" tabindex="-1"></a>bird.gam2 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">10</span>) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
 <span id="cb294-2"><a href="smooth-regression.html#cb294-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam2)</span></code></pre></div>
 <pre><code>## 
 ## Family: gaussian 
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA) + GRAZE
+## ABUND ~ s(L.AREA, k = 10) + GRAZE
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
@@ -659,7 +660,7 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ##  3rd Qu.:59.50   3rd Qu.:182.5   3rd Qu.:4.000   5:13  
 ##  Max.   :97.00   Max.   :260.0   Max.   :5.000</code></pre>
 <p>Now we’ll proceed to fit the model</p>
-<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="smooth-regression.html#cb299-1" aria-hidden="true" tabindex="-1"></a>bird.gam3 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
+<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="smooth-regression.html#cb299-1" aria-hidden="true" tabindex="-1"></a>bird.gam3 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">10</span>) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
 <span id="cb299-2"><a href="smooth-regression.html#cb299-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bird.gam3)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 <div class="sourceCode" id="cb300"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb300-1"><a href="smooth-regression.html#cb300-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bird.gam3)</span></code></pre></div>
@@ -668,7 +669,7 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA) + fGRAZE
+## ABUND ~ s(L.AREA, k = 10) + fGRAZE
 ## 
 ## Parametric coefficients:
 ##               Estimate Std. Error t value Pr(&gt;|t|)    
@@ -708,7 +709,7 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 ## 5 0 0 0 1</code></pre>
 <p>The output here is somewhat opaque because the levels of fGRAZE are 1, 2, <span class="math inline">\(\ldots\)</span>, 5. The output of the call to <code>contrasts</code> shows each of the newly created indicator variables as a column. For example, the first column shows that the predictor named <code>fGRAZE2</code> takes the value of 1 when the variable fGRAZE equals 2, and is 0 otherwise.</p>
 <p>Fit an additive model with only a smooth effect of L.AREA, in order to show residuals vs. GRAZE:</p>
-<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="smooth-regression.html#cb308-1" aria-hidden="true" tabindex="-1"></a>bird.gam4 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA), <span class="at">data =</span> bird)</span>
+<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="smooth-regression.html#cb308-1" aria-hidden="true" tabindex="-1"></a>bird.gam4 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">10</span>), <span class="at">data =</span> bird)</span>
 <span id="cb308-2"><a href="smooth-regression.html#cb308-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb308-3"><a href="smooth-regression.html#cb308-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> bird<span class="sc">$</span>GRAZE, <span class="at">y =</span> bird.gam4<span class="sc">$</span>residuals)</span>
 <span id="cb308-4"><a href="smooth-regression.html#cb308-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>

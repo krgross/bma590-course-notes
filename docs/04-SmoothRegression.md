@@ -6,7 +6,9 @@
 
 We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set.  These data are featured in @zuur2009, and can be found by visiting the webpage associated with the book.  A link to this webpage appears on the course website.  The data were originally reported in @gillibrand2007seasonal, and detail the number of sources of bioluminescence detected along a depth gradient in the North Atlantic.  The name of the data set ("ISIT") refers to the type of camera used in the study.
 
-An important caveat to this example is that because these data represent a locations along a transect, they are likely characterized by substantial autocorrelation.  The methods that we illustrate in this section ignore that autocorrelation and instead assume that the residual errors are independent.  See the discussion of [GAMMs] to learn about coping with autocorrelation in generalized additive models.
+The methods that we discuss in this chapter allow a flexible specification of how the predictor(s) are associated with the mean response.  All of the methods we discuss are variations on regression.  As such, they inherent all of the usual regression assumptions about the distribution of the errors, namely, that the errors are iid draws from a Gaussian distribution.
+
+Unfortunately, the bioluminescence data discussed in this chapter violate these assumptions rather severely. We will see right away that the data display the usual non-constant variance that we expect when measuring an ecological abundance, namely, larger responses are also more variable.  In addition, because these data are collected at locations along a transect, they are likely characterized by substantial autocorrelation.  For the sake of illustration, we ignore both the non-constant variance and the autocorrelation in the analyses that follow.  See the discussion of [GAMMs] to learn about coping with autocorrelation in generalized additive models.
 
 
 ```r
@@ -449,7 +451,7 @@ summary(bird)
 Our first attempt at a GAM will entertain smoothing splines for all of the continuous predictors in the model.  We will use a linear term for GRAZE because there are too few unique values to support a smooth term:
 
 ```r
-bird.gam1 <- mgcv::gam(ABUND ~ s(L.AREA) + s(L.DIST) + s(L.LDIST) + s(YR.ISOL) + GRAZE + s(ALT), data = bird)
+bird.gam1 <- mgcv::gam(ABUND ~ s(L.AREA, k = 10) + s(L.DIST, k = 10) + s(L.LDIST, k = 10) + s(YR.ISOL, k = 10) + GRAZE + s(ALT, k = 10), data = bird)
 
 summary(bird.gam1)
 ```
@@ -460,8 +462,8 @@ summary(bird.gam1)
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA) + s(L.DIST) + s(L.LDIST) + s(YR.ISOL) + GRAZE + 
-##     s(ALT)
+## ABUND ~ s(L.AREA, k = 10) + s(L.DIST, k = 10) + s(L.LDIST, k = 10) + 
+##     s(YR.ISOL, k = 10) + GRAZE + s(ALT, k = 10)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
@@ -495,7 +497,7 @@ plot(bird.gam1)
 In the interest of time, we take a casual approach to variable selection here.  We'll drop smooth terms that are clearly not significant to obtain:
 
 ```r
-bird.gam2 <- mgcv::gam(ABUND ~ s(L.AREA) + GRAZE, data = bird)
+bird.gam2 <- mgcv::gam(ABUND ~ s(L.AREA, k = 10) + GRAZE, data = bird)
 summary(bird.gam2)
 ```
 
@@ -505,7 +507,7 @@ summary(bird.gam2)
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA) + GRAZE
+## ABUND ~ s(L.AREA, k = 10) + GRAZE
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
@@ -557,7 +559,7 @@ summary(bird)
 Now we'll proceed to fit the model
 
 ```r
-bird.gam3 <- gam(ABUND ~ s(L.AREA) + fGRAZE, data = bird)
+bird.gam3 <- gam(ABUND ~ s(L.AREA, k = 10) + fGRAZE, data = bird)
 plot(bird.gam3)
 ```
 
@@ -573,7 +575,7 @@ summary(bird.gam3)
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA) + fGRAZE
+## ABUND ~ s(L.AREA, k = 10) + fGRAZE
 ## 
 ## Parametric coefficients:
 ##               Estimate Std. Error t value Pr(>|t|)    
@@ -639,7 +641,7 @@ The output here is somewhat opaque because the levels of fGRAZE are 1, 2, $\ldot
 Fit an additive model with only a smooth effect of L.AREA, in order to show residuals vs.\ GRAZE:
 
 ```r
-bird.gam4 <- gam(ABUND ~ s(L.AREA), data = bird)
+bird.gam4 <- gam(ABUND ~ s(L.AREA, k = 10), data = bird)
 
 plot(x = bird$GRAZE, y = bird.gam4$residuals)
 abline(h = 0, lty = "dashed")
