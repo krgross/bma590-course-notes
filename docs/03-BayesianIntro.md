@@ -1,10 +1,10 @@
 # Bayesian computation
 
-This chapter of the computing companion will focus solely on the computing aspects of Bayesian computation in R.  See the course notes or relevant sections of Bolker for the underlying theory.
+This chapter of the computing companion will focus solely on the computing aspects of Bayesian computation in R.  See the relevant sections of Bolker for the underlying theory.
 
 The landscape of computing tools available to fit Bayesian models is fluid.  Here, we will look at three tools currently available: `R2jags`, which is based on the JAGS (Just Another Gibbs Sampler) platform, `rstan`, which is based on the computer program Stan (itself based on Hamiltonian Monte Carlo, or HMC), and the recent `rstanarm`, which seeks to put much of the computational details in the background.  (The "arm" portion of the name `rstanarm` is an acronym for applied regression modeling.)  
 
-Throughout, we will be working with two data sets: the horse kick data (again), and a data set that details how the rate at which a cricket chirps depends on the air temperature.  The horse kick data are useful in this context because a Gamma distribution is a conjugate prior for Poisson data.  Thus, if we use a Gamma prior, then we know the posterior exactly.  Therefore, we can compare the approximations provided by stochastic sampling schemes to the known posterior.  The cricket data set will be used as an example of a simple linear regression, even though the data hint that the actual relationship between temperature and the rate of chirping is nonlinear.
+Throughout, we will be working with two data sets: the horse-kick data (again), and a data set that details how the rate at which a cricket chirps depends on the air temperature.  The horse-kick data are useful in this context because a Gamma distribution is a conjugate prior for Poisson data.  Thus, if we use a Gamma prior, then we know the posterior exactly.  Therefore, we can compare the approximations provided by stochastic sampling schemes to the known posterior.  The cricket data set will be used as an example of a simple linear regression, even though the data hint that the actual relationship between temperature and the rate of chirping is nonlinear.
 
 ## Computations with conjugate priors
 
@@ -15,7 +15,7 @@ X_1, \ldots, X_n & \sim \mbox{Pois}(\lambda) \\
 \lambda | X_1, \ldots, X_n & \sim \mbox{Gamma}(a + \sum_n X_n, r + n) \\
 \end{align*}
 
-In the horse kick data, $\sum_n x_n = 196$ and $n = 280$.  Suppose we start with the vague Gamma prior $a=.01$, $r = .01$ on $\lambda$.  This prior has mean $a/r = 1$ and variance $a/r^2 = 100$.  The posterior distribution for $\lambda$ is then a Gamma with shape parameter $a = 196.01$ and rate parameter $280.01$.  We can plot it:
+In the horse-kick data, $\sum_n x_n = 196$ and $n = 280$.  Suppose we start with the vague Gamma prior $a=.01$, $r = .01$ on $\lambda$.  This prior has mean $a/r = 1$ and variance $a/r^2 = 100$.  The posterior distribution for $\lambda$ is then a Gamma with shape parameter $a = 196.01$ and rate parameter $280.01$.  We can plot it:
 
 
 ```r
@@ -130,7 +130,7 @@ legend("topleft", leg = c("prior", "posterior"),
 
 All of the computational tools that we will examine in this section involve some form of stochastic sampling from the posterior.  This computing companion will largely use the default settings, though in real practice the analyst will often have to do considerable work adjusting the settings to obtain a satisfactory approximation.
 
-We'll use JAGS through R, using the library `r2jags`.  Here is JAGS code to approximate the posterior to $\lambda$ for the horse kick data, using the vague prior.
+We'll use JAGS through R, using the library `r2jags`.  Here is JAGS code to approximate the posterior to $\lambda$ for the horse-kick data, using the vague prior.
 
 
 ```r
@@ -220,12 +220,12 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpEtArR7/model63e83f5bce.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpeADJmv/model1980c10c631ad.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.700   0.050   0.606   0.666   0.699   0.734   0.798 1.002  1400
-## deviance 629.308   1.395 628.310 628.411 628.763 629.660 633.166 1.002  2100
+## lambda     0.702   0.050   0.609   0.668   0.701   0.735   0.803 1.001  3800
+## deviance 629.307   1.405 628.310 628.403 628.749 629.646 633.404 1.002  2600
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
@@ -246,12 +246,12 @@ summary(mcmc.output)
 
 ```
 ##     deviance         lambda      
-##  Min.   :628.3   Min.   :0.5390  
-##  1st Qu.:628.4   1st Qu.:0.6660  
-##  Median :628.8   Median :0.6986  
-##  Mean   :629.3   Mean   :0.6998  
-##  3rd Qu.:629.7   3rd Qu.:0.7336  
-##  Max.   :640.6   Max.   :0.8878
+##  Min.   :628.3   Min.   :0.5355  
+##  1st Qu.:628.4   1st Qu.:0.6681  
+##  Median :628.7   Median :0.7007  
+##  Mean   :629.3   Mean   :0.7018  
+##  3rd Qu.:629.6   3rd Qu.:0.7345  
+##  Max.   :641.7   Max.   :0.8995
 ```
 
 ```r
@@ -259,7 +259,7 @@ median(mcmc.output$lambda)
 ```
 
 ```
-## [1] 0.6985553
+## [1] 0.7006609
 ```
 
 ```r
@@ -268,7 +268,7 @@ quantile(mcmc.output$lambda, c(.025, .975))
 
 ```
 ##      2.5%     97.5% 
-## 0.6058178 0.7981931
+## 0.6088650 0.8027234
 ```
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
@@ -383,21 +383,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpEtArR7/model63e857ef7091.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpeADJmv/model1980c74a842e.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.321   3.377 -6.785 -2.453 -0.379  1.830  6.257 1.001  3800
-## b1         0.212   0.042  0.131  0.185  0.213  0.239  0.294 1.004  3800
-## sigma      1.027   0.221  0.699  0.870  0.991  1.144  1.545 1.001  3800
-## tau        1.071   0.419  0.419  0.764  1.018  1.321  2.049 1.001  3800
-## deviance  42.872   2.715 39.781 40.912 42.194 44.093 49.981 1.002  1600
+## b0        -0.287   3.371 -6.991 -2.466 -0.336  1.902  6.455 1.001  3300
+## b1         0.212   0.042  0.128  0.184  0.212  0.239  0.296 1.038  3800
+## sigma      1.032   0.219  0.704  0.878  1.002  1.147  1.556 1.001  3800
+## tau        1.059   0.417  0.413  0.760  0.995  1.296  2.019 1.001  3800
+## deviance  42.935   2.725 39.801 40.929 42.243 44.245 49.708 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.7 and DIC = 46.6
+## pD = 3.7 and DIC = 46.7
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -416,20 +416,20 @@ summary(mcmc.output)
 ```
 
 ```
-##        b0                 b1             deviance         sigma       
-##  Min.   :-18.8674   Min.   :0.02796   Min.   :39.56   Min.   :0.5661  
-##  1st Qu.: -2.4527   1st Qu.:0.18527   1st Qu.:40.91   1st Qu.:0.8702  
-##  Median : -0.3791   Median :0.21290   Median :42.19   Median :0.9911  
-##  Mean   : -0.3214   Mean   :0.21209   Mean   :42.87   Mean   :1.0268  
-##  3rd Qu.:  1.8304   3rd Qu.:0.23878   3rd Qu.:44.09   3rd Qu.:1.1440  
-##  Max.   : 14.0349   Max.   :0.43346   Max.   :61.63   Max.   :2.3495  
+##        b0                 b1               deviance         sigma       
+##  Min.   :-12.0781   Min.   :0.0000495   Min.   :39.57   Min.   :0.5068  
+##  1st Qu.: -2.4660   1st Qu.:0.1842664   1st Qu.:40.93   1st Qu.:0.8783  
+##  Median : -0.3360   Median :0.2122993   Median :42.24   Median :1.0025  
+##  Mean   : -0.2865   Mean   :0.2116488   Mean   :42.94   Mean   :1.0320  
+##  3rd Qu.:  1.9020   3rd Qu.:0.2387107   3rd Qu.:44.25   3rd Qu.:1.1470  
+##  Max.   : 15.4836   Max.   :0.3585146   Max.   :64.68   Max.   :2.4689  
 ##       tau        
-##  Min.   :0.1812  
-##  1st Qu.:0.7641  
-##  Median :1.0180  
-##  Mean   :1.0712  
-##  3rd Qu.:1.3207  
-##  Max.   :3.1209
+##  Min.   :0.1641  
+##  1st Qu.:0.7601  
+##  Median :0.9951  
+##  Mean   :1.0590  
+##  3rd Qu.:1.2962  
+##  Max.   :3.8938
 ```
 
 Now we'll coerce the data frame `mcmc.output` to an MCMC object, and pass it to `HPDinterval`:
@@ -440,11 +440,11 @@ HPDinterval(as.mcmc(mcmc.output))
 
 ```
 ##               lower      upper
-## b0       -7.1617573  5.8067755
-## b1        0.1319091  0.2940128
-## deviance 39.5610880 48.1025691
-## sigma     0.6387602  1.4434558
-## tau       0.3158164  1.8695259
+## b0       -7.5122252  5.8728124
+## b1        0.1246542  0.2904675
+## deviance 39.5795654 48.1244574
+## sigma     0.6719857  1.4882703
+## tau       0.3417005  1.8748670
 ## attr(,"Probability")
 ## [1] 0.9498667
 ```
@@ -478,7 +478,7 @@ summary(avg.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   16.22   17.48   17.70   17.71   17.92   19.45
+##   15.49   17.48   17.70   17.70   17.93   19.25
 ```
 
 ```r
@@ -487,7 +487,7 @@ quantile(avg.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 17.03409 18.39884
+## 17.01003 18.39037
 ```
 
 We could use the `density` function to get a quick idea of the shape of the distribution:
@@ -498,7 +498,7 @@ plot(density(avg.chirps.85))
 
 <img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
-Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.71, and a central 95\% credible interval is (17.03, 18.4).
+Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95\% credible interval is (17.01, 18.39).
 
 Finally, we can use the posterior samples to estimate the uncertainty in a future observation.  When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution.  The posterior predictive distribution must also include the error around the regression line.  We can estimate the posterior predictive distribution as follows.  Suppose we denote sample $i$ from the posterior as $\beta_{0, i}$, $\beta_{1, i}$, and $\sigma_i$.  Then for each posterior sample we will generate a new hypothetical observation $y_i^\star$ by sampling from a Gaussian distribution with mean equal to $\beta_{0,i} + \beta_{1,i} x $ and standard deviation $\sigma_i$, where $x = 85$.  The distribution of the $y_i^*$'s then gives the posterior predictive distribution that we seek.
 
@@ -517,7 +517,7 @@ summary(new.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   12.49   17.03   17.72   17.70   18.38   22.98
+##   9.057  16.988  17.675  17.679  18.379  22.197
 ```
 
 ```r
@@ -526,10 +526,10 @@ quantile(new.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 15.48189 19.91910
+## 15.58139 19.87549
 ```
 
-Thus, the posterior predictive distribution has a central 95\% credible interval of (15.48, 19.92).
+Thus, the posterior predictive distribution has a central 95\% credible interval of (15.58, 19.88).
 
 Although it hasn't caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
@@ -551,9 +551,9 @@ cor(mcmc.output[, -c(3:4)])
 
 ```
 ##              b0           b1          tau
-## b0   1.00000000 -0.996771553  0.005799770
-## b1  -0.99677155  1.000000000 -0.006531821
-## tau  0.00579977 -0.006531821  1.000000000
+## b0   1.00000000 -0.996602179 -0.008736690
+## b1  -0.99660218  1.000000000  0.008832964
+## tau -0.00873669  0.008832964  1.000000000
 ```
 
 Thus we estimate that the intercept and slope have a posterior correlation of -0.997.
@@ -602,21 +602,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpEtArR7/model63e87347b83.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpeADJmv/model1980c651643.txt", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
 ##  n.sims = 3750 iterations saved
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.646   0.274 16.109 16.472 16.646 16.823 17.194 1.001  3800
-## b1         0.213   0.042  0.130  0.186  0.214  0.239  0.297 1.003   970
-## sigma      1.036   0.226  0.710  0.878  0.998  1.150  1.573 1.001  3800
-## tau        1.054   0.413  0.404  0.756  1.003  1.297  1.983 1.001  3800
-## deviance  42.892   2.716 39.799 40.910 42.186 44.148 49.738 1.002  3800
+## b0        16.658   0.278 16.098 16.482 16.659 16.834 17.202 1.001  3800
+## b1         0.211   0.042  0.129  0.185  0.211  0.239  0.292 1.001  2300
+## sigma      1.038   0.231  0.704  0.877  1.001  1.156  1.595 1.001  3300
+## tau        1.053   0.420  0.393  0.748  0.998  1.299  2.016 1.001  3300
+## deviance  42.939   2.808 39.784 40.920 42.207 44.176 50.144 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.7 and DIC = 46.6
+## pD = 3.9 and DIC = 46.9
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -644,10 +644,10 @@ cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##              b0           b1          tau
-## b0  1.000000000  0.006405252  0.007162993
-## b1  0.006405252  1.000000000 -0.002135526
-## tau 0.007162993 -0.002135526  1.000000000
+##               b0          b1          tau
+## b0   1.000000000  0.01001137 -0.002412539
+## b1   0.010011373  1.00000000 -0.010891390
+## tau -0.002412539 -0.01089139  1.000000000
 ```
 
 ## rstanarm

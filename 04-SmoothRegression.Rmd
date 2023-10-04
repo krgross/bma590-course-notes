@@ -6,7 +6,9 @@ setwd("C:/Users/krgross/Documents/GitHub/bma590-course-notes/")
 
 ## Loess smoothers
 
-We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set.  These data can be found by visiting the webpage for the book ``Mixed Effects Models and Extensions in Ecology with R'' by Zuur et al. (2009).  A link to this webpage appears on the course website.
+We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set.  These data are featured in @zuur2009, and can be found by visiting the webpage associated with the book.  A link to this webpage appears on the course website.  The data were originally reported in @gillibrand2007seasonal, and detail the number of sources of bioluminescence detected along a depth gradient in the North Atlantic.  The name of the data set ("ISIT") refers to the type of camera used in the study.
+
+An important caveat to this example is that because these data represent a locations along a transect, they are likely characterized by substantial autocorrelation.  The methods that we illustrate in this section ignore that autocorrelation and instead assume that the residual errors are independent.  See the discussion of [GAMMs] to learn about coping with autocorrelation in generalized additive models.
 
 ```{r}
 ## download the data from the book's website
@@ -132,9 +134,9 @@ $$
 \mbox{response = intercept + spline + error}
 $$
 
-The `s()` component of the model formula designates a spline, and specifies details about the particular type of spline to be fit.  The `fx = TRUE` component of the formula indicates that the amount of smoothing is fixed.  The default value for the `fx` argument is `fx = FALSE`, in which case the amount of smoothing is determined by (generalized) cross-validation.  When `fx = TRUE`, the parameter `k` determines the dimensionality (degree of flexibility) of the spline.  Larger values of `k` correspond to greater flexibility, and a less smooth fit.  I think that the number of knots is $k-4$, such that setting $k=4$ fits a familiar cubic polynomial with no knots.  Setting $k=5$ then fits a regression spline with one knot, etc.  I have not been able to figure out where the knots are placed.
+The `s()` component of the model formula designates a spline, and specifies details about the particular type of spline to be fit.  The `fx = TRUE` component of the formula indicates that the amount of smoothing is fixed.  The default value for the `fx` argument is `fx = FALSE`, in which case the amount of smoothing is determined by (generalized) cross-validation.  When `fx = TRUE`, the parameter `k` determines the dimensionality (degree of flexibility) of the spline.  Larger values of `k` correspond to greater flexibility, and a less smooth fit.  I think that the number of knots is $k-4$, such that setting $k=4$ fits a familiar cubic polynomial with no knots.  Setting $k=5$ then fits a regression spline with one knot, etc.  I believe that the knots are placed at the empirical quantiles of the data.  In other words, a regression spline with one knot places the knot at the median value of the predictor.  A regression spline with three knots ($k=7$) places the knots at the lower quartile, the median, and the upper quartile of the predictor, and so on.
 
-In any case, we'll fit a regression spline with two knots:
+We'll fit a regression spline with two knots:
 
 ```{r}
 library(mgcv)
@@ -154,11 +156,10 @@ st16.fit <- predict(st16.rspline,
 
 lines(x = depth.vals, y = st16.fit$fit)
 
-## add +/- 2 SE following Zuur; this is only approximate.
-## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 5 = 46 df
+## use 45 df because the estimate of the residual error is based on 51-6 = 45 df
 
-lines(x = depth.vals, y = st16.fit$fit + 2 * st16.fit$se.fit, lty = "dashed")
-lines(x = depth.vals, y = st16.fit$fit - 2 * st16.fit$se.fit, lty = "dashed")
+lines(x = depth.vals, y = st16.fit$fit + qt(0.975, df = 45) * st16.fit$se.fit, lty = "dashed")
+lines(x = depth.vals, y = st16.fit$fit + qt(0.025, df = 45) * st16.fit$se.fit, lty = "dashed")
 ```
 
 We see that this particular fit is not flexible enough to capture the trend in luminescence at low depth.
@@ -244,9 +245,9 @@ y = \beta_0 + s(x_1) +s(x_2) + \varepsilon
 $$
 where $s(\cdot)$ represents a spline.  We continue to assume that, conditional on the covariate effects, the responses are normally distributed with constant variance $\sigma^2_\varepsilon$.  
 
-We will illustrate additive modeling using the bird data found in Appendix A of Zuur et al. (2009).  Zuur et al. report that these data originally appeared in Loyn (1987) and were featured in Quinn & Keough (2002)'s text.  Zuur et al. describe these data in the following way:
+We will illustrate additive modeling using the bird data found in Appendix A of @zuur2009.  Zuur et al. report that these data originally appeared in @loyn1987effects and were featured in Quinn & Keough (2002)'s text.  Zuur et al. describe these data in the following way:
 
-"Forest bird densities were measured in 56 forest patches in south-eastern Victoria, Australia. The aim of the study was to relate bird densities to six habitat variables; size of the forest patch, distance to the nearest patch, distance to the nearest larger patch, mean altitude of the patch, year of isolation by clearing, and an index of stock grazing history (1 = light, 5 = intensive)."
+> Forest bird densities were measured in 56 forest patches in south-eastern Victoria, Australia. The aim of the study was to relate bird densities to six habitat variables; size of the forest patch, distance to the nearest patch, distance to the nearest larger patch, mean altitude of the patch, year of isolation by clearing, and an index of stock grazing history (1 = light, 5 = intensive).
 
 We first read the data and perform some light exploratory analysis and housekeeping.
 
@@ -339,7 +340,7 @@ abline(h = 0, lty = "dashed")
 
 Both the plot and the model output suggest that the effect of grazing is primarily due to lower bird abundance in the most heavily grazed category.
 
-To conclude, we'll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE.  In this case, we have to use regression splines for the smooth effect of L.AREA.  We'll use regression "splines" without any internal knots, (which are actually not splines at all, just a cubic trend) because the effect of log area seems to be reasonably well captured by a cubic trend anyway:
+To conclude, we'll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE.  In this case, we have to use regression splines for the smooth effect of L.AREA.  We'll use regression "splines" without any internal knots^[I would have thought that a spline without any internal knots would have been exactly the same as a cubic fit.  However, a cubic fit is slightly different, though not by much.  I can't figure out why.] because the effect of log area seems to be reasonably well captured by a cubic trend anyway:
 ```{r}
 bird.gam5 <- gam(ABUND ~ s(L.AREA, k = 4, fx = TRUE) + GRAZE, data = bird)
 bird.gam6 <- gam(ABUND ~ s(L.AREA, k = 4, fx = TRUE) + fGRAZE, data = bird)

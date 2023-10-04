@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-09-06" />
+<meta name="date" content="2023-10-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -180,7 +180,10 @@ div.csl-indent {
 <li class="chapter" data-level="2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><i class="fa fa-check"></i><b>2</b> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</a>
 <ul>
 <li class="chapter" data-level="2.1" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#confidence-intervals-for-single-parameters"><i class="fa fa-check"></i><b>2.1</b> Confidence intervals for single parameters</a></li>
-<li class="chapter" data-level="2.2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#two-param-mle"><i class="fa fa-check"></i><b>2.2</b> Confidence regions, profile likelihoods, and associated univariate intervals</a></li>
+<li class="chapter" data-level="2.2" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#two-param-mle"><i class="fa fa-check"></i><b>2.2</b> Confidence regions, profile likelihoods, and associated univariate intervals</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#profile-likelihoods"><i class="fa fa-check"></i><b>2.2.1</b> Profile likelihoods</a></li>
+</ul></li>
 <li class="chapter" data-level="2.3" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#locally-quadratic-approximations-to-confidence-intervals-and-regions"><i class="fa fa-check"></i><b>2.3</b> Locally quadratic approximations to confidence intervals and regions</a></li>
 <li class="chapter" data-level="2.4" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#comparing-models-likelihood-ratio-test-and-aic"><i class="fa fa-check"></i><b>2.4</b> Comparing models: Likelihood ratio test and AIC</a></li>
 <li class="chapter" data-level="2.5" data-path="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html"><a href="beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function.html#the-negative-binomial-distriution-revisited"><i class="fa fa-check"></i><b>2.5</b> The negative binomial distriution, revisited</a></li>
@@ -251,7 +254,7 @@ div.csl-indent {
 <li class="chapter" data-level="8.1.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#bayesian-fit"><i class="fa fa-check"></i><b>8.1.3</b> Bayesian fit</a></li>
 </ul></li>
 <li class="chapter" data-level="8.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#example-2-ticks-on-red-grouse"><i class="fa fa-check"></i><b>8.2</b> Example 2: Ticks on red grouse</a></li>
-<li class="chapter" data-level="8.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#gamms"><i class="fa fa-check"></i><b>8.3</b> GAMMs</a></li>
+<li class="chapter" data-level="8.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#GAMMs"><i class="fa fa-check"></i><b>8.3</b> GAMMs</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="bibliography.html"><a href="bibliography.html"><i class="fa fa-check"></i>Bibliography</a></li>
 </ul>
@@ -275,7 +278,8 @@ div.csl-indent {
 <h1><span class="header-section-number">Chapter 4</span> Smooth regression<a href="smooth-regression.html#smooth-regression" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="loess-smoothers" class="section level2 hasAnchor" number="4.1">
 <h2><span class="header-section-number">4.1</span> Loess smoothers<a href="smooth-regression.html#loess-smoothers" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set. These data can be found by visiting the webpage for the book ``Mixed Effects Models and Extensions in Ecology with R’’ by Zuur et al. (2009). A link to this webpage appears on the course website.</p>
+<p>We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set. These data are featured in <span class="citation">Zuur et al. (<a href="#ref-zuur2009" role="doc-biblioref">2009</a>)</span>, and can be found by visiting the webpage associated with the book. A link to this webpage appears on the course website. The data were originally reported in <span class="citation">Gillibrand et al. (<a href="#ref-gillibrand2007seasonal" role="doc-biblioref">2007</a>)</span>, and detail the number of sources of bioluminescence detected along a depth gradient in the North Atlantic. The name of the data set (“ISIT”) refers to the type of camera used in the study.</p>
+<p>An important caveat to this example is that because these data represent a locations along a transect, they are likely characterized by substantial autocorrelation. The methods that we illustrate in this section ignore that autocorrelation and instead assume that the residual errors are independent. See the discussion of <a href="generalized-linear-mixed-models.html#GAMMs">GAMMs</a> to learn about coping with autocorrelation in generalized additive models.</p>
 <div class="sourceCode" id="cb260"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb260-1"><a href="smooth-regression.html#cb260-1" aria-hidden="true" tabindex="-1"></a><span class="do">## download the data from the book&#39;s website</span></span>
 <span id="cb260-2"><a href="smooth-regression.html#cb260-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb260-3"><a href="smooth-regression.html#cb260-3" aria-hidden="true" tabindex="-1"></a>isit <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/ISIT.txt&quot;</span>, <span class="at">head =</span> T)</span>
@@ -399,8 +403,8 @@ div.csl-indent {
 <span class="math display">\[
 \mbox{response = intercept + spline + error}
 \]</span></p>
-<p>The <code>s()</code> component of the model formula designates a spline, and specifies details about the particular type of spline to be fit. The <code>fx = TRUE</code> component of the formula indicates that the amount of smoothing is fixed. The default value for the <code>fx</code> argument is <code>fx = FALSE</code>, in which case the amount of smoothing is determined by (generalized) cross-validation. When <code>fx = TRUE</code>, the parameter <code>k</code> determines the dimensionality (degree of flexibility) of the spline. Larger values of <code>k</code> correspond to greater flexibility, and a less smooth fit. I think that the number of knots is <span class="math inline">\(k-4\)</span>, such that setting <span class="math inline">\(k=4\)</span> fits a familiar cubic polynomial with no knots. Setting <span class="math inline">\(k=5\)</span> then fits a regression spline with one knot, etc. I have not been able to figure out where the knots are placed.</p>
-<p>In any case, we’ll fit a regression spline with two knots:</p>
+<p>The <code>s()</code> component of the model formula designates a spline, and specifies details about the particular type of spline to be fit. The <code>fx = TRUE</code> component of the formula indicates that the amount of smoothing is fixed. The default value for the <code>fx</code> argument is <code>fx = FALSE</code>, in which case the amount of smoothing is determined by (generalized) cross-validation. When <code>fx = TRUE</code>, the parameter <code>k</code> determines the dimensionality (degree of flexibility) of the spline. Larger values of <code>k</code> correspond to greater flexibility, and a less smooth fit. I think that the number of knots is <span class="math inline">\(k-4\)</span>, such that setting <span class="math inline">\(k=4\)</span> fits a familiar cubic polynomial with no knots. Setting <span class="math inline">\(k=5\)</span> then fits a regression spline with one knot, etc. I believe that the knots are placed at the empirical quantiles of the data. In other words, a regression spline with one knot places the knot at the median value of the predictor. A regression spline with three knots (<span class="math inline">\(k=7\)</span>) places the knots at the lower quartile, the median, and the upper quartile of the predictor, and so on.</p>
+<p>We’ll fit a regression spline with two knots:</p>
 <div class="sourceCode" id="cb272"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb272-1"><a href="smooth-regression.html#cb272-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span></code></pre></div>
 <pre><code>## Loading required package: nlme</code></pre>
 <pre><code>## This is mgcv 1.8-42. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
@@ -417,11 +421,10 @@ div.csl-indent {
 <span id="cb276-6"><a href="smooth-regression.html#cb276-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb276-7"><a href="smooth-regression.html#cb276-7" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit)</span>
 <span id="cb276-8"><a href="smooth-regression.html#cb276-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb276-9"><a href="smooth-regression.html#cb276-9" aria-hidden="true" tabindex="-1"></a><span class="do">## add +/- 2 SE following Zuur; this is only approximate.</span></span>
-<span id="cb276-10"><a href="smooth-regression.html#cb276-10" aria-hidden="true" tabindex="-1"></a><span class="do">## should probably use a critical value from a t-dist with n - edf df, that is, 51 - 5 = 46 df</span></span>
-<span id="cb276-11"><a href="smooth-regression.html#cb276-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb276-12"><a href="smooth-regression.html#cb276-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb276-13"><a href="smooth-regression.html#cb276-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<span id="cb276-9"><a href="smooth-regression.html#cb276-9" aria-hidden="true" tabindex="-1"></a><span class="do">## use 45 df because the estimate of the residual error is based on 51-6 = 45 df</span></span>
+<span id="cb276-10"><a href="smooth-regression.html#cb276-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb276-11"><a href="smooth-regression.html#cb276-11" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">45</span>) <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb276-12"><a href="smooth-regression.html#cb276-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st16.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.025</span>, <span class="at">df =</span> <span class="dv">45</span>) <span class="sc">*</span> st16.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
 <p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>We see that this particular fit is not flexible enough to capture the trend in luminescence at low depth.</p>
 <p>Let’s take a look at the information produced by a call to <code>summary</code>:</p>
@@ -523,8 +526,10 @@ where <span class="math inline">\(\varepsilon\)</span> is assumed to be an iid G
 y = \beta_0 + s(x_1) +s(x_2) + \varepsilon
 \]</span>
 where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We continue to assume that, conditional on the covariate effects, the responses are normally distributed with constant variance <span class="math inline">\(\sigma^2_\varepsilon\)</span>.</p>
-<p>We will illustrate additive modeling using the bird data found in Appendix A of Zuur et al. (2009). Zuur et al. report that these data originally appeared in Loyn (1987) and were featured in Quinn &amp; Keough (2002)’s text. Zuur et al. describe these data in the following way:</p>
-<p>“Forest bird densities were measured in 56 forest patches in south-eastern Victoria, Australia. The aim of the study was to relate bird densities to six habitat variables; size of the forest patch, distance to the nearest patch, distance to the nearest larger patch, mean altitude of the patch, year of isolation by clearing, and an index of stock grazing history (1 = light, 5 = intensive).”</p>
+<p>We will illustrate additive modeling using the bird data found in Appendix A of <span class="citation">Zuur et al. (<a href="#ref-zuur2009" role="doc-biblioref">2009</a>)</span>. Zuur et al. report that these data originally appeared in <span class="citation">Loyn (<a href="#ref-loyn1987effects" role="doc-biblioref">1987</a>)</span> and were featured in Quinn &amp; Keough (2002)’s text. Zuur et al. describe these data in the following way:</p>
+<blockquote>
+<p>Forest bird densities were measured in 56 forest patches in south-eastern Victoria, Australia. The aim of the study was to relate bird densities to six habitat variables; size of the forest patch, distance to the nearest patch, distance to the nearest larger patch, mean altitude of the patch, year of isolation by clearing, and an index of stock grazing history (1 = light, 5 = intensive).</p>
+</blockquote>
 <p>We first read the data and perform some light exploratory analysis and housekeeping.</p>
 <div class="sourceCode" id="cb287"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb287-1"><a href="smooth-regression.html#cb287-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
 <span id="cb287-2"><a href="smooth-regression.html#cb287-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(mgcv)</span>
@@ -729,6 +734,18 @@ where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We cont
 <p>Both AIC and the <span class="math inline">\(F\)</span>-test suggest that the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE (<span class="math inline">\(F_{3,48} = 3.38, p = 0.026\)</span>).</p>
 <p>As a final note, Zuur et al. (p.550) observe that “the non-linear L.AREA effect is mainly due to two large patches. It would be useful to sample more of this type of patch in the future.” (Note the rug plots in any of the plots of the area effect above.)</p>
 
+</div>
+</div>
+<h3>Bibliography<a href="bibliography.html#bibliography" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-gillibrand2007seasonal" class="csl-entry">
+Gillibrand, EJV, AJ Jamieson, PM Bagley, Alain F Zuur, and IG Priede. 2007. <span>“Seasonal Development of a Deep Pelagic Bioluminescent Layer in the Temperate NE Atlantic Ocean.”</span> <em>Marine Ecology Progress Series</em> 341: 37–44.
+</div>
+<div id="ref-loyn1987effects" class="csl-entry">
+Loyn, RH. 1987. <span>“Effects of Patch Area and Habitat on Bird Abundances, Species Numbers and Tree Health in Fragmented Victorian Forests.”</span> In <em>Nature Conservation: The Role of Remnants of Native Vegetation</em>, edited by A. A. Burbidge DA Saunders GW Arnold and AJM Hopkins, 65–77. Chipping Norton, NSW: Surrey Beatty &amp; Sons.
+</div>
+<div id="ref-zuur2009" class="csl-entry">
+Zuur, Alain F, Elena N Ieno, Neil J Walker, Anatoly A Saveliev, Graham M Smith, et al. 2009. <em>Mixed Effects Models and Extensions in Ecology with <span>R</span></em>. Vol. 574. Springer.
 </div>
 </div>
             </section>

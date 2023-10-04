@@ -4,7 +4,9 @@ Likelihood can be used for more than simply isolating the MLE.  The likelihood c
 
 ## Confidence intervals for single parameters
 
-First we'll read in the data and recreate the negative log likelihood function.
+Likelihood regions for parameters can be found using upper contour sets of the log-likelihood function (or, equivalently, using lower contour sets of the negative log-likelihood function).  An upper contour set consists of all values of the parameter(s) at which the log-likelihood is no less than a certain value.  Even though this definition seems a bit wordy, the intuition is straightforward: if the log-likelihood measures the goodness of fit, then we just want to select the parameter values that correspond to a fit that is at least as good as a certain threshold.  
+
+We'll start by constructing a confidence interval for $\lambda$ with the horse-kick data.
 
 ```{r}
 horse <- read.table("data/horse.txt", header = TRUE)
@@ -28,7 +30,7 @@ for (i.lambda in 1:length(lambda.vals)) {
 plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "negative log likelihood", type = "l")
 ```
 
-To find an asymptotic confidence interval for $\lambda$ with confidence level $100 \times (1-\alpha)\%$, we want to find all the values of $\lambda$ for which the negative log-likelihood is no greater than $\frac{1}{2}\chi^2_1(1-\alpha)$ larger than the negative log-likelihood at the MLE.^[See section 6.4.1.1 of Bolker to see how this follows from a result about the likelihood ratio.]  In other words, if we think about the negative log likelihood as quantifying the "badness of fit", as Bolker suggests, then we want to find all values of $\lambda$ that give a fit that is no more than $\frac{1}{2}\chi^2_1(1-\alpha)$ worse than the fit at the MLE.  By $\chi^2_1(1-\alpha)$, we mean $1-\alpha$ quantile of a $\chi^2_1$ distribution, which can be found with the function `qchisq` in R.  The code below uses the function `uniroot` to find the upper and lower bounds of a 95\% CI for $\lambda$.
+To find an asymptotic confidence interval for $\lambda$ with confidence level $100 \times (1-\alpha)\%$, we want to find all the values of $\lambda$ for which the negative log-likelihood is no greater than $\frac{1}{2}\chi^2_1(1-\alpha)$ larger than the negative log-likelihood at the MLE.^[See section 6.4.1.1 of Bolker to see how this follows from a result about the likelihood ratio.]  By $\chi^2_1(1-\alpha)$, we mean $1-\alpha$ quantile of a $\chi^2_1$ distribution, which can be found with the function `qchisq` in R.  The code below uses the function `uniroot` to find the upper and lower bounds of a 95\% CI for $\lambda$.
 ```{r}
 cutoff.ll <- horse.neg.ll(0.7) + qchisq(0.95, df = 1) / 2
 
@@ -152,7 +154,17 @@ contour(x = a.vals, y = h.vals, z = ll.vals,
         add = TRUE, col = "red", lwd = 2)
 ```
 
-However, there are several drawbacks to confidence regions.  First, while a two-dimensional confidence region can be readily visualized, it is hard to summarize or describe.  Second, and more importantly, most models have more than two parameters.  In these models, a confidence region would have more than 2 dimensions, and thus would be impractical to visualize.  Thus it is helpful, or even essential, to be able to generate univariate confidence intervals for single parameters from high-dimensional likelihoods.  One approach to doing so is to calculate the so-called profile likelihood for a given parameter, and then to derive the univariate interval from this profile likelihood.  We will illustrate this approach by computing a profile-based confidence interval for the attack rate $a$ in the tadpole data.
+### Profile likelihoods
+
+There are several drawbacks to confidence regions.  First, while a two-dimensional confidence region can be readily visualized, it is hard to summarize or describe.  Second, and more importantly, most models have more than two parameters.  In these models, a confidence region would have more than 2 dimensions, and thus would be impractical to visualize.  Thus it is helpful, or even essential, to be able to generate univariate confidence intervals for single parameters from high-dimensional likelihoods.  
+
+The recommended approach for generating univariate confidence intervals from a high-dimensional likelihood surface is to use a technique called *profiling*.  A profile likelihood for one or more parameters is found by optimizing the likelihood when the parameter(s) of interest is fixed, and all other parameters are allowed to vary.  To be a bit more precise, suppose we have a model a parameter(s) of interest $\theta$ and nuisance parameter(s) $\phi$.  (Here, we'll let both $\theta$ and $\phi$ denote either single parameters or vectors of several parameters, as the situation requires.  Doing this allows us to cut down on the notation.)  Write the likelihood function as $\L{\theta, \phi}$.  The profile likelihood for $\theta$, which we might write as $\mathcal{L}_{\theta}(\theta)$, is
+\begin{equation}
+\mathcal{L}_{\theta}(\theta) = \max_{\phi} \, \L{\theta, \phi}.
+\end{equation}
+If we're working with the negative log-likelihood instead of the likelihood, we'd replace the maximization above with a minimization.  We can find a confidence region for $\theta$ using the upper contour sets of the profile likelihood, in just the same way as we did with the full likelihood.
+
+We will illustrate this approach by computing a profile-based confidence interval for the attack rate $a$ in the tadpole data.
 
 ```{r}
 # profile log-likelihood function for the attack rate a
@@ -205,9 +217,15 @@ So, the 95\% profile CI for $a$ is (0.402, 0.682).
 
 Likelihood profiling provides a straightforward way to summarize a high-dimensional confidence region by univariate confidence intervals.  However, these profile intervals can still involve quite a bit of computation.  Further, they are not able to capture possible correlations among parameter estimates, which are revealed in (two-dimensional) confidence regions.  (Recall the shape of the joint confidence region for the parameters $a$ and $h$ in the tadpole data.)  Locally quadratic approximations provide a way to approximate the (already approximate) univariate confidence intervals and bivariate confidence regions using only information about the curvature of the likelihood surface at the MLE.
 
+---
+
+<span style="color: gray;"> There's some remarkable theory behind the idea of approximating a log-likelihood with a quadratic function.  Asymptotically, (that is, as the number of data points grows large), the sampling distribution of an MLE approaches a Gaussian distribution (with the usual caveat that the MLE can't be on the edge of the allowable parameter space).  But the log-likelihood of the parameters in a Gaussian distribution is exactly quadratic.  Therefore, as the number of data points grows large, the log-likelihood function of any model will come to resemble a quadratic function in the neighborhood of the MLE.</span>
+
+---
+
 We'll first start by revisiting the horse-kick data again.  Of course, with the more precise $\chi^2$ based confidence interval in hand, there is no reason to seek an approximation.  But doing so allows us to illustrate the calculations involved, and to see how well the approximation fares in this case.
 
-First some housekeepign to read the data into memory, etc.
+First some housekeeping to read the data into memory, etc.
 
 ```{r}
 # clean up
@@ -233,7 +251,7 @@ lower <- uniroot(f = my.function, interval = c(0.6, 0.7))
 upper <- uniroot(f = my.function, interval = c(0.7, 0.9))
 ```
 
-Now we will proceed to use a locally quadratic approximation to the negative log likelihood.
+To proceed with the approximation, we need to calculate the second derivative of the log-likelihood at the MLE.  We'll rely on the `hessian` routine in the `numDeriv` package to calculate this second derivative for us.  However, it's worth noting that we can approximate the second derivative numerically by the method of finite differences. This method only requires to additional evaluations of the likelihood function!
 ```{r}
 ## this function finds the second derivative at the MLE by finite differences
 

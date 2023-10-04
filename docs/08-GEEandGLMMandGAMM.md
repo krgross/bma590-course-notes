@@ -311,7 +311,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3188338
+## [1] 0.3188049
 ```
 
 ```r
@@ -345,7 +345,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3502704
+## [1] 0.3502236
 ```
 
 ```r
@@ -803,7 +803,7 @@ plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
 <!-- anova(fm1, fm3)  # can use LRT because models are nested, and both have been fit with ML -->
 <!-- ``` -->
 
-## GAMMs
+## GAMMs {#GAMMs}
 
 Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlations.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
 

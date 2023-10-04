@@ -9,6 +9,7 @@ transformable-constraints
 beyond-the-mle-confidence-regions-and-hypothesis-tests-using-the-likelihood-function
 confidence-intervals-for-single-parameters
 two-param-mle
+profile-likelihoods
 locally-quadratic-approximations-to-confidence-intervals-and-regions
 comparing-models-likelihood-ratio-test-and-aic
 the-negative-binomial-distriution-revisited
@@ -57,4 +58,4 @@ gees
 glmms
 bayesian-fit
 example-2-ticks-on-red-grouse
-gamms
+GAMMs
