@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-10-04" />
+<meta name="date" content="2023-10-09" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -605,7 +605,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb446"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb446-1"><a href="hierarchical-mixed-models.html#cb446-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpULkXAK/model4364c01329b.txt&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpaWLNew/model1d53c7e14772e.txt&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
@@ -1617,7 +1617,7 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 <span id="cb527-2"><a href="hierarchical-mixed-models.html#cb527-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb527-3"><a href="hierarchical-mixed-models.html#cb527-3" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(pp.golf)</span></code></pre></div>
 <pre><code>##                  2.5 %    97.5 %
-## .sig01       0.0000000  1.551145
+## .sig01       0.0000000  1.551146
 ## .sig02       0.8129721  3.837297
 ## .sigma       3.0513011  3.666234
 ## (Intercept) 72.2434040 76.265786</code></pre>

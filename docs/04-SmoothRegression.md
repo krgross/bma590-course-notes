@@ -183,14 +183,14 @@ PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.25, degree = 1)
 
 We'll use the `gam` function in the `mgcv` package to fit splines and additive models.  The name of the package is an acronym for "Mixed GAM Computation Vehicle".  GAM is an acronym for Generalized Additive Model.  **Warning**.  I do not understand much of the functionality of `mgcv::gam`.  What follows is my best guess of how the procedure works.
 
-The code below fits a regression spline to the bioluminescence data.  Actually, the code fits an additive model with the spline as the only predictor. We will say more about additive models later.  For now, it is sufficient to think about an additive model as a type of regression in which the linear effect of the predictor has been replaced by a spline.  In other words, in terms of a word equation, the model can be represented as
+The code below fits a regression spline to the bioluminescence data.  Actually, the code fits an additive model with the spline as the only predictor. We will say more about additive models later.  For now, we can define an additive model as a type of regression in which the linear effect of the predictor has been replaced by a spline.  In other words, in terms of a word equation, the model can be represented as
 $$
 \mbox{response = intercept + spline + error}
 $$
 
-The `s()` component of the model formula designates a spline, and specifies details about the particular type of spline to be fit.  The `fx = TRUE` component of the formula indicates that the amount of smoothing is fixed.  The default value for the `fx` argument is `fx = FALSE`, in which case the amount of smoothing is determined by (generalized) cross-validation.  When `fx = TRUE`, the parameter `k` determines the dimensionality (degree of flexibility) of the spline.  Larger values of `k` correspond to greater flexibility, and a less smooth fit.  I think that the number of knots is $k-4$, such that setting $k=4$ fits a familiar cubic polynomial with no knots.  Setting $k=5$ then fits a regression spline with one knot, etc.  I believe that the knots are placed at the empirical quantiles of the data.  In other words, a regression spline with one knot places the knot at the median value of the predictor.  A regression spline with three knots ($k=7$) places the knots at the lower quartile, the median, and the upper quartile of the predictor, and so on.
+The `s()` component of the model formula designates a spline, and specifies details about the particular type of spline to be fit.  The `fx = TRUE` component of the formula indicates that the amount of smoothing is fixed.  The default value for the `fx` argument is `fx = FALSE`, in which case the amount of smoothing is determined by (generalized) cross-validation.  When `fx = TRUE`, the parameter `k` determines the dimensionality (degree of flexibility) of the spline.  Larger values of `k` correspond to greater flexibility, and a less smooth fit.  For cubic splines, the number of knots is $k-4$, such that setting $k=4$ fits a familiar cubic polynomial with no knots.  Setting $k=5$ then fits a cubic regression spline with one knot, etc.  I believe that the knots are placed at the empirical quantiles of the data.  In other words, a regression spline with one knot places the knot at the median value of the predictor.  A regression spline with three knots ($k=7$) places the knots at the lower quartile, the median, and the upper quartile of the predictor, and so on.
 
-We'll fit a regression spline with two knots:
+We'll fit a cubic regression spline with two knots:
 
 
 ```r
@@ -266,9 +266,9 @@ summary(st16.rspline)
 ## GCV = 19.837  Scale est. = 17.503    n = 51
 ```
 
-This summary requires a bit more explanation as well.  In this GAM, the spline component of the model effectively creates a set of new predictor variables.  A regression spline with $x$ knots requires $x+3$ new regression predictors to fit the spline.  In this fit, there are two knots, so the spline requires 5 new predictor variables. Because the predictors are determined in advance with regression splines, we can use the usual theory of $F$-tests from regression to assess the statistical significance of the spline terms.  In the section of the output labeled "Approximate significance of smooth terms", we see that these 5 predictors together provide a significantly better fit than a model that does not include the spline.  I believe this test is actually exact.  I think that it is labeled "approximate" because the default behavior of `mgcv::gam` is to fit a smoothing spline, for which the test is indeed only approximate.  We'll discuss this more when we study a smoothing spline fit.
+This summary requires a bit more explanation as well.  In this GAM, the spline component of the model effectively creates a set of new predictor variables.  A cubic regression spline with $x$ internal knots requires $x+3$ new regression predictors to fit the spline.  In this fit, there are two internal knots, so the spline requires 5 new predictor variables. Because the predictors are determined in advance with regression splines, we can use the usual theory of $F$-tests from regression to assess the statistical significance of the spline terms.  In the section of the output labeled "Approximate significance of smooth terms", we see that these 5 predictors together provide a significantly better fit than a model that does not include the spline.  This test is exact.  It is labeled "approximate" because the default behavior of `mgcv::gam` is to fit a *penalized* regression spline, for which the test is indeed only approximate.  
 
-Now we'll fit and plot a smoothing spline.  A smoothing spline fits a regression spline with a large number of knots, but fits the spline using a quadratic penalty.  The most appropriate value for the penalty is determined by (generalized) cross validation.  In this way, the smoothing spline automatically determines the appropriate amount of smoothness.  We still have to specify $k$ to make sure that the initial regression spline has enough flexibility.
+Now we'll fit and plot a penalized regression spline.  A penalized regression spline is based on a regression spline with a large number of knots, but the fit is obtained using a penalty that penalizes the "wiggliness" of the fit.  When the underlying regression spline is a cubic spline, the wiggliness is defined as the intergral of the squared second derivative of the fit.  The most appropriate value for the penalty is determined by (generalized) cross validation.  In this way, the penalized regression spline automatically determines the appropriate amount of smoothness.  We still have to specify $k$ to make sure that the initial regression spline has enough flexibility.
 
 
 ```r
@@ -326,9 +326,9 @@ summary(st16.spline)
 ## GCV = 7.1813  Scale est. = 5.2928    n = 51
 ```
 
-Note especially the `edf` component in the "Approximate significance of smooth terms" section.  The label `edf` stands for effective degrees of freedom.  We can think of the edf as the effective number of new predictors that have been added to the model to accommodate the spline.  For a smoothing spline, the number and values of the newly created predictors are determined by fitting the model to the data.  Because the predictors are calculated in this way, the usual theory of $F$-testing does not apply.  This is why the $F$-test shown for the smoothing spline is labeled as "approximate".  
+Note the `edf` component in the "Approximate significance of smooth terms" section.  The label `edf` stands for effective degrees of freedom.  We can think of the edf as the effective number of new predictors that have been added to the model to accommodate the spline.  For a penalized regression spline, the number and values of the newly created predictors are determined by fitting the model to the data.  Because the predictors are calculated in this way, the usual theory of $F$-testing does not apply.  This is why the $F$-test shown for the penalized regression spline is labeled as "approximate".  
 
-Find the AIC for the smoothing spline fit:
+Find the AIC for the penalized regression spline fit:
 
 
 ```r
@@ -448,7 +448,7 @@ summary(bird)
 ##  Max.   :97.00   Max.   :260.0   Max.   :5.000
 ```
 
-Our first attempt at a GAM will entertain smoothing splines for all of the continuous predictors in the model.  We will use a linear term for GRAZE because there are too few unique values to support a smooth term:
+Our first attempt at a GAM will use penalized regression splines for all of the continuous predictors in the model.  We will use a linear term for GRAZE because there are too few unique values to support a smooth term:
 
 ```r
 bird.gam1 <- mgcv::gam(ABUND ~ s(L.AREA, k = 10) + s(L.DIST, k = 10) + s(L.LDIST, k = 10) + s(YR.ISOL, k = 10) + GRAZE + s(ALT, k = 10), data = bird)
@@ -597,7 +597,7 @@ summary(bird.gam3)
 ## GCV = 37.013  Scale est. = 31.883    n = 56
 ```
 
-To formally compare the models with GRAZE as a numerical vs.\ categorical predictor, we'll have to use AIC.  We can't use an $F$-test here because we have used smoothing splines to capture the effect of L.AREA.  Thus, the models are not nested.  (If we had used regression splines for L.AREA, then the models would have been nested.)  We can extract the AICs for these models by a simple call to the `AIC` function.
+To formally compare the models with GRAZE as a numerical vs.\ categorical predictor, we'll have to use AIC.  We can't use an $F$-test here because we have used penalized regression splines to capture the effect of L.AREA.  Thus, the models are not nested.  (If we had used regression splines for L.AREA, then the models would have been nested.)  We can extract the AICs for these models by a simple call to the `AIC` function.
 
 
 ```r
