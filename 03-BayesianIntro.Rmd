@@ -51,20 +51,19 @@ To find a 95\% confidence interval, we might consider the central 95\% interval:
 qgamma(c(0.025, 0.975), shape = 196.01, rate = 280.01)
 ```
 
-A 95\% highest posterior density (HPD) interval takes a bit more work:
+A 95\% highest posterior density (HPD) interval takes a bit more work.  We'll write a function to compute the width of a 95\% credible interval based on the quantile of the upper endpoint, and then find the quantile that minimizes this width.
 ```{r}
-diff.in.pdf <- function(x){
+interval.width <- function(x){
   
   upper <- qgamma(p = x, shape = 196.01, rate = 280.01)
   lower <- qgamma(p = x - .95, shape = 196.01, rate = 280.01)
   
-  dgamma(upper, shape = 196.01, rate = 280.01) - dgamma(lower, shape = 196.01, rate = 280.01)
+  upper - lower
 }
 
-(upper.qtile <- uniroot(diff.in.pdf, interval = c(0.95, 1))$root)
+(upper.qtile <- optimize(interval.width, interval = c(0.95, 1))$minimum)
 
 (hpd.ci <- qgamma(p = c(upper.qtile - .95, upper.qtile), shape = 196.01, rate = 280.01))
-
 ```
 
 We might also ask questions like: What is the posterior probability that $\lambda > 2/3$?  These caluclations are straightforward in a Bayesian context, and they make full sense.
@@ -229,6 +228,7 @@ for(i in subset.samples) {
 }
 
 with(cricket, points(chirps ~ temperature))
+with(mcmc.output, abline(a = mean(b0), b = mean(b1), col = "purple3", lwd = 3))
 ```
 
 We can also propagate the uncertainty to estimate, say, the posterior distribution for the value of the regression line when the temperature is 85 F.  This quantifies the uncertainty in the average number of chirps at this temperature.  (We can think of it as a vertical slice through the above plot.)
