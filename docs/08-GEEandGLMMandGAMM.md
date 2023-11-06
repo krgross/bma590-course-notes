@@ -311,7 +311,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3188169
+## [1] 0.3188177
 ```
 
 ```r
@@ -345,7 +345,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.350185
+## [1] 0.3502049
 ```
 
 ```r
@@ -807,7 +807,7 @@ plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
 
 Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlations.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
 
-As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.  These data can be found at http://academic.udayton.edu/kissock/http/weather/.  First, some housekeeping and exploratory analysis.
+As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.  I downloaded these data from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  First, some housekeeping and exploratory analysis.
 
 
 ```r
@@ -820,7 +820,7 @@ with(rdu, table(temp == -99))
 ```
 ## 
 ## FALSE  TRUE 
-##  9250    15
+## 10508    15
 ```
 
 ```r
