@@ -169,310 +169,310 @@ lines(x   = new.data$age,
 
 Notice that $\hat{\theta} = 15.8$, again indicating that the extra-Poisson variation is mild.  Notice also that the error bounds on the fitted curve are ever so slightly larger than the error bounds from the Poisson fit, and nearly identical to the error bounds from the quasi-Poisson fit.
 
-## Bayesian interlude
+<!-- ## Bayesian interlude -->
 
-### rstanarm
+<!-- ### rstanarm -->
 
-We will take a look at how Poisson regression can be handled from a Bayesian perspective.  This interlude will also allow us to introduce a few more Bayesian concepts.  
+<!-- We will take a look at how Poisson regression can be handled from a Bayesian perspective.  This interlude will also allow us to introduce a few more Bayesian concepts.   -->
 
-We'll first fit the Poisson regression with identity link using `rstanarm::stan_glm`.
+<!-- We'll first fit the Poisson regression with identity link using `rstanarm::stan_glm`. -->
 
-```{r results = 'hide'}
-require(rstanarm)
+<!-- ```{r results = 'hide'} -->
+<!-- require(rstanarm) -->
 
-fm5 <- stan_glm(matings ~ age, 
-                family = poisson(link = "identity"), 
-                data   = elephant,
-                seed   = 1)  
-```
-```{r}
-print(fm5, digits = 3)
-```
+<!-- fm5 <- stan_glm(matings ~ age,  -->
+<!--                 family = poisson(link = "identity"),  -->
+<!--                 data   = elephant, -->
+<!--                 seed   = 1)   -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- print(fm5, digits = 3) -->
+<!-- ``` -->
 
-We can visualize the marginal posterior of the slope using `bayesplot::mcmc_areas`:
+<!-- We can visualize the marginal posterior of the slope using `bayesplot::mcmc_areas`: -->
 
-```{r}
-posterior.fm5 <- as.matrix(fm5)
+<!-- ```{r} -->
+<!-- posterior.fm5 <- as.matrix(fm5) -->
 
-bayesplot::mcmc_areas(posterior.fm5,
-                      pars = c("age"),
-                      prob = 0.95) 
-```
+<!-- bayesplot::mcmc_areas(posterior.fm5, -->
+<!--                       pars = c("age"), -->
+<!--                       prob = 0.95)  -->
+<!-- ``` -->
 
-Notice that the slope of the fitted regression line is slightly attenuated relative to the ML fit from the frequentist analysis.  The reason is that the default priors selected by `rstanarm` are actually reasonably strong:
-```{r}
-prior_summary(fm5)
-```
+<!-- Notice that the slope of the fitted regression line is slightly attenuated relative to the ML fit from the frequentist analysis.  The reason is that the default priors selected by `rstanarm` are actually reasonably strong: -->
+<!-- ```{r} -->
+<!-- prior_summary(fm5) -->
+<!-- ``` -->
 
-`rstanarm` parameterizes the normal distribution by its mean and standard deviation.  Thus, the prior for the slope has a mean of 0 and standard deviation of 2.5.  (I think: I don't yet understand the difference between the 'specified prior' and the 'adjusted prior'.)  This relatively strong prior reflects the views of the developers of `rstanarm`, who think there is benefit to shrinking most estimated effects slightly towards 0.  If we want to override this default and use weaker priors, we can do so as follows.  
-```{r results = 'hide', cache = TRUE}
-fm5 <- stan_glm(matings ~ age, 
-                family = poisson(link = "identity"), 
-                data   = elephant,
-                prior  = normal(0, 100), 
-                prior_intercept = normal(0, 100),
-                seed   = 1)  
-```
-```{r}
-print(fm5, digits = 3)
-```
+<!-- `rstanarm` parameterizes the normal distribution by its mean and standard deviation.  Thus, the prior for the slope has a mean of 0 and standard deviation of 2.5.  (I think: I don't yet understand the difference between the 'specified prior' and the 'adjusted prior'.)  This relatively strong prior reflects the views of the developers of `rstanarm`, who think there is benefit to shrinking most estimated effects slightly towards 0.  If we want to override this default and use weaker priors, we can do so as follows.   -->
+<!-- ```{r results = 'hide', cache = TRUE} -->
+<!-- fm5 <- stan_glm(matings ~ age,  -->
+<!--                 family = poisson(link = "identity"),  -->
+<!--                 data   = elephant, -->
+<!--                 prior  = normal(0, 100),  -->
+<!--                 prior_intercept = normal(0, 100), -->
+<!--                 seed   = 1)   -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- print(fm5, digits = 3) -->
+<!-- ``` -->
 
-Weakening the prior results in a posterior mean for the slope that is closer to the MLE from the frequentist analysis.
+<!-- Weakening the prior results in a posterior mean for the slope that is closer to the MLE from the frequentist analysis. -->
 
-We can visualize the fit in the usual way, by plotting sample draws from the MCMC sampler.
-```{r}
-mcmc.sims <- as.matrix(fm5)
+<!-- We can visualize the fit in the usual way, by plotting sample draws from the MCMC sampler. -->
+<!-- ```{r} -->
+<!-- mcmc.sims <- as.matrix(fm5) -->
 
-with(elephant, plot(matings ~ age, type = "n"))
+<!-- with(elephant, plot(matings ~ age, type = "n")) -->
 
-sample.sims <- sample(nrow(mcmc.sims), size = 100)
-for (i in sample.sims) {
-   abline(a = mcmc.sims[i, 1], b = mcmc.sims[i, 2], col = "skyblue")
-}
+<!-- sample.sims <- sample(nrow(mcmc.sims), size = 100) -->
+<!-- for (i in sample.sims) { -->
+<!--    abline(a = mcmc.sims[i, 1], b = mcmc.sims[i, 2], col = "skyblue") -->
+<!-- } -->
 
-abline(a = coef(fm5)['(Intercept)'], b = coef(fm5)['age'], col = "blue", lwd = 2)
-
-with(elephant, points(matings ~ age, pch = 16))
-```
-
-### Posterior predictive checks
+<!-- abline(a = coef(fm5)['(Intercept)'], b = coef(fm5)['age'], col = "blue", lwd = 2) -->
 
-How might we assess the quality of this fit?  A Bayesian approach to assessing the quality of fit is to generate posterior predictive distributions.  A "posterior predictive" data set is a new data set of hypothetical observations simulated using the parameter values from one of the samples of the MCMC sampler.  By creating many such data sets, we can build up a distribution of data sets predicted by the posterior distribution of the model parameters.  By comparing the actual observed data to this distribution, we can gain a sense of whether our data are consistent with the posterior fit.
-
-The authors of `rstanarm` advocate using posterior predictive checks extensively to assess model adequacy.  For that reason, they have included a number of tools that make posterior predictive checking simple.  For example, the command `rstanarm::posterior_predict` generates a collection of hypothetical data sets by randomly sampling from the posterior distribution of the parameters. The default behavior is to generate a collection of 1000 such data sets.
-
-```{r}
-post.predict <- posterior_predict(fm5)
-```
-
-For example, we can have a look at a few of these hypothetical data sets.
-```{r}
-par(mfrow = c(2, 2))
-
-for(i in 1:4) {
-  
-  with(elephant, plot(matings ~ age, type = "n"))
-  points(elephant$age, post.predict[i, ], pch = 1)
-}
-```
-
-Our task is to determine if the real data set that we actually observed is consistent with this collection of hypothetical data sets.  To do so, we can calculate a summary statistic that captures an interesting feature of each data set, and compare the value of that summary statistic for the real data set to the distribution of values across the simulated data sets.
-
-What summary statistic would you use to compare the real elephant data set to these simulated ones?  We'll use the marginal standard deviation of the number of matings below, but there might be other or better examples that you could think of.  Typically, one uses several posterior predictive statistics, not just one.  First, we calculate the distribution of marginal standard deviations across the collection of simulated data sets.  This R code illustrates the use of the handy R command `apply`, which applies a function to one of the margins (rows or columns) of an array.  Here, because the individual data sets are stored as the rows of `post.predict`, we will calculate the standard deviation of the contents of each row.
-
-```{r}
-post.predict.sd <- apply(post.predict, 1, sd)
-```
-
-Now we plot a histogram of these standard deviations and compare the distribution to the marginal standard deviation of the real data.
-
-```{r}
-hist(post.predict.sd, breaks = 20, xlab = "Marginal SD of response")
-abline(v = sd(elephant$matings), col = "red", lwd = 2)
-```
-
-The actual standard deviation, shown by the red line, is consistent with the standard deviations of the simulated data sets, indicating that the model provides a reasonable description of the data, at least with regard to the marginal SD of the response variable.  This is consistent with our previous conclusions that the extra-Poisson variation in these data is quite mild.
-
-The authors of `rstanarm` have provided the function `pp_check` (for [p]osterior [p]redictive check) to do all of this in one fell swoop.
-
-```{r}
-pp_check(fm5, plotfun = "stat", stat = "sd", binwidth = .1)
-```
-
-### JAGS
-
-We can also code the model up directly in JAGS.  Notice that the code here is barely more complicated than OLS regression.  The code below shows the JAGS implementation of the elephant GLM with a Poisson distribution for the response and a log link.
-```{r}
-require(R2jags)
-```
-
-```{r results = 'hide', cache = TRUE}
-elephant.model <- function() {
-   
-   for (j in 1:J) {             # J = number of data points
-      
-      y[j] ~ dpois(mu[j])      # data model:  the likelihood 
-      
-      mu[j] <- exp(eta[j])      # inverse link
-      eta[j] <- a + b * x[j]  # linear predictor
-   }
-   
-   a ~ dnorm (0.0, 1E-6)       # prior for intercept
-   b ~ dnorm (0.0, 1E-6)       # prior for slope
-}
-
-jags.data <- list(y = elephant$matings, 
-                  x = elephant$age,
-                  J = nrow(elephant))
-
-jags.params <- c("a", "b")
-
-jags.inits <- function(){
-   list("a" = rnorm(1), "b" = rnorm(1))
-}
-
-set.seed(1)
-
-jagsfit <- jags(data               = jags.data, 
-                inits              = jags.inits, 
-                parameters.to.save = jags.params,
-                model.file         = elephant.model,
-                n.chains           = 3,
-                n.iter             = 5E4,
-                n.thin             = 5)
-
-```
-Let's have a look at the posterior summaries:
-```{r}
-mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
-apply(mcmc.output, 2, mean)
-HPDinterval(as.mcmc(mcmc.output), prob = 0.95)
-```
-
-Compare these to the values generated by the `glm` fit with the log link.  We can also visualize the uncertainty in the fit by plotting the fit implied by a random sample of parameters from the posterior:
-```{r}
-plot(matings ~ age, data = elephant, type = "n")
-
-subset.samples <- sample(nrow(mcmc.output), size = 100)
-
-for(i in subset.samples) {
-   
-   a <- mcmc.output$a[i]
-   b <- mcmc.output$b[i]
-   
-   my.fit <- function(x) exp(a + b * x)
-   
-   curve(my.fit, 
-         from = min(elephant$age), 
-         to   = max(elephant$age),
-         col  = "deepskyblue", 
-         lwd  = 1, 
-         add  = TRUE)
-}
-
-with(elephant, points(matings ~ age, pch = 16))
-
-post.means <- apply(mcmc.output, 2, mean)
-
-my.fit <- function(x) exp(post.means['a'] + post.means['b'] * x)
-
-curve(my.fit, 
-      from = min(elephant$age), 
-      to   = max(elephant$age),
-      col  = "blue", 
-      lwd  = 2, 
-      add  = TRUE)
-```
-
-Suppose we wanted to fit this model using JAGS with the identity link, so that the relationship between mean matings and age was linear.  To do so, we would have to be careful, because we would have to make sure that the MCMC sampler did not stray into regions that generated negative values for the observation-level mean, $\mu$.  Mathematically, we simply want to construct a likelihood that evaluates to 0 whenever $\mu \leq 0$.  However, as of this writing, I haven't figured out what the best approach is for implementing such a model in JAGS.
-
-### Observation-level random effects
-
-We introduce an alternative approach to accommodating overdispersion in models with non-Gaussian responses.  This alternative approach entails adding a latent Gaussian-distributed random effect to the linear predictor.  Because this random effect takes a unique value for each observation, it is known as a "observation-level random effect".  Observation-level random effects are motivated by the idea that overdispersion is caused by additional inputs or factors that vary among observations and re not included in the model.  For example, knowing next to nothing about elephants, we might speculate that there are additional factors that influence a male elephant's mating success above and beyond age, such as (say) nutrition. The observation-level random effects are meant to capture this additional variation.  Importantly, if we use an observation-level random effect, then we have no control on the sign of the linear predictor $\eta$.  Consequently, we must use a link function that maps any value of the linear predictor ($\eta$) to a valid value of the observation-level mean ($\mu$).  (In other words, we can't use the identity link for a Poisson response.)  For the elephant data, adding an observation-level random effect changes the model to:
-\begin{align*}
-y_i & \sim \mathrm{Pois}(\mu_i)\\
-\mu_i  & = \exp({\eta_i}) \\
-\eta_i & \sim \mathcal{N}(a + b x_i, \sigma^2_\eta).
-\end{align*}
-
-Priors on $a$, $b$, and $\sigma^2_\eta$ would complete the Bayesian specification.  Implemeting the model in JAGS is straightforward:
-```{r results = 'hide', cache = TRUE}
-elephant.model.2 <- function() {
-   
-   for (j in 1:J) {             # J = number of data points
-      
-      y[j] ~ dpois(mu[j])      # data model:  the likelihood 
-      
-      mu[j] <- exp(eta[j])      # inverse link
-      eta[j] ~ dnorm(a + b * x[j], tau_eps)  # linear predictor, includes observation-level random effect
-   }
-   
-   a ~ dnorm (0.0, 1E-6)       # prior for intercept
-   b ~ dnorm (0.0, 1E-6)       # prior for slope
-   tau_eps ~ dgamma (0.01, 0.01)
-   
-   sd_eps <- pow(tau_eps, -1/2)
-}
-
-jags.data <- list(y = elephant$matings, 
-                  x = elephant$age,
-                  J = nrow(elephant))
-
-jags.params <- c("a", "b", "sd_eps")
-
-jags.inits <- function(){
-   list("a" = rnorm(1), "b" = rnorm(1), "tau_eps" = runif(1))
-}
-
-set.seed(1)
-
-jagsfit2 <- jags(data               = jags.data, 
-                 inits              = jags.inits, 
-                 parameters.to.save = jags.params,
-                 model.file         = elephant.model.2,
-                 n.chains           = 3,
-                 n.iter             = 5E4,
-                 n.thin             = 5)
-```
-
-Again, we can have a look at the posterior summaries.
-```{r}
-mcmc.output <- as.data.frame(jagsfit2$BUGSoutput$sims.list)
-apply(mcmc.output, 2, mean)
-HPDinterval(as.mcmc(mcmc.output), prob = 0.95)
-```
-
-Plotting the posterior fit in this case is more subtle.  With the observation-level random effect, we now have a model that includes a random effect behind a non-linear link function.  In other words, we have a generalizd linear mixed model (GLMM).  The combination of a random effect and a non-linear link function means that there are two different ways to calculate the fitted value --- the so-called "marginal means" and the "conditional means".  We will defer a discussion of this distinction until we discuss GLMMs in greater detail.  Accordingly, we defer the plot as well.
-
-<!-- ```{r}
-plot(matings ~ age, data = elephant, type = "n")
-
-subset.samples <- sample(nrow(mcmc.output), size = 100)
-
-for(i in subset.samples) {
-   
-   a <- mcmc.output$a[i]
-   b <- mcmc.output$b[i]
-   
-   my.fit <- function(x) exp(a + b * x)
-   
-   curve(my.fit, 
-         from = min(elephant$age), 
-         to   = max(elephant$age),
-         col  = "deepskyblue", 
-         lwd  = 1, 
-         add  = TRUE)
-}
-
-with(elephant, points(matings ~ age, pch = 16))
-
-post.means <- apply(mcmc.output, 2, mean)
-
-my.fit <- function(x) exp(post.means['a'] + post.means['b'] * x)
-
-curve(my.fit, 
-      from = min(elephant$age), 
-      to   = max(elephant$age),
-      col  = "blue", 
-      lwd  = 2, 
-      add  = TRUE)
-```
-
-Because the extra-Poisson variation in the elephant data is small, the effect of the observation-level random effect is slight.  However, an eagle-eyed observer might notice the following differences.  First, the posterior uncertainty in the slope parameter that captures the effect of age has increased slightly.  Second, and perhaps more meaningfully, the fitted curve has dropped slightly.    This makes sense, as the model with the observation-level random effect doesn't have to strain quite as hard to accommodate the few elephants with large and positive residuals.  Thus, adding an observation-level random effect has had the same effect on the fit as other approaches to accommodating extra-Poisson variaton.  
--->
-
-Formally, we can assess the need for the observation-level random effect by comparing the two models with the deviance information criterion (DIC), an information criterion that can be used to compare Bayesian models in the same way that AIC can be used to compare frequentist fits.  DIC is provided as a portion to the output from the `print` command applied to a JAGS model fit.
-
-```{r}
-print(jagsfit)
-print(jagsfit2)
-```
-
-In this case, the DIC favors the model without the observation-level random effect. 
-
-Before moving on, it is worth noting that this Poisson regression with an observation-level random effect is the type of model that is much easier to fit from a Bayesian perspective.  To approach this model from the frequentist perspective, we would have to write down, and maximize, the likelihood, which is a function of the model's three parameters: $a$, $b$, and $\sigma^2_\eta$.  However, to write down the likelihood, we would have to integrate out the observation-level random effects. For the elephant data, this would correspond to an integral with 41 dimensions!  While we could conceivably write this down, for all intents and purposes the likelihood would be impossible to compute, let alone to maximize.  From a Bayesian perspective, though, adding latent random effects to a model with a non-normal response is nearly trivial.
-
-The above discussion begs the question of just how programs like `lme4::lmer` fit mixed-effect models in the first place.  It turns out that, with a Gaussian response, the high-dimensional integral in the likelihood can be simplified without having to compute the entire integral numerically.  This simplification flows from the fact that Gaussian random variates have a natural multivariate form.  With a non-Gaussian response, things become substantially harder.  When we study generalized linear mixed models, we will see some ideas for computing these likelihood functions, but all such approaches ultimately rely on computational approximations instead of evaluating the underlying integrals directly.
+<!-- with(elephant, points(matings ~ age, pch = 16)) -->
+<!-- ``` -->
+
+<!-- ### Posterior predictive checks -->
+
+<!-- How might we assess the quality of this fit?  A Bayesian approach to assessing the quality of fit is to generate posterior predictive distributions.  A "posterior predictive" data set is a new data set of hypothetical observations simulated using the parameter values from one of the samples of the MCMC sampler.  By creating many such data sets, we can build up a distribution of data sets predicted by the posterior distribution of the model parameters.  By comparing the actual observed data to this distribution, we can gain a sense of whether our data are consistent with the posterior fit. -->
+
+<!-- The authors of `rstanarm` advocate using posterior predictive checks extensively to assess model adequacy.  For that reason, they have included a number of tools that make posterior predictive checking simple.  For example, the command `rstanarm::posterior_predict` generates a collection of hypothetical data sets by randomly sampling from the posterior distribution of the parameters. The default behavior is to generate a collection of 1000 such data sets. -->
+
+<!-- ```{r} -->
+<!-- post.predict <- posterior_predict(fm5) -->
+<!-- ``` -->
+
+<!-- For example, we can have a look at a few of these hypothetical data sets. -->
+<!-- ```{r} -->
+<!-- par(mfrow = c(2, 2)) -->
+
+<!-- for(i in 1:4) { -->
+
+<!--   with(elephant, plot(matings ~ age, type = "n")) -->
+<!--   points(elephant$age, post.predict[i, ], pch = 1) -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- Our task is to determine if the real data set that we actually observed is consistent with this collection of hypothetical data sets.  To do so, we can calculate a summary statistic that captures an interesting feature of each data set, and compare the value of that summary statistic for the real data set to the distribution of values across the simulated data sets. -->
+
+<!-- What summary statistic would you use to compare the real elephant data set to these simulated ones?  We'll use the marginal standard deviation of the number of matings below, but there might be other or better examples that you could think of.  Typically, one uses several posterior predictive statistics, not just one.  First, we calculate the distribution of marginal standard deviations across the collection of simulated data sets.  This R code illustrates the use of the handy R command `apply`, which applies a function to one of the margins (rows or columns) of an array.  Here, because the individual data sets are stored as the rows of `post.predict`, we will calculate the standard deviation of the contents of each row. -->
+
+<!-- ```{r} -->
+<!-- post.predict.sd <- apply(post.predict, 1, sd) -->
+<!-- ``` -->
+
+<!-- Now we plot a histogram of these standard deviations and compare the distribution to the marginal standard deviation of the real data. -->
+
+<!-- ```{r} -->
+<!-- hist(post.predict.sd, breaks = 20, xlab = "Marginal SD of response") -->
+<!-- abline(v = sd(elephant$matings), col = "red", lwd = 2) -->
+<!-- ``` -->
+
+<!-- The actual standard deviation, shown by the red line, is consistent with the standard deviations of the simulated data sets, indicating that the model provides a reasonable description of the data, at least with regard to the marginal SD of the response variable.  This is consistent with our previous conclusions that the extra-Poisson variation in these data is quite mild. -->
+
+<!-- The authors of `rstanarm` have provided the function `pp_check` (for [p]osterior [p]redictive check) to do all of this in one fell swoop. -->
+
+<!-- ```{r} -->
+<!-- pp_check(fm5, plotfun = "stat", stat = "sd", binwidth = .1) -->
+<!-- ``` -->
+
+<!-- ### JAGS -->
+
+<!-- We can also code the model up directly in JAGS.  Notice that the code here is barely more complicated than OLS regression.  The code below shows the JAGS implementation of the elephant GLM with a Poisson distribution for the response and a log link. -->
+<!-- ```{r} -->
+<!-- require(R2jags) -->
+<!-- ``` -->
+
+<!-- ```{r results = 'hide', cache = TRUE} -->
+<!-- elephant.model <- function() { -->
+
+<!--    for (j in 1:J) {             # J = number of data points -->
+
+<!--       y[j] ~ dpois(mu[j])      # data model:  the likelihood  -->
+
+<!--       mu[j] <- exp(eta[j])      # inverse link -->
+<!--       eta[j] <- a + b * x[j]  # linear predictor -->
+<!--    } -->
+
+<!--    a ~ dnorm (0.0, 1E-6)       # prior for intercept -->
+<!--    b ~ dnorm (0.0, 1E-6)       # prior for slope -->
+<!-- } -->
+
+<!-- jags.data <- list(y = elephant$matings,  -->
+<!--                   x = elephant$age, -->
+<!--                   J = nrow(elephant)) -->
+
+<!-- jags.params <- c("a", "b") -->
+
+<!-- jags.inits <- function(){ -->
+<!--    list("a" = rnorm(1), "b" = rnorm(1)) -->
+<!-- } -->
+
+<!-- set.seed(1) -->
+
+<!-- jagsfit <- jags(data               = jags.data,  -->
+<!--                 inits              = jags.inits,  -->
+<!--                 parameters.to.save = jags.params, -->
+<!--                 model.file         = elephant.model, -->
+<!--                 n.chains           = 3, -->
+<!--                 n.iter             = 5E4, -->
+<!--                 n.thin             = 5) -->
+
+<!-- ``` -->
+<!-- Let's have a look at the posterior summaries: -->
+<!-- ```{r} -->
+<!-- mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list) -->
+<!-- apply(mcmc.output, 2, mean) -->
+<!-- HPDinterval(as.mcmc(mcmc.output), prob = 0.95) -->
+<!-- ``` -->
+
+<!-- Compare these to the values generated by the `glm` fit with the log link.  We can also visualize the uncertainty in the fit by plotting the fit implied by a random sample of parameters from the posterior: -->
+<!-- ```{r} -->
+<!-- plot(matings ~ age, data = elephant, type = "n") -->
+
+<!-- subset.samples <- sample(nrow(mcmc.output), size = 100) -->
+
+<!-- for(i in subset.samples) { -->
+
+<!--    a <- mcmc.output$a[i] -->
+<!--    b <- mcmc.output$b[i] -->
+
+<!--    my.fit <- function(x) exp(a + b * x) -->
+
+<!--    curve(my.fit,  -->
+<!--          from = min(elephant$age),  -->
+<!--          to   = max(elephant$age), -->
+<!--          col  = "deepskyblue",  -->
+<!--          lwd  = 1,  -->
+<!--          add  = TRUE) -->
+<!-- } -->
+
+<!-- with(elephant, points(matings ~ age, pch = 16)) -->
+
+<!-- post.means <- apply(mcmc.output, 2, mean) -->
+
+<!-- my.fit <- function(x) exp(post.means['a'] + post.means['b'] * x) -->
+
+<!-- curve(my.fit,  -->
+<!--       from = min(elephant$age),  -->
+<!--       to   = max(elephant$age), -->
+<!--       col  = "blue",  -->
+<!--       lwd  = 2,  -->
+<!--       add  = TRUE) -->
+<!-- ``` -->
+
+<!-- Suppose we wanted to fit this model using JAGS with the identity link, so that the relationship between mean matings and age was linear.  To do so, we would have to be careful, because we would have to make sure that the MCMC sampler did not stray into regions that generated negative values for the observation-level mean, $\mu$.  Mathematically, we simply want to construct a likelihood that evaluates to 0 whenever $\mu \leq 0$.  However, as of this writing, I haven't figured out what the best approach is for implementing such a model in JAGS. -->
+
+<!-- ### Observation-level random effects -->
+
+<!-- We introduce an alternative approach to accommodating overdispersion in models with non-Gaussian responses.  This alternative approach entails adding a latent Gaussian-distributed random effect to the linear predictor.  Because this random effect takes a unique value for each observation, it is known as a "observation-level random effect".  Observation-level random effects are motivated by the idea that overdispersion is caused by additional inputs or factors that vary among observations and re not included in the model.  For example, knowing next to nothing about elephants, we might speculate that there are additional factors that influence a male elephant's mating success above and beyond age, such as (say) nutrition. The observation-level random effects are meant to capture this additional variation.  Importantly, if we use an observation-level random effect, then we have no control on the sign of the linear predictor $\eta$.  Consequently, we must use a link function that maps any value of the linear predictor ($\eta$) to a valid value of the observation-level mean ($\mu$).  (In other words, we can't use the identity link for a Poisson response.)  For the elephant data, adding an observation-level random effect changes the model to: -->
+<!-- \begin{align*} -->
+<!-- y_i & \sim \mathrm{Pois}(\mu_i)\\ -->
+<!-- \mu_i  & = \exp({\eta_i}) \\ -->
+<!-- \eta_i & \sim \mathcal{N}(a + b x_i, \sigma^2_\eta). -->
+<!-- \end{align*} -->
+
+<!-- Priors on $a$, $b$, and $\sigma^2_\eta$ would complete the Bayesian specification.  Implemeting the model in JAGS is straightforward: -->
+<!-- ```{r results = 'hide', cache = TRUE} -->
+<!-- elephant.model.2 <- function() { -->
+
+<!--    for (j in 1:J) {             # J = number of data points -->
+
+<!--       y[j] ~ dpois(mu[j])      # data model:  the likelihood  -->
+
+<!--       mu[j] <- exp(eta[j])      # inverse link -->
+<!--       eta[j] ~ dnorm(a + b * x[j], tau_eps)  # linear predictor, includes observation-level random effect -->
+<!--    } -->
+
+<!--    a ~ dnorm (0.0, 1E-6)       # prior for intercept -->
+<!--    b ~ dnorm (0.0, 1E-6)       # prior for slope -->
+<!--    tau_eps ~ dgamma (0.01, 0.01) -->
+
+<!--    sd_eps <- pow(tau_eps, -1/2) -->
+<!-- } -->
+
+<!-- jags.data <- list(y = elephant$matings,  -->
+<!--                   x = elephant$age, -->
+<!--                   J = nrow(elephant)) -->
+
+<!-- jags.params <- c("a", "b", "sd_eps") -->
+
+<!-- jags.inits <- function(){ -->
+<!--    list("a" = rnorm(1), "b" = rnorm(1), "tau_eps" = runif(1)) -->
+<!-- } -->
+
+<!-- set.seed(1) -->
+
+<!-- jagsfit2 <- jags(data               = jags.data,  -->
+<!--                  inits              = jags.inits,  -->
+<!--                  parameters.to.save = jags.params, -->
+<!--                  model.file         = elephant.model.2, -->
+<!--                  n.chains           = 3, -->
+<!--                  n.iter             = 5E4, -->
+<!--                  n.thin             = 5) -->
+<!-- ``` -->
+
+<!-- Again, we can have a look at the posterior summaries. -->
+<!-- ```{r} -->
+<!-- mcmc.output <- as.data.frame(jagsfit2$BUGSoutput$sims.list) -->
+<!-- apply(mcmc.output, 2, mean) -->
+<!-- HPDinterval(as.mcmc(mcmc.output), prob = 0.95) -->
+<!-- ``` -->
+
+<!-- Plotting the posterior fit in this case is more subtle.  With the observation-level random effect, we now have a model that includes a random effect behind a non-linear link function.  In other words, we have a generalizd linear mixed model (GLMM).  The combination of a random effect and a non-linear link function means that there are two different ways to calculate the fitted value --- the so-called "marginal means" and the "conditional means".  We will defer a discussion of this distinction until we discuss GLMMs in greater detail.  Accordingly, we defer the plot as well. -->
+
+<!-- <!-- ```{r} -->
+<!-- plot(matings ~ age, data = elephant, type = "n") -->
+
+<!-- subset.samples <- sample(nrow(mcmc.output), size = 100) -->
+
+<!-- for(i in subset.samples) { -->
+
+<!--    a <- mcmc.output$a[i] -->
+<!--    b <- mcmc.output$b[i] -->
+
+<!--    my.fit <- function(x) exp(a + b * x) -->
+
+<!--    curve(my.fit,  -->
+<!--          from = min(elephant$age),  -->
+<!--          to   = max(elephant$age), -->
+<!--          col  = "deepskyblue",  -->
+<!--          lwd  = 1,  -->
+<!--          add  = TRUE) -->
+<!-- } -->
+
+<!-- with(elephant, points(matings ~ age, pch = 16)) -->
+
+<!-- post.means <- apply(mcmc.output, 2, mean) -->
+
+<!-- my.fit <- function(x) exp(post.means['a'] + post.means['b'] * x) -->
+
+<!-- curve(my.fit,  -->
+<!--       from = min(elephant$age),  -->
+<!--       to   = max(elephant$age), -->
+<!--       col  = "blue",  -->
+<!--       lwd  = 2,  -->
+<!--       add  = TRUE) -->
+<!-- ``` -->
+
+<!-- Because the extra-Poisson variation in the elephant data is small, the effect of the observation-level random effect is slight.  However, an eagle-eyed observer might notice the following differences.  First, the posterior uncertainty in the slope parameter that captures the effect of age has increased slightly.  Second, and perhaps more meaningfully, the fitted curve has dropped slightly.    This makes sense, as the model with the observation-level random effect doesn't have to strain quite as hard to accommodate the few elephants with large and positive residuals.  Thus, adding an observation-level random effect has had the same effect on the fit as other approaches to accommodating extra-Poisson variaton.   -->
+<!-- --> -->
+
+<!-- Formally, we can assess the need for the observation-level random effect by comparing the two models with the deviance information criterion (DIC), an information criterion that can be used to compare Bayesian models in the same way that AIC can be used to compare frequentist fits.  DIC is provided as a portion to the output from the `print` command applied to a JAGS model fit. -->
+
+<!-- ```{r} -->
+<!-- print(jagsfit) -->
+<!-- print(jagsfit2) -->
+<!-- ``` -->
+
+<!-- In this case, the DIC favors the model without the observation-level random effect.  -->
+
+<!-- Before moving on, it is worth noting that this Poisson regression with an observation-level random effect is the type of model that is much easier to fit from a Bayesian perspective.  To approach this model from the frequentist perspective, we would have to write down, and maximize, the likelihood, which is a function of the model's three parameters: $a$, $b$, and $\sigma^2_\eta$.  However, to write down the likelihood, we would have to integrate out the observation-level random effects. For the elephant data, this would correspond to an integral with 41 dimensions!  While we could conceivably write this down, for all intents and purposes the likelihood would be impossible to compute, let alone to maximize.  From a Bayesian perspective, though, adding latent random effects to a model with a non-normal response is nearly trivial. -->
+
+<!-- The above discussion begs the question of just how programs like `lme4::lmer` fit mixed-effect models in the first place.  It turns out that, with a Gaussian response, the high-dimensional integral in the likelihood can be simplified without having to compute the entire integral numerically.  This simplification flows from the fact that Gaussian random variates have a natural multivariate form.  With a non-Gaussian response, things become substantially harder.  When we study generalized linear mixed models, we will see some ideas for computing these likelihood functions, but all such approaches ultimately rely on computational approximations instead of evaluating the underlying integrals directly. -->
 
 ## Binary responses
 
@@ -480,7 +480,7 @@ We generally distinguish between two types of data with binary responses: Data i
 
 ### Individual binary responses: TB in boar
 
-To illustrate individual binary data, we will use a data set analyzed by Zuur et al. (2009) in their Ch. 10.  As explained by Zuur et al., these data describe the incidence of "tuberculosis-like lesions in wild boar *Sus scrofa*" in southern Spain, and were originally collected by Vicente et al. (2006).  The potential explanatory variables in the data set include a measure of the animal's size, it's sex, and a grouping into one of four age classes.
+To illustrate individual binary data, we will use a data set analyzed by @zuur2009 in their Ch. 10.  As explained by Zuur et al., these data describe the incidence of "tuberculosis-like lesions in wild boar *Sus scrofa*" in southern Spain, and were originally collected by @vicente2006wild.  The potential explanatory variables in the data set include a measure of the animal's size, it's sex, and a grouping into one of four age classes.
 
 Preparatory work:
 ```{r}
@@ -563,8 +563,7 @@ legend("left",
 
 The logit and probit links are nearly identical.  The complementary log-log link differs slightly, but the logit link is AIC-best.
 
-Try adding sex and age class as predictors.  Some of the MLEs cannot be found, because none of the individuals with \texttt{sex = 1} and \texttt{age = 1} are infected, thus the MLE of the log odds of infection for this group (which happens to be the baseline) is $-\infty$.  This phenomenon is known as "complete separation".
-
+Now we'll try adding sex and age class as predictors.  
 ```{r}
 # fit a model with sex, age (as a categorical predictor) and their interaction
 
@@ -573,9 +572,15 @@ fm2 <- glm(tb ~ length + sex * as.factor(age),
            data = boar)
 
 summary(fm2)
+```
 
+Notice the gigantic standard errors on some of the parameter estimates.  These large standard errors indicate that the likelihood is flat, and that the MLEs cannot be found.  In this case, the likelihood surface is flat because because none of the individuals with \texttt{sex = 1} and \texttt{age = 1} are infected.  We can see this by tallying the frequency of infection by sex and age class:
+
+```{r}
 with(boar, table(tb, age, sex))
 ```
+
+Because none of the individuals with \texttt{sex = 1} and \texttt{age = 1} are infected, the likelihood surface flattens out as the parameter corresponding to this demographic group becomes increasingly negative.  (Formally speaking, the MLE of the log odds of infection for this group is $-\infty$, but no numerical optimization scheme will find this value.)  This phenomenon is known as "complete separation".  Although it's only the \texttt{sex = 1} and \texttt{age = 1} group that is problematic here, in this case that is the group that is coded as the baseline, so the parameters for all the other groups are defined relative to it, and thus are problematic as well.
 
 There are several possible remedies here.  The first is to try to reduce the number of parameters in the model, perhaps by eliminating the interaction between sex and age class.
 ```{r}
@@ -591,50 +596,125 @@ A second option is to use so-called ``exact'' methods for inference.  There does
 
 ### Grouped binary data: Industrial melanism
 
-We'll start with the standard logistic regression model for the industrial melanism data.  We are primarily interested in determining if the effect of color morph on removal rate changes with distance from Liverpool.  For grouped binary data, we need to specify both the number of "successes" and number of "failures" as the response variable in the model.  Here, we use `cbind` to create a two-column matrix with the number of "successes" (moths removed) in the first column, and the number of "failures" (moths not removed) in the second column.  See the help documentation for `glm` for more details.
+For an example with grouped binary data, we will consider a second data set from @vicente2006wild, which is also discussed in @zuur2009.  This data set gives the prevalence of tuberculosis infection in red deer in southern Spain at several different estates.  Several deer were sampled at each estate, and the sampled deer were tested for tuberculosis.  We'll import the data first and do a bit of housekeeping.
 
 ```{r}
-moth <- read.table("data/moth.txt", head = TRUE, stringsAsFactors = TRUE)
+deer <- read.table("data/tbdeer.txt", head = T)
 
-fm1 <- glm(cbind(removed, placed - removed) ~ morph * distance, 
+deer <- deer[, c(4, 5, 8:14)]
+deer <- na.omit(deer)
+```
+
+The data contain several possible covariates.  Here, we will just inspect the relationship between the prevalence of TB and a covariate called `ReedDeerIndex`.  (Presumably the name of the covariate is a typo, and this is instead an index of the abundance of red deer.)  In these data, the variable `DeerPosTB` gives the number of deer that tested positive for TB at each estate, and the variable `DeerSampledTB` gives the total number of deer sampled at each estate.
+
+```{r}
+deer$DeerPropTB <- with(deer, DeerPosTB / DeerSampledTB)
+
+with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 16))
+
+fm1 <- glm(cbind(DeerPosTB, DeerSampledTB - DeerPosTB) ~ ReedDeerIndex,
            family = binomial(link = "logit"),
-           data = moth)
+           data = deer)
 
 summary(fm1)
 ```
 
-Grouped binary data are often overdispersed relative to the variance implied by a binomial distribution.  In this case, we would call the overdispersion "extra-binomial" variation.  As with count data, we can deal with overdispersion through a quasi-likelihood approach:
+Note that the model formula gives the response variable as a 2-column matrix, where the columns gives the counts of each outcome type.
+
+With grouped binomial data, overdispersion is again a possibility.  Notice that the residual deviance is much greater than its corresponding df, suggesting that these data show substantial extra-binomial variation.  Thus we will fit a quasibinomial model to account for the extra-binomial variation.
 
 ```{r}
-fm1q <- glm(cbind(removed, placed - removed) ~ morph * distance, 
+fm2 <- glm(cbind(DeerPosTB, DeerSampledTB - DeerPosTB) ~ ReedDeerIndex,
            family = quasibinomial(link = "logit"),
-           data = moth)
+           data = deer)
 
-summary(fm1q)
+summary(fm2)
 ```
 
-As with count data, using quasi-likelihood to estimate the scale (or dispersion) parameter increases the estimates of the standard errors of the coefficients by an amount equal to the square root of the estimated scale parameter.  
-
-The $t$-test of the interaction between color morph and distance indicates that there is a statistically significant difference in how the proportion of moth removes changes over the distance transect between the two color morphs.
+Accounting for the extra-binomial variation has nearly doubled the standard error of the slope on the logit scale.  Thus the naive characterization of the uncertainty in the estimate was far too small.  We can see the effect of accounting for the overdispersion by comparing the confidence envelopes for the respective fits. 
 
 ```{r}
-plot(x = moth$distance, 
-     y = residuals(fm1q, type = "deviance"),
-     xlab = "distance",
-     ylab = "Deviance residuals")
+new.data <- data.frame(ReedDeerIndex = seq(from = min(deer$ReedDeerIndex),
+                                           to   = max(deer$ReedDeerIndex),
+                                           length = 100))
 
-abline(h = 0, lty = "dashed")
+predict.fm1 <- predict(fm1, newdata = new.data, type = "response", se.fit = TRUE)
+predict.fm2 <- predict(fm2, newdata = new.data, type = "response", se.fit = TRUE)
+
+with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 16))
+
+lines(x = new.data$ReedDeerIndex, y = predict.fm1$fit)
+
+# use critical value from z distribution when the scale parameter is assumed known
+# use t-distribution when the scale parameter is estimated
+
+lines(x   = new.data$ReedDeerIndex, 
+      y   = predict.fm1$fit - 1.96 * predict.fm1$se.fit, 
+      col = "red",
+      lty = "dashed")
+
+lines(x   = new.data$ReedDeerIndex, 
+      y   = predict.fm1$fit + 1.96 * predict.fm1$se.fit, 
+      col = "red",
+      lty = "dashed")
+
+lines(x   = new.data$ReedDeerIndex, 
+      y   = predict.fm2$fit + qt(0.025, df = 24) * predict.fm2$se.fit, 
+      col = "blue",
+      lty = "dashed")
+
+lines(x   = new.data$ReedDeerIndex, 
+      y   = predict.fm2$fit + qt(0.975, df = 24) * predict.fm2$se.fit, 
+      col = "blue",
+      lty = "dashed")
+
+legend("top", pch = 16, col = c("blue", "red"), leg = c("quasibinomial", "naive"))
 ```
 
-The plot of the residuals suggests that we should include a random effect for the sampling station.  This makes complete sense.  The data for the two color morphs at each station share whatever other characteristics make the station unique, and are thus correlated.  To account for this correlation, we need to introduce a random effect for the station.  This again gets us into the world of generalized linear mixed models.  Before proceeding, we'll write the model down.  Let $i=1,2$ index the two color morphs, and let $j = 1, \ldots, 7$ index the stations.  Let $y_{ij}$ be the number of moths removed, let $n_{ij}$ be the number of moths placed, and let $x_j$ be the distance of the station from Liverpool.  We wish to fit the model
-\begin{align*}
-y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
-\mathrm{logit}(p_{ij})  & = \eta_{ij} \\
-\eta_{ij} & = a_i + b_i x_j + L_j \\
-L_j & \sim \mathcal{N}(0, \sigma^2_L)
-\end{align*}
+<!-- We'll start with the standard logistic regression model for the industrial melanism data.  We are primarily interested in determining if the effect of color morph on removal rate changes with distance from Liverpool.  For grouped binary data, we need to specify both the number of "successes" and number of "failures" as the response variable in the model.  Here, we use `cbind` to create a two-column matrix with the number of "successes" (moths removed) in the first column, and the number of "failures" (moths not removed) in the second column.  See the help documentation for `glm` for more details. -->
 
-The $L_j$'s are our [l]ocation-specific random effects that capture any other station-to-station differences above and beyond the station's distance from Liverpool.  (It turns out that an observation-level random effect does not improve the model, at least as indicated by DIC.)  Because this model includes both a random effect for the station and a non-Gaussian response, it is a generalized linear mixed model (GLMM).  We postpone our discussion accordingly.
+<!-- ```{r} -->
+<!-- moth <- read.table("data/moth.txt", head = TRUE, stringsAsFactors = TRUE) -->
+
+<!-- fm1 <- glm(cbind(removed, placed - removed) ~ morph * distance,  -->
+<!--            family = binomial(link = "logit"), -->
+<!--            data = moth) -->
+
+<!-- summary(fm1) -->
+<!-- ``` -->
+
+<!-- Grouped binary data are often overdispersed relative to the variance implied by a binomial distribution.  In this case, we would call the overdispersion "extra-binomial" variation.  As with count data, we can deal with overdispersion through a quasi-likelihood approach: -->
+
+<!-- ```{r} -->
+<!-- fm1q <- glm(cbind(removed, placed - removed) ~ morph * distance,  -->
+<!--            family = quasibinomial(link = "logit"), -->
+<!--            data = moth) -->
+
+<!-- summary(fm1q) -->
+<!-- ``` -->
+
+<!-- As with count data, using quasi-likelihood to estimate the scale (or dispersion) parameter increases the estimates of the standard errors of the coefficients by an amount equal to the square root of the estimated scale parameter.   -->
+
+<!-- The $t$-test of the interaction between color morph and distance indicates that there is a statistically significant difference in how the proportion of moth removes changes over the distance transect between the two color morphs. -->
+
+<!-- ```{r} -->
+<!-- plot(x = moth$distance,  -->
+<!--      y = residuals(fm1q, type = "deviance"), -->
+<!--      xlab = "distance", -->
+<!--      ylab = "Deviance residuals") -->
+
+<!-- abline(h = 0, lty = "dashed") -->
+<!-- ``` -->
+
+<!-- The plot of the residuals suggests that we should include a random effect for the sampling station.  This makes complete sense.  The data for the two color morphs at each station share whatever other characteristics make the station unique, and are thus correlated.  To account for this correlation, we need to introduce a random effect for the station.  This again gets us into the world of generalized linear mixed models.  Before proceeding, we'll write the model down.  Let $i=1,2$ index the two color morphs, and let $j = 1, \ldots, 7$ index the stations.  Let $y_{ij}$ be the number of moths removed, let $n_{ij}$ be the number of moths placed, and let $x_j$ be the distance of the station from Liverpool.  We wish to fit the model -->
+<!-- \begin{align*} -->
+<!-- y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\ -->
+<!-- \mathrm{logit}(p_{ij})  & = \eta_{ij} \\ -->
+<!-- \eta_{ij} & = a_i + b_i x_j + L_j \\ -->
+<!-- L_j & \sim \mathcal{N}(0, \sigma^2_L) -->
+<!-- \end{align*} -->
+
+<!-- The $L_j$'s are our [l]ocation-specific random effects that capture any other station-to-station differences above and beyond the station's distance from Liverpool.  (It turns out that an observation-level random effect does not improve the model, at least as indicated by DIC.)  Because this model includes both a random effect for the station and a non-Gaussian response, it is a generalized linear mixed model (GLMM).  We postpone our discussion accordingly. -->
 
 <!-- We have already mentioned that the $t$-statistics reported in `summary.glm` are based on standard errors calculated from the curvature (Hessian) of the negative log-likelihood at the MLEs, with df determined by the df available for the residual deviance.  An alternative approach for testing for the significance of model terms is to use the residual deviance to compare nested models, much as one would use $F$-tests to compare nested models in ordinary least squares.  Here is a bit of theory.  Let $D$ denote the residual deviance for a model.  Suppose we are comparing two nested models: a parameter poor model that we call model 0, and a parameter rich model that we call model 1.  The parameter-rich model nests the parameter poor model.  Let $p_0$ and $p_1$ be the number of estimated parameters in the linear predictor of models 0 and 1, respectively, and let $D_0$ and $D_1$ denote the (residual) deviances of both models.  In the usual way, we wish to test whether or not the parameter-rich model provides a statistically significant improvement in fit over the parameter-poor model. -->
 
@@ -704,7 +784,7 @@ rm(list = ls())
 
 ### Zero-inflated models
 
-As the name suggests, zero-inflated (henceforth ZI) models are appropriate when zeros are more frequent than the distribution of the non-zero counts would suggest.  ZI models have two components.  In the "zero-inflation" component, a logistic regression (or some other generalized linear model for a binary response) captures whether the response is a "false" zero or a realization from a proper count distribution.  In the "count" component, a generalized linear model for count data (such as Poisson regression) is used to model the distribution of the non-false-zero counts.  The ZI model accords with the thinking that the data arise from a combination of two separate mechanisms: a first mechanism that determines whether or not the count is a "false" zero, and a second that determines the count if it is not a false zero.  In ecology, the zero-inflation component might correspond to (true) presence vs.\ absence, and the count component might correspond to the detected intensity conditional on presence.
+As the name suggests, zero-inflated (henceforth ZI) models are appropriate when zeros are more frequent than the distribution of the non-zero counts would suggest.  ZI models have two components.  In the "zero-inflation" component, a logistic regression (or some other generalized linear model for a binary response) captures whether the response is a "false" zero or a realization from a proper count distribution.  In the "count" component, a generalized linear model for count data (such as Poisson regression) is used to model the distribution of the non-false-zero counts.  The ZI model can be motivated by envisioning that the data arise from a combination of two separate mechanisms: a first mechanism that determines whether or not the count is a "false" zero, and a second that determines the count if it is not a false zero.  In ecology, the zero-inflation component might correspond to (true) presence vs.\ absence, and the count component might correspond to the detected intensity conditional on presence.
 
 To illustrate ZI models, we will use the cod parasite data described in $\S$ 11.3.2 of @zuur2009.  These data are counts of the number of trypanosome blood parasites in individual cod, and were initially reported in Hemmingsen et al.\ (2005).  First we load the data and do some housekeeping.
 

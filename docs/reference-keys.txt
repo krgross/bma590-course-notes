@@ -44,11 +44,6 @@ glms-the-big-picture
 poisson-regression
 horse-kick-data-revisited
 elephant-matings
-bayesian-interlude
-rstanarm-1
-posterior-predictive-checks
-jags
-observation-level-random-effects
 binary-responses
 individual-binary-responses-tb-in-boar
 grouped-binary-data-industrial-melanism
