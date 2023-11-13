@@ -87,11 +87,15 @@ legend("topleft", leg = c("prior", "posterior"),
 
 ```
 
-## JAGS in R
+## MCMC and stochastic approximations of the posterior
 
-All of the computational tools that we will examine in this section involve some form of stochastic sampling from the posterior.  This computing companion will largely use the default settings, though in real practice the analyst will often have to do considerable work adjusting the settings to obtain a satisfactory approximation.
+In most settings, a full conjugate prior is not available, and determining the posterior analytically is hard.  In these situations, the contemporary approach is to approximate the posterior with a pseudo-random sample.  While there are several methods for generating a pseudo-random sample from a posterior distribution, the most common approaches are based on Markov chain Monte Carlo (MCMC) sampling.  
 
-We'll use JAGS through R, using the library `r2jags`.  Here is JAGS code to approximate the posterior to $\lambda$ for the horse-kick data, using the vague prior.
+There are multiple tools available for generating an MCMC sample from a posterior distribution, and software in this area changes rapidly.  In this computing companion, we will use JAGS to approximate posterior distributions.  JAGS is stand-alone software, but we can access JAGS from R using the `r2jags` package. This computing companion will largely use the default settings for the routines in `r2jags`, though in real practice the analyst will often have to do considerable work adjusting the settings to obtain a satisfactory approximation.
+
+### The horse-kick data, once more
+
+Here is JAGS code to approximate the posterior to $\lambda$ for the horse-kick data, using the vague prior.
 
 ```{r}
 require(R2jags)
@@ -147,6 +151,8 @@ require(lattice)
 jagsfit.mcmc <- as.mcmc(jagsfit)
 densityplot(jagsfit.mcmc)
 ```
+
+### A simple regression example
 
 For a more involved example, let's take a look at the simple regression fit to the cricket data.  First, we'll make a plot of the data and fit a SLR model by least squares.  
 ```{r}

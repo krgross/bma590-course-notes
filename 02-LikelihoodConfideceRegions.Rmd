@@ -1,4 +1,4 @@
-# Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function
+# Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function {#beyondML}
 
 Likelihood can be used for more than simply isolating the MLE.  The likelihood can also be used to generate confidence intervals for single parameters, or confidence regions for several parameters.  We'll start by using the horse-kick data to see how to generate a confidence interval for a single parameter, and then move on to considering models with more than one parameter.
 
@@ -213,7 +213,7 @@ abline(h = cut.off, col = "blue", lty = "dashed")
 
 So, the 95\% profile CI for $a$ is (0.402, 0.682).
 
-## Locally quadratic approximations to confidence intervals and regions
+## Quadratic approximations to confidence intervals and regions {#quadapprox}
 
 Likelihood profiling provides a straightforward way to summarize a high-dimensional confidence region by univariate confidence intervals.  However, these profile intervals can still involve quite a bit of computation.  Further, they are not able to capture possible correlations among parameter estimates, which are revealed in (two-dimensional) confidence regions.  (Recall the shape of the joint confidence region for the parameters $a$ and $h$ in the tadpole data.)  Locally quadratic approximations provide a way to approximate the (already approximate) univariate confidence intervals and bivariate confidence regions using only information about the curvature of the likelihood surface at the MLE.
 

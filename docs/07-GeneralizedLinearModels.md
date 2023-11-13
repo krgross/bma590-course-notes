@@ -2,17 +2,63 @@
 
 
 
-Generalized linear modes extend the machinery of the "general linear model" (regression and ANOVA) to data sets in which the response variable may have a non-Gaussian distribution.  Generalized linear models do not encompass all possible distributions for the response variable.  Instead, generalized linear models can accommodate any response distribution in a group of probability distributions known as the "exponential family".^[Do not confuse the exponential family of probability distributions with the exponential distribution!  The exponential distribution is one of the probability distributions in the exponential family, but it is not the only one.]  The exponential family of distributions includes many of the distributions that we encounter in practical data analysis, including Poisson, binomial, gamma, and beta distributions. The Gaussian distribution is included in the exponential family as well. One notable distribution that is not part of the exponential family is the negative binomial distribution.  Logistic regression (with binomial responses) and Poisson regression are far and away the two most common forms of generalized linear models encountered in practice. 
+## GLMs: The big picture
 
-Ultimately, generalized linear models are just a special case of likelihood maximization.  Generalized linear models take advantage of the fact that if the distribution of the response belongs to the exponential family, then the likelihood function will have a particular mathematical form.  (See any text in generalized linear models for more details.)  Because of this common mathematical form, it is possible to find the MLEs for any generalized linear model with a common mathematical scheme.^[The common mathematical scheme that is used to find the MLEs of generalized linear models is called *iteratively reweighted least squares* (IRLS).  There is a variation of IRLS called *Fisher scoring* that is the fitting routine implemented in the `glm` routine in `R`.]  This scheme is relatively robust, does not require the analyst to specify starting values, and can be automated in software.  Thus, generalized linear models allow us to fit a broader class of models than just linear models without the need to write customized code to maximize a likelihood.  All that said, it is helpful to remember that generalized linear modeling is ultimately an exercise in likelihood maximization.  
+Generalized linear models (GLMs)^[The acronym 'GLM' can be ambiguous in statistics.  GLM can stand for 'general linear models' or 'general*ized* linear models'.  These two terms differ!  General linear models encompass regression and ANOVA, while generalized linear models accommodate non-Gaussian responses.  Confusingly, in SAS, PROC GLM is a procedure to fit the general linear model, while in R the `glm` routine fits generalized linear models.  In these notes, GLM will be used as an acronym for generalized linear models.] occupy a middle ground between general linear models (regression and ANOVA) and more all-encompassing maximum likelihood approaches.  On the one hand, general linear models require strong assumptions about the distribution of the response (independence and normality).  Those assumptions translate into lots of mathematical structure, and that structure in turn supports a powerful fitting algorithm that is easily automated by routines like `lm`.  On the other hand, maximum likelihood is a more versatile approach that can in theory be applied to any parametric model one can propose.  However, the versatility of likelihood comes with a cost, in that it requires the analyst to write their own model-fitting code from scratch for each model.  
 
-Now for the cautions.  Like many topics in statistics, generalized linear models have their own specialized jargon.  Personally, I use generalized linear models rarely enough that I find it hard to remember how the jargon relates to familiar ideas from likelihood maximization.  Surely, analysts who use generalized linear models routinely will find the specialized jargon helpful.  However, if you only use generalized linear models occasionally, you may need to relearn the jargon each time as well.  If this is cumbersome, remember that you can always write customized likelihood-maximization code instead.  Others will find the Bayesian route appealing here, because in a Bayesian context it is trivially simple to choose a non-Gaussian distribution for the response.  Moreover, whether that distribution belongs to the exponential family is of no consequence in a Bayesian setting.  
+GLMs relax the assumption of normality (of the response) while retaining enough shared mathematical structure to support a common scheme for fitting the models by maximum likelihood.  This common model-fitting scheme can be automated and packaged into user-friendly statistical software that allows analysts to fit these models without having to re-code the likelihood maximization from scratch each time.^[The common mathematical scheme that is used to find the MLEs of generalized linear models is called *iteratively reweighted least squares* (IRLS).  There is a variation of IRLS called *Fisher scoring* that is the fitting routine implemented in the `glm` routine in `R`.]  The common model-fitting scheme is also reasonably robust, and it typically doesn't require the user to specify starting values (although sometimes starting values are necessary; see the discussion in @wood2017generalized.) 
 
-Finally, bear in mind that whatever approach you choose --- generalized linear modeling, direct likelihood maximization, or the Bayesian analysis --- non-Gaussian distributions do not lend themselves to handling correlations among responses as readily as Gaussian distributions do.  Thus, with data that are both correlated and non-Gaussian, one faces a choice: cope with the correlations and assume a Gaussian response, assume independence and cope with the non-Gaussian response, or try to cope with both the correlations and the non-Gaussian response at once.  The former two options lend themselves to straightforward methods: mixed models in the first instance, and generalized linear models in the second.  The last option --- trying to do both --- is not impossible, but it is substantially harder, and will take us into the domain of generalized linear mixed models (GLMMs), in which these notes will culminate.  
+GLMs do not encompass all possible distributions for the response variable.  Instead, GLMs can accommodate any response distribution in a group of probability distributions known as the "exponential family".^[Do not confuse the exponential family of probability distributions with the exponential distribution!  The exponential distribution is one of the probability distributions in the exponential family, but it is not the only one.]  The exponential family of distributions includes many of the distributions that we encounter in practical data analysis, including Poisson, binomial, gamma, and beta distributions. The Gaussian distribution is included in the exponential family as well; thus we can think of GLMs as an extension of the general linear model. One notable distribution that is not part of the exponential family is the negative binomial distribution. 
+
+That said, a few caveats are worth bearing in mind.  First, GLMs have their own specialized jargon.  Personally, I find it hard to remember the jargon and have to re-learn it each time I encounter a GLM.  Surely, analysts who use GLMs routinely will find the specialized jargon helpful.  However, if you only use GLMs occasionally, you may need to relearn the jargon each time as well.  If this is cumbersome, remember that fitting a GLM is ultimately an exercise in maximizing a likelihood, and you can always write customized likelihood-maximization code instead.  Others will find the Bayesian route appealing here, because in a Bayesian context it is trivially simple to choose a non-Gaussian distribution for the response.  Moreover, whether that distribution belongs to the exponential family is of no consequence in a Bayesian setting.  
+
+Secondly, the vast majority of GLMs encountered in practice are either logistic regression for binary responses and Poisson regression for count responses.  (Every once in a blue moon, one might encounter a GLM with a Gamma- or beta-distributed response.)  Most users are probably just as well served by learning logistic regression and Poisson regression as methods in their own right as they are by learning these methods as two particular instances of a broader class of GLMs.       
+
+Finally, whatever approach you choose --- generalized linear modeling, direct likelihood maximization, or the Bayesian analysis --- non-Gaussian distributions do not lend themselves to handling correlations among responses as readily as Gaussian distributions do.  Thus, with data that are both correlated and non-Gaussian, one faces a choice: cope with the correlations and assume a Gaussian response, assume independence and cope with the non-Gaussian response, or try to cope with both the correlations and the non-Gaussian response at once.  The former two options lend themselves to straightforward methods: mixed models in the first instance, and GLMs in the second.  The last option --- trying to do both --- is not impossible, but it is substantially harder, and will take us into the domain of generalized linear mixed models (GLMMs), in which these notes will culminate.  
 
 ## Poisson regression
 
-We will begin with an example of Poisson regression.  These data are originally from Poole, Anim. Behav. 37 (1989):842-49, and were analyzed in the second edition of Ramsey \& Schafer's *Statistical Sleuth*.  They describe an observational study of 41 male elephants  over 8 years at Amboseli National Park in Kenya.  Each record in this data set gives the age of a male elephant at the beginning of a study and the number of successful matings for the elephant over the study's duration.  The number of matings is a count variable.  Our goal is to characterize how the number of matings is related to the elephant's age.  We'll start by fitting a model with the canonical log link.
+### Horse-kick data revisited
+
+To emphasize the connection between GLMs and likelihood approaches, we will take another look at fitting the horse-kick data in Chapters \@ref(ML) and \@ref(beyondML).  To fit these data as an iid sample from a Poission distribution, we use a model that includes only an intercept and that uses an "indentity" link.  We will discuss link functions later.
+
+
+```r
+horse <- read.table("data/horse.txt", head = T)
+
+fm1 <- glm(deaths ~ 1, 
+           family = poisson(link = "identity"),
+           data = horse)
+
+summary(fm1)
+```
+
+```
+## 
+## Call:
+## glm(formula = deaths ~ 1, family = poisson(link = "identity"), 
+##     data = horse)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)     0.70       0.05      14   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 323.23  on 279  degrees of freedom
+## Residual deviance: 323.23  on 279  degrees of freedom
+## AIC: 630.31
+## 
+## Number of Fisher Scoring iterations: 3
+```
+
+Notice that the estimate of the intercept is exactly the same as the MLE of the intercept that we obtained from maximizing the likelihood directly in section \@ref(horse).  Notice also that the standard error is exactly the same as the value that we obtained by the quadratic approximation in section \@ref(quadapprox).  
+
+### Elephant matings
+
+We will begin with an example of Poisson regression.  These data are originally from @poole1989mate, and were analyzed in @ramsey2002.  They describe an observational study of 41 male elephants  over 8 years at Amboseli National Park in Kenya.  Each record in this data set gives the age of a male elephant at the beginning of a study and the number of successful matings for the elephant over the study's duration.  The number of matings is a count variable.  Our goal is to characterize how the number of matings is related to the elephant's age.  We'll start by fitting a model with the canonical log link.
 
 
 ```r
@@ -34,7 +80,7 @@ head(elephant)
 with(elephant, plot(matings ~ age))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 
 ```r
 fm1 <- glm(matings ~ age, 
@@ -95,7 +141,7 @@ lines(x   = new.data$age,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-4-1.png" width="672" />
 
 While the canonical link is a natural starting point, we are free to try other link functions as well.  Below, we try the identity link and plot the fit.
 
@@ -145,7 +191,7 @@ lines(x   = new.data$age,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 
 Note that the choice of the link function has a substantial impact on the shape of the fit.  The canonical (log) link suggests that the average number of matings increases with age at an accelerating rate, while the identity link suggests that the average number of matings increases steadily with age.  The AIC favors the identity link here.
 
@@ -161,7 +207,7 @@ plot(x = elephant$age,
 abline(h = 0, lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-6-1.png" width="672" />
 
 The residuals do not suggest any deficiency in the fit.
 
@@ -213,7 +259,7 @@ lines(x   = new.data$age,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 
 As an alternative, we could fit a model that uses a negative binomial distribution for the response.  Negative binomial distributions belong to the exponential family, so we can fit them using the GLM framework.  However, the authors of `glm` did not include a negative binomial family in their initial code.  Venables & Ripley's `MASS` package includes a program called `glm.nb` which is specifically designed for negative binomial responses.  `MASS::glm.nb` uses the parameterization familiar to ecologists, although they use the parameter $\theta$ instead of $k$.  So, in their notation, if $y \sim \mathrm{NB}(\mu, \theta)$, then $\mathrm{Var}(y) = \mu + \mu^2/\theta$.
 
@@ -277,7 +323,7 @@ lines(x   = new.data$age,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-8-1.png" width="672" />
 
 Notice that $\hat{\theta} = 15.8$, again indicating that the extra-Poisson variation is mild.  Notice also that the error bounds on the fitted curve are ever so slightly larger than the error bounds from the Poisson fit, and nearly identical to the error bounds from the quasi-Poisson fit.
 
@@ -360,7 +406,7 @@ bayesplot::mcmc_areas(posterior.fm5,
                       prob = 0.95) 
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-11-1.png" width="672" />
 
 Notice that the slope of the fitted regression line is slightly attenuated relative to the ML fit from the frequentist analysis.  The reason is that the default priors selected by `rstanarm` are actually reasonably strong:
 
@@ -433,7 +479,7 @@ abline(a = coef(fm5)['(Intercept)'], b = coef(fm5)['age'], col = "blue", lwd = 2
 with(elephant, points(matings ~ age, pch = 16))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-15-1.png" width="672" />
 
 ### Posterior predictive checks
 
@@ -458,7 +504,7 @@ for(i in 1:4) {
 }
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
 Our task is to determine if the real data set that we actually observed is consistent with this collection of hypothetical data sets.  To do so, we can calculate a summary statistic that captures an interesting feature of each data set, and compare the value of that summary statistic for the real data set to the distribution of values across the simulated data sets.
 
@@ -477,7 +523,7 @@ hist(post.predict.sd, breaks = 20, xlab = "Marginal SD of response")
 abline(v = sd(elephant$matings), col = "red", lwd = 2)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
 The actual standard deviation, shown by the red line, is consistent with the standard deviations of the simulated data sets, indicating that the model provides a reasonable description of the data, at least with regard to the marginal SD of the response variable.  This is consistent with our previous conclusions that the extra-Poisson variation in these data is quite mild.
 
@@ -488,7 +534,7 @@ The authors of `rstanarm` have provided the function `pp_check` (for [p]osterior
 pp_check(fm5, plotfun = "stat", stat = "sd", binwidth = .1)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
 ### JAGS
 
@@ -630,13 +676,13 @@ curve(my.fit,
       add  = TRUE)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-24-1.png" width="672" />
 
 Suppose we wanted to fit this model using JAGS with the identity link, so that the relationship between mean matings and age was linear.  To do so, we would have to be careful, because we would have to make sure that the MCMC sampler did not stray into regions that generated negative values for the observation-level mean, $\mu$.  Mathematically, we simply want to construct a likelihood that evaluates to 0 whenever $\mu \leq 0$.  However, as of this writing, I haven't figured out what the best approach is for implementing such a model in JAGS.
 
 ### Observation-level random effects
 
-We use this opportunity to introduce an alternative approach to accommodating overdispersion in models with non-Gaussian responses.  This alternative approach entails adding a latent Gaussian-distributed random effect to the linear predictor.  Because this random effect takes a unique value for each observation, it is known as a "observation-level random effect".  Observation-level random effects are motivated by the idea that overdispersion is caused by additional inputs or factors that vary among observations and re not included in the model.  For example, knowing next to nothing about elephants, we might speculate that there are additional factors that influence a male elephant's mating success above and beyond age, such as (say) nutrition. The observation-level random effects are meant to capture this additional variation.  Importantly, if we use an observation-level random effect, then we have no control on the sign of the linear predictor $\eta$.  Consequently, we must use a link function that maps any value of the linear predictor ($\eta$) to a valid value of the observation-level mean ($\mu$).  (In other words, we can't use the identity link for a Poisson response.)  For the elephant data, adding an observation-level random effect changes the model to:
+We introduce an alternative approach to accommodating overdispersion in models with non-Gaussian responses.  This alternative approach entails adding a latent Gaussian-distributed random effect to the linear predictor.  Because this random effect takes a unique value for each observation, it is known as a "observation-level random effect".  Observation-level random effects are motivated by the idea that overdispersion is caused by additional inputs or factors that vary among observations and re not included in the model.  For example, knowing next to nothing about elephants, we might speculate that there are additional factors that influence a male elephant's mating success above and beyond age, such as (say) nutrition. The observation-level random effects are meant to capture this additional variation.  Importantly, if we use an observation-level random effect, then we have no control on the sign of the linear predictor $\eta$.  Consequently, we must use a link function that maps any value of the linear predictor ($\eta$) to a valid value of the observation-level mean ($\mu$).  (In other words, we can't use the identity link for a Poisson response.)  For the elephant data, adding an observation-level random effect changes the model to:
 \begin{align*}
 y_i & \sim \mathrm{Pois}(\mu_i)\\
 \mu_i  & = \exp({\eta_i}) \\
@@ -757,7 +803,7 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpywblRj/model62a8671b38a3.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpcRRP5e/model2e603fb34b0.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -778,7 +824,7 @@ print(jagsfit2)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpywblRj/model62a83a311810.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpcRRP5e/model2e605ca52df2.txt", fit using jags,
 ##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
 ##  n.sims = 15000 iterations saved
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
@@ -892,7 +938,7 @@ lines(x   = new.data$length,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-29-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 Regression coefficients in logistic regression can be a bit hard to interpret.  One interpretation flows from exponentiating the regression coefficient to obtain an odds ratio.  For the boar data, the regression coefficient of 0.0335 corresponds to an odds ratio of $e^{0.0335}$ = 1.034.  This means that for two boars that differ by one cm in length, the larger boar's odds of having a TB-like lesion will be 1.034 times the smaller boar's odds of having such a lesion.  
 
@@ -935,7 +981,7 @@ legend("left",
        pch = 16)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-31-1.png" width="672" />
 
 The logit and probit links are nearly identical.  The complementary log-log link differs slightly, but the logit link is AIC-best.
 
@@ -1126,7 +1172,7 @@ plot(x = moth$distance,
 abline(h = 0, lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 
 The plot of the residuals suggests that we should include a random effect for the sampling station.  This makes complete sense.  The data for the two color morphs at each station share whatever other characteristics make the station unique, and are thus correlated.  To account for this correlation, we need to introduce a random effect for the station.  This again gets us into the world of generalized linear mixed models.  Before proceeding, we'll write the model down.  Let $i=1,2$ index the two color morphs, and let $j = 1, \ldots, 7$ index the stations.  Let $y_{ij}$ be the number of moths removed, let $n_{ij}$ be the number of moths placed, and let $x_j$ be the distance of the station from Liverpool.  We wish to fit the model
 \begin{align*}
@@ -1197,11 +1243,11 @@ with(corbet, barplot(species, names = ofreq,
                      ylab = "frequency"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-38-1.png" width="672" />
 
 We will fit a zero-truncated negative binomial distribution to these data, and compare the fitted zero-truncated distribution to the data.
 
-<!-- Note: Something is weird here.  The ratio of the first two fitted probabilities is NOT the same as the ratio of the probability masses obtained by dnbinom evaluated at the parameter estimates.  Check into this. -->
+<!-- NB: Something is weird here.  The ratio of the first two fitted probabilities is NOT the same as the ratio of the probability masses obtained by dnbinom evaluated at the parameter estimates.  Check into this. -->
 
 
 ```r
@@ -1218,13 +1264,13 @@ Coef(corbet.fit)
 mu.hat <- Coef(corbet.fit)["munb"]
 k.hat  <- Coef(corbet.fit)["size"]
 
-# 2023-05-26: dgainnbinom seems to have been deprecated from VGAM
+fitted.probs <- dgaitdnbinom(x = corbet$ofreq, k.hat, munb.p = fitted(corbet.fit), truncate = 0)
+fitted.vals <- sum(corbet$species) * fitted.probs
 
-# fitted.probs <- dgaitnbinom(x = corbet$ofreq, k.hat, munb.p = fitted(corbet.fit), truncate = 0)
-# fitted.vals <- sum(corbet$species) * fitted.probs
-
-# barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fitted"))
+barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fitted"))
 ```
+
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-39-1.png" width="672" />
 
 
 
@@ -1290,7 +1336,7 @@ mtext("length", side = 1, outer = T, line = 2)
 mtext("parasite intensity", side = 2, outer = T, line = 5, las = 0)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-41-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-42-1.png" width="672" />
 
 With ZI models, one can use separate model combinations of predictors for the two components.  Indeed, if we think of the two components as capturing two different natural processes, then there is no reason that the predictors should have the same affect on both components.  Following Zuur et al., however, we will start with a ZINB model that includes length, year, area, and an interaction between year and area for both components.  Because both components are generalized linear models, both include a link function.  Here, we will use the default logit link for the zero-inflation component and log link for the count component.
 
@@ -1478,7 +1524,7 @@ mtext("length", side = 1, outer = T, line = 2)
 mtext("parasite intensity", side = 2, outer = T, line = 6, las = 0)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-46-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-47-1.png" width="672" />
 
 ### Zero-altered, or "hurdle", models
 
@@ -1594,7 +1640,7 @@ head(coral)
 with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-48-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-49-1.png" width="672" />
 
 We fit a GAM with a binomial response, logit link, and use a smoothing spline to capture the relationship between log size and (the log odds of) mortality.  Recall that a smoothing spline determines the degree of smoothness by generalized cross-validation.
 
@@ -1661,7 +1707,7 @@ lines(x.vals, inv.logit(fm2.fit$fit + 1.96 * fm2.fit$se.fit), col = "red", lty =
 lines(x.vals, inv.logit(fm2.fit$fit - 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-49-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-50-1.png" width="672" />
 
 ```r
 AIC(fm1, fm2)

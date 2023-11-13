@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 course notes"
 author: "Kevin Gross"
-date: "2023-11-06"
+date: "2023-11-13"
 output: 
   bookdown::gitbook:
     config:
@@ -38,7 +38,7 @@ description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in
 \newcommand{\vcov}[1]{\mbox{Cov}\left(#1\right)}
 \newcommand{\vcor}[1]{\mbox{Cor}\left(#1\right)}
 
-# Maximum likelihood estimation
+# Maximum likelihood estimation {#ML}
 
 The *likelihood function* is the mathematical object that underlies many of the methods that we will study in this course.  In this chapter, we will study the properties of the likelihood function for some simple models and data sets.  We will see that the likelihood can be used to generate parameter estimates and associated measures of uncertainty (e.g., standard errors and confidence intervals). For most of the methods that we study later in this course, we will use software in which someone else has written code to analyze the likelihood function; thus we won't have to worry about coding the likelihood function ourselves.  However, it is helpful to know how to derive and analyze a likelihood function when needed, because likelihood analysis is flexible and can often be applied in specialized situations where code for a specific analysis may not already exist.
 
@@ -106,7 +106,7 @@ abline(v = 2, col = "red")
 
 <img src="index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 
-## Horse-kick data
+## Horse-kick data {#horse}
 
 Most real data sets contain more than a single observation.  Here is a data set that we can use to illustrate maximum likelihood estimation with a single parameter.  Famously, Ladislaus van Bortkewitsch (1868 -- 1931) published how many members of the Prussian army were killed by horse kicks in each of 20 years, for each of 14 army corps.  In this analysis, we will ignore both the temporal structure and the grouping among corps and treat the data as just a simple random sample^[Recall that when we refer to a data set as a "simple random sample", we mean that the data are independent and identically distributed.  That is, they are independent draws from the same underlying probability distribution.] from a Poisson distribution with $n=280$ data points.  As a caveat, these data are often used to illustrate the Poisson distribution, as we will use them.  They match the Poisson distribution more neatly than we might expect for most data sets.
 
