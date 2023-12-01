@@ -256,7 +256,7 @@ Notice that $\hat{\theta} = 15.8$, again indicating that the extra-Poisson varia
 <!-- } -->
 <!-- ``` -->
 
-<!-- Our task is to determine if the real data set that we actually observed is consistent with this collection of hypothetical data sets.  To do so, we can calculate a summary statistic that captures an interesting feature of each data set, and compare the value of that summary statistic for the real data set to the distribution of values across the simulated data sets. -->
+<!-- We want to determine if the real data set that we actually observed is consistent with this collection of hypothetical data sets.  To do so, we can calculate a summary statistic that captures an interesting feature of each data set, and compare the value of that summary statistic for the real data set to the distribution of values across the simulated data sets. -->
 
 <!-- What summary statistic would you use to compare the real elephant data set to these simulated ones?  We'll use the marginal standard deviation of the number of matings below, but there might be other or better examples that you could think of.  Typically, one uses several posterior predictive statistics, not just one.  First, we calculate the distribution of marginal standard deviations across the collection of simulated data sets.  This R code illustrates the use of the handy R command `apply`, which applies a function to one of the margins (rows or columns) of an array.  Here, because the individual data sets are stored as the rows of `post.predict`, we will calculate the standard deviation of the contents of each row. -->
 
@@ -476,7 +476,7 @@ Notice that $\hat{\theta} = 15.8$, again indicating that the extra-Poisson varia
 
 ## Binary responses
 
-We generally distinguish between two types of data with binary responses: Data in which each individual record is a separate a binary response, and data in which each record consists of a group of binary observations.  The same methods can be used for either type of data.  We will begin by studying a data set with individual binary responses, and then use the industrial melanism data to illustrate grouped binary responses.
+We generally distinguish between two types of data with binary responses: Data in which each individual record is a separate a binary response, and data in which each record consists of a group of binary observations.  The same methods can be used for either type of data.  We will begin by studying a data set with individual binary responses, and then move to grouped binary responses.
 
 ### Individual binary responses: TB in boar
 
@@ -594,7 +594,7 @@ summary(fm3)
 ```
 A second option is to use so-called ``exact'' methods for inference.  There doesn't appear to be a good package available for implementing these methods in R.  Other software packages might be necessary. 
 
-### Grouped binary data: Industrial melanism
+### Grouped binary data: TB in red deer
 
 For an example with grouped binary data, we will consider a second data set from @vicente2006wild, which is also discussed in @zuur2009.  This data set gives the prevalence of tuberculosis infection in red deer in southern Spain at several different estates.  Several deer were sampled at each estate, and the sampled deer were tested for tuberculosis.  We'll import the data first and do a bit of housekeeping.
 
@@ -928,6 +928,13 @@ lines(x.vals, inv.logit(fm1.fit$fit))
 lines(x.vals, inv.logit(fm1.fit$fit + 1.96 * fm1.fit$se.fit), lty = "dashed")
 lines(x.vals, inv.logit(fm1.fit$fit - 1.96 * fm1.fit$se.fit), lty = "dashed")
 ```
+
+Note that the non-linearity in the fit is not just a consequence of converting to the probability scale.  If we plot the fit on the log odds scale, we can see the non-linearity that results from using a penalized regression spline.
+
+```{r}
+plot(x.vals, fm1.fit$fit, type = "l", xlab = "log size, x", ylab = "log odds of mortality, s(x)")
+```
+
 
 We might also try a complementary log-log link.
 

@@ -1,7 +1,7 @@
 --- 
 title: "BMA / ST 590 course notes"
 author: "Kevin Gross"
-date: "2023-11-13"
+date: "2023-12-01"
 output: 
   bookdown::gitbook:
     config:

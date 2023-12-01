@@ -46,7 +46,7 @@ horse-kick-data-revisited
 elephant-matings
 binary-responses
 individual-binary-responses-tb-in-boar
-grouped-binary-data-industrial-melanism
+grouped-binary-data-tb-in-red-deer
 zero-adjusted-models-for-count-data
 zero-truncated-models
 zero-inflated-models

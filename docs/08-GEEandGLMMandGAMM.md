@@ -44,7 +44,7 @@ abline(h = 0, lty = "dashed")
 abline(fm1)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-2-1.png" width="384" />
 
 ```r
 summary(fm1)
@@ -311,7 +311,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.318799
+## [1] 0.3188409
 ```
 
 ```r
@@ -345,7 +345,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3501166
+## [1] 0.3504879
 ```
 
 ```r
@@ -722,15 +722,17 @@ splom(pp)
 
 <img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-23-2.png" width="672" />
 
-We see that the standard deviation of the location-level random effect (".sig03") has a 95\% confidence interval that includes 0.  We might conclude that the location-level random effect is unnecessary. In other words, there is no evidence of additional variation among the locations beyond the variation attributable to differences in elevation.  The bivariate confidence regions show us that the estimated SD of the location-level random effect is negatively correlated with the estimated SD of the brood-level random effect (".sig02").  Thus, the location-to-location variability (above and beyond the elevation effect) from brood-to-brood variability are confounded, which makes sense, given that most locations are represented by a small number of broods. 
+We see that the standard deviation of the location-level random effect (".sig03") has a 95\% confidence interval that includes 0.  We might conclude that the location-level random effect is unnecessary. In other words, there is no evidence that different broods from the same location are more strongly (positively) correlated than two broods at different locations at the same elevation.  The bivariate confidence regions show us that the estimated SD of the location-level random effect is negatively correlated with the estimated SD of the brood-level random effect (".sig02").  Thus, the location-to-location variability (above and beyond the elevation effect) from brood-to-brood variability are confounded, which makes sense, given that most locations are represented by a small number of broods. 
 
-It is something of a judgment call as to whether it would make sense at this point to drop the location-level random effect.  We could retain it on the grounds that one expects some location-to-location variation beyond the effect of elevation, even if that variation is small.  Further, some (such as Bolker) would argue that model selection on the random effects is risky.  In his GLMM FAQ page, Bolker writes:
+It is something of a judgment call as to whether it would make sense at this point to drop the location-level random effect.  We could retain it on the grounds that one expects some location-to-location variation beyond the effect of elevation, even if that variation is small.  
 
-> Consider *not* testing the significance of random effects. If the random effect is part of the experimental design, this procedure may be considered ‘sacrificial pseudoreplication’ (@hurlbert1984). Using stepwise approaches to eliminate non-significant terms in order to squeeze more significance out of the remaining terms is dangerous in any case.  
+<!-- Further, some (such as Bolker) would argue that model selection on the random effects is risky.  In his GLMM FAQ page, Bolker writes: -->
 
-However, these red grouse data do not come from a designed experiment.  
+<!-- > Consider *not* testing the significance of random effects. If the random effect is part of the experimental design, this procedure may be considered ‘sacrificial pseudoreplication’ (@hurlbert1984). Using stepwise approaches to eliminate non-significant terms in order to squeeze more significance out of the remaining terms is dangerous in any case. -->
 
-If one is interested in testing for the significance of a random effect, the usual approach is to conduct a likelihood-ratio test to compare models with and without the random effect.  In this case, the null hypothesis is that the variance of the tested random effect is 0, which is on the boundary of the allowable values for a variance.  Thus, the $p$-value from a LRT is conservative (too big).  In simple models, the $p$-value for the LRT is twice as big as it should be, suggesting that the appropriate correction is to divide the $p$-value by 2 (@pinheiro2000).  For more complex models, however, the divide-by-2 rule is only a rough rule of thumb.  We illustrate by comparing a model with the location-level random effect to one without it.  (In notation, we are testing $\sigma^2_L = 0$.)
+<!-- However, these red grouse data do not come from a designed experiment.   -->
+
+To test for the significance of a random effect, the usual approach is to conduct a likelihood-ratio test to compare models with and without the random effect.  In this case, the null hypothesis is that the variance of the tested random effect is 0, which is on the boundary of the allowable values for a variance.  Thus, the $p$-value from a LRT is conservative (too big).  In simple models, the $p$-value for the LRT is twice as big as it should be, suggesting that the appropriate correction is to divide the $p$-value by 2 (@pinheiro2000).  For more complex models, however, the divide-by-2 rule is only a rough rule of thumb.  We illustrate by comparing a model with the location-level random effect to one without it.  (In notation, we are testing $\sigma^2_L = 0$.)
 
 
 
@@ -755,7 +757,7 @@ anova(fm2, fm1)
 
 If we use the rough divide-by-2 rule, the approximate $p$-value is $p \approx 0.11$.  Thus, the model with the location-level random effect does not improve significantly on the model without the location-level random effect.  We might conclude that the location-level random effect is unnecessary.
 
-Although this analysis focused on how different random effects contributed to the overall variation in tick load, it is also helpful to visualize the fit of the model.  The plot below shows the tick load for each individual (plotted on a log scale) vs.\ the centered and scaled elevation variable, along with the fitted mean line for each year.
+Although this analysis focused on how different random effects contributed to the overall variation in tick load, it is also helpful to visualize the fit of the model.  The plot below shows the tick load for each individual (plotted on a log + 1 scale) vs.\ the centered and scaled elevation variable, along with the fitted mean line for each year.  Note that the curvature in the fit appears because the response is shown as the log + 1 instead of the log.  The fits would be straight lines on the log scale.
 
 
 ```r
@@ -805,9 +807,9 @@ plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
 
 ## GAMMs {#GAMMs}
 
-Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlations.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
+Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlated errors.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
 
-As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.  I downloaded these data from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  First, some housekeeping and exploratory analysis.
+As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.^[This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of @wood2017generalized.]  I downloaded these data from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  First, some housekeeping and exploratory analysis.
 
 
 ```r
@@ -858,7 +860,7 @@ require(mgcv)
 ```
 
 ```
-## This is mgcv 1.8-42. For overview type 'help("mgcv-package")'.
+## This is mgcv 1.9-0. For overview type 'help("mgcv-package")'.
 ```
 
 ```r
