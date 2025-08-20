@@ -1,7 +1,7 @@
 --- 
-title: "BMA / ST 590 course notes"
+title: "Applied statistical analysis of non-normal and/or correlated data"
 author: "Kevin Gross"
-date: "2023-12-01"
+date: "2025-08-20"
 output: 
   bookdown::gitbook:
     config:
@@ -15,7 +15,7 @@ documentclass: book
 bibliography: [bma590.bib]
 biblio-style: apalike
 link-citations: yes
-description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023."
+description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology."
 ---
 
 \renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
@@ -50,7 +50,7 @@ The mathematical expression for a likelihood function is identical to the mathem
 \]
 In R, we can access this probability mass function using the `dpois` function.  For example, if we wanted to find the probability mass associated with $X=1$ when $\lambda = 1.5$, we could use
 
-```r
+``` r
 dpois(x = 1, lambda = 1.5)
 ```
 
@@ -66,7 +66,7 @@ where we have used $\L{\lambda; x}$ to denote the likelihood function for $\lamb
 
 Because a likelihood function uses the same mathematical formulas as a probability mass function, we can use the same functions that `R` provides for computing probability masses for discretely valued data (or probability densities for continuously valued data) to compute the a likelihood function. Let's return to our simple example of observing a single observation from a Poisson distribution.  Suppose that observation is $X=2$.  We can use the `dpois` function to evaluate the likelihood for this single observation.  For example, we can evaluate the likelihood at $\lambda = 1.5$:
 
-```r
+``` r
 dpois(x = 2, lambda = 1.5)
 ```
 
@@ -75,7 +75,7 @@ dpois(x = 2, lambda = 1.5)
 ```
 Or we could evaluate the likelihood at $\lambda = 2$ or $\lambda = 2.5$:
 
-```r
+``` r
 dpois(x = 2, lambda = c(2, 2.5))
 ```
 
@@ -84,7 +84,7 @@ dpois(x = 2, lambda = c(2, 2.5))
 ```
 Now let's evaluate the likelihood at a sequence of $\lambda$ values:
 
-```r
+``` r
 my.lhood <- function(lambda) dpois(x = 2, lambda = lambda)
 
 curve(my.lhood, from = 0, to = 5,
@@ -96,7 +96,7 @@ curve(my.lhood, from = 0, to = 5,
 
 We might guess that the likelihood is maximized at $\lambda = 2$.  We'd be right, as the plot below suggests.
 
-```r
+``` r
 curve(my.lhood, from = 0, to = 5,
       xlab = expression(lambda), 
       ylab = "Likelihood")
@@ -112,12 +112,12 @@ Most real data sets contain more than a single observation.  Here is a data set 
 
 First import the data.  Note that the path name used here is specific to the file directory that was used to create this file.  The path name that you use will likely differ.
 
-```r
+``` r
 horse <- read.table("data/horse.txt", header = TRUE)
 ```
 Ask for a `summary` of the data to make sure the data have been imported correctly.
 
-```r
+``` r
 summary(horse)
 ```
 
@@ -132,7 +132,7 @@ summary(horse)
 ```
 We can also learn about the data by asking to see the first few records using the `head` command
 
-```r
+``` r
 head(horse)
 ```
 
@@ -147,7 +147,7 @@ head(horse)
 ```
 or we can see the last few records using the `tail` command:
 
-```r
+``` r
 tail(horse)
 ```
 
@@ -162,7 +162,7 @@ tail(horse)
 ```
 Another useful function to keep in mind is the `str` function which tells you about the [str]ucture of an R object:
 
-```r
+``` r
 str(horse)
 ```
 
@@ -175,7 +175,7 @@ str(horse)
 
 Let's plot a histogram of the values:
 
-```r
+``` r
 hist(horse$deaths,
      breaks = seq(from = min(horse$deaths) - 0.5, 
                   to = max(horse$deaths) + 0.5, 
@@ -203,7 +203,7 @@ The third equality above follows from the independence of the data points.
 
 Here's a function that we can use to compute likelihood for any particular value of $\lambda$ for the horse data:
 
-```r
+``` r
 horse.lhood <- function(my.lambda){
   
   ll.vals <- dpois(x = horse$deaths, lambda = my.lambda)
@@ -213,7 +213,7 @@ horse.lhood <- function(my.lambda){
 
 Notice, however, that the values of the likelihood are very close to zero, even for reasonable choices of $\lambda$:
 
-```r
+``` r
 horse.lhood(0.75)
 ```
 
@@ -231,7 +231,7 @@ To prevent numerical underflow, we'll work on the log-likelihood instead of the 
 Let's create a function that calculates the log-likelihood for a value of $\lambda$:
 
 
-```r
+``` r
 horse.ll <- function(my.lambda){
   
   ll.vals <- dpois(x = horse$deaths, lambda = my.lambda, log = TRUE)
@@ -240,7 +240,7 @@ horse.ll <- function(my.lambda){
 ```
 We can use this function to calculate the log-likelihood for any value of $\lambda$, such as $\lambda = 1$:
 
-```r
+``` r
 horse.ll(1)
 ```
 
@@ -251,7 +251,7 @@ horse.ll(1)
 Let's calculate the log-likelihood for many values of $\lambda$, in preparation for making a plot.  We'll use a loop here, and not worry about vectorization.  
 
 
-```r
+``` r
 # create a vector of lambda values using the 'seq'uence command
 lambda.vals <- seq(from = 0.01, to = 2.0, by = 0.01)  
 
@@ -266,7 +266,7 @@ for (i.lambda in 1:length(lambda.vals)) {
 
 Now plot the log-likelihood values vs.\ the values of $\lambda$:
 
-```r
+``` r
 plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "log likelihood", type = "l")
 abline(v = 0.7, col = "red")
 ```
@@ -277,7 +277,7 @@ abline(v = 0.7, col = "red")
 
 Bolker's book illustrates numerical optimization using the `optim` function.  The R documentation recommends using `optimize` for one-dimensional optimization, and `optim` for optimizing a function in several dimensions.  So, we will use `optimize` here.  We will enclose the entire call to `optimize` in parentheses so that the output is dumped to the command line in addition to being stored as `horse.mle`.
 
-```r
+``` r
 (horse.mle <- optimize(f = horse.ll, interval = c(0.1, 2), maximum = TRUE))
 ```
 
@@ -289,7 +289,7 @@ Bolker's book illustrates numerical optimization using the `optim` function.  Th
 ## [1] -314.1545
 ```
 
-The `optimize` function returns a 'list'.  A list is an R object that contains components of different types. The numerically calculated MLE is $\hat{\lambda} \approx 0.7$.  The 'objective' component of \texttt{horse.mle} gives the value of the log-likelihood at that point.
+The `optimize` function returns a 'list'.  A list is an R object that contains components of different types. The numerically calculated MLE is $\hat{\lambda} \approx 0.7$.  The 'objective' component of `horse.mle` gives the value of the log-likelihood at that point.
 
 ## Pulse rate data
 
@@ -297,12 +297,12 @@ The data set `pulse.csv` contains the heights (in cm) and resting pulse rates (i
 
 <!-- The myxomatosis data are in Bolker's library `emdbook`.  First load the library.  If the library is not found, you will first have to download and install the library on your computer, using the Packages tab in RStudio.  The call to `data` loads the particular myxomatosis data set that we want into memory. -->
 
-```r
+``` r
 pulse <- read.csv("data/pulse.csv", head = T)
 ```
 Inspect the data to make sure they have been imported correctly.
 
-```r
+``` r
 summary(pulse)
 ```
 
@@ -316,7 +316,7 @@ summary(pulse)
 ##  Max.   :185.0   Max.   :100
 ```
 
-```r
+``` r
 head(pulse)
 ```
 
@@ -333,18 +333,18 @@ For the sake of illustration, we will estimate the mean and variance of the norm
 
 First, we write a function to calculate the log likelihood.
 
-```r
+``` r
 pulse.ll <- function(m, v){
 
   ll.vals <- dnorm(pulse$rate, mean = m, sd = sqrt(v), log = TRUE)
   sum(ll.vals)
 }
 ```
-Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.  (It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the {\em invarance property} of MLEs.)
+Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.  (It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the *invariance property* of MLEs.)
 
 We can use our function to calculate the likelihood for any choice of mean and variance.  For example, let's try $\mu = 60$ and $\sigma^2 = 100$.
 
-```r
+``` r
 pulse.ll(m = 60, v = 100)
 ```
 
@@ -353,7 +353,7 @@ pulse.ll(m = 60, v = 100)
 ```
 We want to maximize the likelihood using `optim`.  Unfortuantely, `optim` is a little finicky.  To use `optim`, we have to re-write our function `pulse.ll` so that the parameters to be estimated are passed to the function as a single vector.  Also, by default, `optim` performs minimization instead of maximization.  We can change this behavior when we call `optim`.  Alternatively, we can just re-define the function to return the negative log likelihood.  
 
-```r
+``` r
 pulse.neg.ll <- function(pars){
 
   m <- pars[1]
@@ -365,7 +365,7 @@ pulse.neg.ll <- function(pars){
 ```
 Now we can use `optim`:
 
-```r
+``` r
 (pulse.mle <- optim(par = c(60, 100),  # starting values, just a ballpark guess 
                   fn  = pulse.neg.ll))
 ```
@@ -393,7 +393,7 @@ Note that the MLE of the variance is
 \]
 Let's verify this by calculating the same quantity at the command line:
 
-```r
+``` r
 residuals <- with(pulse, rate - mean(rate))
 ss <- sum(residuals^2)
 n <- nrow(pulse)
@@ -409,7 +409,7 @@ $$
 s^2 = \frac{\sum_i (x_i - \bar{x})}{n-1}.
 $$
 
-```r
+``` r
 (var.usual <- ss / (n - 1))
 ```
 
@@ -417,7 +417,7 @@ $$
 ## [1] 95.85714
 ```
 
-```r
+``` r
 var(pulse$rate)
 ```
 
@@ -429,7 +429,7 @@ One main take-home of this example is that when we use maximum likelihood to est
 
 For models with 2 parameters, we can visualize the likelihood surface with a contour plot.  To do so, the first step is to define a lattice of values at which we want to calculate the log-likelihood.  We'll do so by defining vectors for $\mu$ and $\sigma^2$:
 
-```r
+``` r
 m.vals <- seq(from = 60, to = 80, by = 0.5)
 v.vals <- seq(from = 70, to = 125, by = 0.5)
 ```
@@ -443,13 +443,13 @@ v.vals <- seq(from = 70, to = 125, by = 0.5)
 
 Now we will define the matrix that will store the values of the log-likelihood for each combination of $\mu$ and $\sigma^2$ in the lattice shown above.
 
-```r
+``` r
 ll.vals <- matrix(nrow = length(m.vals), ncol = length(v.vals))
 ```
 
 Next, we will write a nested loop that cycles through the lattice points, calculates the log-likelihood for each, and stores the value of the log likelihood in the matrix `ll.vals` that we just created.
 
-```r
+``` r
 for (i.m in 1:length(m.vals)) {
   for(i.v in 1:length(v.vals)) {
     ll.vals[i.m, i.v] <- pulse.ll(m = m.vals[i.m], v = v.vals[i.v])
@@ -459,7 +459,7 @@ for (i.m in 1:length(m.vals)) {
 
 Now we will use the `contour` function to build the contour plot, and then add a red dot for the MLE.
 
-```r
+``` r
 contour(x = m.vals, y = v.vals, z = ll.vals, nlevels = 100,
         xlab = expression(mu), ylab = expression(sigma^2))
 
@@ -471,15 +471,13 @@ points(x = pulse.mle$par[1], y = pulse.mle$par[2], col = "red")
 
 ## Tadpole data
 
-Finally, we'll take a look at the data from the functional response experiment of @vonesh2005compensatory, described in section 6.3.1.1 of Bolker's book.  This is another example of using likelihood to estimate parameters in a two-parameter model.  This example differs from the previous two examples because we won't assume that the data constitute a simple random sample from some known distribution like the Gaussian or Poisson distribution.  Instead, we'll build a somewhat more customized model for these data that incorporates some ecological ideas.  This process of building a customized model is more typical of how one would analyze a "real" data set.  We'll start by using the `rm` command to clean up the workspace.
+Finally, we'll take a look at the data from the functional response experiment of @vonesh2005compensatory, described in section 6.3.1.1 of Bolker's book.  This is another example of using likelihood to estimate parameters in a two-parameter model.  This example differs from the previous two examples because we won't assume that the data constitute a simple random sample from some known distribution like the Gaussian or Poisson distribution.  Instead, we'll build a somewhat more customized model for these data that incorporates some ecological ideas.  This process of building a customized model is more typical of how one would analyze a "real" data set. 
 
-```r
-rm(list = ls())
-```
+
 First, we'll read in the data and explore them in various ways.
 
 
-```r
+``` r
 library(emdbook)
 data("ReedfrogFuncresp")
 
@@ -501,7 +499,7 @@ summary(frog)
 ##  Max.   :100.00   Max.   :35.00
 ```
 
-```r
+``` r
 head(frog)
 ```
 
@@ -515,7 +513,7 @@ head(frog)
 ## 6      15      9
 ```
 
-```r
+``` r
 plot(Killed ~ Initial, data = frog)
 ```
 
@@ -525,7 +523,7 @@ Following Bolker, we'll assume that the number of individuals killed takes a bin
 $$
 p_i = \dfrac{a}{1 + a h N_i}.
 $$
-The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  This model is motivated by the so-called "Type II" functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows.  In this case, using the Type II functional curve for these data is a pedagogical simplification; as @vonesh2005compensatory observe, Holling's functional responses give the predation rate when the prey density is constant.  However, this experiment ran for two weeks and prey densities declined over the course of the experiment. A more appropriate analysis, and one that @vonesh2005compensatory pursue in their paper, takes account of the declining prey densities.  For the purposes of this example, though, we'll ignore this aspect of the analysis (as @bolker2008 does) and fit the data assuming that the probability of predation is given by the Type II functional response.
+The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  This model is motivated by the so-called "Type II" functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows.  In this case, using the Type II functional curve for these data is a pedagogical simplification, because as @vonesh2005compensatory observe, prey densities declined over the two weeks of the experiment. A more appropriate analysis, and one that @vonesh2005compensatory pursue in their paper, takes account of the declining prey densities.  For the purposes of this example, though, we'll ignore this aspect of the analysis (as @bolker2008 does) and fit the data assuming that the probability of predation is given by the Type II functional response.
 
 If we write the number of individuals killed in each trial as $Y_i$, The full model can then be written as 
 \begin{align*}
@@ -535,7 +533,7 @@ p_i & = \dfrac{a}{1 + a h N_i}.
 
 We'll first construct the negative log-likelihood function.
 
-```r
+``` r
 # negative log-likelihood, for use with optim
 
 frog.neg.ll <- function(params){
@@ -553,7 +551,7 @@ frog.neg.ll <- function(params){
 
 Now we'll find the MLE using `optim`
 
-```r
+``` r
 (frog.mle <- optim(par = c(0.5, 1/40),
                    fn  = frog.neg.ll))
 ```
@@ -586,7 +584,7 @@ Let's extract the MLEs and add a fitted to our data plot.
 
 We'll plot the data and overlay a fitted line.
 
-```r
+``` r
 a.mle <- frog.mle$par[1]
 h.mle <- frog.mle$par[2]
 
@@ -604,7 +602,7 @@ lines(x = init.values, y = pred.values, col = "red")
 
 Finally, we'll plot the likelihood contours.
 
-```r
+``` r
 # plot negative likelihood contours
 
 a.vals <- seq(from = 0.3, to = 0.75, by = 0.01)
@@ -647,7 +645,7 @@ k^* & = \ln (k). \\
 \end{align*}
 Fitting proceeds in the usual way.  Note that we supply starting values on the transformed scale, and that we invert the transformation before evaluating the likelihood:
 
-```r
+``` r
 logit <- function(p) log(p / (1 - p))
 invLogit <- function(x) exp(x) / (1 + exp(x))
 
@@ -691,7 +689,7 @@ frog.neg.ll <- function(params){
 
 Note that we no longer receive the warnings that we had received previously, because now we are guaranteed that the model will yield probabilities between 0 and 1.  Back-transforming to the original scale recovers the previous MLEs:
 
-```r
+``` r
 (a.mle <- invLogit(frog.mle$par[1]))
 ```
 
@@ -699,7 +697,7 @@ Note that we no longer receive the warnings that we had received previously, bec
 ## [1] 0.5259354
 ```
 
-```r
+``` r
 (h.mle <- exp(frog.mle$par[2]))
 ```
 

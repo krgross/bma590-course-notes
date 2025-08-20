@@ -11,7 +11,7 @@ The methods that we discuss in this chapter allow a flexible specification of ho
 Unfortunately, the bioluminescence data discussed in this chapter violate these assumptions rather severely. We will see right away that the data display the usual non-constant variance that we expect when measuring an ecological abundance, namely, larger responses are also more variable.  In addition, because these data are collected at locations along a transect, they are likely characterized by substantial autocorrelation.  For the sake of illustration, we ignore both the non-constant variance and the autocorrelation in the analyses that follow.  See the discussion of [GAMMs] to learn about coping with autocorrelation in generalized additive models.
 
 
-```r
+``` r
 ## download the data from the book's website
 
 isit <- read.table("data/ISIT.txt", head = T)
@@ -32,7 +32,7 @@ with(st16, plot(sources ~ depth))
 Fit a loess smoother using the factory settings:
 
 
-```r
+``` r
 st16.lo <- loess(sources ~ depth, data = st16)
 summary(st16.lo)
 ```
@@ -58,7 +58,7 @@ summary(st16.lo)
 
 Plot the fit, this takes a little work
 
-```r
+``` r
 depth.vals <- with(st16, seq(from   = min(depth), 
                              to     = max(depth), 
                              length = 100))
@@ -86,7 +86,7 @@ lines(x   = depth.vals,
 
 Examine the residuals:
 
-```r
+``` r
 ## see what the fit returns; maybe the residuals are already there
 
 names(st16.lo)  # they are!
@@ -98,7 +98,7 @@ names(st16.lo)  # they are!
 ## [13] "call"      "terms"     "xnames"    "x"         "y"         "weights"
 ```
 
-```r
+``` r
 plot(st16.lo$residuals ~ st16$depth)
 abline(h = 0, lty = "dotted")
 ```
@@ -108,7 +108,7 @@ abline(h = 0, lty = "dotted")
 Let's look at how changing the span changes the fit.  We'll write a custom function to fit a LOESS curve, and then call the function with various values for the span.
 
 
-```r
+``` r
 PlotLoessFit <- function(x, y, return.fit = FALSE, ...){
   
   # Caluclates a loess fit with the 'loess' function, and makes a plot
@@ -152,19 +152,19 @@ PlotLoessFit <- function(x, y, return.fit = FALSE, ...){
 Now we'll call the function several times, each time chanigng the value of the `span` argument to the `loess` function:
 
 
-```r
+``` r
 PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.5)
 ```
 
 <img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 
-```r
+``` r
 PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.25)
 ```
 
 <img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-2.png" width="672" />
 
-```r
+``` r
 PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.1)
 ```
 
@@ -173,7 +173,7 @@ PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.1)
 Let's try a loess fit with a locally linear regression:
 
 
-```r
+``` r
 PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.25, degree = 1)
 ```
 
@@ -193,7 +193,7 @@ The `s()` component of the model formula designates a spline, and specifies deta
 We'll fit a cubic regression spline with two knots:
 
 
-```r
+``` r
 library(mgcv)
 ```
 
@@ -202,10 +202,10 @@ library(mgcv)
 ```
 
 ```
-## This is mgcv 1.9-0. For overview type 'help("mgcv-package")'.
+## This is mgcv 1.9-3. For overview type 'help("mgcv-package")'.
 ```
 
-```r
+``` r
 st16.rspline <- mgcv::gam(sources ~ s(depth, k = 6, fx = TRUE), data = st16)
 plot(st16.rspline, se = TRUE)
 ```
@@ -216,7 +216,7 @@ Note that the plot includes only the portion of the model attributable to the co
 
 The plot shows only the spline component, which thus does not include the intercept. To visualize the fit, we'll need to do a bit more work.
 
-```r
+``` r
 with(st16, plot(sources ~ depth))  
 
 st16.fit <- predict(st16.rspline, 
@@ -238,7 +238,7 @@ We see that this particular fit is not flexible enough to capture the trend in l
 Let's take a look at the information produced by a call to `summary`:
 
 
-```r
+``` r
 summary(st16.rspline)
 ```
 
@@ -271,7 +271,7 @@ This summary requires a bit more explanation as well.  In this GAM, the spline c
 Now we'll fit and plot a penalized regression spline.  A penalized regression spline is based on a regression spline with a large number of knots, but the fit is obtained using a penalty that penalizes the "wiggliness" of the fit.  When the underlying regression spline is a cubic spline, the wiggliness is defined as the intergral of the squared second derivative of the fit.  The most appropriate value for the penalty is determined by (generalized) cross validation.  In this way, the penalized regression spline automatically determines the appropriate amount of smoothness.  We still have to specify $k$ to make sure that the initial regression spline has enough flexibility.
 
 
-```r
+``` r
 st16.spline <- mgcv::gam(sources ~ s(depth, k = 20), data = st16)
 plot(st16.spline, se = TRUE)  # note that the plot does not include the intercept
 ```
@@ -281,7 +281,7 @@ plot(st16.spline, se = TRUE)  # note that the plot does not include the intercep
 Again, we make a plot that includes both the points and the fit
 
 
-```r
+``` r
 with(st16, plot(sources ~ depth))  
 
 st16.fit <- predict(st16.spline, 
@@ -298,7 +298,7 @@ lines(x = depth.vals, y = st16.fit$fit + qt(0.025, df = 51 - 13.41) * st16.fit$s
 
 Let's ask for a summary:
 
-```r
+``` r
 summary(st16.spline)
 ```
 
@@ -331,7 +331,7 @@ Note the `edf` component in the "Approximate significance of smooth terms" secti
 Find the AIC for the penalized regression spline fit:
 
 
-```r
+``` r
 AIC(st16.spline)
 ```
 
@@ -340,7 +340,7 @@ AIC(st16.spline)
 ```
 Here's a small detail.  Notice that the syntax of the call to `predict` is slightly different when making a prediction for a `loess`  object vs.\ making a prediction for a `gam` object (which the spline fit is).  For a call to `predict` with a `loess` object, the new predictor values can be provided in the form of a vector.  So, we were able to use
 
-```r
+``` r
 depth.vals <- with(st16, seq(from   = min(depth), 
                              to     = max(depth), 
                              length = 100))
@@ -353,7 +353,7 @@ st16.fit <- predict(object  = st16.lo,
 However, for a call to `predict` with a `gam` object, the new predictor values must be provided in the form of a new data frame, with variable names that match the variables in the `gam` model.  So, to get predicted values for the spline fit, we needed to use the more cumbersome
 
 
-```r
+``` r
 depth.vals <- with(st16, seq(from   = min(depth), 
                              to     = max(depth), 
                              length = 100))
@@ -384,7 +384,7 @@ We will illustrate additive modeling using the bird data found in Appendix A of 
 We first read the data and perform some light exploratory analysis and housekeeping.
 
 
-```r
+``` r
 rm(list = ls())
 require(mgcv)
 
@@ -410,7 +410,7 @@ summary(bird)
 ##  Max.   :4426.0   Max.   :1976   Max.   :5.000   Max.   :260.0
 ```
 
-```r
+``` r
 # get rid of the 'Site' variable; it is redundant with the row label
 
 bird <- bird[, -1]
@@ -450,7 +450,7 @@ summary(bird)
 
 Our first attempt at a GAM will use penalized regression splines for all of the continuous predictors in the model.  We will use a linear term for GRAZE because there are too few unique values to support a smooth term:
 
-```r
+``` r
 bird.gam1 <- mgcv::gam(ABUND ~ s(L.AREA, k = 10) + s(L.DIST, k = 10) + s(L.LDIST, k = 10) + s(YR.ISOL, k = 10) + GRAZE + s(ALT, k = 10), data = bird)
 
 summary(bird.gam1)
@@ -488,7 +488,7 @@ summary(bird.gam1)
 
 The output reports the partial regression coefficient for the lone quantitative predictor GRAZE, and approximate significance tests for the smooth terms for each of the other predictors.  We can visualize these smooth terms with a call to `plot`:
 
-```r
+``` r
 plot(bird.gam1)
 ```
 
@@ -496,7 +496,7 @@ plot(bird.gam1)
 
 In the interest of time, we take a casual approach to variable selection here.  We'll drop smooth terms that are clearly not significant to obtain:
 
-```r
+``` r
 bird.gam2 <- mgcv::gam(ABUND ~ s(L.AREA, k = 10) + GRAZE, data = bird)
 summary(bird.gam2)
 ```
@@ -526,7 +526,7 @@ summary(bird.gam2)
 ## GCV = 39.992  Scale est. = 36.932    n = 56
 ```
 
-```r
+``` r
 plot(bird.gam2)
 ```
 
@@ -534,7 +534,7 @@ plot(bird.gam2)
 
 Note that the GRAZE variable is currently treated as a numerical predictor.  We'll try fitting a model with GRAZE as a factor.  First we'll create a new variable that treats GRAZE as a factor.  We'll use the `summary` command to confirm that the new variable fGRAZE is indeed a factor.
 
-```r
+``` r
 bird$fGRAZE <- as.factor(bird$GRAZE)
 summary(bird)
 ```
@@ -558,14 +558,14 @@ summary(bird)
 
 Now we'll proceed to fit the model
 
-```r
+``` r
 bird.gam3 <- gam(ABUND ~ s(L.AREA, k = 10) + fGRAZE, data = bird)
 plot(bird.gam3)
 ```
 
 <img src="04-SmoothRegression_files/figure-html/unnamed-chunk-23-1.png" width="672" />
 
-```r
+``` r
 summary(bird.gam3)
 ```
 
@@ -600,7 +600,7 @@ summary(bird.gam3)
 To formally compare the models with GRAZE as a numerical vs.\ categorical predictor, we'll have to use AIC.  We can't use an $F$-test here because we have used penalized regression splines to capture the effect of L.AREA.  Thus, the models are not nested.  (If we had used regression splines for L.AREA, then the models would have been nested.)  We can extract the AICs for these models by a simple call to the `AIC` function.
 
 
-```r
+``` r
 AIC(bird.gam2)
 ```
 
@@ -608,7 +608,7 @@ AIC(bird.gam2)
 ## [1] 367.1413
 ```
 
-```r
+``` r
 AIC(bird.gam3)
 ```
 
@@ -623,7 +623,7 @@ AIC(bird.gam3)
 <!-- ``` -->
 We can see the contrasts used to incorporate the factor fGRAZE in the model by a call to `contrasts`:
 
-```r
+``` r
 with(bird, contrasts(fGRAZE))
 ```
 
@@ -640,7 +640,7 @@ The output here is somewhat opaque because the levels of fGRAZE are 1, 2, $\ldot
 
 Fit an additive model with only a smooth effect of L.AREA, in order to show residuals vs.\ GRAZE:
 
-```r
+``` r
 bird.gam4 <- gam(ABUND ~ s(L.AREA, k = 10), data = bird)
 
 plot(x = bird$GRAZE, y = bird.gam4$residuals)
@@ -653,7 +653,7 @@ Both the plot and the model output suggest that the effect of grazing is primari
 
 To conclude, we'll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE.  In this case, we have to use regression splines for the smooth effect of L.AREA.  We'll use regression "splines" without any internal knots^[I would have thought that a spline without any internal knots would have been exactly the same as a cubic fit.  However, a cubic fit is slightly different, though not by much.  I can't figure out why.] because the effect of log area seems to be reasonably well captured by a cubic trend anyway:
 
-```r
+``` r
 bird.gam5 <- gam(ABUND ~ s(L.AREA, k = 4, fx = TRUE) + GRAZE, data = bird)
 bird.gam6 <- gam(ABUND ~ s(L.AREA, k = 4, fx = TRUE) + fGRAZE, data = bird)
 

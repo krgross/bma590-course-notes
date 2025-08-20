@@ -9,7 +9,7 @@ Likelihood regions for parameters can be found using upper contour sets of the l
 We'll start by constructing a confidence interval for $\lambda$ with the horse-kick data.
 
 
-```r
+``` r
 horse <- read.table("data/horse.txt", header = TRUE)
 
 horse.neg.ll <- function(my.lambda) {
@@ -35,7 +35,7 @@ plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "negative log likelihood", t
 
 To find an asymptotic confidence interval for $\lambda$ with confidence level $100 \times (1-\alpha)\%$, we want to find all the values of $\lambda$ for which the negative log-likelihood is no greater than $\frac{1}{2}\chi^2_1(1-\alpha)$ larger than the negative log-likelihood at the MLE.^[See section 6.4.1.1 of Bolker to see how this follows from a result about the likelihood ratio.]  By $\chi^2_1(1-\alpha)$, we mean $1-\alpha$ quantile of a $\chi^2_1$ distribution, which can be found with the function `qchisq` in R.  The code below uses the function `uniroot` to find the upper and lower bounds of a 95\% CI for $\lambda$.
 
-```r
+``` r
 cutoff.ll <- horse.neg.ll(0.7) + qchisq(0.95, df = 1) / 2
 
 # recreate the plot and add a line
@@ -45,7 +45,7 @@ abline(h = cutoff.ll, col = "red", lty = "dashed")
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-2-1.png" width="672" />
 
-```r
+``` r
 # use uniroot to find the confidence bounds precisely
 
 my.function <- function(my.lambda){
@@ -73,7 +73,7 @@ my.function <- function(my.lambda){
 ## [1] 6.103516e-05
 ```
 
-```r
+``` r
 (upper <- uniroot(f = my.function, interval = c(0.7, 0.9)))
 ```
 
@@ -97,7 +97,7 @@ my.function <- function(my.lambda){
 As an alternative programming style, we could have defined the objective function on the fly without bothering to create `my.function`.
 
 
-```r
+``` r
 (lower <- uniroot(f = function(x) horse.neg.ll(0.7) + qchisq(0.95, df = 1) / 2 - horse.neg.ll(x) ,
                  interval = c(0.6, 0.7)))
 ```
@@ -122,7 +122,7 @@ As an alternative programming style, we could have defined the objective functio
 Let's recreate the plot and add vertical lines to indicate the confidence interval.
 
 
-```r
+``` r
 plot(ll.vals ~ lambda.vals, xlab = "lambda", ylab = "negative log likelihood", type = "l")
 abline(h = cutoff.ll, col = "red", lty = "dashed")
 abline(v = c(lower$root, upper$root), col = "red")
@@ -130,7 +130,7 @@ abline(v = c(lower$root, upper$root), col = "red")
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-4-1.png" width="672" />
 
-```r
+``` r
 # clean up the workspace
 rm(list = ls())
 ```
@@ -163,7 +163,7 @@ from which the needed result follows.</span>
 With a 2-parameter model, we can plot a confidence region directly.  First some housekeeping to get started:
 
 
-```r
+``` r
 library(emdbook)
 data("ReedfrogFuncresp")
 
@@ -210,7 +210,7 @@ frog.neg.ll <- function(params){
 ## NULL
 ```
 
-```r
+``` r
 a.mle <- frog.mle$par[1]
 h.mle <- frog.mle$par[2]
 
@@ -238,7 +238,7 @@ points(x = a.mle, y = h.mle, col = "red")
 Equipped with the contour plot, graphing the appropriate confidence region is straightforward.
 
 
-```r
+``` r
 cut.off <- frog.neg.ll(c(a.mle, h.mle)) + (1 / 2) * qchisq(.95, df = 2)
 
 # recreate the plot and add a line for the 95% confidence region
@@ -266,7 +266,7 @@ If we're working with the negative log-likelihood instead of the likelihood, we'
 We will illustrate this approach by computing a profile-based confidence interval for the attack rate $a$ in the tadpole data.
 
 
-```r
+``` r
 # profile log-likelihood function for the attack rate a
 
 profile.ll <- function(my.a) {
@@ -298,7 +298,7 @@ plot(x = a.values, y = a.profile, xlab = "a", ylab = "negative log-likelihood", 
 Now we'll follow the same steps as before to compute the profile-based 95% CI.
 
 
-```r
+``` r
 # Now follow the same steps as before to find the profile 95% CI
 
 cut.off <- profile.ll(a.mle) + qchisq(0.95, df = 1) / 2
@@ -324,7 +324,7 @@ cut.off <- profile.ll(a.mle) + qchisq(0.95, df = 1) / 2
 ## [1] 6.103516e-05
 ```
 
-```r
+``` r
 (upper <- uniroot(f = function(x) cut.off - profile.ll(x) ,
                   interval = c(a.mle, 0.8)))
 ```
@@ -346,7 +346,7 @@ cut.off <- profile.ll(a.mle) + qchisq(0.95, df = 1) / 2
 ## [1] 6.103516e-05
 ```
 
-```r
+``` r
 plot(x = a.values, y = a.profile, xlab = "a", ylab = "negative log-likelihood", type = "l")
 abline(v = c(lower$root, upper$root), col = "blue")
 abline(h = cut.off, col = "blue", lty = "dashed")
@@ -371,7 +371,7 @@ We'll first start by revisiting the horse-kick data again.  Of course, with the 
 First some housekeeping to read the data into memory, etc.
 
 
-```r
+``` r
 # clean up
 rm(list = ls())
 
@@ -397,7 +397,7 @@ upper <- uniroot(f = my.function, interval = c(0.7, 0.9))
 
 To proceed with the approximation, we need to calculate the second derivative of the log-likelihood at the MLE.  We'll rely on the `hessian` routine in the `numDeriv` package to calculate this second derivative for us.  However, it's worth noting that we can approximate the second derivative numerically by the method of finite differences. This method only requires to additional evaluations of the likelihood function!
 
-```r
+``` r
 ## this function finds the second derivative at the MLE by finite differences
 
 second.deriv <- function(delta.l) {
@@ -412,7 +412,7 @@ second.deriv <- function(delta.l) {
 ## [1] 400
 ```
 
-```r
+``` r
 # see how the answer changes if we change delta
 second.deriv(1e-05)
 ```
@@ -423,7 +423,7 @@ second.deriv(1e-05)
 
 Let's compare this answer to the answer obtained by `numDeriv::hessian`.
 
-```r
+``` r
 numDeriv::hessian(func = horse.neg.ll, x = 0.7)
 ```
 
@@ -435,7 +435,7 @@ numDeriv::hessian(func = horse.neg.ll, x = 0.7)
 The approximate standard error of $\hat{\lambda}$ is the square root of the inverse of the second derivative of the likelihood function.
 
 
-```r
+``` r
 (lambda.se <- sqrt(1 / horse.D2))
 ```
 
@@ -445,7 +445,7 @@ The approximate standard error of $\hat{\lambda}$ is the square root of the inve
 
 Now we can approximate the 95\% confidence interval by using critical values from a standard normal distribution.
 
-```r
+``` r
 (lower.approx <- 0.7 - qnorm(.975) * lambda.se)
 ```
 
@@ -453,7 +453,7 @@ Now we can approximate the 95\% confidence interval by using critical values fro
 ## [1] 0.6020018
 ```
 
-```r
+``` r
 (upper.approx <- 0.7 + qnorm(.975) * lambda.se)
 ```
 
@@ -463,7 +463,7 @@ Now we can approximate the 95\% confidence interval by using critical values fro
 
 Compare the approximation to the "exact" values
 
-```r
+``` r
 lower$root
 ```
 
@@ -471,7 +471,7 @@ lower$root
 ## [1] 0.6065198
 ```
 
-```r
+``` r
 upper$root
 ```
 
@@ -481,7 +481,7 @@ upper$root
 
 Make a plot
 
-```r
+``` r
 # create a vector of lambda values using the 'seq'uence command
 lambda.vals <- seq(from = 0.5, to = 1.0, by = 0.01)
 
@@ -519,7 +519,7 @@ legend(x = 0.65, y = 326,
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-15-1.png" width="672" />
 
-```r
+``` r
 # clean up
 rm(list = ls())
 ```
@@ -530,7 +530,7 @@ Now, use the quadratic approximation to find standard errors for $\hat{a}$ and $
 
 The first part is preparatory work from old classes.
 
-```r
+``` r
 library(emdbook)
 data("ReedfrogFuncresp")
 
@@ -559,7 +559,7 @@ frog.mle <- optim(par = c(0.5, 1/60),
 ## TRUE): NaNs produced
 ```
 
-```r
+``` r
 (a.mle <- frog.mle$par[1])
 ```
 
@@ -567,7 +567,7 @@ frog.mle <- optim(par = c(0.5, 1/60),
 ## [1] 0.5258557
 ```
 
-```r
+``` r
 (h.mle <- frog.mle$par[2])
 ```
 
@@ -577,7 +577,7 @@ frog.mle <- optim(par = c(0.5, 1/60),
 
 Now find the hessian:
 
-```r
+``` r
 (D2 <- numDeriv::hessian(func = frog.neg.ll, x = c(a.mle, h.mle)))
 ```
 
@@ -589,7 +589,7 @@ Now find the hessian:
 
 The matrix inverse of the hessian is the variance-covariance matrix of the parameters.  Note that R uses the function `solve` to find the inverse of a matrix.
 
-```r
+``` r
 # invert to get var-cov matrix
 (var.matrix <- solve(D2))
 ```
@@ -602,7 +602,7 @@ The matrix inverse of the hessian is the variance-covariance matrix of the param
 
 We can use the handy `cov2cor` function to convert the variance matrix into a correlation matrix:
 
-```r
+``` r
 cov2cor(var.matrix)
 ```
 
@@ -616,7 +616,7 @@ Note the large correlation between $\hat{a}$ and $\hat{h}$.  Compare with Figure
 
 The standard errors of $\hat{a}$ and $\hat{h}$ are the square roots of the diagaonal elements of the variance-covariance matrix.
 
-```r
+``` r
 (a.se <- sqrt(var.matrix[1, 1]))
 ```
 
@@ -624,7 +624,7 @@ The standard errors of $\hat{a}$ and $\hat{h}$ are the square roots of the diaga
 ## [1] 0.07105877
 ```
 
-```r
+``` r
 (h.se <- sqrt(var.matrix[2, 2]))
 ```
 
@@ -635,7 +635,7 @@ Note the large correlation between $\hat{a}$ and $\hat{h}$.
 
 Let's use the (approximate) standard error of $\hat{a}$ to calculate an (approximate) 95\% confidence interval:
 
-```r
+``` r
 (ci.approx <- a.mle + qnorm(c(0.025, .975)) * a.se)
 ```
 
@@ -657,7 +657,7 @@ To illustrate both, we will use the study of cone production by fir trees studie
 First some preparatory work to import and assemble the data:
 
 
-```r
+``` r
 require(emdbook)
 data("FirDBHFec")
 
@@ -682,7 +682,7 @@ summary(fir)
 ##           NA's   :26       NA's   :114
 ```
 
-```r
+``` r
 names(fir) <- c("wave", "dbh", "cones")  # rename the variables
 
 # get rid of the incomplete records
@@ -700,7 +700,7 @@ points(cones ~ dbh, data = subset(fir, wave == "n"))
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 
-```r
+``` r
 # any non-integral responses?
 
 with(fir, table(cones == round(cones)))  # illustrate the use of 'with'
@@ -712,7 +712,7 @@ with(fir, table(cones == round(cones)))  # illustrate the use of 'with'
 ##     6   236
 ```
 
-```r
+``` r
 # round the non-integral values
 fir$cones <- round(fir$cones)
 
@@ -735,7 +735,7 @@ Y & \sim \mbox{NB}(\mu(x), k)
 To head in a slightly different direction from Bolker, we will compare two models.  In the first, or reduced, model the same parameters will prevail for both wave and non-wave populations.  Thus this model has three parameters: $a$, $b$, and $k$.  In the second, or full, model, we will allow the $a$ and $b$ parameters to differ between the wave and non-wave populations.  (We will continue to assume a common $k$ for both population types.)  Using subscripts on $a$ and $b$ to distinguish population types, the full model then has 5 parameters: $a_w$, $a_n$, $b_w$, $b_n$, and $k$.  We'll fit the reduced model first.  To do so, we'll use the `dnbinom` function in R, in which the $k$ parameter is located in the formal argument "size".
 
 
-```r
+``` r
 fir.neg.ll <- function(parms, x, y){
  
   a <- parms[1]
@@ -753,7 +753,7 @@ fir.neg.ll <- function(parms, x, y){
 Note a subtle difference here.  In preparation for fitting this same model to different subsets of the data, the function `fir.neg.ll` has formal arguments that receive the values of the $x$ and $y$ variables.  In the call to `optim`, we can supply those additional values as subsequent arguments in the `optim` function, as illustrated below. 
 
 
-```r
+``` r
 # fit reduced model
 
 (fir.reduced <- optim(f   = fir.neg.ll,
@@ -781,14 +781,14 @@ Note a subtle difference here.  In preparation for fitting this same model to di
 ## NULL
 ```
 
-```r
+``` r
 a.mle <- fir.reduced$par[1]
 b.mle <- fir.reduced$par[2]
 k.mle <- fir.reduced$par[3]
 ```
 Make a plot of the reduced model fit, with both populations pooled together:
 
-```r
+``` r
 dbh.vals <- seq(from = min(fir$dbh), to = max(fir$dbh), length = 100)
 fit.vals <- double(length = length(dbh.vals))
 
@@ -806,7 +806,7 @@ lines(fit.vals ~ dbh.vals, col = "blue")
 
 Now fit the full model with separate values of $a$ and $b$ for each population:
 
-```r
+``` r
 fir.neg.ll.full <- function(parms) {
   
   a.w <- parms[1]
@@ -861,7 +861,7 @@ fir.neg.ll.full <- function(parms) {
 Let's make a plot to show the different fits.
 
 
-```r
+``` r
 a.w.mle <- fir.full$par[1]
 b.w.mle <- fir.full$par[2]
 a.n.mle <- fir.full$par[3]
@@ -908,7 +908,7 @@ Note that to compute the negative log likelihood for the full model, we compute 
 Now conduct the likelihood ratio test:
 
 
-```r
+``` r
 (lrt.stat <- 2 * (fir.reduced$value - fir.full$value))  # compute the likelihood ratio test statistic
 ```
 
@@ -916,7 +916,7 @@ Now conduct the likelihood ratio test:
 ## [1] 0.6762567
 ```
 
-```r
+``` r
 (lrt.pvalue <- pchisq(q = lrt.stat, df = 2, lower.tail = FALSE))  # calculate the p-vlaue
 ```
 
@@ -927,7 +927,7 @@ The LRT suggests that the full model does not provide a significantly better fit
 
 Now compare AIC values for the two models.  Because we have already done the LRT, this AIC comparison is for illustration.
 
-```r
+``` r
 (aic.reduced <- 2 * fir.reduced$value + 2 * 3)
 ```
 
@@ -935,7 +935,7 @@ Now compare AIC values for the two models.  Because we have already done the LRT
 ## [1] 2278.03
 ```
 
-```r
+``` r
 (aic.full    <- 2 * fir.full$value    + 2 * 5)
 ```
 
@@ -943,7 +943,7 @@ Now compare AIC values for the two models.  Because we have already done the LRT
 ## [1] 2281.354
 ```
 
-```r
+``` r
 (delta.aic   <- aic.full - aic.reduced) 
 ```
 
@@ -955,7 +955,7 @@ The reduced model is AIC-best, although the $\Delta AIC$ is only moderately larg
 We can also fit a Poisson model to these data.  Because we have ruled out the need for different models for the two population type, we fit a Poisson model to the data with the two populations pooled together.
 
 
-```r
+``` r
 fir.neg.ll.pois <- function(parms, x, y){
   
   a <- parms[1]
@@ -992,13 +992,13 @@ fir.neg.ll.pois <- function(parms, x, y){
 ## NULL
 ```
 
-```r
+``` r
 a.mle.pois <- fir.pois$par[1]
 b.mle.pois <- fir.pois$par[2]
 ```
 Calculate the AIC for this model:
 
-```r
+``` r
 # calculate AIC
 (aic.pois <- 2 * fir.pois$value + 2 * 2)
 ```
@@ -1010,7 +1010,7 @@ Whoa!  The AIC suggests the negative binomial model is an overwhelmingly better 
 
 Finally, make a plot to compare the two fits:
 
-```r
+``` r
 with(fir, plot(cones ~ dbh))
 
 lines(fit.vals ~ dbh.vals, col = "blue")  # plot the fit from the NegBin model
@@ -1045,7 +1045,7 @@ There are a few occasions in ecology where the overdispersion parameter $k$ has 
 
 Instead of assuming $k$ constant, another equally viable approach might be to assume that $k$ is a linear function of $\mu$.  In other words, We might set $k = \kappa \mu$ for some value of $\kappa$.  In this case, for a given mean $\mu$, the variance would be $\mu + \frac{\mu^2}{\kappa \mu} = \mu \left(1 + \frac{1}{\kappa}\right)$, so that the variance would increase linearly as the mean increases.  We can try fitting this alternative model to the fir tree data, again pooling wave and non-wave populations together.
 
-```r
+``` r
 fir.alt.neg.ll <- function(parms, x, y){
   
   a <- exp(parms[1])
@@ -1083,7 +1083,7 @@ fir.alt.neg.ll <- function(parms, x, y){
 ## NULL
 ```
 
-```r
+``` r
 (a.mle.alt <- exp(fir.alt$par[1]))
 ```
 
@@ -1092,7 +1092,7 @@ fir.alt.neg.ll <- function(parms, x, y){
 ## 0.3648121
 ```
 
-```r
+``` r
 (b.mle.alt <- fir.alt$par[2])
 ```
 
@@ -1101,7 +1101,7 @@ fir.alt.neg.ll <- function(parms, x, y){
 ## 2.243545
 ```
 
-```r
+``` r
 (k.mle.alt <- exp(fir.alt$par[3]))
 ```
 
@@ -1112,7 +1112,7 @@ fir.alt.neg.ll <- function(parms, x, y){
 
 If we compare the fits graphically, the alternative model doesn't generate a dramatically different fit for the relationship between the average cone production and tree size:
 
-```r
+``` r
 fit.vals.alt <- double(length = length(dbh.vals))
 
 for (i in seq(along = dbh.vals)) {
@@ -1130,7 +1130,7 @@ legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alterna
 
 However, the two models imply very different relationships between the variance in cone production and tree size.  Let's look at the implied relationship between the standard deviation of cone production and tree size:
 
-```r
+``` r
 mu.vals <- seq(from = 0, to = max(fit.vals), length = 100)
 
 sd.vals.nb1 <- sqrt(mu.vals + mu.vals ^ 2 / k.mle)
@@ -1145,7 +1145,7 @@ legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alterna
 
 We can calculate the AIC for this alternate parameterization as well:
 
-```r
+``` r
 (aic.alt <- 2 * fir.alt$value + 2 * 3)
 ```
 

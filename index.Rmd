@@ -1,5 +1,5 @@
 --- 
-title: "BMA / ST 590 course notes"
+title: "Applied statistical analysis of non-normal and/or correlated data"
 author: "Kevin Gross"
 date: "`r Sys.Date()`"
 output: 
@@ -15,7 +15,7 @@ documentclass: book
 bibliography: [bma590.bib]
 biblio-style: apalike
 link-citations: yes
-description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023."
+description: "This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology."
 ---
 
 \renewcommand{\Pr}[1]{\mathrm{Pr}\!\left\{#1\right\}}
@@ -198,7 +198,7 @@ Bolker's book illustrates numerical optimization using the `optim` function.  Th
 (horse.mle <- optimize(f = horse.ll, interval = c(0.1, 2), maximum = TRUE))
 ```
 
-The `optimize` function returns a 'list'.  A list is an R object that contains components of different types. The numerically calculated MLE is $\hat{\lambda} \approx 0.7$.  The 'objective' component of \texttt{horse.mle} gives the value of the log-likelihood at that point.
+The `optimize` function returns a 'list'.  A list is an R object that contains components of different types. The numerically calculated MLE is $\hat{\lambda} \approx 0.7$.  The 'objective' component of `horse.mle` gives the value of the log-likelihood at that point.
 
 ## Pulse rate data
 
@@ -223,7 +223,7 @@ pulse.ll <- function(m, v){
   sum(ll.vals)
 }
 ```
-Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.  (It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the {\em invarance property} of MLEs.)
+Note that R's function for the pdf of a normal distribution --- `dnorm` --- is parameterized by the mean and standard deviation (SD) of the normal distribution.  Although it would be just as easy to find the MLE of the standard deviation $\sigma$, for the sake of illustration, we will seek the MLE of the variance, $\sigma^2$.  (It turns out that, if we write the MLE of the standard deviation as $\hat{\sigma}$ and the MLE of the variance as $\hat{\sigma}^2$, then $\hat{\sigma} = \sqrt{\hat{\sigma}^2}$.  This is an example of the *invariance property* of MLEs.)
 
 We can use our function to calculate the likelihood for any choice of mean and variance.  For example, let's try $\mu = 60$ and $\sigma^2 = 100$.
 ```{r}
@@ -306,8 +306,9 @@ points(x = pulse.mle$par[1], y = pulse.mle$par[2], col = "red")
 
 ## Tadpole data
 
-Finally, we'll take a look at the data from the functional response experiment of @vonesh2005compensatory, described in section 6.3.1.1 of Bolker's book.  This is another example of using likelihood to estimate parameters in a two-parameter model.  This example differs from the previous two examples because we won't assume that the data constitute a simple random sample from some known distribution like the Gaussian or Poisson distribution.  Instead, we'll build a somewhat more customized model for these data that incorporates some ecological ideas.  This process of building a customized model is more typical of how one would analyze a "real" data set.  We'll start by using the `rm` command to clean up the workspace.
-```{r}
+Finally, we'll take a look at the data from the functional response experiment of @vonesh2005compensatory, described in section 6.3.1.1 of Bolker's book.  This is another example of using likelihood to estimate parameters in a two-parameter model.  This example differs from the previous two examples because we won't assume that the data constitute a simple random sample from some known distribution like the Gaussian or Poisson distribution.  Instead, we'll build a somewhat more customized model for these data that incorporates some ecological ideas.  This process of building a customized model is more typical of how one would analyze a "real" data set. 
+
+```{r echo = FALSE}
 rm(list = ls())
 ```
 First, we'll read in the data and explore them in various ways.
@@ -331,7 +332,7 @@ Following Bolker, we'll assume that the number of individuals killed takes a bin
 $$
 p_i = \dfrac{a}{1 + a h N_i}.
 $$
-The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  This model is motivated by the so-called "Type II" functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows.  In this case, using the Type II functional curve for these data is a pedagogical simplification; as @vonesh2005compensatory observe, Holling's functional responses give the predation rate when the prey density is constant.  However, this experiment ran for two weeks and prey densities declined over the course of the experiment. A more appropriate analysis, and one that @vonesh2005compensatory pursue in their paper, takes account of the declining prey densities.  For the purposes of this example, though, we'll ignore this aspect of the analysis (as @bolker2008 does) and fit the data assuming that the probability of predation is given by the Type II functional response.
+The two parameters to estimate are $a$, which we interpret as the attack rate when the prey density is low, and $h$, which is the handling time.  This model is motivated by the so-called "Type II" functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows.  In this case, using the Type II functional curve for these data is a pedagogical simplification, because as @vonesh2005compensatory observe, prey densities declined over the two weeks of the experiment. A more appropriate analysis, and one that @vonesh2005compensatory pursue in their paper, takes account of the declining prey densities.  For the purposes of this example, though, we'll ignore this aspect of the analysis (as @bolker2008 does) and fit the data assuming that the probability of predation is given by the Type II functional response.
 
 If we write the number of individuals killed in each trial as $Y_i$, The full model can then be written as 
 \begin{align*}

@@ -10,7 +10,7 @@ We will illustrate the basic ideas of hierarchical models with the `Dyestuff` da
 
 Preparatory work:
 
-```r
+``` r
 require(lme4)
 ```
 
@@ -22,7 +22,7 @@ require(lme4)
 ## Loading required package: Matrix
 ```
 
-```r
+``` r
 data(Dyestuff)
 summary(Dyestuff)
 ```
@@ -37,7 +37,7 @@ summary(Dyestuff)
 ##  F:5   Max.   :1635
 ```
 
-```r
+``` r
 with(Dyestuff, stripchart(Yield ~ Batch, pch = 16))
 ```
 
@@ -50,7 +50,7 @@ As a starting point, we will fit the usual one-factor ANOVA model to these data.
 y_{ij} & \sim \mathcal{N}(\mu_i, \sigma^2)
 \end{align}
 
-```r
+``` r
 fm0 <- lm(Yield ~ 1, data = Dyestuff)          # model with common mean
 fm1 <- lm(Yield ~ Batch - 1, data = Dyestuff)  # mean varies by group
 anova(fm0, fm1)  # usual F-test for differences among group means
@@ -68,7 +68,7 @@ anova(fm0, fm1)  # usual F-test for differences among group means
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
-```r
+``` r
 summary(fm1)  # eliminating the intercept gives sample means for each group
 ```
 
@@ -104,7 +104,7 @@ y_{ij} & \sim \mathcal{N}(\mu_i, \sigma^2) \\
 \end{align}
 
 
-```r
+``` r
 require(nlme)
 ```
 
@@ -123,7 +123,7 @@ require(nlme)
 ##     lmList
 ```
 
-```r
+``` r
 fm2 <- gls(Yield ~ 1, data = Dyestuff, correlation = corCompSymm(form = ~ 1 | Batch))
 summary(fm2)
 ```
@@ -162,7 +162,7 @@ B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma_B^2).
 \end{align}
 
 
-```r
+``` r
 fm3 <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
 summary(fm3)
 ```
@@ -191,7 +191,7 @@ summary(fm3)
 
 The estimate of the overall mean is the same as it is in the GLS fit.  Note also that we can recover the estimate of the within-batch correlation from the estimates of the variances of the random effects:
 
-```r
+``` r
 var.B   <- 1764
 var.eps <- 2451
 var.B / (var.B + var.eps)
@@ -202,7 +202,7 @@ var.B / (var.B + var.eps)
 ```
 To obtain the conditional modes (BLUPs) of the batch-level random effect, we can use the command `ranef`:
 
-```r
+``` r
 ranef(fm3)
 ```
 
@@ -220,7 +220,7 @@ ranef(fm3)
 ```
 The conditional modes given here correspond to the differences between the mean for each batch and the overall mean ($\mu$).   To convert these to best guesses for the mean of each batch, we have to the overall mean back.  This can be done by using the command `fixef` to extract the lone fixed-effect estimate from the model:
 
-```r
+``` r
 (batch.conditional.modes <- (fixef(fm3) + ranef(fm3)$Batch$`(Intercept)`))
 ```
 
@@ -231,7 +231,7 @@ The conditional modes given here correspond to the differences between the mean 
 It is informative to compare the conditional models for each batch to the sample means.  We can calculate the sample means with the `tapply` function
 
 
-```r
+``` r
 (batch.means <- with(Dyestuff, tapply(Yield, Batch, mean)))
 ```
 
@@ -243,7 +243,7 @@ It is informative to compare the conditional models for each batch to the sample
 These are the same as the LS estimates of the batch-specific means in the ANOVA model, `fm1`.  Now plot the sample means against the conditional modes:
 
 
-```r
+``` r
 cbind(batch.means, batch.conditional.modes)
 ```
 
@@ -258,7 +258,7 @@ cbind(batch.means, batch.conditional.modes)
 ```
 
 
-```r
+``` r
 plot(x    = batch.means, 
      y    = batch.conditional.modes, 
      xlim = range(batch.means), 
@@ -277,7 +277,7 @@ The conditional modes are "shrunken" towards the global mean relative to the sam
 To conduct inferences about the parameters in the hierarchical model, `lme4::lmer` offers likelihood profiling. This is the same idea that we encountered when we were using the likelihood to calculate profile-based confidence intervals earlier in the course.  `lme4::lmer` does all its profiling on the ML fit, so we begin by refitting our hierarchical model using ML.  To do so, set the optional argument `REML` to `FALSE`.
 
 
-```r
+``` r
 fm3ML <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff, REML = FALSE)
 summary(fm3ML)
 ```
@@ -287,8 +287,8 @@ summary(fm3ML)
 ## Formula: Yield ~ 1 + (1 | Batch)
 ##    Data: Dyestuff
 ## 
-##      AIC      BIC   logLik deviance df.resid 
-##    333.3    337.5   -163.7    327.3       27 
+##       AIC       BIC    logLik -2*log(L)  df.resid 
+##     333.3     337.5    -163.7     327.3        27 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
@@ -308,7 +308,7 @@ summary(fm3ML)
 Switching to ML has decreased our estimate of the batch-level variance, and decreased it by quite a bit.  To construct profile-based intervals, we use the `lme4::profile` function.  We will use the `xyplot` function from the `lattice` package to display the profiles.
 
 
-```r
+``` r
 pr <- profile(fm3ML)
 lattice::xyplot(pr)
 ```
@@ -321,7 +321,7 @@ Within each panel, the values plotted on the vertical axis are the signed square
 
 I do not know how widely used zeta-plots are.  They may be more common in other realms of science, although I have never encountered them outside `lme4`.  Basically, they are a visualization of profile-likelihood based confidence intervals.  The vertical lines in each panel give the limits of (working from the inside out) 50\%, 80\%, 90\%, 95\%, and 99\% confidence intervals for each parameter.  We can also extract these confidence limits using the `confint` function.  Below, we show 95\% confidence intervals; of course, one can change the confidence level as needed.
 
-```r
+``` r
 confint(pr, level = .95)
 ```
 
@@ -336,7 +336,7 @@ So, a 95\% confidence interval for $\mu$ ranges from 1486 to 1569.
 
 Here is a bit more about the logic behind zeta plots (feel free to skip this paragraph if you wish).  Recall that negative log-likelihood profiles are convex and approximately quadratic.  Plotting the LRT statistic instead of the likelihood itself has the effect of placing the nadir of these curves at 0, instead of at the value of the negative log-likelihood.  Taking the square root of the LRT statistic converts a quadratic curve (a u-shape) into a linear one (a v-shape).  We can see this v-shape by using the optional argument `absVal = TRUE`:
 
-```r
+``` r
 lattice::xyplot(pr, absVal = TRUE)
 ```
 
@@ -346,7 +346,7 @@ The purpose of using a signed square root is to turn these V-shaped plots into s
 
 (Start reading again if you skipped the above detail).  There is an interesting detail to the zeta-plots.  Consider the zeta-plot for $\sigma_1$ (the standard deviation of the batch-level random effects), and try to find the lower limit of a 99\% confidence interval.  You'll notice that the zeta-plot hits 0 (the lowest possible value for a standard deviation) before the interval is completed.  Thus, the lower limit of this interval is 0:
 
-```r
+``` r
 confint(pr, level = 0.99)
 ```
 
@@ -361,7 +361,7 @@ Although we are not much in the habit of conducting hypothesis tests in this cou
 
 We can also obtain bivariate confidence regions from the profile likelihood using the `lattice::splom` command.
 
-```r
+``` r
 lattice::splom(pr)
 ```
 
@@ -372,7 +372,7 @@ Panels above the diagonal show bivariate, profile-based confidence regions for e
 There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters.  Famously, `lme4::lmer` does not provide degrees of freedom for the estimates of the fixed effects.  The package `lmerTest` uses the Satterthwaite approximation to estimate these df.
 
 
-```r
+``` r
 require(lmerTest)
 ```
 
@@ -397,7 +397,7 @@ require(lmerTest)
 ##     step
 ```
 
-```r
+``` r
 fm5 <- lmerTest::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
 summary(fm5)
 ```
@@ -430,7 +430,7 @@ summary(fm5)
 
 Equipped with this information, we could construct a 95\% confidence interval for the overall mean as
 
-```r
+``` r
 1527.5 + 19.38 *  qt(c(0.025, 0.975), df = 5)
 ```
 
@@ -443,7 +443,7 @@ Compare this interval with the profile interval generated by `lme4::profile`.
 Finally, we can also obtain prediction intervals on the conditional modes of the random effects by using the `condVar = TRUE` option in a call to `ranef`.  We illustrate below, and direct the output to `lattice::dotplot` for visualization.  Each line below shows a 95\% prediction interval for a conditional mode.  When there are many levels of the random effect, @bates2010lme4 recommends using `lattice::qqmath` instead of `lattice::dotplot`.
 
 
-```r
+``` r
 lattice::dotplot(ranef(fm3, condVar = TRUE))
 ```
 
@@ -471,7 +471,7 @@ we emphasize that the distribution of the data depends in part on the latent var
 To complete the Bayesian specification, we need to place priors on our three parameters: $\mu$, $\sigma^2_B$, and $\sigma^2_\varepsilon$.  In the absence of any information, we might choose a vague normal prior for $\mu$, and vague gamma priors for $1/\sigma^2_B$ and $1/\sigma^2_\varepsilon$.  The following `R2Jags` code implements such a model.
 
 
-```r
+``` r
 require(R2jags)
 ```
 
@@ -506,7 +506,7 @@ require(R2jags)
 ##     traceplot
 ```
 
-```r
+``` r
 dyestuff.model <- function() {
   
   ## likelihood
@@ -558,7 +558,7 @@ jagsfit <- jags(data               = jags.data,
 
 The code above requires a way to associate each observation with the batch from which the observation was drawn.  We accomplish this by creating the variable `batch` that associates each observation with the numerical index of the batch.  (That is, batch "A" is associated with the index 1, etc.)  In the code, this happens with the line
 
-```r
+``` r
 batch = as.numeric(Dyestuff$Batch)
 ```
 
@@ -568,44 +568,44 @@ Note also that we have only asked for the posterior draws for the latent means o
 
 Let's have a look at the output:
 
-```r
+``` r
 print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpeICduk/model2a586c2a15d4.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpKqmBc4/model387c1f604b48", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved
+##  n.sims = 3000 iterations saved. Running time = 0.54 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.362  22.375 1471.329 1500.347 1514.592 1527.349 1551.127 1.008
-## B[2]     1527.140  21.282 1488.362 1515.118 1527.513 1539.242 1565.028 1.008
-## mu       1525.971  23.850 1481.395 1514.107 1526.465 1538.276 1569.052 1.006
-## sdB        38.744  26.358    0.269   23.345   36.521   51.151  101.022 1.002
-## sd_eps     54.105  12.349   39.388   47.081   52.538   59.337   75.857 1.001
-## deviance  323.591   7.099  314.873  318.505  321.822  327.461  337.074 1.001
+## B[1]     1513.191  20.679 1470.083 1499.791 1513.943 1527.456 1552.320 1.001
+## B[2]     1528.043  19.201 1488.647 1516.093 1528.416 1540.146 1566.297 1.001
+## mu       1526.597  21.848 1481.731 1515.002 1527.347 1538.398 1569.707 1.007
+## sdB        39.674  27.039    0.322   23.495   37.059   51.440  104.668 1.003
+## sd_eps     53.756   9.208   39.676   47.069   52.263   59.236   75.897 1.001
+## deviance  323.265   6.298  314.782  318.381  321.568  327.403  336.265 1.002
 ##          n.eff
 ## B[1]      3000
-## B[2]      1500
-## mu        3000
-## sdB       3000
+## B[2]      3000
+## mu         780
+## sdB       1100
 ## sd_eps    3000
-## deviance  3000
+## deviance  1400
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 25.2 and DIC = 348.8
+## DIC info (using the rule: pV = var(deviance)/2)
+## pV = 19.8 and DIC = 343.1
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
-```r
+``` r
 traceplot(jagsfit)  
 ```
 
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-1.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-2.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-3.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-4.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-5.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-6.png" width="672" />
 
-```r
+``` r
 require(lattice)
 ```
 
@@ -613,7 +613,7 @@ require(lattice)
 ## Loading required package: lattice
 ```
 
-```r
+``` r
 jagsfit.mcmc <- as.mcmc(jagsfit)
 densityplot(jagsfit.mcmc)
 ```
@@ -629,7 +629,7 @@ One especially appealing aspect of analyzing this model from a Bayesian perspect
 The hierarchical model formulation, regardless of whether analyzed from a frequentist or Bayesian perspective, is just a model.  All models are wrong, but some models are useful.  One can encounter grouped data where the hierarchical formulation is not useful.  To illustrate, we consider the `Dyestuff2` data provided in `lme4`.  These are synthetic (fake) data that have been created by Box & Tiao (1973) for the sake of illustration.  The Dyestuff2 data have the same structure as the original Dyestuff data, that is, 5 observations from each of 6 batches.
 
 
-```r
+``` r
 data(Dyestuff2)
 summary(Dyestuff2)
 ```
@@ -644,7 +644,7 @@ summary(Dyestuff2)
 ##  F:5   Max.   :13.434
 ```
 
-```r
+``` r
 with(Dyestuff2, stripchart(Yield ~ Batch, pch = 16))
 ```
 
@@ -653,7 +653,7 @@ with(Dyestuff2, stripchart(Yield ~ Batch, pch = 16))
 We'll begin by fitting a GLS model that includes a within-batch correlation:
 
 
-```r
+``` r
 fm6 <- gls(Yield ~ 1, data = Dyestuff2, correlation = corCompSymm(form = ~ 1 | Batch))
 summary(fm6)
 ```
@@ -687,7 +687,7 @@ Notice that the within-batch correlation is negative.  What does this imply abou
 
 Let's have a look at a hierarchical model, fit with `lmer`.
 
-```r
+``` r
 fm6 <- lme4::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff2)
 ```
 
@@ -695,7 +695,7 @@ fm6 <- lme4::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff2)
 ## boundary (singular) fit: see help('isSingular')
 ```
 
-```r
+``` r
 summary(fm6)
 ```
 
@@ -746,7 +746,7 @@ We are going to analyze these data exhaustively, considering various approaches 
 Like all data from Zuur et al. (2009), the data are available for download from the book's associated webpage.  We will read in the data and do some housekeeping first.
 
 
-```r
+``` r
 require(lme4)
 require(lmerTest)
 
@@ -757,7 +757,7 @@ with(rikz, plot(Richness ~ NAP, pch = Beach))  # raw response; note the non-cons
 
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-24-1.png" width="672" />
 
-```r
+``` r
 with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach))  # transformation stabilizes the variance
 legend("topright", leg = 1:9, pch = 1:9)
 ```
@@ -765,7 +765,7 @@ legend("topright", leg = 1:9, pch = 1:9)
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-24-2.png" width="672" />
 
 
-```r
+``` r
 # change the Beach variable to a factor
 # would have been better to code the beaches as b1, b2, ...
 
@@ -800,7 +800,7 @@ In any case, the model states that each observation is drawn independently from 
 
 Let's fit the model and see what it yields.  
 
-```r
+``` r
 fm0 <- lm(sqrt(Richness) ~ fBeach + NAP, data = rikz)
 summary(fm0)
 ```
@@ -836,7 +836,7 @@ summary(fm0)
 
 This analysis gives us an estimate for the common slope (-0.664) and a basis to draw inferences about this slope.  For example, we can get a confidence interval in the usual way:
 
-```r
+``` r
 confint(fm0, level = 0.95)
 ```
 
@@ -856,7 +856,7 @@ confint(fm0, level = 0.95)
 
 We can also use the `anova` command to test for whether the differences among the beaches are statistically significant, after accounting for the effect of NAP.  Note that such a test makes sense in this case, because we have used fixed-effects to capture the differences among the beaches, and thus can carry out inference about these 9 beaches specifically.
 
-```r
+``` r
 anova(fm0)
 ```
 
@@ -875,7 +875,7 @@ anova(fm0)
 Finally, we can visualize the model by plotting each of the beach-specific fits.  We'll use the R trick of re-fitting the model without the intercept to obtain the beach-specific intercepts directly as model parameters, instead of having to back out those intercepts from the contrasts.  
 
 
-```r
+``` r
 fm0.temp <- lm(sqrt(Richness) ~ fBeach + NAP - 1, data = rikz)
 coef(fm0.temp)
 ```
@@ -891,7 +891,7 @@ For later comparison, we'll make a note of the intercept for beach 1, which in t
 
 Now we'll proceed to make the plot.
 
-```r
+``` r
 with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach, main = "Fixed-effects fit, additive model"))
 legend("topright", leg = 1:9, pch = 1:9)
 
@@ -914,7 +914,7 @@ y_{ij} & \sim \mathcal{N}(a_i + b_i x_{ij}, \sigma_\varepsilon^2).
 
 We fit this model in the usual way:
 
-```r
+``` r
 fm0b <- lm(sqrt(Richness) ~ fBeach * NAP, data = rikz)
 summary(fm0b)
 ```
@@ -958,7 +958,7 @@ summary(fm0b)
 
 We can test for whether the differences among the slopes for the beaches are statistically significant with the usual $F$-test:
 
-```r
+``` r
 anova(fm0, fm0b)
 ```
 
@@ -976,7 +976,7 @@ anova(fm0, fm0b)
 
 We'll save the model of the beach-specific intercepts and slopes, and use them to visualize the fit.  We'll do the usual trick of refitting the model without the intercept to make it easy to extract the beach-level intercepts and slopes
 
-```r
+``` r
 fm0b.temp <- lm(sqrt(Richness) ~ fBeach + fBeach:NAP - 1, data = rikz)
 (fixed.params <- data.frame(beach     = 1:9,
                             intercept = coef(fm0b.temp)[1:9], 
@@ -996,7 +996,7 @@ fm0b.temp <- lm(sqrt(Richness) ~ fBeach + fBeach:NAP - 1, data = rikz)
 ## fBeach9     9  2.429231 -1.06355553
 ```
 
-```r
+``` r
 row.names(fixed.params) <- NULL
 
 with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach, main = "Fixed-effects fit, with beach-NAP interaction"))
@@ -1023,7 +1023,7 @@ Here, the $A_i$'s are the random beach-level intercept.
 
 We'll fit the model using `lmerTest::lmer`.
 
-```r
+``` r
 fm1 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 | fBeach), data = rikz)
 
 summary(fm1)
@@ -1064,7 +1064,7 @@ Note that the random-intercepts model includes the parameter $a$, which is the a
 We can go further by finding the conditional modes of the intercepts for each beach.  
 
 
-```r
+``` r
 (beach.conditional.modes <- (fixef(fm1)["(Intercept)"] + ranef(fm1)$fBeach$`(Intercept)`))
 ```
 
@@ -1078,7 +1078,7 @@ In particular, note the conditional mode for the intercept for beach 1, which is
 To visualize the model, we will again make a plot that shows the conditional modes of the fit for each beach.  We can also add a line for the average relationship across the population of beaches.
 
 
-```r
+``` r
 with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach, main = "Random intercepts fit"))
 legend("topright", leg = 1:9, pch = 1:9)
 
@@ -1106,7 +1106,7 @@ y_{ij} & \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
 
 To fit the model using `lmerTest::lmer`, we use
 
-```r
+``` r
 fm2 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach), data = rikz)  
 summary(fm2)
 ```
@@ -1144,7 +1144,7 @@ summary(fm2)
 
 Because this model nests the random-intercept model, we can compare the two directly with a LRT:
 
-```r
+``` r
 anova(fm1, fm2)
 ```
 
@@ -1157,9 +1157,9 @@ anova(fm1, fm2)
 ## Models:
 ## fm1: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
 ## fm2: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
-##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)
-## fm1    4 100.83 108.06 -46.416   92.833                     
-## fm2    6 101.26 112.10 -44.630   89.259 3.5736  2     0.1675
+##     npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(>Chisq)
+## fm1    4 100.83 108.06 -46.416    92.833                     
+## fm2    6 101.26 112.10 -44.630    89.259 3.5736  2     0.1675
 ```
 
 Interestingly, both the LRT and ANOVA suggest that the random-coefficients model does not provide a statistically significant improvement over the random-intercepts model.  In other words, we cannot reject the null hypothesis that $\sigma_B^2 = 0$.
@@ -1173,7 +1173,7 @@ B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B).
 
 To fit it in R, we use
 
-```r
+``` r
 fm3 <- lmerTest::lmer(sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach), data = rikz)
 summary(fm3)
 ```
@@ -1211,7 +1211,7 @@ summary(fm3)
 
 Because each of these random-effect models are nested within one another, we can compare them directly with LRTs:
 
-```r
+``` r
 anova(fm1, fm3, fm2)
 ```
 
@@ -1225,10 +1225,10 @@ anova(fm1, fm3, fm2)
 ## fm1: sqrt(Richness) ~ 1 + NAP + (1 | fBeach)
 ## fm3: sqrt(Richness) ~ 1 + NAP + (1 | fBeach) + (0 + NAP | fBeach)
 ## fm2: sqrt(Richness) ~ 1 + NAP + (1 + NAP | fBeach)
-##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)
-## fm1    4 100.83 108.06 -46.416   92.833                     
-## fm3    5 100.16 109.19 -45.078   90.156 2.6767  1     0.1018
-## fm2    6 101.26 112.10 -44.630   89.259 0.8969  1     0.3436
+##     npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(>Chisq)
+## fm1    4 100.83 108.06 -46.416    92.833                     
+## fm3    5 100.16 109.19 -45.078    90.156 2.6767  1     0.1018
+## fm2    6 101.26 112.10 -44.630    89.259 0.8969  1     0.3436
 ```
 
 Here we see a conflict between AIC and the LRT.  AIC favors the model with random but independent intercepts and slopes, whereas the LRT continues to suggest that we cannot reject the null hypothesis that $\sigma_B^2 = 0$.
@@ -1236,7 +1236,7 @@ Here we see a conflict between AIC and the LRT.  AIC favors the model with rando
 Finally, let's compare the conditional modes for the intercepts and slopes from model `fm3` with the beach-specific intercept and slopes from the fixed-effects model.
 
 
-```r
+``` r
 (conditional.modes  <- data.frame(beach     = 1:9,
                                   intercept = fixef(fm3)["(Intercept)"] + ranef(fm3)$fBeach$`(Intercept)`, 
                                   slope     = fixef(fm3)["NAP"] + ranef(fm3)$fBeach$`NAP`))
@@ -1257,7 +1257,7 @@ Finally, let's compare the conditional modes for the intercepts and slopes from 
 
 Let's make a scatterplot that compares the fixed-effect estimates to the conditional modes.
 
-```r
+``` r
 par(mfrow = c(1, 2))
 with(fixed.params, plot(slope ~ intercept, main = "fixed-effects fit", pch = 1:9))
 with(fixed.params, plot(slope ~ intercept, main = "conditional modes", type = "n"))
@@ -1270,7 +1270,7 @@ points(fixef(fm3)[1], fixef(fm3)[2], pch = 16, col = "red", cex = 2)
 Note, again, that the conditional modes of the intercepts and slopes have shrunk (sometimes substantially) back towards the population means of each.  The population means of the intercept and slope are shown by the red dot on the right-hand panel.  Finally, we visualize the model by plotting beach-specific "fits":
 
 
-```r
+``` r
 par(mfrow = c(1, 1))
 with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach, main = "Random-coefficients fit"))
 legend("topright", leg = 1:9, pch = 1:9)
@@ -1290,7 +1290,7 @@ abline(a = fixef(fm3)[1], b = fixef(fm3)[2], col = "red", lwd = 2)
 Finally, we consider the effect of exposure, a beach-level covariate.  Exposure is coded in the data set as a numerical predictor.  However, there are only three unique values: 8, 10, and 11 (and only one beach has exposure level 8).  We will follow Zuur et al.\ (2009) in treating exposure as a binary predictor, grouping the beaches with exposure levels 8 and 10 together as low exposure beaches.
 
 
-```r
+``` r
 # create an 'exposure' factor, with two levels: low and high
 
 with(rikz, table(fBeach, Exposure))
@@ -1310,7 +1310,7 @@ with(rikz, table(fBeach, Exposure))
 ##      9 0  5  0
 ```
 
-```r
+``` r
 rikz$fExp <- rikz$Exposure  # make a new variable so that we can leave the original alone
 rikz$fExp[rikz$Exposure == 8] <- 10  # assign a value of 10 to the lone beach with exposure = 8
 rikz$fExp <- as.factor(rikz$fExp)  # make the new variable into a factor
@@ -1356,7 +1356,7 @@ A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A).
 \end{align*}
 We fit this model in R with the code
 
-```r
+``` r
 fm4 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 | fBeach), data = rikz) 
 summary(fm4)
 ```
@@ -1403,7 +1403,7 @@ B_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(b_i, \sigma^2_B) .
 \end{align*}
 We fit this model with the code
 
-```r
+``` r
 fm5 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 | fBeach) + (0 + NAP | fBeach),
                       data = rikz) 
 summary(fm5)
@@ -1452,7 +1452,7 @@ y_{ijk} & \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
 
 We fit the model in R as follows
 
-```r
+``` r
 fm6 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 + NAP| fBeach), data = rikz)  
 summary(fm6)
 ```
@@ -1494,7 +1494,7 @@ summary(fm6)
 
 Because these models form a series of nested models, we can use LRTs or AIC to find the most parsimonious fit.
 
-```r
+``` r
 anova(fm4, fm5, fm6)
 ```
 
@@ -1508,16 +1508,16 @@ anova(fm4, fm5, fm6)
 ## fm4: sqrt(Richness) ~ fExp * NAP + (1 | fBeach)
 ## fm5: sqrt(Richness) ~ fExp * NAP + (1 | fBeach) + (0 + NAP | fBeach)
 ## fm6: sqrt(Richness) ~ fExp * NAP + (1 + NAP | fBeach)
-##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)
-## fm4    6 94.275 105.11 -41.137   82.275                     
-## fm5    7 94.418 107.06 -40.209   80.418 1.8565  1     0.1730
-## fm6    8 96.373 110.83 -40.186   80.373 0.0454  1     0.8312
+##     npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(>Chisq)
+## fm4    6 94.275 105.11 -41.137    82.275                     
+## fm5    7 94.418 107.06 -40.209    80.418 1.8565  1     0.1730
+## fm6    8 96.373 110.83 -40.186    80.373 0.0454  1     0.8312
 ```
 
 Both AIC and the LRT suggest that the model with only random intercepts provides the most parsimonious fit.  Let's take a closer look at that fit
 
 
-```r
+``` r
 summary(fm4)
 ```
 
@@ -1560,7 +1560,7 @@ We can analyze the fixed-effects as follows.  Based on the contrasts R has used,
 
 We'll visualize the model with a plot.  
 
-```r
+``` r
 a0 <- fixef(fm4)[1]  # mean intercept for low-exposure beaches
 b0 <- fixef(fm4)[2]  # mean slope for low-exposure beaches
 a1 <- fixef(fm4)[3]  # difference in mean intercepts for high vs low 
@@ -1666,7 +1666,7 @@ A major advantage of the `lme4::lmer` software is that it allows nested and cros
 
 Let's first take a look at the data.
 
-```r
+``` r
 rm(list = ls())
 
 library(MASS)
@@ -1700,7 +1700,7 @@ W_{ik}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W).
 Here, $\mu_{ij}$ is the average response for the combination of variety $i$ and manure treatment $j$; the $B_k$ are the random effects for the blocks, the $W_{ik}$ are the whole-plot errors, and the $\varepsilon_{ijk}$ are the split-plot (observation-level) errors.  We proceed to fit the model using `lmerTest::lmer`.   A key to the coding here is to notice that each combination of block and variety uniquely specifies one of the 18 whole plots.  (In other words, variety is not replicated within the blocks.)  Therefore, we can code the whole-plot random effect as `(1 | B : V)`, which creats a random effect for each unique combination of block and variety.  The rest of the model coding is straightforward.
 
 
-```r
+``` r
 fm1 <- lmerTest::lmer(Y ~ V * N + (1 | B) + (1 | B : V), data = oats)
 
 # for nested random effects, lmer provides the coding shortcut  
@@ -1773,7 +1773,7 @@ summary(fm1)
 ## VVctry:N0.6  0.500   0.500
 ```
 
-```r
+``` r
 anova(fm1)
 ```
 
@@ -1782,7 +1782,7 @@ anova(fm1)
 ##      Sum Sq Mean Sq NumDF DenDF F value    Pr(>F)    
 ## V     526.1   263.0     2    10  1.4853    0.2724    
 ## N   20020.5  6673.5     3    45 37.6857 2.458e-12 ***
-## V:N   321.8    53.6     6    45  0.3028    0.9322    
+## V:N   321.7    53.6     6    45  0.3028    0.9322    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -1791,7 +1791,7 @@ We proceed to analyze the fixed effects in the usual fashion, noting first that 
 
 Note that it would be incorrect to have coded the model as
 
-```r
+``` r
 fm1.wrong <- lmerTest::lmer(Y ~ V * N + (1 | B) + (1 | V), data = oats)
 ```
 as this would have treated the random effects for block and variety as crossed, not nested.
@@ -1799,7 +1799,7 @@ as this would have treated the random effects for block and variety as crossed, 
 To complete the analysis, we should notice that the levels of the nitrogen treatment correspond to equally spaced values of a numerical covariate.  We can thus extract the polynomial trends by assigning polynomial contrasts to the nitrogen treatment.
 
 
-```r
+``` r
 contrasts(oats$N) <- contr.poly(n = 4)
 fm1 <- lmerTest::lmer(Y ~ V * N +  (1 | B) + (1 | B : V), data = oats)
 
@@ -1871,7 +1871,7 @@ summary(fm1)
 
 We see that only the linear trend of the nitrogen treatment is significant.  Let's make a quick plot to visualize this effect.
 
-```r
+``` r
 with(oats, plot(Y ~ N))
 ```
 
@@ -1891,7 +1891,7 @@ B_j  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 In this model, $\mu$ is the average score, $A_i$ are the player-level random effects, $B_j$ are the day-level random effects, and $\varepsilon_{ij}$ are the observation-level errors.  Note that because each player played at most once in each day, there is no possibility to separate a possible player-by-day interaction (also a random effect) from the observation-level error.  If the players had played multiple rounds in a given day, we could have tried to separate the player-by-day random effect from the observation-level error.  We fit the model in `lmerTest::lmer`.
 
 
-```r
+``` r
 rm(list = ls())
 golf <- read.table("data/golf.txt", head = T)
 
@@ -1929,7 +1929,7 @@ summary(fm1)  # comparison of the std devs of the random effects is interesting
 It is interesting to compare the standard deviations of the random effects.  It is also interesting to use the profile function to see the asymmetry in the confidence intervals for these standard deviations.
 
 
-```r
+``` r
 pp.golf <- profile(fm1)
 
 confint(pp.golf)
@@ -1943,7 +1943,7 @@ confint(pp.golf)
 ## (Intercept) 72.2434040 76.265786
 ```
 
-```r
+``` r
 lattice::xyplot(pp.golf, absVal = TRUE)
 ```
 
@@ -1952,7 +1952,7 @@ lattice::xyplot(pp.golf, absVal = TRUE)
 
 We can also extract the conditional modes for the players and rounds.
 
-```r
+``` r
 player.modes <- ranef(fm1)$player
 head(player.modes)
 ```
@@ -1967,7 +1967,7 @@ head(player.modes)
 ## Berger       -0.4212456
 ```
 
-```r
+``` r
 (round.modes <- ranef(fm1)$round)
 ```
 
@@ -1984,7 +1984,7 @@ According to Wikipedia, on day 1 "conditions were extremely difficult as gusty w
 Finally, it is interesting to compare the conditional modes for the players who qualified to play in rounds 3 and 4, vs.\ the players who were "cut".  
 
 
-```r
+``` r
 player.stats <- data.frame(name = row.names(player.modes),
                            mode = player.modes[, 1],
                            rds  = with(golf, as.numeric(table(player))))

@@ -4,26 +4,26 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 8 Generalized linear mixed models | BMA / ST 590 course notes</title>
-  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
-  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
+  <title>Chapter 8 Generalized linear mixed models | Applied statistical analysis of non-normal and/or correlated data</title>
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 8 Generalized linear mixed models | BMA / ST 590 course notes" />
+  <meta property="og:title" content="Chapter 8 Generalized linear mixed models | Applied statistical analysis of non-normal and/or correlated data" />
   <meta property="og:type" content="book" />
   
-  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 8 Generalized linear mixed models | BMA / ST 590 course notes" />
+  <meta name="twitter:title" content="Chapter 8 Generalized linear mixed models | Applied statistical analysis of non-normal and/or correlated data" />
   
-  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
   
 
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-12-01" />
+<meta name="date" content="2025-08-20" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -52,8 +52,9 @@
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.6.3/htmlwidgets.js"></script>
-<script src="libs/plotly-binding-4.10.3/plotly.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.11.0/plotly.js"></script>
 <script src="libs/typedarray-0.1/typedarray.min.js"></script>
 <link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
 <script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
@@ -63,7 +64,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -135,6 +136,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging div.csl-entry {
   margin-left:2em;
@@ -268,7 +270,7 @@ div.csl-indent {
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">BMA / ST 590 course notes</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Applied statistical analysis of non-normal and/or correlated data</a>
           </h1>
         </div>
 
@@ -289,27 +291,27 @@ L_j &amp; \sim \mathcal{N}(0, \sigma^2_L)
 \end{align*}\]</span>
 where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <span class="math inline">\(j = 1, \ldots, 7\)</span> indexes the stations, <span class="math inline">\(y_{ij}\)</span> is the number of moths removed, <span class="math inline">\(n_{ij}\)</span> is the number of moths placed, and let <span class="math inline">\(x_j\)</span> is the distance of the station from Liverpool. We are most interested in learning about the difference <span class="math inline">\(b_1 - b_2\)</span>, which quantifies how the relationship between log odds of removal and distance differs between the two color morphs, and determining whether there is evidence that this difference <span class="math inline">\(\neq 0\)</span>. Alternatively, we might prefer to consider the quantity <span class="math inline">\(e^{b_1 - b_2} = e^{b_1} / e^{b_2}\)</span>, which tells us how the odds ratio for removal changes between the two morphs as distance increases. This odds ratio is a bit closer to something that we can mentall grasp. In terms of the odds ratio, we are interested in learning if the odds ratio <span class="math inline">\(\neq 1\)</span>.</p>
 <p>Before proceeding, we note that one approach is simply to regress the difference of the empirical logits vs. distance. This reduces the problem to a simple regression. We try this approach first and use it as a benchmark. The data set used here is reformatted to include one record for each of the 7 stations.</p>
-<div class="sourceCode" id="cb616"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb616-1"><a href="generalized-linear-mixed-models.html#cb616-1" tabindex="-1"></a>moth2 <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/moth2.txt&quot;</span>, <span class="at">head =</span> <span class="cn">TRUE</span>, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb616-2"><a href="generalized-linear-mixed-models.html#cb616-2" tabindex="-1"></a></span>
-<span id="cb616-3"><a href="generalized-linear-mixed-models.html#cb616-3" tabindex="-1"></a><span class="fu">head</span>(moth2, <span class="at">n =</span> <span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb612"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb612-1"><a href="generalized-linear-mixed-models.html#cb612-1" tabindex="-1"></a>moth2 <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/moth2.txt&quot;</span>, <span class="at">head =</span> <span class="cn">TRUE</span>, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb612-2"><a href="generalized-linear-mixed-models.html#cb612-2" tabindex="-1"></a></span>
+<span id="cb612-3"><a href="generalized-linear-mixed-models.html#cb612-3" tabindex="-1"></a><span class="fu">head</span>(moth2, <span class="at">n =</span> <span class="dv">3</span>)</span></code></pre></div>
 <pre><code>##   location distance morph l.placed l.removed d.placed d.removed
 ## 1       sp      0.0 light       56        17       56        14
 ## 2       ef      7.2 light       80        28       80        20
 ## 3       ha     24.1 light       52        18       52        22</code></pre>
-<div class="sourceCode" id="cb618"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb618-1"><a href="generalized-linear-mixed-models.html#cb618-1" tabindex="-1"></a>elogit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">log</span>(x <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> x))</span>
-<span id="cb618-2"><a href="generalized-linear-mixed-models.html#cb618-2" tabindex="-1"></a></span>
-<span id="cb618-3"><a href="generalized-linear-mixed-models.html#cb618-3" tabindex="-1"></a>moth2<span class="sc">$</span>elogit.diff <span class="ot">&lt;-</span> <span class="fu">with</span>(moth2, <span class="fu">elogit</span>(d.removed <span class="sc">/</span> d.placed) <span class="sc">-</span> <span class="fu">elogit</span>(l.removed <span class="sc">/</span> l.placed))</span>
-<span id="cb618-4"><a href="generalized-linear-mixed-models.html#cb618-4" tabindex="-1"></a></span>
-<span id="cb618-5"><a href="generalized-linear-mixed-models.html#cb618-5" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(elogit.diff <span class="sc">~</span> distance, <span class="at">data =</span> moth2)</span>
-<span id="cb618-6"><a href="generalized-linear-mixed-models.html#cb618-6" tabindex="-1"></a></span>
-<span id="cb618-7"><a href="generalized-linear-mixed-models.html#cb618-7" tabindex="-1"></a><span class="fu">with</span>(moth2, <span class="fu">plot</span>(elogit.diff <span class="sc">~</span> distance,</span>
-<span id="cb618-8"><a href="generalized-linear-mixed-models.html#cb618-8" tabindex="-1"></a>                <span class="at">xlab =</span> <span class="st">&quot;distance from city center (km)&quot;</span>,</span>
-<span id="cb618-9"><a href="generalized-linear-mixed-models.html#cb618-9" tabindex="-1"></a>                <span class="at">ylab =</span> <span class="st">&quot;difference in log odds of removal, dark - light&quot;</span>))</span>
-<span id="cb618-10"><a href="generalized-linear-mixed-models.html#cb618-10" tabindex="-1"></a></span>
-<span id="cb618-11"><a href="generalized-linear-mixed-models.html#cb618-11" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb618-12"><a href="generalized-linear-mixed-models.html#cb618-12" tabindex="-1"></a><span class="fu">abline</span>(fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb614"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb614-1"><a href="generalized-linear-mixed-models.html#cb614-1" tabindex="-1"></a>elogit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">log</span>(x <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> x))</span>
+<span id="cb614-2"><a href="generalized-linear-mixed-models.html#cb614-2" tabindex="-1"></a></span>
+<span id="cb614-3"><a href="generalized-linear-mixed-models.html#cb614-3" tabindex="-1"></a>moth2<span class="sc">$</span>elogit.diff <span class="ot">&lt;-</span> <span class="fu">with</span>(moth2, <span class="fu">elogit</span>(d.removed <span class="sc">/</span> d.placed) <span class="sc">-</span> <span class="fu">elogit</span>(l.removed <span class="sc">/</span> l.placed))</span>
+<span id="cb614-4"><a href="generalized-linear-mixed-models.html#cb614-4" tabindex="-1"></a></span>
+<span id="cb614-5"><a href="generalized-linear-mixed-models.html#cb614-5" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(elogit.diff <span class="sc">~</span> distance, <span class="at">data =</span> moth2)</span>
+<span id="cb614-6"><a href="generalized-linear-mixed-models.html#cb614-6" tabindex="-1"></a></span>
+<span id="cb614-7"><a href="generalized-linear-mixed-models.html#cb614-7" tabindex="-1"></a><span class="fu">with</span>(moth2, <span class="fu">plot</span>(elogit.diff <span class="sc">~</span> distance,</span>
+<span id="cb614-8"><a href="generalized-linear-mixed-models.html#cb614-8" tabindex="-1"></a>                <span class="at">xlab =</span> <span class="st">&quot;distance from city center (km)&quot;</span>,</span>
+<span id="cb614-9"><a href="generalized-linear-mixed-models.html#cb614-9" tabindex="-1"></a>                <span class="at">ylab =</span> <span class="st">&quot;difference in log odds of removal, dark - light&quot;</span>))</span>
+<span id="cb614-10"><a href="generalized-linear-mixed-models.html#cb614-10" tabindex="-1"></a></span>
+<span id="cb614-11"><a href="generalized-linear-mixed-models.html#cb614-11" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb614-12"><a href="generalized-linear-mixed-models.html#cb614-12" tabindex="-1"></a><span class="fu">abline</span>(fm1)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-2-1.png" width="384" /></p>
-<div class="sourceCode" id="cb619"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb619-1"><a href="generalized-linear-mixed-models.html#cb619-1" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb615"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb615-1"><a href="generalized-linear-mixed-models.html#cb615-1" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = elogit.diff ~ distance, data = moth2)
@@ -328,7 +330,7 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 ## Residual standard error: 0.2698 on 5 degrees of freedom
 ## Multiple R-squared:  0.8088, Adjusted R-squared:  0.7706 
 ## F-statistic: 21.15 on 1 and 5 DF,  p-value: 0.005846</code></pre>
-<div class="sourceCode" id="cb621"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb621-1"><a href="generalized-linear-mixed-models.html#cb621-1" tabindex="-1"></a><span class="fu">confint</span>(fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb617"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb617-1"><a href="generalized-linear-mixed-models.html#cb617-1" tabindex="-1"></a><span class="fu">confint</span>(fm1)</span></code></pre></div>
 <pre><code>##                   2.5 %     97.5 %
 ## (Intercept) -0.86867531 0.12101544
 ## distance     0.01216371 0.04299419</code></pre>
@@ -337,18 +339,18 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 <div id="gees" class="section level3 hasAnchor" number="8.1.1">
 <h3><span class="header-section-number">8.1.1</span> GEEs<a href="generalized-linear-mixed-models.html#gees" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Next we try a GEE with a compound symmetry (“exchangable”) correlation structure imposed on the pair of measurements at each station. Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure. We fit the model using <code>geepack::geeglm</code>.</p>
-<div class="sourceCode" id="cb623"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb623-1"><a href="generalized-linear-mixed-models.html#cb623-1" tabindex="-1"></a><span class="fu">require</span>(geepack)</span></code></pre></div>
+<div class="sourceCode" id="cb619"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb619-1"><a href="generalized-linear-mixed-models.html#cb619-1" tabindex="-1"></a><span class="fu">require</span>(geepack)</span></code></pre></div>
 <pre><code>## Loading required package: geepack</code></pre>
-<div class="sourceCode" id="cb625"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb625-1"><a href="generalized-linear-mixed-models.html#cb625-1" tabindex="-1"></a>moth <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/moth.txt&quot;</span>, <span class="at">head =</span> <span class="cn">TRUE</span>, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb625-2"><a href="generalized-linear-mixed-models.html#cb625-2" tabindex="-1"></a><span class="fu">contrasts</span>(moth<span class="sc">$</span>morph) <span class="ot">&lt;-</span> <span class="fu">contr.treatment</span>(<span class="at">n =</span> <span class="dv">2</span>, <span class="at">base =</span> <span class="dv">2</span>)</span>
-<span id="cb625-3"><a href="generalized-linear-mixed-models.html#cb625-3" tabindex="-1"></a></span>
-<span id="cb625-4"><a href="generalized-linear-mixed-models.html#cb625-4" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">geeglm</span>(<span class="fu">cbind</span>(removed, placed <span class="sc">-</span> removed) <span class="sc">~</span> distance <span class="sc">*</span> morph, </span>
-<span id="cb625-5"><a href="generalized-linear-mixed-models.html#cb625-5" tabindex="-1"></a>              <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>), </span>
-<span id="cb625-6"><a href="generalized-linear-mixed-models.html#cb625-6" tabindex="-1"></a>              <span class="at">data   =</span> moth,</span>
-<span id="cb625-7"><a href="generalized-linear-mixed-models.html#cb625-7" tabindex="-1"></a>              <span class="at">id     =</span> location, </span>
-<span id="cb625-8"><a href="generalized-linear-mixed-models.html#cb625-8" tabindex="-1"></a>              <span class="at">corstr =</span> <span class="st">&quot;exchangeable&quot;</span>)</span>
-<span id="cb625-9"><a href="generalized-linear-mixed-models.html#cb625-9" tabindex="-1"></a></span>
-<span id="cb625-10"><a href="generalized-linear-mixed-models.html#cb625-10" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
+<div class="sourceCode" id="cb621"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb621-1"><a href="generalized-linear-mixed-models.html#cb621-1" tabindex="-1"></a>moth <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/moth.txt&quot;</span>, <span class="at">head =</span> <span class="cn">TRUE</span>, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb621-2"><a href="generalized-linear-mixed-models.html#cb621-2" tabindex="-1"></a><span class="fu">contrasts</span>(moth<span class="sc">$</span>morph) <span class="ot">&lt;-</span> <span class="fu">contr.treatment</span>(<span class="at">n =</span> <span class="dv">2</span>, <span class="at">base =</span> <span class="dv">2</span>)</span>
+<span id="cb621-3"><a href="generalized-linear-mixed-models.html#cb621-3" tabindex="-1"></a></span>
+<span id="cb621-4"><a href="generalized-linear-mixed-models.html#cb621-4" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">geeglm</span>(<span class="fu">cbind</span>(removed, placed <span class="sc">-</span> removed) <span class="sc">~</span> distance <span class="sc">*</span> morph, </span>
+<span id="cb621-5"><a href="generalized-linear-mixed-models.html#cb621-5" tabindex="-1"></a>              <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>), </span>
+<span id="cb621-6"><a href="generalized-linear-mixed-models.html#cb621-6" tabindex="-1"></a>              <span class="at">data   =</span> moth,</span>
+<span id="cb621-7"><a href="generalized-linear-mixed-models.html#cb621-7" tabindex="-1"></a>              <span class="at">id     =</span> location, </span>
+<span id="cb621-8"><a href="generalized-linear-mixed-models.html#cb621-8" tabindex="-1"></a>              <span class="at">corstr =</span> <span class="st">&quot;exchangeable&quot;</span>)</span>
+<span id="cb621-9"><a href="generalized-linear-mixed-models.html#cb621-9" tabindex="-1"></a></span>
+<span id="cb621-10"><a href="generalized-linear-mixed-models.html#cb621-10" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## geeglm(formula = cbind(removed, placed - removed) ~ distance * 
@@ -376,47 +378,47 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 ## alpha   0.3911   0.298
 ## Number of clusters:   7  Maximum cluster size: 2</code></pre>
 <p>The estimate of the difference between slopes on the log-odds scale is 0.0278, with an approximate 95% confidence interval of (0.0164, 0.0391). This corresponds to an odds ratio of 1.028, with an approximate 95% confidence interval of (1.017, 1.040). To visualize the model, we might plot the fitted proportion removed vs. distance for both color morphs. Bear in mind that fitted values here correspond to marginal mean removal rates.</p>
-<div class="sourceCode" id="cb627"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb627-1"><a href="generalized-linear-mixed-models.html#cb627-1" tabindex="-1"></a>inv.logit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
-<span id="cb627-2"><a href="generalized-linear-mixed-models.html#cb627-2" tabindex="-1"></a>light.fit <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="sc">-</span><span class="fl">0.71472</span> <span class="sc">-</span> <span class="fl">0.00938</span> <span class="sc">*</span> d)</span>
-<span id="cb627-3"><a href="generalized-linear-mixed-models.html#cb627-3" tabindex="-1"></a>dark.fit <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="sc">-</span><span class="fl">0.71472</span> <span class="sc">-</span> <span class="fl">0.41024</span> <span class="sc">+</span> (<span class="sc">-</span><span class="fl">0.00938</span> <span class="sc">+</span> <span class="fl">0.02776</span>) <span class="sc">*</span> d)</span>
-<span id="cb627-4"><a href="generalized-linear-mixed-models.html#cb627-4" tabindex="-1"></a></span>
-<span id="cb627-5"><a href="generalized-linear-mixed-models.html#cb627-5" tabindex="-1"></a><span class="fu">curve</span>(dark.fit, <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance), <span class="at">to =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb627-6"><a href="generalized-linear-mixed-models.html#cb627-6" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;distance from city center (km)&quot;</span>,</span>
-<span id="cb627-7"><a href="generalized-linear-mixed-models.html#cb627-7" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">&quot;proportion removed&quot;</span>,</span>
-<span id="cb627-8"><a href="generalized-linear-mixed-models.html#cb627-8" tabindex="-1"></a>      <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.15</span>, <span class="fl">0.5</span>))</span>
-<span id="cb627-9"><a href="generalized-linear-mixed-models.html#cb627-9" tabindex="-1"></a></span>
-<span id="cb627-10"><a href="generalized-linear-mixed-models.html#cb627-10" tabindex="-1"></a><span class="fu">curve</span>(light.fit, <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance), <span class="at">to =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb627-11"><a href="generalized-linear-mixed-models.html#cb627-11" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;distance from city center (km)&quot;</span>,</span>
-<span id="cb627-12"><a href="generalized-linear-mixed-models.html#cb627-12" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">&quot;proportion removed&quot;</span>,</span>
-<span id="cb627-13"><a href="generalized-linear-mixed-models.html#cb627-13" tabindex="-1"></a>      <span class="at">add =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb627-14"><a href="generalized-linear-mixed-models.html#cb627-14" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb627-15"><a href="generalized-linear-mixed-models.html#cb627-15" tabindex="-1"></a></span>
-<span id="cb627-16"><a href="generalized-linear-mixed-models.html#cb627-16" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;dark&quot;</span>), <span class="fu">points</span>(removed <span class="sc">/</span> placed <span class="sc">~</span> distance, <span class="at">pch =</span> <span class="dv">16</span>))</span>
-<span id="cb627-17"><a href="generalized-linear-mixed-models.html#cb627-17" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;light&quot;</span>), <span class="fu">points</span>(removed <span class="sc">/</span> placed <span class="sc">~</span> distance, <span class="at">pch =</span> <span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb623"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb623-1"><a href="generalized-linear-mixed-models.html#cb623-1" tabindex="-1"></a>inv.logit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
+<span id="cb623-2"><a href="generalized-linear-mixed-models.html#cb623-2" tabindex="-1"></a>light.fit <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="sc">-</span><span class="fl">0.71472</span> <span class="sc">-</span> <span class="fl">0.00938</span> <span class="sc">*</span> d)</span>
+<span id="cb623-3"><a href="generalized-linear-mixed-models.html#cb623-3" tabindex="-1"></a>dark.fit <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="sc">-</span><span class="fl">0.71472</span> <span class="sc">-</span> <span class="fl">0.41024</span> <span class="sc">+</span> (<span class="sc">-</span><span class="fl">0.00938</span> <span class="sc">+</span> <span class="fl">0.02776</span>) <span class="sc">*</span> d)</span>
+<span id="cb623-4"><a href="generalized-linear-mixed-models.html#cb623-4" tabindex="-1"></a></span>
+<span id="cb623-5"><a href="generalized-linear-mixed-models.html#cb623-5" tabindex="-1"></a><span class="fu">curve</span>(dark.fit, <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance), <span class="at">to =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb623-6"><a href="generalized-linear-mixed-models.html#cb623-6" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;distance from city center (km)&quot;</span>,</span>
+<span id="cb623-7"><a href="generalized-linear-mixed-models.html#cb623-7" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">&quot;proportion removed&quot;</span>,</span>
+<span id="cb623-8"><a href="generalized-linear-mixed-models.html#cb623-8" tabindex="-1"></a>      <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.15</span>, <span class="fl">0.5</span>))</span>
+<span id="cb623-9"><a href="generalized-linear-mixed-models.html#cb623-9" tabindex="-1"></a></span>
+<span id="cb623-10"><a href="generalized-linear-mixed-models.html#cb623-10" tabindex="-1"></a><span class="fu">curve</span>(light.fit, <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance), <span class="at">to =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb623-11"><a href="generalized-linear-mixed-models.html#cb623-11" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;distance from city center (km)&quot;</span>,</span>
+<span id="cb623-12"><a href="generalized-linear-mixed-models.html#cb623-12" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">&quot;proportion removed&quot;</span>,</span>
+<span id="cb623-13"><a href="generalized-linear-mixed-models.html#cb623-13" tabindex="-1"></a>      <span class="at">add =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb623-14"><a href="generalized-linear-mixed-models.html#cb623-14" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb623-15"><a href="generalized-linear-mixed-models.html#cb623-15" tabindex="-1"></a></span>
+<span id="cb623-16"><a href="generalized-linear-mixed-models.html#cb623-16" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;dark&quot;</span>), <span class="fu">points</span>(removed <span class="sc">/</span> placed <span class="sc">~</span> distance, <span class="at">pch =</span> <span class="dv">16</span>))</span>
+<span id="cb623-17"><a href="generalized-linear-mixed-models.html#cb623-17" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;light&quot;</span>), <span class="fu">points</span>(removed <span class="sc">/</span> placed <span class="sc">~</span> distance, <span class="at">pch =</span> <span class="dv">1</span>))</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>For the sake of comparing marginal means to conditional means, we will consider the predicted removal rate of dark morphs at a hypothetical location 20 km from the city center. This predicted removal rate is 0.319.</p>
-<div class="sourceCode" id="cb628"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb628-1"><a href="generalized-linear-mixed-models.html#cb628-1" tabindex="-1"></a><span class="fu">dark.fit</span>(<span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb624"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb624-1"><a href="generalized-linear-mixed-models.html#cb624-1" tabindex="-1"></a><span class="fu">dark.fit</span>(<span class="dv">20</span>)</span></code></pre></div>
 <pre><code>## [1] 0.3192197</code></pre>
 </div>
 <div id="glmms" class="section level3 hasAnchor" number="8.1.2">
 <h3><span class="header-section-number">8.1.2</span> GLMMs<a href="generalized-linear-mixed-models.html#glmms" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Next, we will fit the same model with <code>lme4::glmer</code>.</p>
-<div class="sourceCode" id="cb630"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb630-1"><a href="generalized-linear-mixed-models.html#cb630-1" tabindex="-1"></a><span class="fu">require</span>(lme4)</span></code></pre></div>
+<div class="sourceCode" id="cb626"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb626-1"><a href="generalized-linear-mixed-models.html#cb626-1" tabindex="-1"></a><span class="fu">require</span>(lme4)</span></code></pre></div>
 <pre><code>## Loading required package: lme4</code></pre>
 <pre><code>## Loading required package: Matrix</code></pre>
-<div class="sourceCode" id="cb633"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb633-1"><a href="generalized-linear-mixed-models.html#cb633-1" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> <span class="fu">glmer</span>(<span class="fu">cbind</span>(removed, placed <span class="sc">-</span> removed) <span class="sc">~</span> distance <span class="sc">*</span> morph <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> location), </span>
-<span id="cb633-2"><a href="generalized-linear-mixed-models.html#cb633-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>), </span>
-<span id="cb633-3"><a href="generalized-linear-mixed-models.html#cb633-3" tabindex="-1"></a>             <span class="at">data =</span> moth)</span>
-<span id="cb633-4"><a href="generalized-linear-mixed-models.html#cb633-4" tabindex="-1"></a></span>
-<span id="cb633-5"><a href="generalized-linear-mixed-models.html#cb633-5" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
+<div class="sourceCode" id="cb629"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb629-1"><a href="generalized-linear-mixed-models.html#cb629-1" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> <span class="fu">glmer</span>(<span class="fu">cbind</span>(removed, placed <span class="sc">-</span> removed) <span class="sc">~</span> distance <span class="sc">*</span> morph <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> location), </span>
+<span id="cb629-2"><a href="generalized-linear-mixed-models.html#cb629-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>), </span>
+<span id="cb629-3"><a href="generalized-linear-mixed-models.html#cb629-3" tabindex="-1"></a>             <span class="at">data =</span> moth)</span>
+<span id="cb629-4"><a href="generalized-linear-mixed-models.html#cb629-4" tabindex="-1"></a></span>
+<span id="cb629-5"><a href="generalized-linear-mixed-models.html#cb629-5" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
 ##  Family: binomial  ( logit )
 ## Formula: cbind(removed, placed - removed) ~ distance * morph + (1 | location)
 ##    Data: moth
 ## 
-##      AIC      BIC   logLik deviance df.resid 
-##     85.7     88.9    -37.8     75.7        9 
+##       AIC       BIC    logLik -2*log(L)  df.resid 
+##      85.7      88.9     -37.8      75.7         9 
 ## 
 ## Scaled residuals: 
 ##      Min       1Q   Median       3Q      Max 
@@ -441,226 +443,208 @@ where <span class="math inline">\(i=1,2\)</span> indexes the two color morphs, <
 ## distance    -0.843              
 ## morph1      -0.641  0.538       
 ## dstnc:mrph1  0.558 -0.660 -0.859</code></pre>
-<div class="sourceCode" id="cb635"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb635-1"><a href="generalized-linear-mixed-models.html#cb635-1" tabindex="-1"></a><span class="fu">confint</span>(fm3, <span class="at">parm =</span> <span class="fu">c</span>(<span class="st">&quot;distance:morph1&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb631"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb631-1"><a href="generalized-linear-mixed-models.html#cb631-1" tabindex="-1"></a><span class="fu">confint</span>(fm3, <span class="at">parm =</span> <span class="fu">c</span>(<span class="st">&quot;distance:morph1&quot;</span>))</span></code></pre></div>
 <pre><code>## Computing profile confidence intervals ...</code></pre>
 <pre><code>##                      2.5 %     97.5 %
 ## distance:morph1 0.01201418 0.04377205</code></pre>
 <p>Nothing here is radically different. The parameter estimates are so similar to those from the GEE that a plot of the GEE and GLMM fits would be indistinguishable to the eye.</p>
 <p>Although <code>summary.glmer</code> doesn’t report the deviance, functions exist to obtain this information. We can use the deviance to assess overdispersion in the same way that we would in a GLM.</p>
 <!-- Note: Is this true?  I'm not sure. -->
-<div class="sourceCode" id="cb638"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb638-1"><a href="generalized-linear-mixed-models.html#cb638-1" tabindex="-1"></a><span class="fu">deviance</span>(fm3)</span></code></pre></div>
+<div class="sourceCode" id="cb634"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb634-1"><a href="generalized-linear-mixed-models.html#cb634-1" tabindex="-1"></a><span class="fu">deviance</span>(fm3)</span></code></pre></div>
 <pre><code>## [1] 9.250077</code></pre>
-<div class="sourceCode" id="cb640"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb640-1"><a href="generalized-linear-mixed-models.html#cb640-1" tabindex="-1"></a><span class="fu">df.residual</span>(fm3)</span></code></pre></div>
+<div class="sourceCode" id="cb636"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb636-1"><a href="generalized-linear-mixed-models.html#cb636-1" tabindex="-1"></a><span class="fu">df.residual</span>(fm3)</span></code></pre></div>
 <pre><code>## [1] 9</code></pre>
 <p>The ratio of the deviance to the residual df is approximately 1, suggesting that the data are not overdispersed. Note that including the location random effect in the GLMM has eliminated the mild overdispersion that we detected in the GLM without the location random effect.</p>
 <p>To get a sense of how the conditional means compare to the marginal means, we will compute the conditional mean removal rate of dark morphs at a distance 20 km from the city center.</p>
-<div class="sourceCode" id="cb642"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb642-1"><a href="generalized-linear-mixed-models.html#cb642-1" tabindex="-1"></a>dark.linpred.glmm <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="sc">-</span><span class="fl">0.71979</span> <span class="sc">-</span> <span class="fl">0.41113</span> <span class="sc">+</span> (<span class="sc">-</span><span class="fl">0.00934</span> <span class="sc">+</span> <span class="fl">0.02782</span>) <span class="sc">*</span> d</span>
-<span id="cb642-2"><a href="generalized-linear-mixed-models.html#cb642-2" tabindex="-1"></a>dark.fit.glmm <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(d))</span>
-<span id="cb642-3"><a href="generalized-linear-mixed-models.html#cb642-3" tabindex="-1"></a><span class="fu">dark.fit.glmm</span>(<span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb638"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb638-1"><a href="generalized-linear-mixed-models.html#cb638-1" tabindex="-1"></a>dark.linpred.glmm <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="sc">-</span><span class="fl">0.71979</span> <span class="sc">-</span> <span class="fl">0.41113</span> <span class="sc">+</span> (<span class="sc">-</span><span class="fl">0.00934</span> <span class="sc">+</span> <span class="fl">0.02782</span>) <span class="sc">*</span> d</span>
+<span id="cb638-2"><a href="generalized-linear-mixed-models.html#cb638-2" tabindex="-1"></a>dark.fit.glmm <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(d))</span>
+<span id="cb638-3"><a href="generalized-linear-mixed-models.html#cb638-3" tabindex="-1"></a><span class="fu">dark.fit.glmm</span>(<span class="dv">20</span>)</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
 <p>The conditional mean of the predicted removal rate is 0.318.</p>
 <p>Here, the difference between the marginal and conditional means is tiny. Nevertheless, we can gain a deeper understanding of the difference by taking a look at the fitted population of possible locations at 20 km distance on both the linear predictor scale and the data scale.</p>
-<div class="sourceCode" id="cb644"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb644-1"><a href="generalized-linear-mixed-models.html#cb644-1" tabindex="-1"></a>linpred.sample <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e6</span>, <span class="at">mean =</span> <span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>), <span class="at">sd =</span> <span class="fl">0.1072</span>)</span>
-<span id="cb644-2"><a href="generalized-linear-mixed-models.html#cb644-2" tabindex="-1"></a>prob.sample <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(linpred.sample)</span>
-<span id="cb644-3"><a href="generalized-linear-mixed-models.html#cb644-3" tabindex="-1"></a></span>
-<span id="cb644-4"><a href="generalized-linear-mixed-models.html#cb644-4" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb640"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb640-1"><a href="generalized-linear-mixed-models.html#cb640-1" tabindex="-1"></a>linpred.sample <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e6</span>, <span class="at">mean =</span> <span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>), <span class="at">sd =</span> <span class="fl">0.1072</span>)</span>
+<span id="cb640-2"><a href="generalized-linear-mixed-models.html#cb640-2" tabindex="-1"></a>prob.sample <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(linpred.sample)</span>
+<span id="cb640-3"><a href="generalized-linear-mixed-models.html#cb640-3" tabindex="-1"></a></span>
+<span id="cb640-4"><a href="generalized-linear-mixed-models.html#cb640-4" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
-<div class="sourceCode" id="cb646"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb646-1"><a href="generalized-linear-mixed-models.html#cb646-1" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
-<pre><code>## [1] 0.3188409</code></pre>
-<div class="sourceCode" id="cb648"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb648-1"><a href="generalized-linear-mixed-models.html#cb648-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
-<span id="cb648-2"><a href="generalized-linear-mixed-models.html#cb648-2" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
-<span id="cb648-3"><a href="generalized-linear-mixed-models.html#cb648-3" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
-<span id="cb648-4"><a href="generalized-linear-mixed-models.html#cb648-4" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> conditional.mean, <span class="at">col =</span> <span class="st">&quot;darkorange&quot;</span>, <span class="at">lwd =</span><span class="dv">2</span>)</span>
-<span id="cb648-5"><a href="generalized-linear-mixed-models.html#cb648-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> marginal.mean, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb642"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb642-1"><a href="generalized-linear-mixed-models.html#cb642-1" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
+<pre><code>## [1] 0.318806</code></pre>
+<div class="sourceCode" id="cb644"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb644-1"><a href="generalized-linear-mixed-models.html#cb644-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb644-2"><a href="generalized-linear-mixed-models.html#cb644-2" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb644-3"><a href="generalized-linear-mixed-models.html#cb644-3" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb644-4"><a href="generalized-linear-mixed-models.html#cb644-4" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> conditional.mean, <span class="at">col =</span> <span class="st">&quot;darkorange&quot;</span>, <span class="at">lwd =</span><span class="dv">2</span>)</span>
+<span id="cb644-5"><a href="generalized-linear-mixed-models.html#cb644-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> marginal.mean, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>We see that the variance of the location-level random effect is small enough that the inverse logit transformation is effectively linear. Thus, the distribution of removal probabilities across locations is nearly normal, and the conditional and marginal means nearly coincide. The estimate of the marginal mean that we have generated by simulation is not quite the same as the marginal mean generated by the GEE, which could either be due to the stochastic sampling that we have used above, and/or small numerical differences in the estimation.</p>
 <p>For the sake of illustration, we repeat these calculations by supposing that the location-to-location standard deviation was 10 times larger.</p>
-<div class="sourceCode" id="cb649"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb649-1"><a href="generalized-linear-mixed-models.html#cb649-1" tabindex="-1"></a>linpred.sample <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e6</span>, <span class="at">mean =</span> <span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>), <span class="at">sd =</span> <span class="dv">10</span> <span class="sc">*</span> <span class="fl">0.1072</span>)</span>
-<span id="cb649-2"><a href="generalized-linear-mixed-models.html#cb649-2" tabindex="-1"></a>prob.sample <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(linpred.sample)</span>
-<span id="cb649-3"><a href="generalized-linear-mixed-models.html#cb649-3" tabindex="-1"></a></span>
-<span id="cb649-4"><a href="generalized-linear-mixed-models.html#cb649-4" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb645"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb645-1"><a href="generalized-linear-mixed-models.html#cb645-1" tabindex="-1"></a>linpred.sample <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e6</span>, <span class="at">mean =</span> <span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>), <span class="at">sd =</span> <span class="dv">10</span> <span class="sc">*</span> <span class="fl">0.1072</span>)</span>
+<span id="cb645-2"><a href="generalized-linear-mixed-models.html#cb645-2" tabindex="-1"></a>prob.sample <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(linpred.sample)</span>
+<span id="cb645-3"><a href="generalized-linear-mixed-models.html#cb645-3" tabindex="-1"></a></span>
+<span id="cb645-4"><a href="generalized-linear-mixed-models.html#cb645-4" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
-<div class="sourceCode" id="cb651"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb651-1"><a href="generalized-linear-mixed-models.html#cb651-1" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
-<pre><code>## [1] 0.3504879</code></pre>
-<div class="sourceCode" id="cb653"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb653-1"><a href="generalized-linear-mixed-models.html#cb653-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
-<span id="cb653-2"><a href="generalized-linear-mixed-models.html#cb653-2" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
-<span id="cb653-3"><a href="generalized-linear-mixed-models.html#cb653-3" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
-<span id="cb653-4"><a href="generalized-linear-mixed-models.html#cb653-4" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> conditional.mean, <span class="at">col =</span> <span class="st">&quot;darkorange&quot;</span>, <span class="at">lwd =</span><span class="dv">2</span>)</span>
-<span id="cb653-5"><a href="generalized-linear-mixed-models.html#cb653-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> marginal.mean, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb647"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb647-1"><a href="generalized-linear-mixed-models.html#cb647-1" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
+<pre><code>## [1] 0.3501031</code></pre>
+<div class="sourceCode" id="cb649"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb649-1"><a href="generalized-linear-mixed-models.html#cb649-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb649-2"><a href="generalized-linear-mixed-models.html#cb649-2" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb649-3"><a href="generalized-linear-mixed-models.html#cb649-3" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb649-4"><a href="generalized-linear-mixed-models.html#cb649-4" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> conditional.mean, <span class="at">col =</span> <span class="st">&quot;darkorange&quot;</span>, <span class="at">lwd =</span><span class="dv">2</span>)</span>
+<span id="cb649-5"><a href="generalized-linear-mixed-models.html#cb649-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> marginal.mean, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
 <div id="bayesian-fit" class="section level3 hasAnchor" number="8.1.3">
 <h3><span class="header-section-number">8.1.3</span> Bayesian fit<a href="generalized-linear-mixed-models.html#bayesian-fit" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>We now fit the model using JAGS and vague priors.</p>
-<div class="sourceCode" id="cb654"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb654-1"><a href="generalized-linear-mixed-models.html#cb654-1" tabindex="-1"></a><span class="fu">require</span>(R2jags)</span></code></pre></div>
-<div class="sourceCode" id="cb655"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb655-1"><a href="generalized-linear-mixed-models.html#cb655-1" tabindex="-1"></a>moth.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb655-2"><a href="generalized-linear-mixed-models.html#cb655-2" tabindex="-1"></a>   </span>
-<span id="cb655-3"><a href="generalized-linear-mixed-models.html#cb655-3" tabindex="-1"></a>   <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {             <span class="co"># J = number of data points</span></span>
-<span id="cb655-4"><a href="generalized-linear-mixed-models.html#cb655-4" tabindex="-1"></a>      </span>
-<span id="cb655-5"><a href="generalized-linear-mixed-models.html#cb655-5" tabindex="-1"></a>      y[j]   <span class="sc">~</span> <span class="fu">dbin</span>(p[j], n[j])      <span class="co"># data distribution</span></span>
-<span id="cb655-6"><a href="generalized-linear-mixed-models.html#cb655-6" tabindex="-1"></a>      </span>
-<span id="cb655-7"><a href="generalized-linear-mixed-models.html#cb655-7" tabindex="-1"></a>      p[j]   <span class="ot">&lt;-</span> <span class="fu">ilogit</span>(eta[j])      <span class="co"># inverse link</span></span>
-<span id="cb655-8"><a href="generalized-linear-mixed-models.html#cb655-8" tabindex="-1"></a>      eta[j] <span class="ot">&lt;-</span> a[morph[j]] <span class="sc">+</span> b[morph[j]] <span class="sc">*</span> dist[j] <span class="sc">+</span> L[loc[j]]  <span class="co"># linear predictor,</span></span>
-<span id="cb655-9"><a href="generalized-linear-mixed-models.html#cb655-9" tabindex="-1"></a>   }</span>
-<span id="cb655-10"><a href="generalized-linear-mixed-models.html#cb655-10" tabindex="-1"></a>   </span>
-<span id="cb655-11"><a href="generalized-linear-mixed-models.html#cb655-11" tabindex="-1"></a>   <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>){  <span class="co"># random effects for location</span></span>
-<span id="cb655-12"><a href="generalized-linear-mixed-models.html#cb655-12" tabindex="-1"></a>    </span>
-<span id="cb655-13"><a href="generalized-linear-mixed-models.html#cb655-13" tabindex="-1"></a>     L[j] <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, tau_L)</span>
-<span id="cb655-14"><a href="generalized-linear-mixed-models.html#cb655-14" tabindex="-1"></a>   }</span>
-<span id="cb655-15"><a href="generalized-linear-mixed-models.html#cb655-15" tabindex="-1"></a>  </span>
-<span id="cb655-16"><a href="generalized-linear-mixed-models.html#cb655-16" tabindex="-1"></a>   a[<span class="dv">1</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># priors for intercept</span></span>
-<span id="cb655-17"><a href="generalized-linear-mixed-models.html#cb655-17" tabindex="-1"></a>   a[<span class="dv">2</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># priors for intercept</span></span>
-<span id="cb655-18"><a href="generalized-linear-mixed-models.html#cb655-18" tabindex="-1"></a>   b[<span class="dv">1</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for slope</span></span>
-<span id="cb655-19"><a href="generalized-linear-mixed-models.html#cb655-19" tabindex="-1"></a>   b[<span class="dv">2</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for slope</span></span>
-<span id="cb655-20"><a href="generalized-linear-mixed-models.html#cb655-20" tabindex="-1"></a>   </span>
-<span id="cb655-21"><a href="generalized-linear-mixed-models.html#cb655-21" tabindex="-1"></a>   tau_L   <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>)    <span class="co"># prior for location-level random effect</span></span>
-<span id="cb655-22"><a href="generalized-linear-mixed-models.html#cb655-22" tabindex="-1"></a>   </span>
-<span id="cb655-23"><a href="generalized-linear-mixed-models.html#cb655-23" tabindex="-1"></a>   sd_L   <span class="ot">&lt;-</span> <span class="fu">pow</span>(tau_L, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb655-24"><a href="generalized-linear-mixed-models.html#cb655-24" tabindex="-1"></a>   </span>
-<span id="cb655-25"><a href="generalized-linear-mixed-models.html#cb655-25" tabindex="-1"></a>   b.diff <span class="ot">&lt;-</span> b[<span class="dv">1</span>] <span class="sc">-</span> b[<span class="dv">2</span>]</span>
-<span id="cb655-26"><a href="generalized-linear-mixed-models.html#cb655-26" tabindex="-1"></a>}</span>
-<span id="cb655-27"><a href="generalized-linear-mixed-models.html#cb655-27" tabindex="-1"></a></span>
-<span id="cb655-28"><a href="generalized-linear-mixed-models.html#cb655-28" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y     =</span> moth<span class="sc">$</span>removed, </span>
-<span id="cb655-29"><a href="generalized-linear-mixed-models.html#cb655-29" tabindex="-1"></a>                  <span class="at">n     =</span> moth<span class="sc">$</span>placed,</span>
-<span id="cb655-30"><a href="generalized-linear-mixed-models.html#cb655-30" tabindex="-1"></a>                  <span class="at">dist  =</span> moth<span class="sc">$</span>distance,</span>
-<span id="cb655-31"><a href="generalized-linear-mixed-models.html#cb655-31" tabindex="-1"></a>                  <span class="at">loc   =</span> <span class="fu">as.numeric</span>(moth<span class="sc">$</span>location),</span>
-<span id="cb655-32"><a href="generalized-linear-mixed-models.html#cb655-32" tabindex="-1"></a>                  <span class="at">morph =</span> <span class="fu">as.numeric</span>(moth<span class="sc">$</span>morph),</span>
-<span id="cb655-33"><a href="generalized-linear-mixed-models.html#cb655-33" tabindex="-1"></a>                  <span class="at">J     =</span> <span class="fu">nrow</span>(moth))</span>
-<span id="cb655-34"><a href="generalized-linear-mixed-models.html#cb655-34" tabindex="-1"></a></span>
-<span id="cb655-35"><a href="generalized-linear-mixed-models.html#cb655-35" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;a[1]&quot;</span>, <span class="st">&quot;a[2]&quot;</span>, <span class="st">&quot;b[1]&quot;</span>, <span class="st">&quot;b[2]&quot;</span>, <span class="st">&quot;b.diff&quot;</span>, <span class="st">&quot;sd_L&quot;</span>)</span>
-<span id="cb655-36"><a href="generalized-linear-mixed-models.html#cb655-36" tabindex="-1"></a></span>
-<span id="cb655-37"><a href="generalized-linear-mixed-models.html#cb655-37" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb655-38"><a href="generalized-linear-mixed-models.html#cb655-38" tabindex="-1"></a>   <span class="fu">list</span>(<span class="st">&quot;tau_L&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
-<span id="cb655-39"><a href="generalized-linear-mixed-models.html#cb655-39" tabindex="-1"></a>}</span>
-<span id="cb655-40"><a href="generalized-linear-mixed-models.html#cb655-40" tabindex="-1"></a></span>
-<span id="cb655-41"><a href="generalized-linear-mixed-models.html#cb655-41" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb655-42"><a href="generalized-linear-mixed-models.html#cb655-42" tabindex="-1"></a></span>
-<span id="cb655-43"><a href="generalized-linear-mixed-models.html#cb655-43" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
-<span id="cb655-44"><a href="generalized-linear-mixed-models.html#cb655-44" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
-<span id="cb655-45"><a href="generalized-linear-mixed-models.html#cb655-45" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
-<span id="cb655-46"><a href="generalized-linear-mixed-models.html#cb655-46" tabindex="-1"></a>                <span class="at">model.file         =</span> moth.model,</span>
-<span id="cb655-47"><a href="generalized-linear-mixed-models.html#cb655-47" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
-<span id="cb655-48"><a href="generalized-linear-mixed-models.html#cb655-48" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="fl">5E4</span>,</span>
-<span id="cb655-49"><a href="generalized-linear-mixed-models.html#cb655-49" tabindex="-1"></a>                <span class="at">n.thin             =</span> <span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb650"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb650-1"><a href="generalized-linear-mixed-models.html#cb650-1" tabindex="-1"></a><span class="fu">require</span>(R2jags)</span></code></pre></div>
+<div class="sourceCode" id="cb651"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb651-1"><a href="generalized-linear-mixed-models.html#cb651-1" tabindex="-1"></a>moth.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb651-2"><a href="generalized-linear-mixed-models.html#cb651-2" tabindex="-1"></a>   </span>
+<span id="cb651-3"><a href="generalized-linear-mixed-models.html#cb651-3" tabindex="-1"></a>   <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {             <span class="co"># J = number of data points</span></span>
+<span id="cb651-4"><a href="generalized-linear-mixed-models.html#cb651-4" tabindex="-1"></a>      </span>
+<span id="cb651-5"><a href="generalized-linear-mixed-models.html#cb651-5" tabindex="-1"></a>      y[j]   <span class="sc">~</span> <span class="fu">dbin</span>(p[j], n[j])      <span class="co"># data distribution</span></span>
+<span id="cb651-6"><a href="generalized-linear-mixed-models.html#cb651-6" tabindex="-1"></a>      </span>
+<span id="cb651-7"><a href="generalized-linear-mixed-models.html#cb651-7" tabindex="-1"></a>      p[j]   <span class="ot">&lt;-</span> <span class="fu">ilogit</span>(eta[j])      <span class="co"># inverse link</span></span>
+<span id="cb651-8"><a href="generalized-linear-mixed-models.html#cb651-8" tabindex="-1"></a>      eta[j] <span class="ot">&lt;-</span> a[morph[j]] <span class="sc">+</span> b[morph[j]] <span class="sc">*</span> dist[j] <span class="sc">+</span> L[loc[j]]  <span class="co"># linear predictor,</span></span>
+<span id="cb651-9"><a href="generalized-linear-mixed-models.html#cb651-9" tabindex="-1"></a>   }</span>
+<span id="cb651-10"><a href="generalized-linear-mixed-models.html#cb651-10" tabindex="-1"></a>   </span>
+<span id="cb651-11"><a href="generalized-linear-mixed-models.html#cb651-11" tabindex="-1"></a>   <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>){  <span class="co"># random effects for location</span></span>
+<span id="cb651-12"><a href="generalized-linear-mixed-models.html#cb651-12" tabindex="-1"></a>    </span>
+<span id="cb651-13"><a href="generalized-linear-mixed-models.html#cb651-13" tabindex="-1"></a>     L[j] <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, tau_L)</span>
+<span id="cb651-14"><a href="generalized-linear-mixed-models.html#cb651-14" tabindex="-1"></a>   }</span>
+<span id="cb651-15"><a href="generalized-linear-mixed-models.html#cb651-15" tabindex="-1"></a>  </span>
+<span id="cb651-16"><a href="generalized-linear-mixed-models.html#cb651-16" tabindex="-1"></a>   a[<span class="dv">1</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># priors for intercept</span></span>
+<span id="cb651-17"><a href="generalized-linear-mixed-models.html#cb651-17" tabindex="-1"></a>   a[<span class="dv">2</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># priors for intercept</span></span>
+<span id="cb651-18"><a href="generalized-linear-mixed-models.html#cb651-18" tabindex="-1"></a>   b[<span class="dv">1</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for slope</span></span>
+<span id="cb651-19"><a href="generalized-linear-mixed-models.html#cb651-19" tabindex="-1"></a>   b[<span class="dv">2</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for slope</span></span>
+<span id="cb651-20"><a href="generalized-linear-mixed-models.html#cb651-20" tabindex="-1"></a>   </span>
+<span id="cb651-21"><a href="generalized-linear-mixed-models.html#cb651-21" tabindex="-1"></a>   tau_L   <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>)    <span class="co"># prior for location-level random effect</span></span>
+<span id="cb651-22"><a href="generalized-linear-mixed-models.html#cb651-22" tabindex="-1"></a>   </span>
+<span id="cb651-23"><a href="generalized-linear-mixed-models.html#cb651-23" tabindex="-1"></a>   sd_L   <span class="ot">&lt;-</span> <span class="fu">pow</span>(tau_L, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb651-24"><a href="generalized-linear-mixed-models.html#cb651-24" tabindex="-1"></a>   </span>
+<span id="cb651-25"><a href="generalized-linear-mixed-models.html#cb651-25" tabindex="-1"></a>   b.diff <span class="ot">&lt;-</span> b[<span class="dv">1</span>] <span class="sc">-</span> b[<span class="dv">2</span>]</span>
+<span id="cb651-26"><a href="generalized-linear-mixed-models.html#cb651-26" tabindex="-1"></a>}</span>
+<span id="cb651-27"><a href="generalized-linear-mixed-models.html#cb651-27" tabindex="-1"></a></span>
+<span id="cb651-28"><a href="generalized-linear-mixed-models.html#cb651-28" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y     =</span> moth<span class="sc">$</span>removed, </span>
+<span id="cb651-29"><a href="generalized-linear-mixed-models.html#cb651-29" tabindex="-1"></a>                  <span class="at">n     =</span> moth<span class="sc">$</span>placed,</span>
+<span id="cb651-30"><a href="generalized-linear-mixed-models.html#cb651-30" tabindex="-1"></a>                  <span class="at">dist  =</span> moth<span class="sc">$</span>distance,</span>
+<span id="cb651-31"><a href="generalized-linear-mixed-models.html#cb651-31" tabindex="-1"></a>                  <span class="at">loc   =</span> <span class="fu">as.numeric</span>(moth<span class="sc">$</span>location),</span>
+<span id="cb651-32"><a href="generalized-linear-mixed-models.html#cb651-32" tabindex="-1"></a>                  <span class="at">morph =</span> <span class="fu">as.numeric</span>(moth<span class="sc">$</span>morph),</span>
+<span id="cb651-33"><a href="generalized-linear-mixed-models.html#cb651-33" tabindex="-1"></a>                  <span class="at">J     =</span> <span class="fu">nrow</span>(moth))</span>
+<span id="cb651-34"><a href="generalized-linear-mixed-models.html#cb651-34" tabindex="-1"></a></span>
+<span id="cb651-35"><a href="generalized-linear-mixed-models.html#cb651-35" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;a[1]&quot;</span>, <span class="st">&quot;a[2]&quot;</span>, <span class="st">&quot;b[1]&quot;</span>, <span class="st">&quot;b[2]&quot;</span>, <span class="st">&quot;b.diff&quot;</span>, <span class="st">&quot;sd_L&quot;</span>)</span>
+<span id="cb651-36"><a href="generalized-linear-mixed-models.html#cb651-36" tabindex="-1"></a></span>
+<span id="cb651-37"><a href="generalized-linear-mixed-models.html#cb651-37" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb651-38"><a href="generalized-linear-mixed-models.html#cb651-38" tabindex="-1"></a>   <span class="fu">list</span>(<span class="st">&quot;tau_L&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
+<span id="cb651-39"><a href="generalized-linear-mixed-models.html#cb651-39" tabindex="-1"></a>}</span>
+<span id="cb651-40"><a href="generalized-linear-mixed-models.html#cb651-40" tabindex="-1"></a></span>
+<span id="cb651-41"><a href="generalized-linear-mixed-models.html#cb651-41" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb651-42"><a href="generalized-linear-mixed-models.html#cb651-42" tabindex="-1"></a></span>
+<span id="cb651-43"><a href="generalized-linear-mixed-models.html#cb651-43" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
+<span id="cb651-44"><a href="generalized-linear-mixed-models.html#cb651-44" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
+<span id="cb651-45"><a href="generalized-linear-mixed-models.html#cb651-45" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
+<span id="cb651-46"><a href="generalized-linear-mixed-models.html#cb651-46" tabindex="-1"></a>                <span class="at">model.file         =</span> moth.model,</span>
+<span id="cb651-47"><a href="generalized-linear-mixed-models.html#cb651-47" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
+<span id="cb651-48"><a href="generalized-linear-mixed-models.html#cb651-48" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="fl">5E4</span>,</span>
+<span id="cb651-49"><a href="generalized-linear-mixed-models.html#cb651-49" tabindex="-1"></a>                <span class="at">n.thin             =</span> <span class="dv">5</span>)</span></code></pre></div>
 <pre><code>## module glm loaded</code></pre>
 <p>For some reason this works without specifying initial values for <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> (now both vectors). Maybe the initial values are drawn from the prior?</p>
-<div class="sourceCode" id="cb657"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb657-1"><a href="generalized-linear-mixed-models.html#cb657-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpMTJOiA/model2fd84f5416cb.txt&quot;, fit using jags,
-##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
-##  n.sims = 15000 iterations saved
-##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## a[1]      -1.141   0.290 -1.720 -1.320 -1.135 -0.963 -0.577 1.001 13000
-## a[2]      -0.735   0.282 -1.295 -0.908 -0.733 -0.559 -0.185 1.001 15000
-## b.diff     0.028   0.008  0.012  0.022  0.028  0.033  0.044 1.001 15000
-## b[1]       0.019   0.009  0.002  0.013  0.019  0.024  0.036 1.001  6800
-## b[2]      -0.009   0.009 -0.026 -0.015 -0.009 -0.004  0.008 1.001  9700
-## sd_L       0.249   0.147  0.080  0.151  0.215  0.306  0.620 1.002  2200
-## deviance  75.258   4.136 68.632 72.242 74.782 77.723 84.621 1.002  2700
-## 
-## For each parameter, n.eff is a crude measure of effective sample size,
-## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
-## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 8.5 and DIC = 83.8
-## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
-<div class="sourceCode" id="cb659"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb659-1"><a href="generalized-linear-mixed-models.html#cb659-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
-<span id="cb659-2"><a href="generalized-linear-mixed-models.html#cb659-2" tabindex="-1"></a>(post.mean   <span class="ot">&lt;-</span> <span class="fu">apply</span>(mcmc.output, <span class="dv">2</span>, mean))</span></code></pre></div>
+<!-- 8-20-25: For some crazy reason, I'm getting an error ("Error in `round()`: ! non-numeric argument to mathematical function") here when compiling for bookdown.  It all works fine from the command line; I have no idea. -->
+<div class="sourceCode" id="cb653"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb653-1"><a href="generalized-linear-mixed-models.html#cb653-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
+<span id="cb653-2"><a href="generalized-linear-mixed-models.html#cb653-2" tabindex="-1"></a>(post.mean   <span class="ot">&lt;-</span> <span class="fu">apply</span>(mcmc.output, <span class="dv">2</span>, mean))</span></code></pre></div>
 <pre><code>##          a.1          a.2       b.diff          b.1          b.2     deviance 
 ## -1.140722211 -0.734757896  0.027796240  0.018614882 -0.009181358 75.257872581 
 ##         sd_L 
 ##  0.249026857</code></pre>
-<div class="sourceCode" id="cb661"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb661-1"><a href="generalized-linear-mixed-models.html#cb661-1" tabindex="-1"></a><span class="fu">HPDinterval</span>(<span class="fu">as.mcmc</span>(mcmc.output[<span class="st">&#39;b.diff&#39;</span>]))</span></code></pre></div>
+<div class="sourceCode" id="cb655"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb655-1"><a href="generalized-linear-mixed-models.html#cb655-1" tabindex="-1"></a><span class="fu">HPDinterval</span>(<span class="fu">as.mcmc</span>(mcmc.output[<span class="st">&#39;b.diff&#39;</span>]))</span></code></pre></div>
 <pre><code>##             lower      upper
 ## b.diff 0.01168872 0.04370766
 ## attr(,&quot;Probability&quot;)
 ## [1] 0.95</code></pre>
 <p>The posterior mean of the difference in the log-odds slopes — 0.0278 — is essentially the same value that we have seen in every analysis. We can have a look at the full posterior distribution for this difference, and calculate the posterior probability that the difference is <span class="math inline">\(&gt;0\)</span>.</p>
-<div class="sourceCode" id="cb663"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb663-1"><a href="generalized-linear-mixed-models.html#cb663-1" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_areas</span>(mcmc.output,</span>
-<span id="cb663-2"><a href="generalized-linear-mixed-models.html#cb663-2" tabindex="-1"></a>                      <span class="at">pars =</span> <span class="fu">c</span>(<span class="st">&quot;b.diff&quot;</span>),</span>
-<span id="cb663-3"><a href="generalized-linear-mixed-models.html#cb663-3" tabindex="-1"></a>                      <span class="at">prob =</span> <span class="fl">0.95</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb657"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb657-1"><a href="generalized-linear-mixed-models.html#cb657-1" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_areas</span>(mcmc.output,</span>
+<span id="cb657-2"><a href="generalized-linear-mixed-models.html#cb657-2" tabindex="-1"></a>                      <span class="at">pars =</span> <span class="fu">c</span>(<span class="st">&quot;b.diff&quot;</span>),</span>
+<span id="cb657-3"><a href="generalized-linear-mixed-models.html#cb657-3" tabindex="-1"></a>                      <span class="at">prob =</span> <span class="fl">0.95</span>) </span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
-<div class="sourceCode" id="cb664"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb664-1"><a href="generalized-linear-mixed-models.html#cb664-1" tabindex="-1"></a><span class="fu">table</span>(mcmc.output<span class="sc">$</span>b.diff <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb658"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb658-1"><a href="generalized-linear-mixed-models.html#cb658-1" tabindex="-1"></a><span class="fu">table</span>(mcmc.output<span class="sc">$</span>b.diff <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## 
 ## FALSE  TRUE 
 ##     4 14996</code></pre>
 <p>Thus we would say that there is a 0.9997 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.</p>
 <p>We can plot the fit of the model using draws from the posterior distribution of the parameters. The heavy lines below show the fits using the posterior means of the parameters. Do these fits correspond to the marginal or conditional means? (There’s little difference here, but it’s a useful thought exercise.)</p>
-<div class="sourceCode" id="cb666"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb666-1"><a href="generalized-linear-mixed-models.html#cb666-1" tabindex="-1"></a>subset.samples <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(mcmc.output), <span class="at">size =</span> <span class="dv">100</span>)</span>
-<span id="cb666-2"><a href="generalized-linear-mixed-models.html#cb666-2" tabindex="-1"></a></span>
-<span id="cb666-3"><a href="generalized-linear-mixed-models.html#cb666-3" tabindex="-1"></a>moth<span class="sc">$</span>prop.removed <span class="ot">&lt;-</span> <span class="fu">with</span>(moth, removed <span class="sc">/</span> placed)</span>
-<span id="cb666-4"><a href="generalized-linear-mixed-models.html#cb666-4" tabindex="-1"></a></span>
-<span id="cb666-5"><a href="generalized-linear-mixed-models.html#cb666-5" tabindex="-1"></a>light <span class="ot">&lt;-</span> <span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;light&quot;</span>)</span>
-<span id="cb666-6"><a href="generalized-linear-mixed-models.html#cb666-6" tabindex="-1"></a>dark  <span class="ot">&lt;-</span> <span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;dark&quot;</span>)</span>
-<span id="cb666-7"><a href="generalized-linear-mixed-models.html#cb666-7" tabindex="-1"></a></span>
-<span id="cb666-8"><a href="generalized-linear-mixed-models.html#cb666-8" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
-<span id="cb666-9"><a href="generalized-linear-mixed-models.html#cb666-9" tabindex="-1"></a></span>
-<span id="cb666-10"><a href="generalized-linear-mixed-models.html#cb666-10" tabindex="-1"></a><span class="co">#------ light morph</span></span>
-<span id="cb666-11"><a href="generalized-linear-mixed-models.html#cb666-11" tabindex="-1"></a></span>
-<span id="cb666-12"><a href="generalized-linear-mixed-models.html#cb666-12" tabindex="-1"></a><span class="fu">plot</span>(prop.removed <span class="sc">~</span> distance,</span>
-<span id="cb666-13"><a href="generalized-linear-mixed-models.html#cb666-13" tabindex="-1"></a>     <span class="at">data =</span> moth,</span>
-<span id="cb666-14"><a href="generalized-linear-mixed-models.html#cb666-14" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">&quot;n&quot;</span>,</span>
-<span id="cb666-15"><a href="generalized-linear-mixed-models.html#cb666-15" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Light morph&quot;</span>,</span>
-<span id="cb666-16"><a href="generalized-linear-mixed-models.html#cb666-16" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;proprotion removed&quot;</span>)</span>
-<span id="cb666-17"><a href="generalized-linear-mixed-models.html#cb666-17" tabindex="-1"></a></span>
-<span id="cb666-18"><a href="generalized-linear-mixed-models.html#cb666-18" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> light<span class="sc">$</span>distance, <span class="at">y =</span> light<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span>
-<span id="cb666-19"><a href="generalized-linear-mixed-models.html#cb666-19" tabindex="-1"></a></span>
-<span id="cb666-20"><a href="generalized-linear-mixed-models.html#cb666-20" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> subset.samples) {</span>
-<span id="cb666-21"><a href="generalized-linear-mixed-models.html#cb666-21" tabindex="-1"></a></span>
-<span id="cb666-22"><a href="generalized-linear-mixed-models.html#cb666-22" tabindex="-1"></a>  a <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>a<span class="fl">.2</span>[i]</span>
-<span id="cb666-23"><a href="generalized-linear-mixed-models.html#cb666-23" tabindex="-1"></a>  b <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>b<span class="fl">.2</span>[i]</span>
-<span id="cb666-24"><a href="generalized-linear-mixed-models.html#cb666-24" tabindex="-1"></a></span>
-<span id="cb666-25"><a href="generalized-linear-mixed-models.html#cb666-25" tabindex="-1"></a>  fitted.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(a <span class="sc">+</span> b <span class="sc">*</span> x)</span>
-<span id="cb666-26"><a href="generalized-linear-mixed-models.html#cb666-26" tabindex="-1"></a></span>
-<span id="cb666-27"><a href="generalized-linear-mixed-models.html#cb666-27" tabindex="-1"></a>  <span class="fu">curve</span>(fitted.curve,</span>
-<span id="cb666-28"><a href="generalized-linear-mixed-models.html#cb666-28" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb666-29"><a href="generalized-linear-mixed-models.html#cb666-29" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb666-30"><a href="generalized-linear-mixed-models.html#cb666-30" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb666-31"><a href="generalized-linear-mixed-models.html#cb666-31" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;deepskyblue&quot;</span>)</span>
-<span id="cb666-32"><a href="generalized-linear-mixed-models.html#cb666-32" tabindex="-1"></a>}</span>
-<span id="cb666-33"><a href="generalized-linear-mixed-models.html#cb666-33" tabindex="-1"></a></span>
-<span id="cb666-34"><a href="generalized-linear-mixed-models.html#cb666-34" tabindex="-1"></a>fitted.mean.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(post.mean[<span class="st">&#39;a.2&#39;</span>] <span class="sc">+</span> post.mean[<span class="st">&#39;b.2&#39;</span>] <span class="sc">*</span> x)</span>
-<span id="cb666-35"><a href="generalized-linear-mixed-models.html#cb666-35" tabindex="-1"></a></span>
-<span id="cb666-36"><a href="generalized-linear-mixed-models.html#cb666-36" tabindex="-1"></a><span class="fu">curve</span>(fitted.mean.curve,</span>
-<span id="cb666-37"><a href="generalized-linear-mixed-models.html#cb666-37" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb666-38"><a href="generalized-linear-mixed-models.html#cb666-38" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb666-39"><a href="generalized-linear-mixed-models.html#cb666-39" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb666-40"><a href="generalized-linear-mixed-models.html#cb666-40" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;darkblue&quot;</span>,</span>
-<span id="cb666-41"><a href="generalized-linear-mixed-models.html#cb666-41" tabindex="-1"></a>        <span class="at">lwd  =</span> <span class="dv">2</span>)</span>
-<span id="cb666-42"><a href="generalized-linear-mixed-models.html#cb666-42" tabindex="-1"></a></span>
-<span id="cb666-43"><a href="generalized-linear-mixed-models.html#cb666-43" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> light<span class="sc">$</span>distance, <span class="at">y =</span> light<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span>
-<span id="cb666-44"><a href="generalized-linear-mixed-models.html#cb666-44" tabindex="-1"></a></span>
-<span id="cb666-45"><a href="generalized-linear-mixed-models.html#cb666-45" tabindex="-1"></a><span class="co">#--------- dark morph</span></span>
-<span id="cb666-46"><a href="generalized-linear-mixed-models.html#cb666-46" tabindex="-1"></a></span>
-<span id="cb666-47"><a href="generalized-linear-mixed-models.html#cb666-47" tabindex="-1"></a><span class="fu">plot</span>(prop.removed <span class="sc">~</span> distance,</span>
-<span id="cb666-48"><a href="generalized-linear-mixed-models.html#cb666-48" tabindex="-1"></a>     <span class="at">data =</span> moth,</span>
-<span id="cb666-49"><a href="generalized-linear-mixed-models.html#cb666-49" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">&quot;n&quot;</span>,</span>
-<span id="cb666-50"><a href="generalized-linear-mixed-models.html#cb666-50" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Dark morph&quot;</span>,</span>
-<span id="cb666-51"><a href="generalized-linear-mixed-models.html#cb666-51" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;proprotion removed&quot;</span>)</span>
-<span id="cb666-52"><a href="generalized-linear-mixed-models.html#cb666-52" tabindex="-1"></a></span>
-<span id="cb666-53"><a href="generalized-linear-mixed-models.html#cb666-53" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> subset.samples) {</span>
-<span id="cb666-54"><a href="generalized-linear-mixed-models.html#cb666-54" tabindex="-1"></a></span>
-<span id="cb666-55"><a href="generalized-linear-mixed-models.html#cb666-55" tabindex="-1"></a>  a <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>a<span class="fl">.1</span>[i]</span>
-<span id="cb666-56"><a href="generalized-linear-mixed-models.html#cb666-56" tabindex="-1"></a>  b <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>b<span class="fl">.1</span>[i]</span>
-<span id="cb666-57"><a href="generalized-linear-mixed-models.html#cb666-57" tabindex="-1"></a></span>
-<span id="cb666-58"><a href="generalized-linear-mixed-models.html#cb666-58" tabindex="-1"></a>  fitted.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(a <span class="sc">+</span> b <span class="sc">*</span> x)</span>
-<span id="cb666-59"><a href="generalized-linear-mixed-models.html#cb666-59" tabindex="-1"></a></span>
-<span id="cb666-60"><a href="generalized-linear-mixed-models.html#cb666-60" tabindex="-1"></a>  <span class="fu">curve</span>(fitted.curve,</span>
-<span id="cb666-61"><a href="generalized-linear-mixed-models.html#cb666-61" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb666-62"><a href="generalized-linear-mixed-models.html#cb666-62" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb666-63"><a href="generalized-linear-mixed-models.html#cb666-63" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb666-64"><a href="generalized-linear-mixed-models.html#cb666-64" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;deepskyblue&quot;</span>)</span>
-<span id="cb666-65"><a href="generalized-linear-mixed-models.html#cb666-65" tabindex="-1"></a>}</span>
-<span id="cb666-66"><a href="generalized-linear-mixed-models.html#cb666-66" tabindex="-1"></a></span>
-<span id="cb666-67"><a href="generalized-linear-mixed-models.html#cb666-67" tabindex="-1"></a>fitted.mean.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(post.mean[<span class="st">&#39;a.1&#39;</span>] <span class="sc">+</span> post.mean[<span class="st">&#39;b.1&#39;</span>] <span class="sc">*</span> x)</span>
-<span id="cb666-68"><a href="generalized-linear-mixed-models.html#cb666-68" tabindex="-1"></a></span>
-<span id="cb666-69"><a href="generalized-linear-mixed-models.html#cb666-69" tabindex="-1"></a><span class="fu">curve</span>(fitted.mean.curve,</span>
-<span id="cb666-70"><a href="generalized-linear-mixed-models.html#cb666-70" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb666-71"><a href="generalized-linear-mixed-models.html#cb666-71" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
-<span id="cb666-72"><a href="generalized-linear-mixed-models.html#cb666-72" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb666-73"><a href="generalized-linear-mixed-models.html#cb666-73" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;darkblue&quot;</span>,</span>
-<span id="cb666-74"><a href="generalized-linear-mixed-models.html#cb666-74" tabindex="-1"></a>        <span class="at">lwd  =</span> <span class="dv">2</span>)</span>
-<span id="cb666-75"><a href="generalized-linear-mixed-models.html#cb666-75" tabindex="-1"></a></span>
-<span id="cb666-76"><a href="generalized-linear-mixed-models.html#cb666-76" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> dark<span class="sc">$</span>distance, <span class="at">y =</span> dark<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb660"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb660-1"><a href="generalized-linear-mixed-models.html#cb660-1" tabindex="-1"></a>subset.samples <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(mcmc.output), <span class="at">size =</span> <span class="dv">100</span>)</span>
+<span id="cb660-2"><a href="generalized-linear-mixed-models.html#cb660-2" tabindex="-1"></a></span>
+<span id="cb660-3"><a href="generalized-linear-mixed-models.html#cb660-3" tabindex="-1"></a>moth<span class="sc">$</span>prop.removed <span class="ot">&lt;-</span> <span class="fu">with</span>(moth, removed <span class="sc">/</span> placed)</span>
+<span id="cb660-4"><a href="generalized-linear-mixed-models.html#cb660-4" tabindex="-1"></a></span>
+<span id="cb660-5"><a href="generalized-linear-mixed-models.html#cb660-5" tabindex="-1"></a>light <span class="ot">&lt;-</span> <span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;light&quot;</span>)</span>
+<span id="cb660-6"><a href="generalized-linear-mixed-models.html#cb660-6" tabindex="-1"></a>dark  <span class="ot">&lt;-</span> <span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;dark&quot;</span>)</span>
+<span id="cb660-7"><a href="generalized-linear-mixed-models.html#cb660-7" tabindex="-1"></a></span>
+<span id="cb660-8"><a href="generalized-linear-mixed-models.html#cb660-8" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb660-9"><a href="generalized-linear-mixed-models.html#cb660-9" tabindex="-1"></a></span>
+<span id="cb660-10"><a href="generalized-linear-mixed-models.html#cb660-10" tabindex="-1"></a><span class="co">#------ light morph</span></span>
+<span id="cb660-11"><a href="generalized-linear-mixed-models.html#cb660-11" tabindex="-1"></a></span>
+<span id="cb660-12"><a href="generalized-linear-mixed-models.html#cb660-12" tabindex="-1"></a><span class="fu">plot</span>(prop.removed <span class="sc">~</span> distance,</span>
+<span id="cb660-13"><a href="generalized-linear-mixed-models.html#cb660-13" tabindex="-1"></a>     <span class="at">data =</span> moth,</span>
+<span id="cb660-14"><a href="generalized-linear-mixed-models.html#cb660-14" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">&quot;n&quot;</span>,</span>
+<span id="cb660-15"><a href="generalized-linear-mixed-models.html#cb660-15" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Light morph&quot;</span>,</span>
+<span id="cb660-16"><a href="generalized-linear-mixed-models.html#cb660-16" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;proprotion removed&quot;</span>)</span>
+<span id="cb660-17"><a href="generalized-linear-mixed-models.html#cb660-17" tabindex="-1"></a></span>
+<span id="cb660-18"><a href="generalized-linear-mixed-models.html#cb660-18" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> light<span class="sc">$</span>distance, <span class="at">y =</span> light<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span>
+<span id="cb660-19"><a href="generalized-linear-mixed-models.html#cb660-19" tabindex="-1"></a></span>
+<span id="cb660-20"><a href="generalized-linear-mixed-models.html#cb660-20" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> subset.samples) {</span>
+<span id="cb660-21"><a href="generalized-linear-mixed-models.html#cb660-21" tabindex="-1"></a></span>
+<span id="cb660-22"><a href="generalized-linear-mixed-models.html#cb660-22" tabindex="-1"></a>  a <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>a<span class="fl">.2</span>[i]</span>
+<span id="cb660-23"><a href="generalized-linear-mixed-models.html#cb660-23" tabindex="-1"></a>  b <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>b<span class="fl">.2</span>[i]</span>
+<span id="cb660-24"><a href="generalized-linear-mixed-models.html#cb660-24" tabindex="-1"></a></span>
+<span id="cb660-25"><a href="generalized-linear-mixed-models.html#cb660-25" tabindex="-1"></a>  fitted.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(a <span class="sc">+</span> b <span class="sc">*</span> x)</span>
+<span id="cb660-26"><a href="generalized-linear-mixed-models.html#cb660-26" tabindex="-1"></a></span>
+<span id="cb660-27"><a href="generalized-linear-mixed-models.html#cb660-27" tabindex="-1"></a>  <span class="fu">curve</span>(fitted.curve,</span>
+<span id="cb660-28"><a href="generalized-linear-mixed-models.html#cb660-28" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb660-29"><a href="generalized-linear-mixed-models.html#cb660-29" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb660-30"><a href="generalized-linear-mixed-models.html#cb660-30" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb660-31"><a href="generalized-linear-mixed-models.html#cb660-31" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;deepskyblue&quot;</span>)</span>
+<span id="cb660-32"><a href="generalized-linear-mixed-models.html#cb660-32" tabindex="-1"></a>}</span>
+<span id="cb660-33"><a href="generalized-linear-mixed-models.html#cb660-33" tabindex="-1"></a></span>
+<span id="cb660-34"><a href="generalized-linear-mixed-models.html#cb660-34" tabindex="-1"></a>fitted.mean.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(post.mean[<span class="st">&#39;a.2&#39;</span>] <span class="sc">+</span> post.mean[<span class="st">&#39;b.2&#39;</span>] <span class="sc">*</span> x)</span>
+<span id="cb660-35"><a href="generalized-linear-mixed-models.html#cb660-35" tabindex="-1"></a></span>
+<span id="cb660-36"><a href="generalized-linear-mixed-models.html#cb660-36" tabindex="-1"></a><span class="fu">curve</span>(fitted.mean.curve,</span>
+<span id="cb660-37"><a href="generalized-linear-mixed-models.html#cb660-37" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb660-38"><a href="generalized-linear-mixed-models.html#cb660-38" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb660-39"><a href="generalized-linear-mixed-models.html#cb660-39" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb660-40"><a href="generalized-linear-mixed-models.html#cb660-40" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;darkblue&quot;</span>,</span>
+<span id="cb660-41"><a href="generalized-linear-mixed-models.html#cb660-41" tabindex="-1"></a>        <span class="at">lwd  =</span> <span class="dv">2</span>)</span>
+<span id="cb660-42"><a href="generalized-linear-mixed-models.html#cb660-42" tabindex="-1"></a></span>
+<span id="cb660-43"><a href="generalized-linear-mixed-models.html#cb660-43" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> light<span class="sc">$</span>distance, <span class="at">y =</span> light<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span>
+<span id="cb660-44"><a href="generalized-linear-mixed-models.html#cb660-44" tabindex="-1"></a></span>
+<span id="cb660-45"><a href="generalized-linear-mixed-models.html#cb660-45" tabindex="-1"></a><span class="co">#--------- dark morph</span></span>
+<span id="cb660-46"><a href="generalized-linear-mixed-models.html#cb660-46" tabindex="-1"></a></span>
+<span id="cb660-47"><a href="generalized-linear-mixed-models.html#cb660-47" tabindex="-1"></a><span class="fu">plot</span>(prop.removed <span class="sc">~</span> distance,</span>
+<span id="cb660-48"><a href="generalized-linear-mixed-models.html#cb660-48" tabindex="-1"></a>     <span class="at">data =</span> moth,</span>
+<span id="cb660-49"><a href="generalized-linear-mixed-models.html#cb660-49" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">&quot;n&quot;</span>,</span>
+<span id="cb660-50"><a href="generalized-linear-mixed-models.html#cb660-50" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Dark morph&quot;</span>,</span>
+<span id="cb660-51"><a href="generalized-linear-mixed-models.html#cb660-51" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;proprotion removed&quot;</span>)</span>
+<span id="cb660-52"><a href="generalized-linear-mixed-models.html#cb660-52" tabindex="-1"></a></span>
+<span id="cb660-53"><a href="generalized-linear-mixed-models.html#cb660-53" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> subset.samples) {</span>
+<span id="cb660-54"><a href="generalized-linear-mixed-models.html#cb660-54" tabindex="-1"></a></span>
+<span id="cb660-55"><a href="generalized-linear-mixed-models.html#cb660-55" tabindex="-1"></a>  a <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>a<span class="fl">.1</span>[i]</span>
+<span id="cb660-56"><a href="generalized-linear-mixed-models.html#cb660-56" tabindex="-1"></a>  b <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>b<span class="fl">.1</span>[i]</span>
+<span id="cb660-57"><a href="generalized-linear-mixed-models.html#cb660-57" tabindex="-1"></a></span>
+<span id="cb660-58"><a href="generalized-linear-mixed-models.html#cb660-58" tabindex="-1"></a>  fitted.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(a <span class="sc">+</span> b <span class="sc">*</span> x)</span>
+<span id="cb660-59"><a href="generalized-linear-mixed-models.html#cb660-59" tabindex="-1"></a></span>
+<span id="cb660-60"><a href="generalized-linear-mixed-models.html#cb660-60" tabindex="-1"></a>  <span class="fu">curve</span>(fitted.curve,</span>
+<span id="cb660-61"><a href="generalized-linear-mixed-models.html#cb660-61" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb660-62"><a href="generalized-linear-mixed-models.html#cb660-62" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb660-63"><a href="generalized-linear-mixed-models.html#cb660-63" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb660-64"><a href="generalized-linear-mixed-models.html#cb660-64" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;deepskyblue&quot;</span>)</span>
+<span id="cb660-65"><a href="generalized-linear-mixed-models.html#cb660-65" tabindex="-1"></a>}</span>
+<span id="cb660-66"><a href="generalized-linear-mixed-models.html#cb660-66" tabindex="-1"></a></span>
+<span id="cb660-67"><a href="generalized-linear-mixed-models.html#cb660-67" tabindex="-1"></a>fitted.mean.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(post.mean[<span class="st">&#39;a.1&#39;</span>] <span class="sc">+</span> post.mean[<span class="st">&#39;b.1&#39;</span>] <span class="sc">*</span> x)</span>
+<span id="cb660-68"><a href="generalized-linear-mixed-models.html#cb660-68" tabindex="-1"></a></span>
+<span id="cb660-69"><a href="generalized-linear-mixed-models.html#cb660-69" tabindex="-1"></a><span class="fu">curve</span>(fitted.mean.curve,</span>
+<span id="cb660-70"><a href="generalized-linear-mixed-models.html#cb660-70" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb660-71"><a href="generalized-linear-mixed-models.html#cb660-71" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb660-72"><a href="generalized-linear-mixed-models.html#cb660-72" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb660-73"><a href="generalized-linear-mixed-models.html#cb660-73" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;darkblue&quot;</span>,</span>
+<span id="cb660-74"><a href="generalized-linear-mixed-models.html#cb660-74" tabindex="-1"></a>        <span class="at">lwd  =</span> <span class="dv">2</span>)</span>
+<span id="cb660-75"><a href="generalized-linear-mixed-models.html#cb660-75" tabindex="-1"></a></span>
+<span id="cb660-76"><a href="generalized-linear-mixed-models.html#cb660-76" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> dark<span class="sc">$</span>distance, <span class="at">y =</span> dark<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 </div>
 </div>
@@ -682,27 +666,27 @@ L_j &amp; \sim \mathcal{N}(0, \sigma^2_L) \\
 B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 \varepsilon_{ijkl} &amp; \sim \mathcal{N}(0, \sigma^2_\varepsilon) \\
 \end{align*}\]</span></p>
-<div class="sourceCode" id="cb667"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb667-1"><a href="generalized-linear-mixed-models.html#cb667-1" tabindex="-1"></a><span class="fu">require</span>(lme4)</span>
-<span id="cb667-2"><a href="generalized-linear-mixed-models.html#cb667-2" tabindex="-1"></a><span class="fu">require</span>(lattice)</span></code></pre></div>
+<div class="sourceCode" id="cb661"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb661-1"><a href="generalized-linear-mixed-models.html#cb661-1" tabindex="-1"></a><span class="fu">require</span>(lme4)</span>
+<span id="cb661-2"><a href="generalized-linear-mixed-models.html#cb661-2" tabindex="-1"></a><span class="fu">require</span>(lattice)</span></code></pre></div>
 <pre><code>## Loading required package: lattice</code></pre>
-<div class="sourceCode" id="cb669"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb669-1"><a href="generalized-linear-mixed-models.html#cb669-1" tabindex="-1"></a>tick <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/tick.txt&quot;</span>, <span class="at">head =</span> T)</span>
-<span id="cb669-2"><a href="generalized-linear-mixed-models.html#cb669-2" tabindex="-1"></a></span>
-<span id="cb669-3"><a href="generalized-linear-mixed-models.html#cb669-3" tabindex="-1"></a><span class="fu">names</span>(tick) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;index&quot;</span>, <span class="st">&quot;ticks&quot;</span>, <span class="st">&quot;brood&quot;</span>, <span class="st">&quot;elevation&quot;</span>, <span class="st">&quot;yr&quot;</span>, <span class="st">&quot;loc&quot;</span>)</span>
-<span id="cb669-4"><a href="generalized-linear-mixed-models.html#cb669-4" tabindex="-1"></a></span>
-<span id="cb669-5"><a href="generalized-linear-mixed-models.html#cb669-5" tabindex="-1"></a>tick<span class="sc">$</span>index <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>index)</span>
-<span id="cb669-6"><a href="generalized-linear-mixed-models.html#cb669-6" tabindex="-1"></a>tick<span class="sc">$</span>brood <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>brood)</span>
-<span id="cb669-7"><a href="generalized-linear-mixed-models.html#cb669-7" tabindex="-1"></a>tick<span class="sc">$</span>yr    <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>yr)</span>
-<span id="cb669-8"><a href="generalized-linear-mixed-models.html#cb669-8" tabindex="-1"></a>tick<span class="sc">$</span>loc   <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>loc)</span>
-<span id="cb669-9"><a href="generalized-linear-mixed-models.html#cb669-9" tabindex="-1"></a></span>
-<span id="cb669-10"><a href="generalized-linear-mixed-models.html#cb669-10" tabindex="-1"></a><span class="co"># center and scale elevation</span></span>
-<span id="cb669-11"><a href="generalized-linear-mixed-models.html#cb669-11" tabindex="-1"></a></span>
-<span id="cb669-12"><a href="generalized-linear-mixed-models.html#cb669-12" tabindex="-1"></a>tick<span class="sc">$</span>elev.z <span class="ot">&lt;-</span> <span class="fu">with</span>(tick, (elevation <span class="sc">-</span> <span class="fu">mean</span>(elevation)) <span class="sc">/</span> <span class="fu">sd</span>(elevation))</span></code></pre></div>
+<div class="sourceCode" id="cb663"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb663-1"><a href="generalized-linear-mixed-models.html#cb663-1" tabindex="-1"></a>tick <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/tick.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb663-2"><a href="generalized-linear-mixed-models.html#cb663-2" tabindex="-1"></a></span>
+<span id="cb663-3"><a href="generalized-linear-mixed-models.html#cb663-3" tabindex="-1"></a><span class="fu">names</span>(tick) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;index&quot;</span>, <span class="st">&quot;ticks&quot;</span>, <span class="st">&quot;brood&quot;</span>, <span class="st">&quot;elevation&quot;</span>, <span class="st">&quot;yr&quot;</span>, <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb663-4"><a href="generalized-linear-mixed-models.html#cb663-4" tabindex="-1"></a></span>
+<span id="cb663-5"><a href="generalized-linear-mixed-models.html#cb663-5" tabindex="-1"></a>tick<span class="sc">$</span>index <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>index)</span>
+<span id="cb663-6"><a href="generalized-linear-mixed-models.html#cb663-6" tabindex="-1"></a>tick<span class="sc">$</span>brood <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>brood)</span>
+<span id="cb663-7"><a href="generalized-linear-mixed-models.html#cb663-7" tabindex="-1"></a>tick<span class="sc">$</span>yr    <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>yr)</span>
+<span id="cb663-8"><a href="generalized-linear-mixed-models.html#cb663-8" tabindex="-1"></a>tick<span class="sc">$</span>loc   <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>loc)</span>
+<span id="cb663-9"><a href="generalized-linear-mixed-models.html#cb663-9" tabindex="-1"></a></span>
+<span id="cb663-10"><a href="generalized-linear-mixed-models.html#cb663-10" tabindex="-1"></a><span class="co"># center and scale elevation</span></span>
+<span id="cb663-11"><a href="generalized-linear-mixed-models.html#cb663-11" tabindex="-1"></a></span>
+<span id="cb663-12"><a href="generalized-linear-mixed-models.html#cb663-12" tabindex="-1"></a>tick<span class="sc">$</span>elev.z <span class="ot">&lt;-</span> <span class="fu">with</span>(tick, (elevation <span class="sc">-</span> <span class="fu">mean</span>(elevation)) <span class="sc">/</span> <span class="fu">sd</span>(elevation))</span></code></pre></div>
 <p>Model fitting:</p>
-<div class="sourceCode" id="cb670"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb670-1"><a href="generalized-linear-mixed-models.html#cb670-1" tabindex="-1"></a>fm1  <span class="ot">&lt;-</span> <span class="fu">glmer</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> elev.z <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> loc) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index),</span>
-<span id="cb670-2"><a href="generalized-linear-mixed-models.html#cb670-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
-<span id="cb670-3"><a href="generalized-linear-mixed-models.html#cb670-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
-<span id="cb670-4"><a href="generalized-linear-mixed-models.html#cb670-4" tabindex="-1"></a></span>
-<span id="cb670-5"><a href="generalized-linear-mixed-models.html#cb670-5" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb664"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb664-1"><a href="generalized-linear-mixed-models.html#cb664-1" tabindex="-1"></a>fm1  <span class="ot">&lt;-</span> <span class="fu">glmer</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> elev.z <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> loc) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index),</span>
+<span id="cb664-2"><a href="generalized-linear-mixed-models.html#cb664-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb664-3"><a href="generalized-linear-mixed-models.html#cb664-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
+<span id="cb664-4"><a href="generalized-linear-mixed-models.html#cb664-4" tabindex="-1"></a></span>
+<span id="cb664-5"><a href="generalized-linear-mixed-models.html#cb664-5" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
 ##  Family: poisson  ( log )
@@ -744,9 +728,9 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 <!-- abline(h = 0, lty = "dashed") -->
 <!-- ``` -->
 <p>We can have a look at the profile confidence intervals and profile confidence regions for each of the model parameters.</p>
-<div class="sourceCode" id="cb672"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb672-1"><a href="generalized-linear-mixed-models.html#cb672-1" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm1)</span>
-<span id="cb672-2"><a href="generalized-linear-mixed-models.html#cb672-2" tabindex="-1"></a></span>
-<span id="cb672-3"><a href="generalized-linear-mixed-models.html#cb672-3" tabindex="-1"></a><span class="fu">confint</span>(pp)</span></code></pre></div>
+<div class="sourceCode" id="cb666"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb666-1"><a href="generalized-linear-mixed-models.html#cb666-1" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm1)</span>
+<span id="cb666-2"><a href="generalized-linear-mixed-models.html#cb666-2" tabindex="-1"></a></span>
+<span id="cb666-3"><a href="generalized-linear-mixed-models.html#cb666-3" tabindex="-1"></a><span class="fu">confint</span>(pp)</span></code></pre></div>
 <pre><code>##                   2.5 %     97.5 %
 ## .sig01       0.45148400  0.6451853
 ## .sig02       0.52127907  1.0569688
@@ -755,9 +739,9 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 ## yr96         0.71308911  1.6583691
 ## yr97        -1.50239867 -0.4606278
 ## elev.z      -1.10589101 -0.6090505</code></pre>
-<div class="sourceCode" id="cb674"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb674-1"><a href="generalized-linear-mixed-models.html#cb674-1" tabindex="-1"></a><span class="fu">xyplot</span>(pp, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb668"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb668-1"><a href="generalized-linear-mixed-models.html#cb668-1" tabindex="-1"></a><span class="fu">xyplot</span>(pp, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
-<div class="sourceCode" id="cb675"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb675-1"><a href="generalized-linear-mixed-models.html#cb675-1" tabindex="-1"></a><span class="fu">splom</span>(pp)</span></code></pre></div>
+<div class="sourceCode" id="cb669"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb669-1"><a href="generalized-linear-mixed-models.html#cb669-1" tabindex="-1"></a><span class="fu">splom</span>(pp)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-23-2.png" width="672" /></p>
 <p>We see that the standard deviation of the location-level random effect (“.sig03”) has a 95% confidence interval that includes 0. We might conclude that the location-level random effect is unnecessary. In other words, there is no evidence that different broods from the same location are more strongly (positively) correlated than two broods at different locations at the same elevation. The bivariate confidence regions show us that the estimated SD of the location-level random effect is negatively correlated with the estimated SD of the brood-level random effect (“.sig02”). Thus, the location-to-location variability (above and beyond the elevation effect) from brood-to-brood variability are confounded, which makes sense, given that most locations are represented by a small number of broods.</p>
 <p>It is something of a judgment call as to whether it would make sense at this point to drop the location-level random effect. We could retain it on the grounds that one expects some location-to-location variation beyond the effect of elevation, even if that variation is small.</p>
@@ -765,35 +749,35 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 <!-- > Consider *not* testing the significance of random effects. If the random effect is part of the experimental design, this procedure may be considered ‘sacrificial pseudoreplication’ (@hurlbert1984). Using stepwise approaches to eliminate non-significant terms in order to squeeze more significance out of the remaining terms is dangerous in any case. -->
 <!-- However, these red grouse data do not come from a designed experiment.   -->
 <p>To test for the significance of a random effect, the usual approach is to conduct a likelihood-ratio test to compare models with and without the random effect. In this case, the null hypothesis is that the variance of the tested random effect is 0, which is on the boundary of the allowable values for a variance. Thus, the <span class="math inline">\(p\)</span>-value from a LRT is conservative (too big). In simple models, the <span class="math inline">\(p\)</span>-value for the LRT is twice as big as it should be, suggesting that the appropriate correction is to divide the <span class="math inline">\(p\)</span>-value by 2 (<span class="citation">Pinheiro and Bates (<a href="#ref-pinheiro2000">2000</a>)</span>). For more complex models, however, the divide-by-2 rule is only a rough rule of thumb. We illustrate by comparing a model with the location-level random effect to one without it. (In notation, we are testing <span class="math inline">\(\sigma^2_L = 0\)</span>.)</p>
-<div class="sourceCode" id="cb676"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb676-1"><a href="generalized-linear-mixed-models.html#cb676-1" tabindex="-1"></a>fm2  <span class="ot">&lt;-</span> <span class="fu">glmer</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> elev.z <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index),</span>
-<span id="cb676-2"><a href="generalized-linear-mixed-models.html#cb676-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
-<span id="cb676-3"><a href="generalized-linear-mixed-models.html#cb676-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
-<span id="cb676-4"><a href="generalized-linear-mixed-models.html#cb676-4" tabindex="-1"></a></span>
-<span id="cb676-5"><a href="generalized-linear-mixed-models.html#cb676-5" tabindex="-1"></a><span class="fu">anova</span>(fm2, fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb670"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb670-1"><a href="generalized-linear-mixed-models.html#cb670-1" tabindex="-1"></a>fm2  <span class="ot">&lt;-</span> <span class="fu">glmer</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> elev.z <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index),</span>
+<span id="cb670-2"><a href="generalized-linear-mixed-models.html#cb670-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb670-3"><a href="generalized-linear-mixed-models.html#cb670-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
+<span id="cb670-4"><a href="generalized-linear-mixed-models.html#cb670-4" tabindex="-1"></a></span>
+<span id="cb670-5"><a href="generalized-linear-mixed-models.html#cb670-5" tabindex="-1"></a><span class="fu">anova</span>(fm2, fm1)</span></code></pre></div>
 <pre><code>## Data: tick
 ## Models:
 ## fm2: ticks ~ yr + elev.z + (1 | brood) + (1 | index)
 ## fm1: ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index)
-##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
-## fm2    6 1794.0 1818.0 -891.02   1782.0                     
-## fm1    7 1794.5 1822.5 -890.27   1780.5 1.4973  1     0.2211</code></pre>
+##     npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(&gt;Chisq)
+## fm2    6 1794.0 1818.0 -891.02    1782.0                     
+## fm1    7 1794.5 1822.5 -890.27    1780.5 1.4973  1     0.2211</code></pre>
 <p>If we use the rough divide-by-2 rule, the approximate <span class="math inline">\(p\)</span>-value is <span class="math inline">\(p \approx 0.11\)</span>. Thus, the model with the location-level random effect does not improve significantly on the model without the location-level random effect. We might conclude that the location-level random effect is unnecessary.</p>
 <p>Although this analysis focused on how different random effects contributed to the overall variation in tick load, it is also helpful to visualize the fit of the model. The plot below shows the tick load for each individual (plotted on a log + 1 scale) vs. the centered and scaled elevation variable, along with the fitted mean line for each year. Note that the curvature in the fit appears because the response is shown as the log + 1 instead of the log. The fits would be straight lines on the log scale.</p>
-<div class="sourceCode" id="cb678"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb678-1"><a href="generalized-linear-mixed-models.html#cb678-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
-<span id="cb678-2"><a href="generalized-linear-mixed-models.html#cb678-2" tabindex="-1"></a></span>
-<span id="cb678-3"><a href="generalized-linear-mixed-models.html#cb678-3" tabindex="-1"></a>plot.subset <span class="ot">&lt;-</span> <span class="cf">function</span>(year, a, b) {</span>
-<span id="cb678-4"><a href="generalized-linear-mixed-models.html#cb678-4" tabindex="-1"></a>   </span>
-<span id="cb678-5"><a href="generalized-linear-mixed-models.html#cb678-5" tabindex="-1"></a>   <span class="fu">with</span>(tick, <span class="fu">plot</span>(<span class="fu">log</span>(ticks <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">~</span> elev.z, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">main =</span> year))</span>
-<span id="cb678-6"><a href="generalized-linear-mixed-models.html#cb678-6" tabindex="-1"></a>   </span>
-<span id="cb678-7"><a href="generalized-linear-mixed-models.html#cb678-7" tabindex="-1"></a>   <span class="fu">with</span>(<span class="fu">subset</span>(tick, yr <span class="sc">==</span> year), <span class="fu">points</span>(<span class="fu">jitter</span>(<span class="fu">log</span>(ticks <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">~</span> elev.z))</span>
-<span id="cb678-8"><a href="generalized-linear-mixed-models.html#cb678-8" tabindex="-1"></a>   </span>
-<span id="cb678-9"><a href="generalized-linear-mixed-models.html#cb678-9" tabindex="-1"></a>   fit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a <span class="sc">+</span> b <span class="sc">*</span> x))</span>
-<span id="cb678-10"><a href="generalized-linear-mixed-models.html#cb678-10" tabindex="-1"></a>   <span class="fu">curve</span>(fit, <span class="at">from =</span> <span class="fu">min</span>(tick<span class="sc">$</span>elev.z), <span class="at">to =</span> <span class="fu">max</span>(tick<span class="sc">$</span>elev.z), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
-<span id="cb678-11"><a href="generalized-linear-mixed-models.html#cb678-11" tabindex="-1"></a>}</span>
-<span id="cb678-12"><a href="generalized-linear-mixed-models.html#cb678-12" tabindex="-1"></a></span>
-<span id="cb678-13"><a href="generalized-linear-mixed-models.html#cb678-13" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;95&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span>
-<span id="cb678-14"><a href="generalized-linear-mixed-models.html#cb678-14" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;96&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span> <span class="sc">+</span> <span class="fl">1.1804</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span>
-<span id="cb678-15"><a href="generalized-linear-mixed-models.html#cb678-15" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;97&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span> <span class="sc">-</span> <span class="fl">0.9787</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb672"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb672-1"><a href="generalized-linear-mixed-models.html#cb672-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb672-2"><a href="generalized-linear-mixed-models.html#cb672-2" tabindex="-1"></a></span>
+<span id="cb672-3"><a href="generalized-linear-mixed-models.html#cb672-3" tabindex="-1"></a>plot.subset <span class="ot">&lt;-</span> <span class="cf">function</span>(year, a, b) {</span>
+<span id="cb672-4"><a href="generalized-linear-mixed-models.html#cb672-4" tabindex="-1"></a>   </span>
+<span id="cb672-5"><a href="generalized-linear-mixed-models.html#cb672-5" tabindex="-1"></a>   <span class="fu">with</span>(tick, <span class="fu">plot</span>(<span class="fu">log</span>(ticks <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">~</span> elev.z, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">main =</span> year))</span>
+<span id="cb672-6"><a href="generalized-linear-mixed-models.html#cb672-6" tabindex="-1"></a>   </span>
+<span id="cb672-7"><a href="generalized-linear-mixed-models.html#cb672-7" tabindex="-1"></a>   <span class="fu">with</span>(<span class="fu">subset</span>(tick, yr <span class="sc">==</span> year), <span class="fu">points</span>(<span class="fu">jitter</span>(<span class="fu">log</span>(ticks <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">~</span> elev.z))</span>
+<span id="cb672-8"><a href="generalized-linear-mixed-models.html#cb672-8" tabindex="-1"></a>   </span>
+<span id="cb672-9"><a href="generalized-linear-mixed-models.html#cb672-9" tabindex="-1"></a>   fit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a <span class="sc">+</span> b <span class="sc">*</span> x))</span>
+<span id="cb672-10"><a href="generalized-linear-mixed-models.html#cb672-10" tabindex="-1"></a>   <span class="fu">curve</span>(fit, <span class="at">from =</span> <span class="fu">min</span>(tick<span class="sc">$</span>elev.z), <span class="at">to =</span> <span class="fu">max</span>(tick<span class="sc">$</span>elev.z), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb672-11"><a href="generalized-linear-mixed-models.html#cb672-11" tabindex="-1"></a>}</span>
+<span id="cb672-12"><a href="generalized-linear-mixed-models.html#cb672-12" tabindex="-1"></a></span>
+<span id="cb672-13"><a href="generalized-linear-mixed-models.html#cb672-13" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;95&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span>
+<span id="cb672-14"><a href="generalized-linear-mixed-models.html#cb672-14" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;96&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span> <span class="sc">+</span> <span class="fl">1.1804</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span>
+<span id="cb672-15"><a href="generalized-linear-mixed-models.html#cb672-15" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;97&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span> <span class="sc">-</span> <span class="fl">0.9787</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
 <!-- In any case, all of this seems to beg the question: What is the cost, if any, of overspecifying the random effects? -->
 <!-- # model without observation-level random effect -->
@@ -815,19 +799,19 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 <h2><span class="header-section-number">8.3</span> GAMMs<a href="generalized-linear-mixed-models.html#GAMMs" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Generalized additive mixed models (GAMMs) include just about every model feature we’ve discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlated errors. There are two software routines available for fitting GAMMs in R: <code>mgcv::gamm</code> and <code>gamm4::gamm4</code>. The routine <code>mgcv::gamm</code> is based on <code>lme</code>, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares. The routine <code>gamm4::gamm4</code> is based on <code>lme4</code>, and thus provides access to the same fitting syntax as <code>lmer</code> and <code>glmer</code>. We will illustrate each in turn.</p>
 <p>As we have seen, serial data usually have a serial dependence structure. They are also data for which one might want to use splines to capture the underlying trend. Time series provide a prime example. Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a> I downloaded these data from Kelly Kissock’s website at the University of Dayton, although that website no longer seems to be maintained. First, some housekeeping and exploratory analysis.</p>
-<div class="sourceCode" id="cb679"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb679-1"><a href="generalized-linear-mixed-models.html#cb679-1" tabindex="-1"></a>rdu <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/rdu-temperature.txt&quot;</span>, <span class="at">head =</span> T)</span>
-<span id="cb679-2"><a href="generalized-linear-mixed-models.html#cb679-2" tabindex="-1"></a></span>
-<span id="cb679-3"><a href="generalized-linear-mixed-models.html#cb679-3" tabindex="-1"></a><span class="co"># remove NA&#39;s, coded as -99</span></span>
-<span id="cb679-4"><a href="generalized-linear-mixed-models.html#cb679-4" tabindex="-1"></a><span class="fu">with</span>(rdu, <span class="fu">table</span>(temp <span class="sc">==</span> <span class="sc">-</span><span class="dv">99</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb673"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb673-1"><a href="generalized-linear-mixed-models.html#cb673-1" tabindex="-1"></a>rdu <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/rdu-temperature.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb673-2"><a href="generalized-linear-mixed-models.html#cb673-2" tabindex="-1"></a></span>
+<span id="cb673-3"><a href="generalized-linear-mixed-models.html#cb673-3" tabindex="-1"></a><span class="co"># remove NA&#39;s, coded as -99</span></span>
+<span id="cb673-4"><a href="generalized-linear-mixed-models.html#cb673-4" tabindex="-1"></a><span class="fu">with</span>(rdu, <span class="fu">table</span>(temp <span class="sc">==</span> <span class="sc">-</span><span class="dv">99</span>))</span></code></pre></div>
 <pre><code>## 
 ## FALSE  TRUE 
 ## 10508    15</code></pre>
-<div class="sourceCode" id="cb681"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb681-1"><a href="generalized-linear-mixed-models.html#cb681-1" tabindex="-1"></a>rdu <span class="ot">&lt;-</span> <span class="fu">subset</span>(rdu, temp <span class="sc">&gt;</span> <span class="sc">-</span><span class="dv">99</span>)</span>
-<span id="cb681-2"><a href="generalized-linear-mixed-models.html#cb681-2" tabindex="-1"></a></span>
-<span id="cb681-3"><a href="generalized-linear-mixed-models.html#cb681-3" tabindex="-1"></a><span class="fu">with</span>(rdu, <span class="fu">plot</span>(temp <span class="sc">~</span> time, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">xlab =</span> <span class="st">&quot;day&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb675"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb675-1"><a href="generalized-linear-mixed-models.html#cb675-1" tabindex="-1"></a>rdu <span class="ot">&lt;-</span> <span class="fu">subset</span>(rdu, temp <span class="sc">&gt;</span> <span class="sc">-</span><span class="dv">99</span>)</span>
+<span id="cb675-2"><a href="generalized-linear-mixed-models.html#cb675-2" tabindex="-1"></a></span>
+<span id="cb675-3"><a href="generalized-linear-mixed-models.html#cb675-3" tabindex="-1"></a><span class="fu">with</span>(rdu, <span class="fu">plot</span>(temp <span class="sc">~</span> time, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">xlab =</span> <span class="st">&quot;day&quot;</span>))</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
 <p>We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature. We also include an AR(1) structure on the errors. The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so. Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.</p>
-<div class="sourceCode" id="cb682"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb682-1"><a href="generalized-linear-mixed-models.html#cb682-1" tabindex="-1"></a><span class="fu">require</span>(mgcv)</span></code></pre></div>
+<div class="sourceCode" id="cb676"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb676-1"><a href="generalized-linear-mixed-models.html#cb676-1" tabindex="-1"></a><span class="fu">require</span>(mgcv)</span></code></pre></div>
 <pre><code>## Loading required package: mgcv</code></pre>
 <pre><code>## Loading required package: nlme</code></pre>
 <pre><code>## 
@@ -835,10 +819,10 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 <pre><code>## The following object is masked from &#39;package:lme4&#39;:
 ## 
 ##     lmList</code></pre>
-<pre><code>## This is mgcv 1.9-0. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
-<div class="sourceCode" id="cb688"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb688-1"><a href="generalized-linear-mixed-models.html#cb688-1" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">gamm</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>, <span class="at">k =</span> <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">s</span>(time), <span class="at">data =</span> rdu, <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> yr))</span></code></pre></div>
+<pre><code>## This is mgcv 1.9-3. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+<div class="sourceCode" id="cb682"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb682-1"><a href="generalized-linear-mixed-models.html#cb682-1" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">gamm</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>, <span class="at">k =</span> <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">s</span>(time), <span class="at">data =</span> rdu, <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> yr))</span></code></pre></div>
 <p>The output of <code>mgcv::gamm</code> is a list of two parts. The first part, named <code>lme</code>, includes the output of the model that includes most of the model fit except the smooth terms. The second part, named <code>gam</code>, includes any smoothing splines. For the model above, most of the interesting elements are in the <code>gam</code> portion. We’ll look at the <code>lme</code> portion, too, as this contains the estimate of the correlation parameter between consecutive days.</p>
-<div class="sourceCode" id="cb689"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb689-1"><a href="generalized-linear-mixed-models.html#cb689-1" tabindex="-1"></a><span class="fu">summary</span>(fm1<span class="sc">$</span>lme)</span></code></pre></div>
+<div class="sourceCode" id="cb683"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb683-1"><a href="generalized-linear-mixed-models.html#cb683-1" tabindex="-1"></a><span class="fu">summary</span>(fm1<span class="sc">$</span>lme)</span></code></pre></div>
 <pre><code>## Linear mixed-effects model fit by maximum likelihood
 ##   Data: strip.offset(mf) 
 ##        AIC     BIC   logLik
@@ -882,7 +866,7 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 ## Number of Groups: 
 ##          g g.0 %in% g 
 ##          1          1</code></pre>
-<div class="sourceCode" id="cb691"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb691-1"><a href="generalized-linear-mixed-models.html#cb691-1" tabindex="-1"></a><span class="fu">summary</span>(fm1<span class="sc">$</span>gam)</span></code></pre></div>
+<div class="sourceCode" id="cb685"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb685-1"><a href="generalized-linear-mixed-models.html#cb685-1" tabindex="-1"></a><span class="fu">summary</span>(fm1<span class="sc">$</span>gam)</span></code></pre></div>
 <pre><code>## 
 ## Family: gaussian 
 ## Link function: identity 
@@ -905,14 +889,14 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 ## 
 ## R-sq.(adj) =   0.76   
 ##   Scale est. = 57.713    n = 9250</code></pre>
-<div class="sourceCode" id="cb693"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb693-1"><a href="generalized-linear-mixed-models.html#cb693-1" tabindex="-1"></a><span class="fu">plot</span>(fm1<span class="sc">$</span>gam)</span></code></pre></div>
+<div class="sourceCode" id="cb687"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb687-1"><a href="generalized-linear-mixed-models.html#cb687-1" tabindex="-1"></a><span class="fu">plot</span>(fm1<span class="sc">$</span>gam)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-30-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-30-2.png" width="672" /></p>
 <p>Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down. Fall in the Piedmont is ever fleeting.</p>
 <p>Less substantially, but still interestingly, the estimate of the correlation between temperature anomalies on consecutive days is <span class="math inline">\(\approx\)</span> 0.68, which matches lived experience.</p>
 <p>The best-fitting smoothing spline for the among-year trend is linear. Let’s replace the smoothing spline by a linear term so that it is easier to extract the slope, which will now be contained in the <code>lme</code> portion.</p>
-<div class="sourceCode" id="cb694"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb694-1"><a href="generalized-linear-mixed-models.html#cb694-1" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">gamm</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>, <span class="at">k =</span> <span class="dv">20</span>) <span class="sc">+</span> time, <span class="at">data =</span> rdu, <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> yr))</span>
-<span id="cb694-2"><a href="generalized-linear-mixed-models.html#cb694-2" tabindex="-1"></a></span>
-<span id="cb694-3"><a href="generalized-linear-mixed-models.html#cb694-3" tabindex="-1"></a><span class="fu">summary</span>(fm2<span class="sc">$</span>lme)</span></code></pre></div>
+<div class="sourceCode" id="cb688"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb688-1"><a href="generalized-linear-mixed-models.html#cb688-1" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">gamm</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>, <span class="at">k =</span> <span class="dv">20</span>) <span class="sc">+</span> time, <span class="at">data =</span> rdu, <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> yr))</span>
+<span id="cb688-2"><a href="generalized-linear-mixed-models.html#cb688-2" tabindex="-1"></a></span>
+<span id="cb688-3"><a href="generalized-linear-mixed-models.html#cb688-3" tabindex="-1"></a><span class="fu">summary</span>(fm2<span class="sc">$</span>lme)</span></code></pre></div>
 <pre><code>## Linear mixed-effects model fit by maximum likelihood
 ##   Data: strip.offset(mf) 
 ##        AIC      BIC   logLik
@@ -949,21 +933,21 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 ## Number of Groups: 1</code></pre>
 <p>The temperature trend is estimated as an increase of 2.64^{-4} <span class="math inline">\(^\circ\)</span>F per day. That equates to a trend of 0.0964 <span class="math inline">\(^\circ\)</span>F per year, or 0.964 per decade. Yikes!</p>
 <p>To see the effect of the AR(1) correlation structure, let’s compare our model fit to one that doesn’t account for autocorrelated errors.</p>
-<div class="sourceCode" id="cb696"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb696-1"><a href="generalized-linear-mixed-models.html#cb696-1" tabindex="-1"></a>fm1a <span class="ot">&lt;-</span> <span class="fu">gam</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>, <span class="at">k =</span> <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">s</span>(time), <span class="at">data =</span> rdu)</span>
-<span id="cb696-2"><a href="generalized-linear-mixed-models.html#cb696-2" tabindex="-1"></a></span>
-<span id="cb696-3"><a href="generalized-linear-mixed-models.html#cb696-3" tabindex="-1"></a><span class="fu">plot</span>(fm1a)</span></code></pre></div>
+<div class="sourceCode" id="cb690"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb690-1"><a href="generalized-linear-mixed-models.html#cb690-1" tabindex="-1"></a>fm1a <span class="ot">&lt;-</span> <span class="fu">gam</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>, <span class="at">k =</span> <span class="dv">20</span>) <span class="sc">+</span> <span class="fu">s</span>(time), <span class="at">data =</span> rdu)</span>
+<span id="cb690-2"><a href="generalized-linear-mixed-models.html#cb690-2" tabindex="-1"></a></span>
+<span id="cb690-3"><a href="generalized-linear-mixed-models.html#cb690-3" tabindex="-1"></a><span class="fu">plot</span>(fm1a)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
-<div class="sourceCode" id="cb697"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb697-1"><a href="generalized-linear-mixed-models.html#cb697-1" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb691"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb691-1"><a href="generalized-linear-mixed-models.html#cb691-1" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-2.png" width="672" /></p>
 <p>Without the autocorrelated errors, both smoothing splines are quite a bit wigglier. The confidence intervals around the fit are also too small. Both indicate overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.</p>
 <p>Finally, we will use <code>gamm4::gamm4</code> to fit a new model to the tick data from <span class="citation">Elston et al. (<a href="#ref-elston2001">2001</a>)</span>, this time using a smoothing spline to estimate the effect of elevation on tick abundance. Like <code>mgcv::gamm</code>, <code>gamm4::gamm4</code> returns models with two compoments: one called <code>mer</code> that contains output from the portion of the model that invokes <code>lme4::(g)lmer</code>, and one called <code>gam</code> that contains the smoothing terms.</p>
-<div class="sourceCode" id="cb698"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb698-1"><a href="generalized-linear-mixed-models.html#cb698-1" tabindex="-1"></a><span class="fu">require</span>(gamm4)</span>
-<span id="cb698-2"><a href="generalized-linear-mixed-models.html#cb698-2" tabindex="-1"></a></span>
-<span id="cb698-3"><a href="generalized-linear-mixed-models.html#cb698-3" tabindex="-1"></a>fm4  <span class="ot">&lt;-</span> <span class="fu">gamm4</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> <span class="fu">s</span>(elev.z), <span class="at">random =</span> <span class="sc">~</span> (<span class="dv">1</span> <span class="sc">|</span> loc) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index), </span>
-<span id="cb698-4"><a href="generalized-linear-mixed-models.html#cb698-4" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
-<span id="cb698-5"><a href="generalized-linear-mixed-models.html#cb698-5" tabindex="-1"></a>             <span class="at">data =</span> tick)</span>
-<span id="cb698-6"><a href="generalized-linear-mixed-models.html#cb698-6" tabindex="-1"></a></span>
-<span id="cb698-7"><a href="generalized-linear-mixed-models.html#cb698-7" tabindex="-1"></a><span class="fu">summary</span>(fm4<span class="sc">$</span>mer)</span></code></pre></div>
+<div class="sourceCode" id="cb692"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb692-1"><a href="generalized-linear-mixed-models.html#cb692-1" tabindex="-1"></a><span class="fu">require</span>(gamm4)</span>
+<span id="cb692-2"><a href="generalized-linear-mixed-models.html#cb692-2" tabindex="-1"></a></span>
+<span id="cb692-3"><a href="generalized-linear-mixed-models.html#cb692-3" tabindex="-1"></a>fm4  <span class="ot">&lt;-</span> <span class="fu">gamm4</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> <span class="fu">s</span>(elev.z), <span class="at">random =</span> <span class="sc">~</span> (<span class="dv">1</span> <span class="sc">|</span> loc) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index), </span>
+<span id="cb692-4"><a href="generalized-linear-mixed-models.html#cb692-4" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb692-5"><a href="generalized-linear-mixed-models.html#cb692-5" tabindex="-1"></a>             <span class="at">data =</span> tick)</span>
+<span id="cb692-6"><a href="generalized-linear-mixed-models.html#cb692-6" tabindex="-1"></a></span>
+<span id="cb692-7"><a href="generalized-linear-mixed-models.html#cb692-7" tabindex="-1"></a><span class="fu">summary</span>(fm4<span class="sc">$</span>mer)</span></code></pre></div>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
 ##  Family: poisson  ( log )
@@ -997,7 +981,7 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 ## Xyr96       -0.728              
 ## Xyr97       -0.610  0.514       
 ## Xs(lv.z)Fx1  0.011  0.048  0.047</code></pre>
-<div class="sourceCode" id="cb700"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb700-1"><a href="generalized-linear-mixed-models.html#cb700-1" tabindex="-1"></a><span class="fu">summary</span>(fm4<span class="sc">$</span>gam)</span></code></pre></div>
+<div class="sourceCode" id="cb694"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb694-1"><a href="generalized-linear-mixed-models.html#cb694-1" tabindex="-1"></a><span class="fu">summary</span>(fm4<span class="sc">$</span>gam)</span></code></pre></div>
 <pre><code>## 
 ## Family: poisson 
 ## Link function: log 
@@ -1021,20 +1005,20 @@ B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
 ## 
 ## R-sq.(adj) =  0.156   
 ## glmer.ML = 220.92  Scale est. = 1         n = 403</code></pre>
-<div class="sourceCode" id="cb702"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb702-1"><a href="generalized-linear-mixed-models.html#cb702-1" tabindex="-1"></a><span class="fu">plot</span>(fm4<span class="sc">$</span>gam)</span></code></pre></div>
+<div class="sourceCode" id="cb696"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb696-1"><a href="generalized-linear-mixed-models.html#cb696-1" tabindex="-1"></a><span class="fu">plot</span>(fm4<span class="sc">$</span>gam)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
 <p>Our best fitting model continues to contain a linear association between elevation and tick abundance. Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.</p>
-<div class="sourceCode" id="cb703"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb703-1"><a href="generalized-linear-mixed-models.html#cb703-1" tabindex="-1"></a>fm5  <span class="ot">&lt;-</span> <span class="fu">gam</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> <span class="fu">s</span>(elev.z), </span>
-<span id="cb703-2"><a href="generalized-linear-mixed-models.html#cb703-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
-<span id="cb703-3"><a href="generalized-linear-mixed-models.html#cb703-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
-<span id="cb703-4"><a href="generalized-linear-mixed-models.html#cb703-4" tabindex="-1"></a></span>
-<span id="cb703-5"><a href="generalized-linear-mixed-models.html#cb703-5" tabindex="-1"></a><span class="fu">plot</span>(fm5)</span></code></pre></div>
+<div class="sourceCode" id="cb697"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb697-1"><a href="generalized-linear-mixed-models.html#cb697-1" tabindex="-1"></a>fm5  <span class="ot">&lt;-</span> <span class="fu">gam</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> <span class="fu">s</span>(elev.z), </span>
+<span id="cb697-2"><a href="generalized-linear-mixed-models.html#cb697-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb697-3"><a href="generalized-linear-mixed-models.html#cb697-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
+<span id="cb697-4"><a href="generalized-linear-mixed-models.html#cb697-4" tabindex="-1"></a></span>
+<span id="cb697-5"><a href="generalized-linear-mixed-models.html#cb697-5" tabindex="-1"></a><span class="fu">plot</span>(fm5)</span></code></pre></div>
 <p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
 
 </div>
 </div>
 <h3>Bibliography<a href="bibliography.html#bibliography" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-bishop1972" class="csl-entry">
 Bishop, JA. 1972. <span>“An Experimental Study of the Cline of Industrial Melanism in Biston Betularia (l.)(lepidoptera) Between Urban Liverpool and Rural North Wales.”</span> <em>The Journal of Animal Ecology</em>, 209–43.
 </div>
@@ -1080,42 +1064,42 @@ Wood, Simon N. 2017. <em>Generalized Additive Models: An Introduction with r</em
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "serif",
-"size": 2
-},
-"edit": {
-"link": null,
-"text": null
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": null,
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "section"
-}
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "serif",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section"
+  }
 });
 });
 </script>

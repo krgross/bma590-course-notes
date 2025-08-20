@@ -765,7 +765,9 @@ We will fit a zero-truncated negative binomial distribution to these data, and c
 
 <!-- NB: Something is weird here.  The ratio of the first two fitted probabilities is NOT the same as the ratio of the probability masses obtained by dnbinom evaluated at the parameter estimates.  Check into this. -->
 
-```{r}
+<!-- NB: Would not compile 8-20-25; received error message "Error in dposnegbin2(y, kmat, munb = munb, log = TRUE) : could not find function "dposnegbin2" " -->
+
+```{r eval = FALSE, echo = FALSE}
 corbet.fit <- vglm(ofreq ~ 1, family = posnegbinomial, weights = species, data = corbet)
 Coef(corbet.fit)
 
@@ -941,13 +943,14 @@ We might also try a complementary log-log link.
 ```{r}
 fm2 <- gam(mortality ~ s(ln_area), family = binomial(link = "cloglog"), data = coral)
 
+inv.cloglog <- function(x) 1 - exp(-exp(x))
+
 with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
 
 fm2.fit <- predict(fm2, newdata = data.frame(ln_area = x.vals), se = TRUE)
-
-lines(x.vals, inv.logit(fm2.fit$fit), col = "red")
-lines(x.vals, inv.logit(fm2.fit$fit + 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
-lines(x.vals, inv.logit(fm2.fit$fit - 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
+lines(x.vals, inv.cloglog(fm2.fit$fit), col = "red")
+lines(x.vals, inv.cloglog(fm2.fit$fit + 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
+lines(x.vals, inv.cloglog(fm2.fit$fit - 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
 
 AIC(fm1, fm2)
 ```

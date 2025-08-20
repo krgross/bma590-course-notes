@@ -4,26 +4,26 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>BMA / ST 590 course notes</title>
-  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
-  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
+  <title>Applied statistical analysis of non-normal and/or correlated data</title>
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="BMA / ST 590 course notes" />
+  <meta property="og:title" content="Applied statistical analysis of non-normal and/or correlated data" />
   <meta property="og:type" content="book" />
   
-  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="BMA / ST 590 course notes" />
+  <meta name="twitter:title" content="Applied statistical analysis of non-normal and/or correlated data" />
   
-  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
   
 
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-12-01" />
+<meta name="date" content="2025-08-20" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -52,8 +52,9 @@
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.6.3/htmlwidgets.js"></script>
-<script src="libs/plotly-binding-4.10.3/plotly.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.11.0/plotly.js"></script>
 <script src="libs/typedarray-0.1/typedarray.min.js"></script>
 <link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
 <script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
@@ -63,7 +64,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -135,6 +136,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging div.csl-entry {
   margin-left:2em;
@@ -268,7 +270,7 @@ div.csl-indent {
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">BMA / ST 590 course notes</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Applied statistical analysis of non-normal and/or correlated data</a>
           </h1>
         </div>
 
@@ -277,9 +279,9 @@ div.csl-indent {
 
             <section class="normal" id="section-">
 <div id="header">
-<h1 class="title">BMA / ST 590 course notes</h1>
+<h1 class="title">Applied statistical analysis of non-normal and/or correlated data</h1>
 <p class="author"><em>Kevin Gross</em></p>
-<p class="date"><em>2023-12-01</em></p>
+<p class="date"><em>2025-08-20</em></p>
 </div>
 <div id="ML" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Maximum likelihood estimation<a href="index.html#ML" class="anchor-section" aria-label="Anchor link to header"></a></h1>
@@ -370,7 +372,7 @@ where we have used <span class="math inline">\(\mathcal{L}\!\left(\lambda; x\rig
 <span class="math display">\[
 X_i \stackrel{\text{iid}}{\sim} \mathrm{Pois}(\lambda).
 \]</span>
-To make the notation a bit easier, we’ll write the entire data set as a vector <span class="math inline">\(\mathbf{X} = \left[ X_1 \; X_2 \; \cdots \; X_n\right]^T\)</span>, where we use uppercase <span class="math inline">\(\mathbf{X}\)</span> to denote the unobserved random vector and lowercase <span class="math inline">\(\mathbf{x}\)</span> to denote a single realization of <span class="math inline">\(\mathbf{X}\)</span>. The likelihood function is then given by
+To make the notation a bit easier, we’ll write the entire data set as a vector <span class="math inline">\(\mathbf{X} = \left[ X_1  \;  X_2 \; \cdots \;  X_n\right]^T\)</span>, where we use uppercase <span class="math inline">\(\mathbf{X}\)</span> to denote the unobserved random vector and lowercase <span class="math inline">\(\mathbf{x}\)</span> to denote a single realization of <span class="math inline">\(\mathbf{X}\)</span>. The likelihood function is then given by
 <span class="math display">\[\begin{align*}
 \mathcal{L}(\lambda; \mathbf{x}) &amp; = \mathrm{Pr}\!\left\{\mathbf{X} = \mathbf{x}; \lambda\right\} \\
 &amp; = \mathrm{Pr}\!\left\{X_1 = x_1, X_2 = x_2, \ldots X_n = x_n; \lambda\right\} \\
@@ -427,7 +429,7 @@ The third equality above follows from the independence of the data points.</p>
 ## 
 ## $objective
 ## [1] -314.1545</code></pre>
-<p>The <code>optimize</code> function returns a ‘list’. A list is an R object that contains components of different types. The numerically calculated MLE is <span class="math inline">\(\hat{\lambda} \approx 0.7\)</span>. The ‘objective’ component of gives the value of the log-likelihood at that point.</p>
+<p>The <code>optimize</code> function returns a ‘list’. A list is an R object that contains components of different types. The numerically calculated MLE is <span class="math inline">\(\hat{\lambda} \approx 0.7\)</span>. The ‘objective’ component of <code>horse.mle</code> gives the value of the log-likelihood at that point.</p>
 </div>
 </div>
 <div id="pulse-rate-data" class="section level2 hasAnchor" number="1.3">
@@ -459,7 +461,7 @@ The third equality above follows from the independence of the data points.</p>
 <span id="cb34-3"><a href="index.html#cb34-3" tabindex="-1"></a>  ll.vals <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(pulse<span class="sc">$</span>rate, <span class="at">mean =</span> m, <span class="at">sd =</span> <span class="fu">sqrt</span>(v), <span class="at">log =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb34-4"><a href="index.html#cb34-4" tabindex="-1"></a>  <span class="fu">sum</span>(ll.vals)</span>
 <span id="cb34-5"><a href="index.html#cb34-5" tabindex="-1"></a>}</span></code></pre></div>
-<p>Note that R’s function for the pdf of a normal distribution — <code>dnorm</code> — is parameterized by the mean and standard deviation (SD) of the normal distribution. Although it would be just as easy to find the MLE of the standard deviation <span class="math inline">\(\sigma\)</span>, for the sake of illustration, we will seek the MLE of the variance, <span class="math inline">\(\sigma^2\)</span>. (It turns out that, if we write the MLE of the standard deviation as <span class="math inline">\(\hat{\sigma}\)</span> and the MLE of the variance as <span class="math inline">\(\hat{\sigma}^2\)</span>, then <span class="math inline">\(\hat{\sigma} = \sqrt{\hat{\sigma}^2}\)</span>. This is an example of the {} of MLEs.)</p>
+<p>Note that R’s function for the pdf of a normal distribution — <code>dnorm</code> — is parameterized by the mean and standard deviation (SD) of the normal distribution. Although it would be just as easy to find the MLE of the standard deviation <span class="math inline">\(\sigma\)</span>, for the sake of illustration, we will seek the MLE of the variance, <span class="math inline">\(\sigma^2\)</span>. (It turns out that, if we write the MLE of the standard deviation as <span class="math inline">\(\hat{\sigma}\)</span> and the MLE of the variance as <span class="math inline">\(\hat{\sigma}^2\)</span>, then <span class="math inline">\(\hat{\sigma} = \sqrt{\hat{\sigma}^2}\)</span>. This is an example of the <em>invariance property</em> of MLEs.)</p>
 <p>We can use our function to calculate the likelihood for any choice of mean and variance. For example, let’s try <span class="math inline">\(\mu = 60\)</span> and <span class="math inline">\(\sigma^2 = 100\)</span>.</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="index.html#cb35-1" tabindex="-1"></a><span class="fu">pulse.ll</span>(<span class="at">m =</span> <span class="dv">60</span>, <span class="at">v =</span> <span class="dv">100</span>)</span></code></pre></div>
 <pre><code>## [1] -189.6155</code></pre>
@@ -536,18 +538,17 @@ s^2 = \frac{\sum_i (x_i - \bar{x})}{n-1}.
 </div>
 <div id="tadpole-data" class="section level2 hasAnchor" number="1.4">
 <h2><span class="header-section-number">1.4</span> Tadpole data<a href="index.html#tadpole-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Finally, we’ll take a look at the data from the functional response experiment of <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory">2005</a>)</span>, described in section 6.3.1.1 of Bolker’s book. This is another example of using likelihood to estimate parameters in a two-parameter model. This example differs from the previous two examples because we won’t assume that the data constitute a simple random sample from some known distribution like the Gaussian or Poisson distribution. Instead, we’ll build a somewhat more customized model for these data that incorporates some ecological ideas. This process of building a customized model is more typical of how one would analyze a “real” data set. We’ll start by using the <code>rm</code> command to clean up the workspace.</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="index.html#cb50-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code></pre></div>
+<p>Finally, we’ll take a look at the data from the functional response experiment of <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory">2005</a>)</span>, described in section 6.3.1.1 of Bolker’s book. This is another example of using likelihood to estimate parameters in a two-parameter model. This example differs from the previous two examples because we won’t assume that the data constitute a simple random sample from some known distribution like the Gaussian or Poisson distribution. Instead, we’ll build a somewhat more customized model for these data that incorporates some ecological ideas. This process of building a customized model is more typical of how one would analyze a “real” data set.</p>
 <p>First, we’ll read in the data and explore them in various ways.</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="index.html#cb51-1" tabindex="-1"></a><span class="fu">library</span>(emdbook)</span>
-<span id="cb51-2"><a href="index.html#cb51-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;ReedfrogFuncresp&quot;</span>)</span>
-<span id="cb51-3"><a href="index.html#cb51-3" tabindex="-1"></a></span>
-<span id="cb51-4"><a href="index.html#cb51-4" tabindex="-1"></a><span class="co"># rename something shorter</span></span>
-<span id="cb51-5"><a href="index.html#cb51-5" tabindex="-1"></a></span>
-<span id="cb51-6"><a href="index.html#cb51-6" tabindex="-1"></a>frog <span class="ot">&lt;-</span> ReedfrogFuncresp</span>
-<span id="cb51-7"><a href="index.html#cb51-7" tabindex="-1"></a><span class="fu">rm</span>(ReedfrogFuncresp)</span>
-<span id="cb51-8"><a href="index.html#cb51-8" tabindex="-1"></a></span>
-<span id="cb51-9"><a href="index.html#cb51-9" tabindex="-1"></a><span class="fu">summary</span>(frog)</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="index.html#cb50-1" tabindex="-1"></a><span class="fu">library</span>(emdbook)</span>
+<span id="cb50-2"><a href="index.html#cb50-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;ReedfrogFuncresp&quot;</span>)</span>
+<span id="cb50-3"><a href="index.html#cb50-3" tabindex="-1"></a></span>
+<span id="cb50-4"><a href="index.html#cb50-4" tabindex="-1"></a><span class="co"># rename something shorter</span></span>
+<span id="cb50-5"><a href="index.html#cb50-5" tabindex="-1"></a></span>
+<span id="cb50-6"><a href="index.html#cb50-6" tabindex="-1"></a>frog <span class="ot">&lt;-</span> ReedfrogFuncresp</span>
+<span id="cb50-7"><a href="index.html#cb50-7" tabindex="-1"></a><span class="fu">rm</span>(ReedfrogFuncresp)</span>
+<span id="cb50-8"><a href="index.html#cb50-8" tabindex="-1"></a></span>
+<span id="cb50-9"><a href="index.html#cb50-9" tabindex="-1"></a><span class="fu">summary</span>(frog)</span></code></pre></div>
 <pre><code>##     Initial           Killed     
 ##  Min.   :  5.00   Min.   : 1.00  
 ##  1st Qu.: 13.75   1st Qu.: 5.75  
@@ -555,7 +556,7 @@ s^2 = \frac{\sum_i (x_i - \bar{x})}{n-1}.
 ##  Mean   : 38.12   Mean   :13.25  
 ##  3rd Qu.: 56.25   3rd Qu.:18.75  
 ##  Max.   :100.00   Max.   :35.00</code></pre>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="index.html#cb53-1" tabindex="-1"></a><span class="fu">head</span>(frog)</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="index.html#cb52-1" tabindex="-1"></a><span class="fu">head</span>(frog)</span></code></pre></div>
 <pre><code>##   Initial Killed
 ## 1       5      1
 ## 2       5      2
@@ -563,35 +564,35 @@ s^2 = \frac{\sum_i (x_i - \bar{x})}{n-1}.
 ## 4      10      6
 ## 5      15     10
 ## 6      15      9</code></pre>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="index.html#cb55-1" tabindex="-1"></a><span class="fu">plot</span>(Killed <span class="sc">~</span> Initial, <span class="at">data =</span> frog)</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="index.html#cb54-1" tabindex="-1"></a><span class="fu">plot</span>(Killed <span class="sc">~</span> Initial, <span class="at">data =</span> frog)</span></code></pre></div>
 <p><img src="index_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
 <p>Following Bolker, we’ll assume that the number of individuals killed takes a binomial distribution, where the number of trials equals the initial tadpole density, and the probability that a tadpole is killed is given by the expression
 <span class="math display">\[
 p_i = \dfrac{a}{1 + a h N_i}.
 \]</span>
-The two parameters to estimate are <span class="math inline">\(a\)</span>, which we interpret as the attack rate when the prey density is low, and <span class="math inline">\(h\)</span>, which is the handling time. This model is motivated by the so-called “Type II” functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows. In this case, using the Type II functional curve for these data is a pedagogical simplification; as <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory">2005</a>)</span> observe, Holling’s functional responses give the predation rate when the prey density is constant. However, this experiment ran for two weeks and prey densities declined over the course of the experiment. A more appropriate analysis, and one that <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory">2005</a>)</span> pursue in their paper, takes account of the declining prey densities. For the purposes of this example, though, we’ll ignore this aspect of the analysis (as <span class="citation">Bolker (<a href="#ref-bolker2008">2008</a>)</span> does) and fit the data assuming that the probability of predation is given by the Type II functional response.</p>
+The two parameters to estimate are <span class="math inline">\(a\)</span>, which we interpret as the attack rate when the prey density is low, and <span class="math inline">\(h\)</span>, which is the handling time. This model is motivated by the so-called “Type II” functional response of predator-prey ecology, in which the prey consumption rate saturates as prey density grows. In this case, using the Type II functional curve for these data is a pedagogical simplification, because as <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory">2005</a>)</span> observe, prey densities declined over the two weeks of the experiment. A more appropriate analysis, and one that <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory">2005</a>)</span> pursue in their paper, takes account of the declining prey densities. For the purposes of this example, though, we’ll ignore this aspect of the analysis (as <span class="citation">Bolker (<a href="#ref-bolker2008">2008</a>)</span> does) and fit the data assuming that the probability of predation is given by the Type II functional response.</p>
 <p>If we write the number of individuals killed in each trial as <span class="math inline">\(Y_i\)</span>, The full model can then be written as
 <span class="math display">\[\begin{align*}
 Y_i &amp; \sim \mathrm{Binom}\left(p_i, N_i \right) \\
 p_i &amp; = \dfrac{a}{1 + a h N_i}.
 \end{align*}\]</span></p>
 <p>We’ll first construct the negative log-likelihood function.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="index.html#cb56-1" tabindex="-1"></a><span class="co"># negative log-likelihood, for use with optim</span></span>
-<span id="cb56-2"><a href="index.html#cb56-2" tabindex="-1"></a></span>
-<span id="cb56-3"><a href="index.html#cb56-3" tabindex="-1"></a>frog.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(params){</span>
-<span id="cb56-4"><a href="index.html#cb56-4" tabindex="-1"></a>  </span>
-<span id="cb56-5"><a href="index.html#cb56-5" tabindex="-1"></a>  a <span class="ot">&lt;-</span> params[<span class="dv">1</span>]</span>
-<span id="cb56-6"><a href="index.html#cb56-6" tabindex="-1"></a>  h <span class="ot">&lt;-</span> params[<span class="dv">2</span>]</span>
-<span id="cb56-7"><a href="index.html#cb56-7" tabindex="-1"></a>  </span>
-<span id="cb56-8"><a href="index.html#cb56-8" tabindex="-1"></a>  prob.vals <span class="ot">&lt;-</span> a <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> a <span class="sc">*</span> h <span class="sc">*</span> frog<span class="sc">$</span>Initial)</span>
-<span id="cb56-9"><a href="index.html#cb56-9" tabindex="-1"></a>  </span>
-<span id="cb56-10"><a href="index.html#cb56-10" tabindex="-1"></a>  ll.vals <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(frog<span class="sc">$</span>Killed, <span class="at">size =</span> frog<span class="sc">$</span>Initial, <span class="at">prob =</span> prob.vals, <span class="at">log =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb56-11"><a href="index.html#cb56-11" tabindex="-1"></a>  </span>
-<span id="cb56-12"><a href="index.html#cb56-12" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.vals)</span>
-<span id="cb56-13"><a href="index.html#cb56-13" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="index.html#cb55-1" tabindex="-1"></a><span class="co"># negative log-likelihood, for use with optim</span></span>
+<span id="cb55-2"><a href="index.html#cb55-2" tabindex="-1"></a></span>
+<span id="cb55-3"><a href="index.html#cb55-3" tabindex="-1"></a>frog.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(params){</span>
+<span id="cb55-4"><a href="index.html#cb55-4" tabindex="-1"></a>  </span>
+<span id="cb55-5"><a href="index.html#cb55-5" tabindex="-1"></a>  a <span class="ot">&lt;-</span> params[<span class="dv">1</span>]</span>
+<span id="cb55-6"><a href="index.html#cb55-6" tabindex="-1"></a>  h <span class="ot">&lt;-</span> params[<span class="dv">2</span>]</span>
+<span id="cb55-7"><a href="index.html#cb55-7" tabindex="-1"></a>  </span>
+<span id="cb55-8"><a href="index.html#cb55-8" tabindex="-1"></a>  prob.vals <span class="ot">&lt;-</span> a <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> a <span class="sc">*</span> h <span class="sc">*</span> frog<span class="sc">$</span>Initial)</span>
+<span id="cb55-9"><a href="index.html#cb55-9" tabindex="-1"></a>  </span>
+<span id="cb55-10"><a href="index.html#cb55-10" tabindex="-1"></a>  ll.vals <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(frog<span class="sc">$</span>Killed, <span class="at">size =</span> frog<span class="sc">$</span>Initial, <span class="at">prob =</span> prob.vals, <span class="at">log =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb55-11"><a href="index.html#cb55-11" tabindex="-1"></a>  </span>
+<span id="cb55-12"><a href="index.html#cb55-12" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.vals)</span>
+<span id="cb55-13"><a href="index.html#cb55-13" tabindex="-1"></a>}</span></code></pre></div>
 <p>Now we’ll find the MLE using <code>optim</code></p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="index.html#cb57-1" tabindex="-1"></a>(frog.mle <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">par =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">40</span>),</span>
-<span id="cb57-2"><a href="index.html#cb57-2" tabindex="-1"></a>                   <span class="at">fn  =</span> frog.neg.ll))</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="index.html#cb56-1" tabindex="-1"></a>(frog.mle <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">par =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">40</span>),</span>
+<span id="cb56-2"><a href="index.html#cb56-2" tabindex="-1"></a>                   <span class="at">fn  =</span> frog.neg.ll))</span></code></pre></div>
 <pre><code>## Warning in dbinom(frog$Killed, size = frog$Initial, prob = prob.vals, log =
 ## TRUE): NaNs produced</code></pre>
 <pre><code>## $par
@@ -612,36 +613,36 @@ p_i &amp; = \dfrac{a}{1 + a h N_i}.
 <p>Why did this code produce warnings? Should we care? See section <a href="index.html#transformable-constraints">1.5</a> below.</p>
 <p>Let’s extract the MLEs and add a fitted to our data plot.</p>
 <p>We’ll plot the data and overlay a fitted line.</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="index.html#cb60-1" tabindex="-1"></a>a.mle <span class="ot">&lt;-</span> frog.mle<span class="sc">$</span>par[<span class="dv">1</span>]</span>
-<span id="cb60-2"><a href="index.html#cb60-2" tabindex="-1"></a>h.mle <span class="ot">&lt;-</span> frog.mle<span class="sc">$</span>par[<span class="dv">2</span>]</span>
-<span id="cb60-3"><a href="index.html#cb60-3" tabindex="-1"></a></span>
-<span id="cb60-4"><a href="index.html#cb60-4" tabindex="-1"></a><span class="co"># add a line to our plot to show the fitted curve</span></span>
-<span id="cb60-5"><a href="index.html#cb60-5" tabindex="-1"></a></span>
-<span id="cb60-6"><a href="index.html#cb60-6" tabindex="-1"></a><span class="fu">plot</span>(Killed <span class="sc">~</span> Initial, <span class="at">data =</span> frog)</span>
-<span id="cb60-7"><a href="index.html#cb60-7" tabindex="-1"></a></span>
-<span id="cb60-8"><a href="index.html#cb60-8" tabindex="-1"></a>init.values <span class="ot">&lt;-</span> <span class="fu">with</span>(frog, <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(Initial), <span class="at">to =</span> <span class="fu">max</span>(Initial), <span class="at">length =</span> <span class="dv">100</span>))</span>
-<span id="cb60-9"><a href="index.html#cb60-9" tabindex="-1"></a>pred.values <span class="ot">&lt;-</span> a.mle <span class="sc">*</span> init.values <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> a.mle <span class="sc">*</span> h.mle <span class="sc">*</span> init.values)</span>
-<span id="cb60-10"><a href="index.html#cb60-10" tabindex="-1"></a></span>
-<span id="cb60-11"><a href="index.html#cb60-11" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> init.values, <span class="at">y =</span> pred.values, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="index.html#cb59-1" tabindex="-1"></a>a.mle <span class="ot">&lt;-</span> frog.mle<span class="sc">$</span>par[<span class="dv">1</span>]</span>
+<span id="cb59-2"><a href="index.html#cb59-2" tabindex="-1"></a>h.mle <span class="ot">&lt;-</span> frog.mle<span class="sc">$</span>par[<span class="dv">2</span>]</span>
+<span id="cb59-3"><a href="index.html#cb59-3" tabindex="-1"></a></span>
+<span id="cb59-4"><a href="index.html#cb59-4" tabindex="-1"></a><span class="co"># add a line to our plot to show the fitted curve</span></span>
+<span id="cb59-5"><a href="index.html#cb59-5" tabindex="-1"></a></span>
+<span id="cb59-6"><a href="index.html#cb59-6" tabindex="-1"></a><span class="fu">plot</span>(Killed <span class="sc">~</span> Initial, <span class="at">data =</span> frog)</span>
+<span id="cb59-7"><a href="index.html#cb59-7" tabindex="-1"></a></span>
+<span id="cb59-8"><a href="index.html#cb59-8" tabindex="-1"></a>init.values <span class="ot">&lt;-</span> <span class="fu">with</span>(frog, <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(Initial), <span class="at">to =</span> <span class="fu">max</span>(Initial), <span class="at">length =</span> <span class="dv">100</span>))</span>
+<span id="cb59-9"><a href="index.html#cb59-9" tabindex="-1"></a>pred.values <span class="ot">&lt;-</span> a.mle <span class="sc">*</span> init.values <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> a.mle <span class="sc">*</span> h.mle <span class="sc">*</span> init.values)</span>
+<span id="cb59-10"><a href="index.html#cb59-10" tabindex="-1"></a></span>
+<span id="cb59-11"><a href="index.html#cb59-11" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> init.values, <span class="at">y =</span> pred.values, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
 <p><img src="index_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
 <p>Finally, we’ll plot the likelihood contours.</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="index.html#cb61-1" tabindex="-1"></a><span class="co"># plot negative likelihood contours</span></span>
-<span id="cb61-2"><a href="index.html#cb61-2" tabindex="-1"></a></span>
-<span id="cb61-3"><a href="index.html#cb61-3" tabindex="-1"></a>a.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fl">0.3</span>, <span class="at">to =</span> <span class="fl">0.75</span>, <span class="at">by =</span> <span class="fl">0.01</span>)</span>
-<span id="cb61-4"><a href="index.html#cb61-4" tabindex="-1"></a>h.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fl">0.001</span>, <span class="at">to =</span> <span class="fl">0.03</span>, <span class="at">by =</span> <span class="fl">0.001</span>)</span>
-<span id="cb61-5"><a href="index.html#cb61-5" tabindex="-1"></a></span>
-<span id="cb61-6"><a href="index.html#cb61-6" tabindex="-1"></a>ll.vals <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="at">nrow =</span> <span class="fu">length</span>(a.vals), <span class="at">ncol =</span> <span class="fu">length</span>(h.vals))</span>
-<span id="cb61-7"><a href="index.html#cb61-7" tabindex="-1"></a></span>
-<span id="cb61-8"><a href="index.html#cb61-8" tabindex="-1"></a><span class="cf">for</span> (i.a <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(a.vals)) {</span>
-<span id="cb61-9"><a href="index.html#cb61-9" tabindex="-1"></a>  <span class="cf">for</span>(i.h <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(h.vals)) {</span>
-<span id="cb61-10"><a href="index.html#cb61-10" tabindex="-1"></a>    ll.vals[i.a, i.h] <span class="ot">&lt;-</span> <span class="fu">frog.neg.ll</span>(<span class="fu">c</span>(a.vals[i.a], h.vals[i.h]))</span>
-<span id="cb61-11"><a href="index.html#cb61-11" tabindex="-1"></a>  }</span>
-<span id="cb61-12"><a href="index.html#cb61-12" tabindex="-1"></a>}</span>
-<span id="cb61-13"><a href="index.html#cb61-13" tabindex="-1"></a></span>
-<span id="cb61-14"><a href="index.html#cb61-14" tabindex="-1"></a><span class="fu">contour</span>(<span class="at">x =</span> a.vals, <span class="at">y =</span> h.vals, <span class="at">z =</span> ll.vals, <span class="at">nlevels =</span> <span class="dv">100</span>,</span>
-<span id="cb61-15"><a href="index.html#cb61-15" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;a&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;h&quot;</span>)</span>
-<span id="cb61-16"><a href="index.html#cb61-16" tabindex="-1"></a></span>
-<span id="cb61-17"><a href="index.html#cb61-17" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> a.mle, <span class="at">y =</span> h.mle, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="index.html#cb60-1" tabindex="-1"></a><span class="co"># plot negative likelihood contours</span></span>
+<span id="cb60-2"><a href="index.html#cb60-2" tabindex="-1"></a></span>
+<span id="cb60-3"><a href="index.html#cb60-3" tabindex="-1"></a>a.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fl">0.3</span>, <span class="at">to =</span> <span class="fl">0.75</span>, <span class="at">by =</span> <span class="fl">0.01</span>)</span>
+<span id="cb60-4"><a href="index.html#cb60-4" tabindex="-1"></a>h.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fl">0.001</span>, <span class="at">to =</span> <span class="fl">0.03</span>, <span class="at">by =</span> <span class="fl">0.001</span>)</span>
+<span id="cb60-5"><a href="index.html#cb60-5" tabindex="-1"></a></span>
+<span id="cb60-6"><a href="index.html#cb60-6" tabindex="-1"></a>ll.vals <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="at">nrow =</span> <span class="fu">length</span>(a.vals), <span class="at">ncol =</span> <span class="fu">length</span>(h.vals))</span>
+<span id="cb60-7"><a href="index.html#cb60-7" tabindex="-1"></a></span>
+<span id="cb60-8"><a href="index.html#cb60-8" tabindex="-1"></a><span class="cf">for</span> (i.a <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(a.vals)) {</span>
+<span id="cb60-9"><a href="index.html#cb60-9" tabindex="-1"></a>  <span class="cf">for</span>(i.h <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(h.vals)) {</span>
+<span id="cb60-10"><a href="index.html#cb60-10" tabindex="-1"></a>    ll.vals[i.a, i.h] <span class="ot">&lt;-</span> <span class="fu">frog.neg.ll</span>(<span class="fu">c</span>(a.vals[i.a], h.vals[i.h]))</span>
+<span id="cb60-11"><a href="index.html#cb60-11" tabindex="-1"></a>  }</span>
+<span id="cb60-12"><a href="index.html#cb60-12" tabindex="-1"></a>}</span>
+<span id="cb60-13"><a href="index.html#cb60-13" tabindex="-1"></a></span>
+<span id="cb60-14"><a href="index.html#cb60-14" tabindex="-1"></a><span class="fu">contour</span>(<span class="at">x =</span> a.vals, <span class="at">y =</span> h.vals, <span class="at">z =</span> ll.vals, <span class="at">nlevels =</span> <span class="dv">100</span>,</span>
+<span id="cb60-15"><a href="index.html#cb60-15" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;a&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;h&quot;</span>)</span>
+<span id="cb60-16"><a href="index.html#cb60-16" tabindex="-1"></a></span>
+<span id="cb60-17"><a href="index.html#cb60-17" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> a.mle, <span class="at">y =</span> h.mle, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
 <p><img src="index_files/figure-html/unnamed-chunk-36-1.png" width="672" /></p>
 <p>Note that, in contrast to the pulse-rate data, here the likelihood contours form regions whose major axes are not parallel to the parameter axes. We’ll reflect on the implications of this shape in the next section.</p>
 </div>
@@ -660,27 +661,27 @@ a^* &amp; = \ln \left(\dfrac{a}{1-a}\right) \\
 k^* &amp; = \ln (k). \\
 \end{align*}\]</span>
 Fitting proceeds in the usual way. Note that we supply starting values on the transformed scale, and that we invert the transformation before evaluating the likelihood:</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="index.html#cb62-1" tabindex="-1"></a>logit <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">log</span>(p <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p))</span>
-<span id="cb62-2"><a href="index.html#cb62-2" tabindex="-1"></a>invLogit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
-<span id="cb62-3"><a href="index.html#cb62-3" tabindex="-1"></a></span>
-<span id="cb62-4"><a href="index.html#cb62-4" tabindex="-1"></a><span class="co"># negative log-likelihood, for use with optim</span></span>
-<span id="cb62-5"><a href="index.html#cb62-5" tabindex="-1"></a></span>
-<span id="cb62-6"><a href="index.html#cb62-6" tabindex="-1"></a>frog.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(params){</span>
-<span id="cb62-7"><a href="index.html#cb62-7" tabindex="-1"></a>  </span>
-<span id="cb62-8"><a href="index.html#cb62-8" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">invLogit</span>(params[<span class="dv">1</span>])</span>
-<span id="cb62-9"><a href="index.html#cb62-9" tabindex="-1"></a>  h <span class="ot">&lt;-</span> <span class="fu">exp</span>(params[<span class="dv">2</span>])</span>
-<span id="cb62-10"><a href="index.html#cb62-10" tabindex="-1"></a>  </span>
-<span id="cb62-11"><a href="index.html#cb62-11" tabindex="-1"></a>  prob.vals <span class="ot">&lt;-</span> a <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> a <span class="sc">*</span> h <span class="sc">*</span> frog<span class="sc">$</span>Initial)</span>
-<span id="cb62-12"><a href="index.html#cb62-12" tabindex="-1"></a>  </span>
-<span id="cb62-13"><a href="index.html#cb62-13" tabindex="-1"></a>  ll.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(frog, <span class="fu">dbinom</span>(Killed, </span>
-<span id="cb62-14"><a href="index.html#cb62-14" tabindex="-1"></a>                               <span class="at">size =</span> Initial, </span>
-<span id="cb62-15"><a href="index.html#cb62-15" tabindex="-1"></a>                               <span class="at">prob =</span> prob.vals, </span>
-<span id="cb62-16"><a href="index.html#cb62-16" tabindex="-1"></a>                               <span class="at">log  =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb62-17"><a href="index.html#cb62-17" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.vals)</span>
-<span id="cb62-18"><a href="index.html#cb62-18" tabindex="-1"></a>}</span>
-<span id="cb62-19"><a href="index.html#cb62-19" tabindex="-1"></a></span>
-<span id="cb62-20"><a href="index.html#cb62-20" tabindex="-1"></a>(frog.mle <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">par =</span> <span class="fu">c</span>(<span class="fu">logit</span>(<span class="fl">0.5</span>), <span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">60</span>)),</span>
-<span id="cb62-21"><a href="index.html#cb62-21" tabindex="-1"></a>                   <span class="at">fn  =</span> frog.neg.ll))</span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="index.html#cb61-1" tabindex="-1"></a>logit <span class="ot">&lt;-</span> <span class="cf">function</span>(p) <span class="fu">log</span>(p <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p))</span>
+<span id="cb61-2"><a href="index.html#cb61-2" tabindex="-1"></a>invLogit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
+<span id="cb61-3"><a href="index.html#cb61-3" tabindex="-1"></a></span>
+<span id="cb61-4"><a href="index.html#cb61-4" tabindex="-1"></a><span class="co"># negative log-likelihood, for use with optim</span></span>
+<span id="cb61-5"><a href="index.html#cb61-5" tabindex="-1"></a></span>
+<span id="cb61-6"><a href="index.html#cb61-6" tabindex="-1"></a>frog.neg.ll <span class="ot">&lt;-</span> <span class="cf">function</span>(params){</span>
+<span id="cb61-7"><a href="index.html#cb61-7" tabindex="-1"></a>  </span>
+<span id="cb61-8"><a href="index.html#cb61-8" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">invLogit</span>(params[<span class="dv">1</span>])</span>
+<span id="cb61-9"><a href="index.html#cb61-9" tabindex="-1"></a>  h <span class="ot">&lt;-</span> <span class="fu">exp</span>(params[<span class="dv">2</span>])</span>
+<span id="cb61-10"><a href="index.html#cb61-10" tabindex="-1"></a>  </span>
+<span id="cb61-11"><a href="index.html#cb61-11" tabindex="-1"></a>  prob.vals <span class="ot">&lt;-</span> a <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> a <span class="sc">*</span> h <span class="sc">*</span> frog<span class="sc">$</span>Initial)</span>
+<span id="cb61-12"><a href="index.html#cb61-12" tabindex="-1"></a>  </span>
+<span id="cb61-13"><a href="index.html#cb61-13" tabindex="-1"></a>  ll.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(frog, <span class="fu">dbinom</span>(Killed, </span>
+<span id="cb61-14"><a href="index.html#cb61-14" tabindex="-1"></a>                               <span class="at">size =</span> Initial, </span>
+<span id="cb61-15"><a href="index.html#cb61-15" tabindex="-1"></a>                               <span class="at">prob =</span> prob.vals, </span>
+<span id="cb61-16"><a href="index.html#cb61-16" tabindex="-1"></a>                               <span class="at">log  =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb61-17"><a href="index.html#cb61-17" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">1</span> <span class="sc">*</span> <span class="fu">sum</span>(ll.vals)</span>
+<span id="cb61-18"><a href="index.html#cb61-18" tabindex="-1"></a>}</span>
+<span id="cb61-19"><a href="index.html#cb61-19" tabindex="-1"></a></span>
+<span id="cb61-20"><a href="index.html#cb61-20" tabindex="-1"></a>(frog.mle <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="at">par =</span> <span class="fu">c</span>(<span class="fu">logit</span>(<span class="fl">0.5</span>), <span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">60</span>)),</span>
+<span id="cb61-21"><a href="index.html#cb61-21" tabindex="-1"></a>                   <span class="at">fn  =</span> frog.neg.ll))</span></code></pre></div>
 <pre><code>## $par
 ## [1]  0.1038349 -4.0981694
 ## 
@@ -697,16 +698,16 @@ Fitting proceeds in the usual way. Note that we supply starting values on the tr
 ## $message
 ## NULL</code></pre>
 <p>Note that we no longer receive the warnings that we had received previously, because now we are guaranteed that the model will yield probabilities between 0 and 1. Back-transforming to the original scale recovers the previous MLEs:</p>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="index.html#cb64-1" tabindex="-1"></a>(a.mle <span class="ot">&lt;-</span> <span class="fu">invLogit</span>(frog.mle<span class="sc">$</span>par[<span class="dv">1</span>]))</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="index.html#cb63-1" tabindex="-1"></a>(a.mle <span class="ot">&lt;-</span> <span class="fu">invLogit</span>(frog.mle<span class="sc">$</span>par[<span class="dv">1</span>]))</span></code></pre></div>
 <pre><code>## [1] 0.5259354</code></pre>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="index.html#cb66-1" tabindex="-1"></a>(h.mle <span class="ot">&lt;-</span> <span class="fu">exp</span>(frog.mle<span class="sc">$</span>par[<span class="dv">2</span>]))</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="index.html#cb65-1" tabindex="-1"></a>(h.mle <span class="ot">&lt;-</span> <span class="fu">exp</span>(frog.mle<span class="sc">$</span>par[<span class="dv">2</span>]))</span></code></pre></div>
 <pre><code>## [1] 0.01660304</code></pre>
 <!-- Finally, one might also encounter parameters whose sum must lie between 0 and 1.  For example, in size-based demographic modeling, it is common to describe the demographic fates of individuals in a particular age or size class by two parameters --- survival without growth (say) and survival with growth.  Writing these two parameters as  -->
 
 </div>
 </div>
 <h3>Bibliography<a href="bibliography.html#bibliography" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-bolker2008" class="csl-entry">
 Bolker, Benjamin M. 2008. <em>Ecological Models and Data in <span>R</span></em>. Princeton University Press.
 </div>
@@ -742,42 +743,42 @@ Vonesh, James R, and Benjamin M Bolker. 2005. <span>“Compensatory Larval Respo
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "serif",
-"size": 2
-},
-"edit": {
-"link": null,
-"text": null
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": null,
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "section"
-}
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "serif",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section"
+  }
 });
 });
 </script>

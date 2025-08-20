@@ -18,7 +18,7 @@ X_1, \ldots, X_n & \sim \mbox{Pois}(\lambda) \\
 In the horse-kick data, $\sum_n x_n = 196$ and $n = 280$.  Suppose we start with the vague Gamma prior $a=.01$, $r = .01$ on $\lambda$.  This prior has mean $a/r = 1$ and variance $a/r^2 = 100$.  The posterior distribution for $\lambda$ is then a Gamma with shape parameter $a = 196.01$ and rate parameter $280.01$.  We can plot it:
 
 
-```r
+``` r
 horse <- read.table("data/horse.txt", 
                     header = TRUE,
                     stringsAsFactors = TRUE)
@@ -40,7 +40,7 @@ The red line shows the MLE, which is displaced slightly from the posterior mode.
 
 As a point estimate, we might consider any of the following.  The posterior mean can be found exactly as $a/r$ = 0.70001.  Alternatively, we might consider the posterior median
 
-```r
+``` r
 qgamma(0.5, shape = 196.01, rate = 280.01)
 ```
 
@@ -50,7 +50,7 @@ qgamma(0.5, shape = 196.01, rate = 280.01)
 
 Finally, we might conisder the posterior mode:
 
-```r
+``` r
 optimize(f = function(x) dgamma(x, shape = 196.01, rate = 280.01), interval = c(0.5, 1), maximum = TRUE)
 ```
 
@@ -64,7 +64,7 @@ optimize(f = function(x) dgamma(x, shape = 196.01, rate = 280.01), interval = c(
 
 To find a 95\% confidence interval, we might consider the central 95\% interval:
 
-```r
+``` r
 qgamma(c(0.025, 0.975), shape = 196.01, rate = 280.01)
 ```
 
@@ -74,7 +74,7 @@ qgamma(c(0.025, 0.975), shape = 196.01, rate = 280.01)
 
 A 95\% highest posterior density (HPD) interval takes a bit more work.  We'll write a function to compute the width of a 95\% credible interval based on the quantile of the upper endpoint, and then find the quantile that minimizes this width.
 
-```r
+``` r
 interval.width <- function(x){
   
   upper <- qgamma(p = x, shape = 196.01, rate = 280.01)
@@ -90,7 +90,7 @@ interval.width <- function(x){
 ## [1] 0.9722295
 ```
 
-```r
+``` r
 (hpd.ci <- qgamma(p = c(upper.qtile - .95, upper.qtile), shape = 196.01, rate = 280.01))
 ```
 
@@ -100,7 +100,7 @@ interval.width <- function(x){
 
 We might also ask questions like: What is the posterior probability that $\lambda > 2/3$?  These caluclations are straightforward in a Bayesian context, and they make full sense.
 
-```r
+``` r
 pgamma(2/3, shape = 196.01, rate = 280.01, lower.tail = FALSE)
 ```
 
@@ -113,7 +113,7 @@ Thus we would say that there is a 0.743 posterior probability that $\lambda > 2/
 As an illustration, note that if we had begun with a more informative prior --- say, a gamma distribution with shape parameter $a = 50$ and rate parameter = $100$ --- then the posterior would have been more of a compromise between the prior and the information in the data:
 
 
-```r
+``` r
 plot(l.vals, dgamma(l.vals, shape = 196 + 50, rate = 100 + 280), type = "l", 
      xlab = expression(lambda), ylab = "")
 lines(l.vals, dgamma(l.vals, shape = 50, rate = 100), lty = "dashed")
@@ -137,7 +137,7 @@ There are multiple tools available for generating an MCMC sample from a posterio
 Here is JAGS code to approximate the posterior to $\lambda$ for the horse-kick data, using the vague prior.
 
 
-```r
+``` r
 require(R2jags)
 ```
 
@@ -173,7 +173,7 @@ require(R2jags)
 ```
 
 
-```r
+``` r
 horse.model <- function() {
   
   for (j in 1:J) {             # J = 280, number of data points
@@ -219,23 +219,23 @@ jagsfit <- jags(data               = jags.data,
 
 Let's take a look at some summary statistics of the fit
 
-```r
+``` r
 print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpawYxP6/model40345d6d5642.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpMxtHsx/model37bc1ea3e5b", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved
+##  n.sims = 3750 iterations saved. Running time = 0.17 secs
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.700   0.051   0.607   0.665   0.698   0.732   0.806 1.001  3700
-## deviance 629.325   1.431 628.310 628.413 628.760 629.661 633.246 1.001  3800
+## lambda     0.701   0.051   0.605   0.666   0.700   0.734   0.806 1.001  3600
+## deviance 629.333   1.458 628.310 628.415 628.773 629.649 633.502 1.004  1500
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 1.0 and DIC = 630.3
+## DIC info (using the rule: pV = var(deviance)/2)
+## pV = 1.1 and DIC = 630.4
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -243,41 +243,41 @@ The Rhat values suggest that our chains have converged, as we might hope for suc
 
 For an rjags object, the raw MCMC samples are stored in `BUGSoutput$sims.list`.  Sometimes it is helpful to analyze these samples directly.  For example, with these samples we  can estimate other posterior quantities, such as the posterior median of $\lambda$, or generate a 95\% central posterior confidence interval directly:
 
-```r
+``` r
 mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
 summary(mcmc.output)
 ```
 
 ```
 ##     deviance         lambda      
-##  Min.   :628.3   Min.   :0.5320  
-##  1st Qu.:628.4   1st Qu.:0.6650  
-##  Median :628.8   Median :0.6977  
-##  Mean   :629.3   Mean   :0.7001  
-##  3rd Qu.:629.7   3rd Qu.:0.7319  
-##  Max.   :643.1   Max.   :0.9104
+##  Min.   :628.3   Min.   :0.5400  
+##  1st Qu.:628.4   1st Qu.:0.6664  
+##  Median :628.8   Median :0.6995  
+##  Mean   :629.3   Mean   :0.7009  
+##  3rd Qu.:629.6   3rd Qu.:0.7342  
+##  Max.   :641.8   Max.   :0.9003
 ```
 
-```r
+``` r
 median(mcmc.output$lambda)
 ```
 
 ```
-## [1] 0.6976791
+## [1] 0.6995319
 ```
 
-```r
+``` r
 quantile(mcmc.output$lambda, c(.025, .975))
 ```
 
 ```
 ##      2.5%     97.5% 
-## 0.6071280 0.8062808
+## 0.6054745 0.8062427
 ```
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
 
-```r
+``` r
 require(lattice)
 ```
 
@@ -285,7 +285,7 @@ require(lattice)
 ## Loading required package: lattice
 ```
 
-```r
+``` r
 jagsfit.mcmc <- as.mcmc(jagsfit)
 densityplot(jagsfit.mcmc)
 ```
@@ -296,7 +296,7 @@ densityplot(jagsfit.mcmc)
 
 For a more involved example, let's take a look at the simple regression fit to the cricket data.  First, we'll make a plot of the data and fit a SLR model by least squares.  
 
-```r
+``` r
 cricket <- read.table("data/cricket.txt", header = TRUE)
 
 cricket.slr <- lm(chirps ~ temperature, data = cricket)
@@ -324,7 +324,7 @@ summary(cricket.slr)
 ## F-statistic: 29.97 on 1 and 13 DF,  p-value: 0.0001067
 ```
 
-```r
+``` r
 plot(chirps ~ temperature, data = cricket)
 abline(cricket.slr)
 ```
@@ -333,7 +333,7 @@ abline(cricket.slr)
 
 Now we'll fit the same model in JAGS, using vague priors for all model parameters
 
-```r
+``` r
 cricket.model <- function() {
   
   for (j in 1:J) {             # J = number of data points
@@ -384,30 +384,30 @@ jagsfit <- jags(data               = jags.data,
 ## Initializing model
 ```
 
-```r
+``` r
 print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpawYxP6/model40343b8d34c.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpMxtHsx/model37bcc8d5e00", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved
+##  n.sims = 3750 iterations saved. Running time = 0.1 secs
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.320   3.424 -7.340 -2.467 -0.251  1.857  6.415 1.001  3800
-## b1         0.212   0.043  0.128  0.186  0.211  0.239  0.299 1.001  3800
-## sigma      1.037   0.232  0.702  0.877  1.004  1.153  1.594 1.001  3800
-## tau        1.056   0.423  0.394  0.752  0.992  1.302  2.031 1.001  3800
-## deviance  42.943   2.790 39.816 40.955 42.222 44.035 50.159 1.002  2600
+## b0        -0.290   3.394 -6.983 -2.382 -0.375  1.793  6.629 1.001  3800
+## b1         0.212   0.042  0.125  0.186  0.212  0.238  0.295 1.001  3800
+## sigma      1.035   0.218  0.713  0.880  1.000  1.153  1.559 1.001  3800
+## tau        1.049   0.403  0.411  0.753  1.000  1.291  1.967 1.001  3800
+## deviance  42.852   2.722 39.790 40.861 42.129 44.103 50.170 1.001  2700
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.9 and DIC = 46.8
+## DIC info (using the rule: pV = var(deviance)/2)
+## pV = 3.7 and DIC = 46.6
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
-```r
+``` r
 traceplot(jagsfit)
 ```
 
@@ -416,48 +416,48 @@ traceplot(jagsfit)
 The output of the `print` function gives the quantiles that one would use to calculate a 95\% central credible interval.  To find a HPD credible interval, we can use the `HPDinterval` function in the `coda` library.  The `coda` library contains a variety of routines for post-processing of MCMC ouput.  If we simply pass the `jagsfit` object to the `HPDinterval` function, it will return an HPD interval for each of the three chains.  This isn't what we want, so we'll extract the raw MCMC samples first, and then coerce them to a data frame.
 
 
-```r
+``` r
 mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
 summary(mcmc.output)
 ```
 
 ```
 ##        b0                 b1              deviance         sigma       
-##  Min.   :-13.5569   Min.   :-0.03747   Min.   :39.56   Min.   :0.5638  
-##  1st Qu.: -2.4674   1st Qu.: 0.18566   1st Qu.:40.96   1st Qu.:0.8765  
-##  Median : -0.2505   Median : 0.21139   Median :42.22   Median :1.0041  
-##  Mean   : -0.3196   Mean   : 0.21212   Mean   :42.94   Mean   :1.0372  
-##  3rd Qu.:  1.8570   3rd Qu.: 0.23882   3rd Qu.:44.03   3rd Qu.:1.1528  
-##  Max.   : 19.9512   Max.   : 0.38015   Max.   :63.30   Max.   :2.5453  
+##  Min.   :-14.5712   Min.   :-0.00642   Min.   :39.57   Min.   :0.5725  
+##  1st Qu.: -2.3823   1st Qu.: 0.18572   1st Qu.:40.86   1st Qu.:0.8801  
+##  Median : -0.3750   Median : 0.21248   Median :42.13   Median :1.0002  
+##  Mean   : -0.2897   Mean   : 0.21163   Mean   :42.85   Mean   :1.0354  
+##  3rd Qu.:  1.7933   3rd Qu.: 0.23810   3rd Qu.:44.10   3rd Qu.:1.1527  
+##  Max.   : 16.5299   Max.   : 0.38837   Max.   :61.39   Max.   :2.2932  
 ##       tau        
-##  Min.   :0.1544  
-##  1st Qu.:0.7524  
-##  Median :0.9918  
-##  Mean   :1.0562  
-##  3rd Qu.:1.3017  
-##  Max.   :3.1462
+##  Min.   :0.1902  
+##  1st Qu.:0.7526  
+##  Median :0.9995  
+##  Mean   :1.0486  
+##  3rd Qu.:1.2909  
+##  Max.   :3.0513
 ```
 
 Now we'll coerce the data frame `mcmc.output` to an MCMC object, and pass it to `HPDinterval`:
 
-```r
+``` r
 HPDinterval(as.mcmc(mcmc.output))
 ```
 
 ```
 ##               lower      upper
-## b0       -7.6494575  5.9525981
-## b1        0.1325964  0.3014008
-## deviance 39.5582819 48.4894774
-## sigma     0.6528780  1.5024866
-## tau       0.3165463  1.8968884
+## b0       -6.6657404  6.8869627
+## b1        0.1311843  0.3012843
+## deviance 39.5663000 48.1950383
+## sigma     0.6562845  1.4507493
+## tau       0.3377707  1.8545383
 ## attr(,"Probability")
 ## [1] 0.9498667
 ```
 
 One of the merits of the Bayesian approach is that the posterior samples provide an immediate tool for propagating uncertainty to (possibly derived) quantities of interest.  We can summarize the uncertainty in the regression fit graphically by randomly sampling a subset of these samples (say, 100 of them) and using them to plot a collection of regression lines:
 
-```r
+``` r
 plot(chirps ~ temperature, data = cricket, type = "n")
 # we'll add the points later so that they lie on top of the lines,
 # instead of the other way around
@@ -478,38 +478,38 @@ with(mcmc.output, abline(a = mean(b0), b = mean(b1), col = "purple3", lwd = 3))
 We can also propagate the uncertainty to estimate, say, the posterior distribution for the value of the regression line when the temperature is 85 F.  This quantifies the uncertainty in the average number of chirps at this temperature.  (We can think of it as a vertical slice through the above plot.)
 
 
-```r
+``` r
 avg.chirps.85 <- with(mcmc.output, b0 + b1 * 85)
 summary(avg.chirps.85)
 ```
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   16.43   17.49   17.71   17.71   17.93   19.43
+##   15.97   17.47   17.69   17.70   17.91   19.36
 ```
 
-```r
+``` r
 quantile(avg.chirps.85, probs = c(.025, 0.975))
 ```
 
 ```
 ##     2.5%    97.5% 
-## 17.02771 18.39877
+## 17.00763 18.38933
 ```
 
 We could use the `density` function to get a quick idea of the shape of the distribution:
 
-```r
+``` r
 plot(density(avg.chirps.85))
 ```
 
 <img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
-Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.71, and a central 95\% credible interval is (17.03, 18.4).
+Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95\% credible interval is (17.01, 18.39).
 
 Finally, we can use the posterior samples to estimate the uncertainty in a future observation.  When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution.  The posterior predictive distribution must also include the error around the regression line.  We can estimate the posterior predictive distribution as follows.  Suppose we denote sample $i$ from the posterior as $\beta_{0, i}$, $\beta_{1, i}$, and $\sigma_i$.  Then for each posterior sample we will generate a new hypothetical observation $y_i^\star$ by sampling from a Gaussian distribution with mean equal to $\beta_{0,i} + \beta_{1,i} x $ and standard deviation $\sigma_i$, where $x = 85$.  The distribution of the $y_i^*$'s then gives the posterior predictive distribution that we seek.
 
-```r
+``` r
 n.sims <- nrow(mcmc.output)
 new.errors <- with(mcmc.output, rnorm(n.sims, mean = 0, sd = sigma))
 new.chirps.85 <- with(mcmc.output, b0 + b1 * 85) + new.errors
@@ -518,30 +518,30 @@ plot(density(new.chirps.85))
 
 <img src="03-BayesianIntro_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
-```r
+``` r
 summary(new.chirps.85)
 ```
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   13.17   17.02   17.74   17.73   18.43   23.25
+##   13.09   16.97   17.66   17.68   18.37   23.43
 ```
 
-```r
+``` r
 quantile(new.chirps.85, probs = c(.025, 0.975))
 ```
 
 ```
 ##     2.5%    97.5% 
-## 15.52977 19.95123
+## 15.51019 19.95633
 ```
 
-Thus, the posterior predictive distribution has a central 95\% credible interval of (15.53, 19.95).
+Thus, the posterior predictive distribution has a central 95\% credible interval of (15.51, 19.96).
 
 Although it hasn't caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
 
-```r
+``` r
 library(hexbin)
 library(RColorBrewer)
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
@@ -552,15 +552,15 @@ with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 
 We can estimate the posterior correlation between the intercept and the slope by accessing the raw MCMC samples  
 
-```r
+``` r
 cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##               b0            b1           tau
-## b0   1.000000000 -0.9968300304 -0.0022765289
-## b1  -0.996830030  1.0000000000  0.0005441113
-## tau -0.002276529  0.0005441113  1.0000000000
+##               b0           b1          tau
+## b0   1.000000000 -0.996744043  0.002916663
+## b1  -0.996744043  1.000000000 -0.001119235
+## tau  0.002916663 -0.001119235  1.000000000
 ```
 
 Thus we estimate that the intercept and slope have a posterior correlation of -0.997.
@@ -568,12 +568,12 @@ Thus we estimate that the intercept and slope have a posterior correlation of -0
 We could make life easier on ourselves by centering the predictor and trying again:
 
 
-```r
+``` r
 cricket$temp.ctr <- cricket$temperature - mean(cricket$temperature)
 ```
 
 
-```r
+``` r
 jags.data <- list(y = cricket$chirps, 
                   x = cricket$temp.ctr,
                   J = nrow(cricket))
@@ -604,30 +604,30 @@ jagsfit <- jags(data               = jags.data,
 ## Initializing model
 ```
 
-```r
+``` r
 print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpawYxP6/model4034ffd3311.txt", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpMxtHsx/model37bc4d0d3c04", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved
+##  n.sims = 3750 iterations saved. Running time = 0.06 secs
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.657   0.278 16.105 16.482 16.652 16.829 17.223 1.001  3800
-## b1         0.211   0.042  0.128  0.184  0.211  0.238  0.297 1.002  1800
-## sigma      1.035   0.220  0.707  0.874  1.001  1.155  1.556 1.001  3800
-## tau        1.052   0.411  0.413  0.750  0.997  1.310  1.999 1.001  3800
-## deviance  42.911   2.762 39.782 40.894 42.173 44.182 49.917 1.001  3800
+## b0        16.652   0.278 16.093 16.484 16.649 16.819 17.237 1.001  3800
+## b1         0.212   0.043  0.127  0.185  0.211  0.239  0.297 1.001  3800
+## sigma      1.032   0.221  0.712  0.879  0.992  1.148  1.562 1.001  3800
+## tau        1.058   0.408  0.410  0.758  1.017  1.294  1.973 1.001  3800
+## deviance  42.918   2.831 39.791 40.881 42.149 44.132 50.409 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.8 and DIC = 46.7
+## DIC info (using the rule: pV = var(deviance)/2)
+## pV = 4.0 and DIC = 46.9
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
-```r
+``` r
 traceplot(jagsfit)
 ```
 
@@ -636,7 +636,7 @@ traceplot(jagsfit)
 The posteriors for the intercept and slope are now uncorrelated:
 
 
-```r
+``` r
 library(hexbin)
 library(RColorBrewer)
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
@@ -645,16 +645,16 @@ with(jagsfit$BUGSoutput$sims.list, hexbinplot(b1 ~ b0, colramp = rf))
 
 <img src="03-BayesianIntro_files/figure-html/unnamed-chunk-25-1.png" width="672" />
 
-```r
+``` r
 mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
 cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##                b0           b1          tau
-## b0   1.0000000000 0.0008119091 -0.006817768
-## b1   0.0008119091 1.0000000000  0.009715635
-## tau -0.0068177679 0.0097156355  1.000000000
+##              b0           b1          tau
+## b0   1.00000000  0.016679848 -0.041161089
+## b1   0.01667985  1.000000000 -0.002451567
+## tau -0.04116109 -0.002451567  1.000000000
 ```
 
 ## rstanarm
@@ -665,7 +665,7 @@ To provide functionality that is similar to R's native model-fitting routines, t
 
 All that said, here is how you might use `rstanarm` to fit the simple regression to the cricket data:
 
-```r
+``` r
 require(rstanarm)
 ```
 
@@ -678,7 +678,7 @@ require(rstanarm)
 ```
 
 ```
-## This is rstanarm version 2.26.1
+## This is rstanarm version 2.32.1
 ```
 
 ```
@@ -807,7 +807,7 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 
 We can discover the priors that `stan_glm` has selected by using the function `prior_summary`.
 
-```r
+``` r
 prior_summary(stanarm.cricket.fit)
 ```
 
@@ -837,7 +837,7 @@ prior_summary(stanarm.cricket.fit)
 
 The `rstanarm` package has made a variety of decisions about how many chains to run, how long to run them, etc.  We can obtain a summary of the model fit by the `print` command:
 
-```r
+``` r
 print(stanarm.cricket.fit, digits = 3)
 ```
 
@@ -874,7 +874,7 @@ According to the authors of `rstanarm`, "Because we are so used to working with 
 If we want to compute our own summary statistics, we can extract the MCMC samples from the `stam_glm` fit using the `as.matrix` command:
 
 
-```r
+``` r
 mcmc.sims <- as.matrix(stanarm.cricket.fit)
 summary(mcmc.sims)
 ```
@@ -891,7 +891,7 @@ summary(mcmc.sims)
 
 We might, for example, then use this output to find the posterior standard deviation of each of the parameters, or to find central 95\% credible intervals:
 
-```r
+``` r
 apply(mcmc.sims, 2, sd)
 ```
 
@@ -900,7 +900,7 @@ apply(mcmc.sims, 2, sd)
 ##  0.27003507  0.04262539  0.22262375
 ```
 
-```r
+``` r
 apply(mcmc.sims, 2, function(x) quantile(x, c(0.025, 0.975)))
 ```
 

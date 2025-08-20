@@ -4,26 +4,26 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 3 Bayesian computation | BMA / ST 590 course notes</title>
-  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
-  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
+  <title>Chapter 3 Bayesian computation | Applied statistical analysis of non-normal and/or correlated data</title>
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 3 Bayesian computation | BMA / ST 590 course notes" />
+  <meta property="og:title" content="Chapter 3 Bayesian computation | Applied statistical analysis of non-normal and/or correlated data" />
   <meta property="og:type" content="book" />
   
-  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 3 Bayesian computation | BMA / ST 590 course notes" />
+  <meta name="twitter:title" content="Chapter 3 Bayesian computation | Applied statistical analysis of non-normal and/or correlated data" />
   
-  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology, taught at NCSU in Fall 2023." />
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
   
 
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2023-12-01" />
+<meta name="date" content="2025-08-20" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -52,8 +52,9 @@
 <link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
 <link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.6.3/htmlwidgets.js"></script>
-<script src="libs/plotly-binding-4.10.3/plotly.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.11.0/plotly.js"></script>
 <script src="libs/typedarray-0.1/typedarray.min.js"></script>
 <link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
 <script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
@@ -63,7 +64,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -135,6 +136,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging div.csl-entry {
   margin-left:2em;
@@ -268,7 +270,7 @@ div.csl-indent {
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">BMA / ST 590 course notes</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Applied statistical analysis of non-normal and/or correlated data</a>
           </h1>
         </div>
 
@@ -290,60 +292,60 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 \lambda | X_1, \ldots, X_n &amp; \sim \mbox{Gamma}(a + \sum_n X_n, r + n) \\
 \end{align*}\]</span></p>
 <p>In the horse-kick data, <span class="math inline">\(\sum_n x_n = 196\)</span> and <span class="math inline">\(n = 280\)</span>. Suppose we start with the vague Gamma prior <span class="math inline">\(a=.01\)</span>, <span class="math inline">\(r = .01\)</span> on <span class="math inline">\(\lambda\)</span>. This prior has mean <span class="math inline">\(a/r = 1\)</span> and variance <span class="math inline">\(a/r^2 = 100\)</span>. The posterior distribution for <span class="math inline">\(\lambda\)</span> is then a Gamma with shape parameter <span class="math inline">\(a = 196.01\)</span> and rate parameter <span class="math inline">\(280.01\)</span>. We can plot it:</p>
-<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="bayesian-computation.html#cb169-1" tabindex="-1"></a>horse <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/horse.txt&quot;</span>, </span>
-<span id="cb169-2"><a href="bayesian-computation.html#cb169-2" tabindex="-1"></a>                    <span class="at">header =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb169-3"><a href="bayesian-computation.html#cb169-3" tabindex="-1"></a>                    <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb169-4"><a href="bayesian-computation.html#cb169-4" tabindex="-1"></a></span>
-<span id="cb169-5"><a href="bayesian-computation.html#cb169-5" tabindex="-1"></a>l.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">2</span>, <span class="at">length =</span> <span class="dv">200</span>)</span>
-<span id="cb169-6"><a href="bayesian-computation.html#cb169-6" tabindex="-1"></a><span class="fu">plot</span>(l.vals, <span class="fu">dgamma</span>(l.vals, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>), <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, </span>
-<span id="cb169-7"><a href="bayesian-computation.html#cb169-7" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="fu">expression</span>(lambda), <span class="at">ylab =</span> <span class="st">&quot;&quot;</span>)</span>
-<span id="cb169-8"><a href="bayesian-computation.html#cb169-8" tabindex="-1"></a><span class="fu">lines</span>(l.vals, <span class="fu">dgamma</span>(l.vals, <span class="at">shape =</span> .<span class="dv">01</span>, <span class="at">rate =</span> .<span class="dv">01</span>), <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb169-9"><a href="bayesian-computation.html#cb169-9" tabindex="-1"></a></span>
-<span id="cb169-10"><a href="bayesian-computation.html#cb169-10" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.7</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
-<span id="cb169-11"><a href="bayesian-computation.html#cb169-11" tabindex="-1"></a></span>
-<span id="cb169-12"><a href="bayesian-computation.html#cb169-12" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="at">leg =</span> <span class="fu">c</span>(<span class="st">&quot;prior&quot;</span>, <span class="st">&quot;posterior&quot;</span>), </span>
-<span id="cb169-13"><a href="bayesian-computation.html#cb169-13" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="st">&quot;dashed&quot;</span>, <span class="st">&quot;solid&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb168"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb168-1"><a href="bayesian-computation.html#cb168-1" tabindex="-1"></a>horse <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/horse.txt&quot;</span>, </span>
+<span id="cb168-2"><a href="bayesian-computation.html#cb168-2" tabindex="-1"></a>                    <span class="at">header =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb168-3"><a href="bayesian-computation.html#cb168-3" tabindex="-1"></a>                    <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb168-4"><a href="bayesian-computation.html#cb168-4" tabindex="-1"></a></span>
+<span id="cb168-5"><a href="bayesian-computation.html#cb168-5" tabindex="-1"></a>l.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">2</span>, <span class="at">length =</span> <span class="dv">200</span>)</span>
+<span id="cb168-6"><a href="bayesian-computation.html#cb168-6" tabindex="-1"></a><span class="fu">plot</span>(l.vals, <span class="fu">dgamma</span>(l.vals, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>), <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, </span>
+<span id="cb168-7"><a href="bayesian-computation.html#cb168-7" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="fu">expression</span>(lambda), <span class="at">ylab =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb168-8"><a href="bayesian-computation.html#cb168-8" tabindex="-1"></a><span class="fu">lines</span>(l.vals, <span class="fu">dgamma</span>(l.vals, <span class="at">shape =</span> .<span class="dv">01</span>, <span class="at">rate =</span> .<span class="dv">01</span>), <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb168-9"><a href="bayesian-computation.html#cb168-9" tabindex="-1"></a></span>
+<span id="cb168-10"><a href="bayesian-computation.html#cb168-10" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.7</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb168-11"><a href="bayesian-computation.html#cb168-11" tabindex="-1"></a></span>
+<span id="cb168-12"><a href="bayesian-computation.html#cb168-12" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="at">leg =</span> <span class="fu">c</span>(<span class="st">&quot;prior&quot;</span>, <span class="st">&quot;posterior&quot;</span>), </span>
+<span id="cb168-13"><a href="bayesian-computation.html#cb168-13" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="st">&quot;dashed&quot;</span>, <span class="st">&quot;solid&quot;</span>))</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 <p>The red line shows the MLE, which is displaced slightly from the posterior mode.</p>
 <p>As a point estimate, we might consider any of the following. The posterior mean can be found exactly as <span class="math inline">\(a/r\)</span> = 0.70001. Alternatively, we might consider the posterior median</p>
-<div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="bayesian-computation.html#cb170-1" tabindex="-1"></a><span class="fu">qgamma</span>(<span class="fl">0.5</span>, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="bayesian-computation.html#cb169-1" tabindex="-1"></a><span class="fu">qgamma</span>(<span class="fl">0.5</span>, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>)</span></code></pre></div>
 <pre><code>## [1] 0.6988206</code></pre>
 <p>Finally, we might conisder the posterior mode:</p>
-<div class="sourceCode" id="cb172"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb172-1"><a href="bayesian-computation.html#cb172-1" tabindex="-1"></a><span class="fu">optimize</span>(<span class="at">f =</span> <span class="cf">function</span>(x) <span class="fu">dgamma</span>(x, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>), <span class="at">interval =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>), <span class="at">maximum =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="bayesian-computation.html#cb171-1" tabindex="-1"></a><span class="fu">optimize</span>(<span class="at">f =</span> <span class="cf">function</span>(x) <span class="fu">dgamma</span>(x, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>), <span class="at">interval =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>), <span class="at">maximum =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>## $maximum
 ## [1] 0.6964383
 ## 
 ## $objective
 ## [1] 7.995941</code></pre>
 <p>To find a 95% confidence interval, we might consider the central 95% interval:</p>
-<div class="sourceCode" id="cb174"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb174-1"><a href="bayesian-computation.html#cb174-1" tabindex="-1"></a><span class="fu">qgamma</span>(<span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>), <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb173"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb173-1"><a href="bayesian-computation.html#cb173-1" tabindex="-1"></a><span class="fu">qgamma</span>(<span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>), <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>)</span></code></pre></div>
 <pre><code>## [1] 0.6054387 0.8013454</code></pre>
 <p>A 95% highest posterior density (HPD) interval takes a bit more work. We’ll write a function to compute the width of a 95% credible interval based on the quantile of the upper endpoint, and then find the quantile that minimizes this width.</p>
-<div class="sourceCode" id="cb176"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb176-1"><a href="bayesian-computation.html#cb176-1" tabindex="-1"></a>interval.width <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
-<span id="cb176-2"><a href="bayesian-computation.html#cb176-2" tabindex="-1"></a>  </span>
-<span id="cb176-3"><a href="bayesian-computation.html#cb176-3" tabindex="-1"></a>  upper <span class="ot">&lt;-</span> <span class="fu">qgamma</span>(<span class="at">p =</span> x, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>)</span>
-<span id="cb176-4"><a href="bayesian-computation.html#cb176-4" tabindex="-1"></a>  lower <span class="ot">&lt;-</span> <span class="fu">qgamma</span>(<span class="at">p =</span> x <span class="sc">-</span> .<span class="dv">95</span>, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>)</span>
-<span id="cb176-5"><a href="bayesian-computation.html#cb176-5" tabindex="-1"></a>  </span>
-<span id="cb176-6"><a href="bayesian-computation.html#cb176-6" tabindex="-1"></a>  upper <span class="sc">-</span> lower</span>
-<span id="cb176-7"><a href="bayesian-computation.html#cb176-7" tabindex="-1"></a>}</span>
-<span id="cb176-8"><a href="bayesian-computation.html#cb176-8" tabindex="-1"></a></span>
-<span id="cb176-9"><a href="bayesian-computation.html#cb176-9" tabindex="-1"></a>(upper.qtile <span class="ot">&lt;-</span> <span class="fu">optimize</span>(interval.width, <span class="at">interval =</span> <span class="fu">c</span>(<span class="fl">0.95</span>, <span class="dv">1</span>))<span class="sc">$</span>minimum)</span></code></pre></div>
+<div class="sourceCode" id="cb175"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb175-1"><a href="bayesian-computation.html#cb175-1" tabindex="-1"></a>interval.width <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb175-2"><a href="bayesian-computation.html#cb175-2" tabindex="-1"></a>  </span>
+<span id="cb175-3"><a href="bayesian-computation.html#cb175-3" tabindex="-1"></a>  upper <span class="ot">&lt;-</span> <span class="fu">qgamma</span>(<span class="at">p =</span> x, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>)</span>
+<span id="cb175-4"><a href="bayesian-computation.html#cb175-4" tabindex="-1"></a>  lower <span class="ot">&lt;-</span> <span class="fu">qgamma</span>(<span class="at">p =</span> x <span class="sc">-</span> .<span class="dv">95</span>, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>)</span>
+<span id="cb175-5"><a href="bayesian-computation.html#cb175-5" tabindex="-1"></a>  </span>
+<span id="cb175-6"><a href="bayesian-computation.html#cb175-6" tabindex="-1"></a>  upper <span class="sc">-</span> lower</span>
+<span id="cb175-7"><a href="bayesian-computation.html#cb175-7" tabindex="-1"></a>}</span>
+<span id="cb175-8"><a href="bayesian-computation.html#cb175-8" tabindex="-1"></a></span>
+<span id="cb175-9"><a href="bayesian-computation.html#cb175-9" tabindex="-1"></a>(upper.qtile <span class="ot">&lt;-</span> <span class="fu">optimize</span>(interval.width, <span class="at">interval =</span> <span class="fu">c</span>(<span class="fl">0.95</span>, <span class="dv">1</span>))<span class="sc">$</span>minimum)</span></code></pre></div>
 <pre><code>## [1] 0.9722295</code></pre>
-<div class="sourceCode" id="cb178"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb178-1"><a href="bayesian-computation.html#cb178-1" tabindex="-1"></a>(hpd.ci <span class="ot">&lt;-</span> <span class="fu">qgamma</span>(<span class="at">p =</span> <span class="fu">c</span>(upper.qtile <span class="sc">-</span> .<span class="dv">95</span>, upper.qtile), <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb177-1"><a href="bayesian-computation.html#cb177-1" tabindex="-1"></a>(hpd.ci <span class="ot">&lt;-</span> <span class="fu">qgamma</span>(<span class="at">p =</span> <span class="fu">c</span>(upper.qtile <span class="sc">-</span> .<span class="dv">95</span>, upper.qtile), <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>))</span></code></pre></div>
 <pre><code>## [1] 0.6031834 0.7988678</code></pre>
 <p>We might also ask questions like: What is the posterior probability that <span class="math inline">\(\lambda &gt; 2/3\)</span>? These caluclations are straightforward in a Bayesian context, and they make full sense.</p>
-<div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb180-1"><a href="bayesian-computation.html#cb180-1" tabindex="-1"></a><span class="fu">pgamma</span>(<span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb179"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb179-1"><a href="bayesian-computation.html#cb179-1" tabindex="-1"></a><span class="fu">pgamma</span>(<span class="dv">2</span><span class="sc">/</span><span class="dv">3</span>, <span class="at">shape =</span> <span class="fl">196.01</span>, <span class="at">rate =</span> <span class="fl">280.01</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <pre><code>## [1] 0.7434032</code></pre>
 <p>Thus we would say that there is a 0.743 posterior probability that <span class="math inline">\(\lambda &gt; 2/3\)</span>.</p>
 <p>As an illustration, note that if we had begun with a more informative prior — say, a gamma distribution with shape parameter <span class="math inline">\(a = 50\)</span> and rate parameter = <span class="math inline">\(100\)</span> — then the posterior would have been more of a compromise between the prior and the information in the data:</p>
-<div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb182-1"><a href="bayesian-computation.html#cb182-1" tabindex="-1"></a><span class="fu">plot</span>(l.vals, <span class="fu">dgamma</span>(l.vals, <span class="at">shape =</span> <span class="dv">196</span> <span class="sc">+</span> <span class="dv">50</span>, <span class="at">rate =</span> <span class="dv">100</span> <span class="sc">+</span> <span class="dv">280</span>), <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, </span>
-<span id="cb182-2"><a href="bayesian-computation.html#cb182-2" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="fu">expression</span>(lambda), <span class="at">ylab =</span> <span class="st">&quot;&quot;</span>)</span>
-<span id="cb182-3"><a href="bayesian-computation.html#cb182-3" tabindex="-1"></a><span class="fu">lines</span>(l.vals, <span class="fu">dgamma</span>(l.vals, <span class="at">shape =</span> <span class="dv">50</span>, <span class="at">rate =</span> <span class="dv">100</span>), <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
-<span id="cb182-4"><a href="bayesian-computation.html#cb182-4" tabindex="-1"></a></span>
-<span id="cb182-5"><a href="bayesian-computation.html#cb182-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.7</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
-<span id="cb182-6"><a href="bayesian-computation.html#cb182-6" tabindex="-1"></a></span>
-<span id="cb182-7"><a href="bayesian-computation.html#cb182-7" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="at">leg =</span> <span class="fu">c</span>(<span class="st">&quot;prior&quot;</span>, <span class="st">&quot;posterior&quot;</span>), </span>
-<span id="cb182-8"><a href="bayesian-computation.html#cb182-8" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="st">&quot;dashed&quot;</span>, <span class="st">&quot;solid&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb181"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb181-1"><a href="bayesian-computation.html#cb181-1" tabindex="-1"></a><span class="fu">plot</span>(l.vals, <span class="fu">dgamma</span>(l.vals, <span class="at">shape =</span> <span class="dv">196</span> <span class="sc">+</span> <span class="dv">50</span>, <span class="at">rate =</span> <span class="dv">100</span> <span class="sc">+</span> <span class="dv">280</span>), <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, </span>
+<span id="cb181-2"><a href="bayesian-computation.html#cb181-2" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="fu">expression</span>(lambda), <span class="at">ylab =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb181-3"><a href="bayesian-computation.html#cb181-3" tabindex="-1"></a><span class="fu">lines</span>(l.vals, <span class="fu">dgamma</span>(l.vals, <span class="at">shape =</span> <span class="dv">50</span>, <span class="at">rate =</span> <span class="dv">100</span>), <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb181-4"><a href="bayesian-computation.html#cb181-4" tabindex="-1"></a></span>
+<span id="cb181-5"><a href="bayesian-computation.html#cb181-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.7</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb181-6"><a href="bayesian-computation.html#cb181-6" tabindex="-1"></a></span>
+<span id="cb181-7"><a href="bayesian-computation.html#cb181-7" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="at">leg =</span> <span class="fu">c</span>(<span class="st">&quot;prior&quot;</span>, <span class="st">&quot;posterior&quot;</span>), </span>
+<span id="cb181-8"><a href="bayesian-computation.html#cb181-8" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="st">&quot;dashed&quot;</span>, <span class="st">&quot;solid&quot;</span>))</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 </div>
 <div id="mcmc-and-stochastic-approximations-of-the-posterior" class="section level2 hasAnchor" number="3.2">
@@ -353,7 +355,7 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <div id="the-horse-kick-data-once-more" class="section level3 hasAnchor" number="3.2.1">
 <h3><span class="header-section-number">3.2.1</span> The horse-kick data, once more<a href="bayesian-computation.html#the-horse-kick-data-once-more" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Here is JAGS code to approximate the posterior to <span class="math inline">\(\lambda\)</span> for the horse-kick data, using the vague prior.</p>
-<div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb183-1"><a href="bayesian-computation.html#cb183-1" tabindex="-1"></a><span class="fu">require</span>(R2jags)</span></code></pre></div>
+<div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb182-1"><a href="bayesian-computation.html#cb182-1" tabindex="-1"></a><span class="fu">require</span>(R2jags)</span></code></pre></div>
 <pre><code>## Loading required package: R2jags</code></pre>
 <pre><code>## Loading required package: rjags</code></pre>
 <pre><code>## Loading required package: coda</code></pre>
@@ -364,31 +366,31 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <pre><code>## The following object is masked from &#39;package:coda&#39;:
 ## 
 ##     traceplot</code></pre>
-<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb191-1"><a href="bayesian-computation.html#cb191-1" tabindex="-1"></a>horse.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb191-2"><a href="bayesian-computation.html#cb191-2" tabindex="-1"></a>  </span>
-<span id="cb191-3"><a href="bayesian-computation.html#cb191-3" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {             <span class="co"># J = 280, number of data points</span></span>
-<span id="cb191-4"><a href="bayesian-computation.html#cb191-4" tabindex="-1"></a>    y[j] <span class="sc">~</span> <span class="fu">dpois</span> (lambda)      <span class="co"># data model:  the likelihood      </span></span>
-<span id="cb191-5"><a href="bayesian-computation.html#cb191-5" tabindex="-1"></a>  }</span>
-<span id="cb191-6"><a href="bayesian-computation.html#cb191-6" tabindex="-1"></a>  </span>
-<span id="cb191-7"><a href="bayesian-computation.html#cb191-7" tabindex="-1"></a>  lambda <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>) <span class="co"># prior </span></span>
-<span id="cb191-8"><a href="bayesian-computation.html#cb191-8" tabindex="-1"></a>                               <span class="co"># note that BUGS / JAGS parameterizes </span></span>
-<span id="cb191-9"><a href="bayesian-computation.html#cb191-9" tabindex="-1"></a>                               <span class="co"># gamma by shape, rate</span></span>
-<span id="cb191-10"><a href="bayesian-computation.html#cb191-10" tabindex="-1"></a>}</span>
-<span id="cb191-11"><a href="bayesian-computation.html#cb191-11" tabindex="-1"></a></span>
-<span id="cb191-12"><a href="bayesian-computation.html#cb191-12" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> horse<span class="sc">$</span>deaths, <span class="at">J =</span> <span class="fu">length</span>(horse<span class="sc">$</span>deaths))</span>
-<span id="cb191-13"><a href="bayesian-computation.html#cb191-13" tabindex="-1"></a></span>
-<span id="cb191-14"><a href="bayesian-computation.html#cb191-14" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;lambda&quot;</span>)</span>
-<span id="cb191-15"><a href="bayesian-computation.html#cb191-15" tabindex="-1"></a></span>
-<span id="cb191-16"><a href="bayesian-computation.html#cb191-16" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb191-17"><a href="bayesian-computation.html#cb191-17" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">&quot;lambda&quot;</span> <span class="ot">=</span> <span class="fu">rgamma</span>(<span class="fl">0.01</span>, <span class="fl">0.01</span>))</span>
-<span id="cb191-18"><a href="bayesian-computation.html#cb191-18" tabindex="-1"></a>}</span>
-<span id="cb191-19"><a href="bayesian-computation.html#cb191-19" tabindex="-1"></a></span>
-<span id="cb191-20"><a href="bayesian-computation.html#cb191-20" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
-<span id="cb191-21"><a href="bayesian-computation.html#cb191-21" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
-<span id="cb191-22"><a href="bayesian-computation.html#cb191-22" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
-<span id="cb191-23"><a href="bayesian-computation.html#cb191-23" tabindex="-1"></a>                <span class="at">model.file         =</span> horse.model,</span>
-<span id="cb191-24"><a href="bayesian-computation.html#cb191-24" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
-<span id="cb191-25"><a href="bayesian-computation.html#cb191-25" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="dv">5000</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb190"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb190-1"><a href="bayesian-computation.html#cb190-1" tabindex="-1"></a>horse.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb190-2"><a href="bayesian-computation.html#cb190-2" tabindex="-1"></a>  </span>
+<span id="cb190-3"><a href="bayesian-computation.html#cb190-3" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {             <span class="co"># J = 280, number of data points</span></span>
+<span id="cb190-4"><a href="bayesian-computation.html#cb190-4" tabindex="-1"></a>    y[j] <span class="sc">~</span> <span class="fu">dpois</span> (lambda)      <span class="co"># data model:  the likelihood      </span></span>
+<span id="cb190-5"><a href="bayesian-computation.html#cb190-5" tabindex="-1"></a>  }</span>
+<span id="cb190-6"><a href="bayesian-computation.html#cb190-6" tabindex="-1"></a>  </span>
+<span id="cb190-7"><a href="bayesian-computation.html#cb190-7" tabindex="-1"></a>  lambda <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>) <span class="co"># prior </span></span>
+<span id="cb190-8"><a href="bayesian-computation.html#cb190-8" tabindex="-1"></a>                               <span class="co"># note that BUGS / JAGS parameterizes </span></span>
+<span id="cb190-9"><a href="bayesian-computation.html#cb190-9" tabindex="-1"></a>                               <span class="co"># gamma by shape, rate</span></span>
+<span id="cb190-10"><a href="bayesian-computation.html#cb190-10" tabindex="-1"></a>}</span>
+<span id="cb190-11"><a href="bayesian-computation.html#cb190-11" tabindex="-1"></a></span>
+<span id="cb190-12"><a href="bayesian-computation.html#cb190-12" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> horse<span class="sc">$</span>deaths, <span class="at">J =</span> <span class="fu">length</span>(horse<span class="sc">$</span>deaths))</span>
+<span id="cb190-13"><a href="bayesian-computation.html#cb190-13" tabindex="-1"></a></span>
+<span id="cb190-14"><a href="bayesian-computation.html#cb190-14" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;lambda&quot;</span>)</span>
+<span id="cb190-15"><a href="bayesian-computation.html#cb190-15" tabindex="-1"></a></span>
+<span id="cb190-16"><a href="bayesian-computation.html#cb190-16" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb190-17"><a href="bayesian-computation.html#cb190-17" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">&quot;lambda&quot;</span> <span class="ot">=</span> <span class="fu">rgamma</span>(<span class="fl">0.01</span>, <span class="fl">0.01</span>))</span>
+<span id="cb190-18"><a href="bayesian-computation.html#cb190-18" tabindex="-1"></a>}</span>
+<span id="cb190-19"><a href="bayesian-computation.html#cb190-19" tabindex="-1"></a></span>
+<span id="cb190-20"><a href="bayesian-computation.html#cb190-20" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
+<span id="cb190-21"><a href="bayesian-computation.html#cb190-21" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
+<span id="cb190-22"><a href="bayesian-computation.html#cb190-22" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
+<span id="cb190-23"><a href="bayesian-computation.html#cb190-23" tabindex="-1"></a>                <span class="at">model.file         =</span> horse.model,</span>
+<span id="cb190-24"><a href="bayesian-computation.html#cb190-24" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
+<span id="cb190-25"><a href="bayesian-computation.html#cb190-25" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="dv">5000</span>)</span></code></pre></div>
 <pre><code>## module glm loaded</code></pre>
 <pre><code>## Compiling model graph
 ##    Resolving undeclared variables
@@ -400,50 +402,50 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ## 
 ## Initializing model</code></pre>
 <p>Let’s take a look at some summary statistics of the fit</p>
-<div class="sourceCode" id="cb194"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb194-1"><a href="bayesian-computation.html#cb194-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpawYxP6/model40345d6d5642.txt&quot;, fit using jags,
+<div class="sourceCode" id="cb193"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb193-1"><a href="bayesian-computation.html#cb193-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpMxtHsx/model37bc1ea3e5b&quot;, fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved
+##  n.sims = 3750 iterations saved. Running time = 0.17 secs
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.700   0.051   0.607   0.665   0.698   0.732   0.806 1.001  3700
-## deviance 629.325   1.431 628.310 628.413 628.760 629.661 633.246 1.001  3800
+## lambda     0.701   0.051   0.605   0.666   0.700   0.734   0.806 1.001  3600
+## deviance 629.333   1.458 628.310 628.415 628.773 629.649 633.502 1.004  1500
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 1.0 and DIC = 630.3
+## DIC info (using the rule: pV = var(deviance)/2)
+## pV = 1.1 and DIC = 630.4
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
 <p>The Rhat values suggest that our chains have converged, as we might hope for such a simple model. We can generate a trace plot using <code>traceplot</code> to inspect convergence visually, but beware that visual assessment of convergence is prone to error.</p>
 <p>For an rjags object, the raw MCMC samples are stored in <code>BUGSoutput$sims.list</code>. Sometimes it is helpful to analyze these samples directly. For example, with these samples we can estimate other posterior quantities, such as the posterior median of <span class="math inline">\(\lambda\)</span>, or generate a 95% central posterior confidence interval directly:</p>
-<div class="sourceCode" id="cb196"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb196-1"><a href="bayesian-computation.html#cb196-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
-<span id="cb196-2"><a href="bayesian-computation.html#cb196-2" tabindex="-1"></a><span class="fu">summary</span>(mcmc.output)</span></code></pre></div>
+<div class="sourceCode" id="cb195"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb195-1"><a href="bayesian-computation.html#cb195-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
+<span id="cb195-2"><a href="bayesian-computation.html#cb195-2" tabindex="-1"></a><span class="fu">summary</span>(mcmc.output)</span></code></pre></div>
 <pre><code>##     deviance         lambda      
-##  Min.   :628.3   Min.   :0.5320  
-##  1st Qu.:628.4   1st Qu.:0.6650  
-##  Median :628.8   Median :0.6977  
-##  Mean   :629.3   Mean   :0.7001  
-##  3rd Qu.:629.7   3rd Qu.:0.7319  
-##  Max.   :643.1   Max.   :0.9104</code></pre>
-<div class="sourceCode" id="cb198"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb198-1"><a href="bayesian-computation.html#cb198-1" tabindex="-1"></a><span class="fu">median</span>(mcmc.output<span class="sc">$</span>lambda)</span></code></pre></div>
-<pre><code>## [1] 0.6976791</code></pre>
-<div class="sourceCode" id="cb200"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb200-1"><a href="bayesian-computation.html#cb200-1" tabindex="-1"></a><span class="fu">quantile</span>(mcmc.output<span class="sc">$</span>lambda, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code></pre></div>
+##  Min.   :628.3   Min.   :0.5400  
+##  1st Qu.:628.4   1st Qu.:0.6664  
+##  Median :628.8   Median :0.6995  
+##  Mean   :629.3   Mean   :0.7009  
+##  3rd Qu.:629.6   3rd Qu.:0.7342  
+##  Max.   :641.8   Max.   :0.9003</code></pre>
+<div class="sourceCode" id="cb197"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb197-1"><a href="bayesian-computation.html#cb197-1" tabindex="-1"></a><span class="fu">median</span>(mcmc.output<span class="sc">$</span>lambda)</span></code></pre></div>
+<pre><code>## [1] 0.6995319</code></pre>
+<div class="sourceCode" id="cb199"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb199-1"><a href="bayesian-computation.html#cb199-1" tabindex="-1"></a><span class="fu">quantile</span>(mcmc.output<span class="sc">$</span>lambda, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code></pre></div>
 <pre><code>##      2.5%     97.5% 
-## 0.6071280 0.8062808</code></pre>
+## 0.6054745 0.8062427</code></pre>
 <p>We can also use the <code>lattice</code> package to construct smoothed estimates of the posterior density:</p>
-<div class="sourceCode" id="cb202"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb202-1"><a href="bayesian-computation.html#cb202-1" tabindex="-1"></a><span class="fu">require</span>(lattice)</span></code></pre></div>
+<div class="sourceCode" id="cb201"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb201-1"><a href="bayesian-computation.html#cb201-1" tabindex="-1"></a><span class="fu">require</span>(lattice)</span></code></pre></div>
 <pre><code>## Loading required package: lattice</code></pre>
-<div class="sourceCode" id="cb204"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb204-1"><a href="bayesian-computation.html#cb204-1" tabindex="-1"></a>jagsfit.mcmc <span class="ot">&lt;-</span> <span class="fu">as.mcmc</span>(jagsfit)</span>
-<span id="cb204-2"><a href="bayesian-computation.html#cb204-2" tabindex="-1"></a><span class="fu">densityplot</span>(jagsfit.mcmc)</span></code></pre></div>
+<div class="sourceCode" id="cb203"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb203-1"><a href="bayesian-computation.html#cb203-1" tabindex="-1"></a>jagsfit.mcmc <span class="ot">&lt;-</span> <span class="fu">as.mcmc</span>(jagsfit)</span>
+<span id="cb203-2"><a href="bayesian-computation.html#cb203-2" tabindex="-1"></a><span class="fu">densityplot</span>(jagsfit.mcmc)</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
 <div id="a-simple-regression-example" class="section level3 hasAnchor" number="3.2.2">
 <h3><span class="header-section-number">3.2.2</span> A simple regression example<a href="bayesian-computation.html#a-simple-regression-example" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>For a more involved example, let’s take a look at the simple regression fit to the cricket data. First, we’ll make a plot of the data and fit a SLR model by least squares.</p>
-<div class="sourceCode" id="cb205"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb205-1"><a href="bayesian-computation.html#cb205-1" tabindex="-1"></a>cricket <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/cricket.txt&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb205-2"><a href="bayesian-computation.html#cb205-2" tabindex="-1"></a></span>
-<span id="cb205-3"><a href="bayesian-computation.html#cb205-3" tabindex="-1"></a>cricket.slr <span class="ot">&lt;-</span> <span class="fu">lm</span>(chirps <span class="sc">~</span> temperature, <span class="at">data =</span> cricket)</span>
-<span id="cb205-4"><a href="bayesian-computation.html#cb205-4" tabindex="-1"></a><span class="fu">summary</span>(cricket.slr)</span></code></pre></div>
+<div class="sourceCode" id="cb204"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb204-1"><a href="bayesian-computation.html#cb204-1" tabindex="-1"></a>cricket <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/cricket.txt&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb204-2"><a href="bayesian-computation.html#cb204-2" tabindex="-1"></a></span>
+<span id="cb204-3"><a href="bayesian-computation.html#cb204-3" tabindex="-1"></a>cricket.slr <span class="ot">&lt;-</span> <span class="fu">lm</span>(chirps <span class="sc">~</span> temperature, <span class="at">data =</span> cricket)</span>
+<span id="cb204-4"><a href="bayesian-computation.html#cb204-4" tabindex="-1"></a><span class="fu">summary</span>(cricket.slr)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = chirps ~ temperature, data = cricket)
@@ -462,46 +464,46 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ## Residual standard error: 0.9715 on 13 degrees of freedom
 ## Multiple R-squared:  0.6975, Adjusted R-squared:  0.6742 
 ## F-statistic: 29.97 on 1 and 13 DF,  p-value: 0.0001067</code></pre>
-<div class="sourceCode" id="cb207"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb207-1"><a href="bayesian-computation.html#cb207-1" tabindex="-1"></a><span class="fu">plot</span>(chirps <span class="sc">~</span> temperature, <span class="at">data =</span> cricket)</span>
-<span id="cb207-2"><a href="bayesian-computation.html#cb207-2" tabindex="-1"></a><span class="fu">abline</span>(cricket.slr)</span></code></pre></div>
+<div class="sourceCode" id="cb206"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb206-1"><a href="bayesian-computation.html#cb206-1" tabindex="-1"></a><span class="fu">plot</span>(chirps <span class="sc">~</span> temperature, <span class="at">data =</span> cricket)</span>
+<span id="cb206-2"><a href="bayesian-computation.html#cb206-2" tabindex="-1"></a><span class="fu">abline</span>(cricket.slr)</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <p>Now we’ll fit the same model in JAGS, using vague priors for all model parameters</p>
-<div class="sourceCode" id="cb208"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb208-1"><a href="bayesian-computation.html#cb208-1" tabindex="-1"></a>cricket.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb208-2"><a href="bayesian-computation.html#cb208-2" tabindex="-1"></a>  </span>
-<span id="cb208-3"><a href="bayesian-computation.html#cb208-3" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {             <span class="co"># J = number of data points</span></span>
-<span id="cb208-4"><a href="bayesian-computation.html#cb208-4" tabindex="-1"></a>    </span>
-<span id="cb208-5"><a href="bayesian-computation.html#cb208-5" tabindex="-1"></a>    y[j] <span class="sc">~</span> <span class="fu">dnorm</span> (mu[j], tau)  <span class="co"># data model:  the likelihood </span></span>
-<span id="cb208-6"><a href="bayesian-computation.html#cb208-6" tabindex="-1"></a>                               <span class="co"># note that BUGS / JAGS uses precision</span></span>
-<span id="cb208-7"><a href="bayesian-computation.html#cb208-7" tabindex="-1"></a>                               <span class="co"># instead of variance</span></span>
-<span id="cb208-8"><a href="bayesian-computation.html#cb208-8" tabindex="-1"></a>    </span>
-<span id="cb208-9"><a href="bayesian-computation.html#cb208-9" tabindex="-1"></a>    mu[j] <span class="ot">&lt;-</span> b0 <span class="sc">+</span> b1 <span class="sc">*</span> x[j]    <span class="co"># compute the mean for each observation</span></span>
-<span id="cb208-10"><a href="bayesian-computation.html#cb208-10" tabindex="-1"></a>  }</span>
-<span id="cb208-11"><a href="bayesian-computation.html#cb208-11" tabindex="-1"></a>  </span>
-<span id="cb208-12"><a href="bayesian-computation.html#cb208-12" tabindex="-1"></a>  b0 <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for intercept</span></span>
-<span id="cb208-13"><a href="bayesian-computation.html#cb208-13" tabindex="-1"></a>  b1 <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for slope</span></span>
-<span id="cb208-14"><a href="bayesian-computation.html#cb208-14" tabindex="-1"></a>  tau <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>)    <span class="co"># prior for tau</span></span>
-<span id="cb208-15"><a href="bayesian-computation.html#cb208-15" tabindex="-1"></a>                               <span class="co"># note that BUGS / JAGS parameterizes </span></span>
-<span id="cb208-16"><a href="bayesian-computation.html#cb208-16" tabindex="-1"></a>                               <span class="co"># gamma by shape, rate</span></span>
-<span id="cb208-17"><a href="bayesian-computation.html#cb208-17" tabindex="-1"></a>  </span>
-<span id="cb208-18"><a href="bayesian-computation.html#cb208-18" tabindex="-1"></a>  sigma <span class="ot">&lt;-</span> <span class="fu">pow</span>(tau, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)      <span class="co"># the SD of the residaul errors</span></span>
-<span id="cb208-19"><a href="bayesian-computation.html#cb208-19" tabindex="-1"></a>}</span>
-<span id="cb208-20"><a href="bayesian-computation.html#cb208-20" tabindex="-1"></a></span>
-<span id="cb208-21"><a href="bayesian-computation.html#cb208-21" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> cricket<span class="sc">$</span>chirps, </span>
-<span id="cb208-22"><a href="bayesian-computation.html#cb208-22" tabindex="-1"></a>                  <span class="at">x =</span> cricket<span class="sc">$</span>temperature,</span>
-<span id="cb208-23"><a href="bayesian-computation.html#cb208-23" tabindex="-1"></a>                  <span class="at">J =</span> <span class="fu">nrow</span>(cricket))</span>
-<span id="cb208-24"><a href="bayesian-computation.html#cb208-24" tabindex="-1"></a></span>
-<span id="cb208-25"><a href="bayesian-computation.html#cb208-25" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;sigma&quot;</span>)</span>
-<span id="cb208-26"><a href="bayesian-computation.html#cb208-26" tabindex="-1"></a></span>
-<span id="cb208-27"><a href="bayesian-computation.html#cb208-27" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb208-28"><a href="bayesian-computation.html#cb208-28" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">&quot;b0&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>), <span class="st">&quot;b1&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>), <span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
-<span id="cb208-29"><a href="bayesian-computation.html#cb208-29" tabindex="-1"></a>}</span>
-<span id="cb208-30"><a href="bayesian-computation.html#cb208-30" tabindex="-1"></a></span>
-<span id="cb208-31"><a href="bayesian-computation.html#cb208-31" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
-<span id="cb208-32"><a href="bayesian-computation.html#cb208-32" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
-<span id="cb208-33"><a href="bayesian-computation.html#cb208-33" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
-<span id="cb208-34"><a href="bayesian-computation.html#cb208-34" tabindex="-1"></a>                <span class="at">model.file         =</span> cricket.model,</span>
-<span id="cb208-35"><a href="bayesian-computation.html#cb208-35" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
-<span id="cb208-36"><a href="bayesian-computation.html#cb208-36" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="dv">5000</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb207"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb207-1"><a href="bayesian-computation.html#cb207-1" tabindex="-1"></a>cricket.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb207-2"><a href="bayesian-computation.html#cb207-2" tabindex="-1"></a>  </span>
+<span id="cb207-3"><a href="bayesian-computation.html#cb207-3" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {             <span class="co"># J = number of data points</span></span>
+<span id="cb207-4"><a href="bayesian-computation.html#cb207-4" tabindex="-1"></a>    </span>
+<span id="cb207-5"><a href="bayesian-computation.html#cb207-5" tabindex="-1"></a>    y[j] <span class="sc">~</span> <span class="fu">dnorm</span> (mu[j], tau)  <span class="co"># data model:  the likelihood </span></span>
+<span id="cb207-6"><a href="bayesian-computation.html#cb207-6" tabindex="-1"></a>                               <span class="co"># note that BUGS / JAGS uses precision</span></span>
+<span id="cb207-7"><a href="bayesian-computation.html#cb207-7" tabindex="-1"></a>                               <span class="co"># instead of variance</span></span>
+<span id="cb207-8"><a href="bayesian-computation.html#cb207-8" tabindex="-1"></a>    </span>
+<span id="cb207-9"><a href="bayesian-computation.html#cb207-9" tabindex="-1"></a>    mu[j] <span class="ot">&lt;-</span> b0 <span class="sc">+</span> b1 <span class="sc">*</span> x[j]    <span class="co"># compute the mean for each observation</span></span>
+<span id="cb207-10"><a href="bayesian-computation.html#cb207-10" tabindex="-1"></a>  }</span>
+<span id="cb207-11"><a href="bayesian-computation.html#cb207-11" tabindex="-1"></a>  </span>
+<span id="cb207-12"><a href="bayesian-computation.html#cb207-12" tabindex="-1"></a>  b0 <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for intercept</span></span>
+<span id="cb207-13"><a href="bayesian-computation.html#cb207-13" tabindex="-1"></a>  b1 <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for slope</span></span>
+<span id="cb207-14"><a href="bayesian-computation.html#cb207-14" tabindex="-1"></a>  tau <span class="sc">~</span> <span class="fu">dgamma</span> (<span class="fl">0.01</span>, <span class="fl">0.01</span>)    <span class="co"># prior for tau</span></span>
+<span id="cb207-15"><a href="bayesian-computation.html#cb207-15" tabindex="-1"></a>                               <span class="co"># note that BUGS / JAGS parameterizes </span></span>
+<span id="cb207-16"><a href="bayesian-computation.html#cb207-16" tabindex="-1"></a>                               <span class="co"># gamma by shape, rate</span></span>
+<span id="cb207-17"><a href="bayesian-computation.html#cb207-17" tabindex="-1"></a>  </span>
+<span id="cb207-18"><a href="bayesian-computation.html#cb207-18" tabindex="-1"></a>  sigma <span class="ot">&lt;-</span> <span class="fu">pow</span>(tau, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)      <span class="co"># the SD of the residaul errors</span></span>
+<span id="cb207-19"><a href="bayesian-computation.html#cb207-19" tabindex="-1"></a>}</span>
+<span id="cb207-20"><a href="bayesian-computation.html#cb207-20" tabindex="-1"></a></span>
+<span id="cb207-21"><a href="bayesian-computation.html#cb207-21" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> cricket<span class="sc">$</span>chirps, </span>
+<span id="cb207-22"><a href="bayesian-computation.html#cb207-22" tabindex="-1"></a>                  <span class="at">x =</span> cricket<span class="sc">$</span>temperature,</span>
+<span id="cb207-23"><a href="bayesian-computation.html#cb207-23" tabindex="-1"></a>                  <span class="at">J =</span> <span class="fu">nrow</span>(cricket))</span>
+<span id="cb207-24"><a href="bayesian-computation.html#cb207-24" tabindex="-1"></a></span>
+<span id="cb207-25"><a href="bayesian-computation.html#cb207-25" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;sigma&quot;</span>)</span>
+<span id="cb207-26"><a href="bayesian-computation.html#cb207-26" tabindex="-1"></a></span>
+<span id="cb207-27"><a href="bayesian-computation.html#cb207-27" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb207-28"><a href="bayesian-computation.html#cb207-28" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">&quot;b0&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>), <span class="st">&quot;b1&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>), <span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
+<span id="cb207-29"><a href="bayesian-computation.html#cb207-29" tabindex="-1"></a>}</span>
+<span id="cb207-30"><a href="bayesian-computation.html#cb207-30" tabindex="-1"></a></span>
+<span id="cb207-31"><a href="bayesian-computation.html#cb207-31" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
+<span id="cb207-32"><a href="bayesian-computation.html#cb207-32" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
+<span id="cb207-33"><a href="bayesian-computation.html#cb207-33" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
+<span id="cb207-34"><a href="bayesian-computation.html#cb207-34" tabindex="-1"></a>                <span class="at">model.file         =</span> cricket.model,</span>
+<span id="cb207-35"><a href="bayesian-computation.html#cb207-35" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
+<span id="cb207-36"><a href="bayesian-computation.html#cb207-36" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="dv">5000</span>)</span></code></pre></div>
 <pre><code>## Compiling model graph
 ##    Resolving undeclared variables
 ##    Allocating nodes
@@ -511,123 +513,123 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ##    Total graph size: 70
 ## 
 ## Initializing model</code></pre>
-<div class="sourceCode" id="cb210"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb210-1"><a href="bayesian-computation.html#cb210-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpawYxP6/model40343b8d34c.txt&quot;, fit using jags,
+<div class="sourceCode" id="cb209"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb209-1"><a href="bayesian-computation.html#cb209-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpMxtHsx/model37bcc8d5e00&quot;, fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved
+##  n.sims = 3750 iterations saved. Running time = 0.1 secs
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.320   3.424 -7.340 -2.467 -0.251  1.857  6.415 1.001  3800
-## b1         0.212   0.043  0.128  0.186  0.211  0.239  0.299 1.001  3800
-## sigma      1.037   0.232  0.702  0.877  1.004  1.153  1.594 1.001  3800
-## tau        1.056   0.423  0.394  0.752  0.992  1.302  2.031 1.001  3800
-## deviance  42.943   2.790 39.816 40.955 42.222 44.035 50.159 1.002  2600
+## b0        -0.290   3.394 -6.983 -2.382 -0.375  1.793  6.629 1.001  3800
+## b1         0.212   0.042  0.125  0.186  0.212  0.238  0.295 1.001  3800
+## sigma      1.035   0.218  0.713  0.880  1.000  1.153  1.559 1.001  3800
+## tau        1.049   0.403  0.411  0.753  1.000  1.291  1.967 1.001  3800
+## deviance  42.852   2.722 39.790 40.861 42.129 44.103 50.170 1.001  2700
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.9 and DIC = 46.8
+## DIC info (using the rule: pV = var(deviance)/2)
+## pV = 3.7 and DIC = 46.6
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
-<div class="sourceCode" id="cb212"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb212-1"><a href="bayesian-computation.html#cb212-1" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)</span></code></pre></div>
+<div class="sourceCode" id="cb211"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb211-1"><a href="bayesian-computation.html#cb211-1" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-1.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-2.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-3.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-4.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-14-5.png" width="672" /></p>
 <p>The output of the <code>print</code> function gives the quantiles that one would use to calculate a 95% central credible interval. To find a HPD credible interval, we can use the <code>HPDinterval</code> function in the <code>coda</code> library. The <code>coda</code> library contains a variety of routines for post-processing of MCMC ouput. If we simply pass the <code>jagsfit</code> object to the <code>HPDinterval</code> function, it will return an HPD interval for each of the three chains. This isn’t what we want, so we’ll extract the raw MCMC samples first, and then coerce them to a data frame.</p>
-<div class="sourceCode" id="cb213"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb213-1"><a href="bayesian-computation.html#cb213-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
-<span id="cb213-2"><a href="bayesian-computation.html#cb213-2" tabindex="-1"></a><span class="fu">summary</span>(mcmc.output)</span></code></pre></div>
+<div class="sourceCode" id="cb212"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb212-1"><a href="bayesian-computation.html#cb212-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
+<span id="cb212-2"><a href="bayesian-computation.html#cb212-2" tabindex="-1"></a><span class="fu">summary</span>(mcmc.output)</span></code></pre></div>
 <pre><code>##        b0                 b1              deviance         sigma       
-##  Min.   :-13.5569   Min.   :-0.03747   Min.   :39.56   Min.   :0.5638  
-##  1st Qu.: -2.4674   1st Qu.: 0.18566   1st Qu.:40.96   1st Qu.:0.8765  
-##  Median : -0.2505   Median : 0.21139   Median :42.22   Median :1.0041  
-##  Mean   : -0.3196   Mean   : 0.21212   Mean   :42.94   Mean   :1.0372  
-##  3rd Qu.:  1.8570   3rd Qu.: 0.23882   3rd Qu.:44.03   3rd Qu.:1.1528  
-##  Max.   : 19.9512   Max.   : 0.38015   Max.   :63.30   Max.   :2.5453  
+##  Min.   :-14.5712   Min.   :-0.00642   Min.   :39.57   Min.   :0.5725  
+##  1st Qu.: -2.3823   1st Qu.: 0.18572   1st Qu.:40.86   1st Qu.:0.8801  
+##  Median : -0.3750   Median : 0.21248   Median :42.13   Median :1.0002  
+##  Mean   : -0.2897   Mean   : 0.21163   Mean   :42.85   Mean   :1.0354  
+##  3rd Qu.:  1.7933   3rd Qu.: 0.23810   3rd Qu.:44.10   3rd Qu.:1.1527  
+##  Max.   : 16.5299   Max.   : 0.38837   Max.   :61.39   Max.   :2.2932  
 ##       tau        
-##  Min.   :0.1544  
-##  1st Qu.:0.7524  
-##  Median :0.9918  
-##  Mean   :1.0562  
-##  3rd Qu.:1.3017  
-##  Max.   :3.1462</code></pre>
+##  Min.   :0.1902  
+##  1st Qu.:0.7526  
+##  Median :0.9995  
+##  Mean   :1.0486  
+##  3rd Qu.:1.2909  
+##  Max.   :3.0513</code></pre>
 <p>Now we’ll coerce the data frame <code>mcmc.output</code> to an MCMC object, and pass it to <code>HPDinterval</code>:</p>
-<div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="bayesian-computation.html#cb215-1" tabindex="-1"></a><span class="fu">HPDinterval</span>(<span class="fu">as.mcmc</span>(mcmc.output))</span></code></pre></div>
+<div class="sourceCode" id="cb214"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb214-1"><a href="bayesian-computation.html#cb214-1" tabindex="-1"></a><span class="fu">HPDinterval</span>(<span class="fu">as.mcmc</span>(mcmc.output))</span></code></pre></div>
 <pre><code>##               lower      upper
-## b0       -7.6494575  5.9525981
-## b1        0.1325964  0.3014008
-## deviance 39.5582819 48.4894774
-## sigma     0.6528780  1.5024866
-## tau       0.3165463  1.8968884
+## b0       -6.6657404  6.8869627
+## b1        0.1311843  0.3012843
+## deviance 39.5663000 48.1950383
+## sigma     0.6562845  1.4507493
+## tau       0.3377707  1.8545383
 ## attr(,&quot;Probability&quot;)
 ## [1] 0.9498667</code></pre>
 <p>One of the merits of the Bayesian approach is that the posterior samples provide an immediate tool for propagating uncertainty to (possibly derived) quantities of interest. We can summarize the uncertainty in the regression fit graphically by randomly sampling a subset of these samples (say, 100 of them) and using them to plot a collection of regression lines:</p>
-<div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb217-1"><a href="bayesian-computation.html#cb217-1" tabindex="-1"></a><span class="fu">plot</span>(chirps <span class="sc">~</span> temperature, <span class="at">data =</span> cricket, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>)</span>
-<span id="cb217-2"><a href="bayesian-computation.html#cb217-2" tabindex="-1"></a><span class="co"># we&#39;ll add the points later so that they lie on top of the lines,</span></span>
-<span id="cb217-3"><a href="bayesian-computation.html#cb217-3" tabindex="-1"></a><span class="co"># instead of the other way around</span></span>
-<span id="cb217-4"><a href="bayesian-computation.html#cb217-4" tabindex="-1"></a></span>
-<span id="cb217-5"><a href="bayesian-computation.html#cb217-5" tabindex="-1"></a>subset.samples <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(mcmc.output), <span class="at">size =</span> <span class="dv">100</span>)</span>
-<span id="cb217-6"><a href="bayesian-computation.html#cb217-6" tabindex="-1"></a></span>
-<span id="cb217-7"><a href="bayesian-computation.html#cb217-7" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> subset.samples) {</span>
-<span id="cb217-8"><a href="bayesian-computation.html#cb217-8" tabindex="-1"></a>  </span>
-<span id="cb217-9"><a href="bayesian-computation.html#cb217-9" tabindex="-1"></a>  <span class="fu">with</span>(mcmc.output, <span class="fu">abline</span>(<span class="at">a =</span> b0[i], <span class="at">b =</span> b1[i], <span class="at">col =</span> <span class="st">&quot;deepskyblue&quot;</span>, <span class="at">lwd =</span> <span class="fl">0.25</span>))</span>
-<span id="cb217-10"><a href="bayesian-computation.html#cb217-10" tabindex="-1"></a>}</span>
-<span id="cb217-11"><a href="bayesian-computation.html#cb217-11" tabindex="-1"></a></span>
-<span id="cb217-12"><a href="bayesian-computation.html#cb217-12" tabindex="-1"></a><span class="fu">with</span>(cricket, <span class="fu">points</span>(chirps <span class="sc">~</span> temperature))</span>
-<span id="cb217-13"><a href="bayesian-computation.html#cb217-13" tabindex="-1"></a><span class="fu">with</span>(mcmc.output, <span class="fu">abline</span>(<span class="at">a =</span> <span class="fu">mean</span>(b0), <span class="at">b =</span> <span class="fu">mean</span>(b1), <span class="at">col =</span> <span class="st">&quot;purple3&quot;</span>, <span class="at">lwd =</span> <span class="dv">3</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb216"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb216-1"><a href="bayesian-computation.html#cb216-1" tabindex="-1"></a><span class="fu">plot</span>(chirps <span class="sc">~</span> temperature, <span class="at">data =</span> cricket, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>)</span>
+<span id="cb216-2"><a href="bayesian-computation.html#cb216-2" tabindex="-1"></a><span class="co"># we&#39;ll add the points later so that they lie on top of the lines,</span></span>
+<span id="cb216-3"><a href="bayesian-computation.html#cb216-3" tabindex="-1"></a><span class="co"># instead of the other way around</span></span>
+<span id="cb216-4"><a href="bayesian-computation.html#cb216-4" tabindex="-1"></a></span>
+<span id="cb216-5"><a href="bayesian-computation.html#cb216-5" tabindex="-1"></a>subset.samples <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(mcmc.output), <span class="at">size =</span> <span class="dv">100</span>)</span>
+<span id="cb216-6"><a href="bayesian-computation.html#cb216-6" tabindex="-1"></a></span>
+<span id="cb216-7"><a href="bayesian-computation.html#cb216-7" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> subset.samples) {</span>
+<span id="cb216-8"><a href="bayesian-computation.html#cb216-8" tabindex="-1"></a>  </span>
+<span id="cb216-9"><a href="bayesian-computation.html#cb216-9" tabindex="-1"></a>  <span class="fu">with</span>(mcmc.output, <span class="fu">abline</span>(<span class="at">a =</span> b0[i], <span class="at">b =</span> b1[i], <span class="at">col =</span> <span class="st">&quot;deepskyblue&quot;</span>, <span class="at">lwd =</span> <span class="fl">0.25</span>))</span>
+<span id="cb216-10"><a href="bayesian-computation.html#cb216-10" tabindex="-1"></a>}</span>
+<span id="cb216-11"><a href="bayesian-computation.html#cb216-11" tabindex="-1"></a></span>
+<span id="cb216-12"><a href="bayesian-computation.html#cb216-12" tabindex="-1"></a><span class="fu">with</span>(cricket, <span class="fu">points</span>(chirps <span class="sc">~</span> temperature))</span>
+<span id="cb216-13"><a href="bayesian-computation.html#cb216-13" tabindex="-1"></a><span class="fu">with</span>(mcmc.output, <span class="fu">abline</span>(<span class="at">a =</span> <span class="fu">mean</span>(b0), <span class="at">b =</span> <span class="fu">mean</span>(b1), <span class="at">col =</span> <span class="st">&quot;purple3&quot;</span>, <span class="at">lwd =</span> <span class="dv">3</span>))</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 <p>We can also propagate the uncertainty to estimate, say, the posterior distribution for the value of the regression line when the temperature is 85 F. This quantifies the uncertainty in the average number of chirps at this temperature. (We can think of it as a vertical slice through the above plot.)</p>
-<div class="sourceCode" id="cb218"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb218-1"><a href="bayesian-computation.html#cb218-1" tabindex="-1"></a>avg.chirps<span class="fl">.85</span> <span class="ot">&lt;-</span> <span class="fu">with</span>(mcmc.output, b0 <span class="sc">+</span> b1 <span class="sc">*</span> <span class="dv">85</span>)</span>
-<span id="cb218-2"><a href="bayesian-computation.html#cb218-2" tabindex="-1"></a><span class="fu">summary</span>(avg.chirps<span class="fl">.85</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb217-1"><a href="bayesian-computation.html#cb217-1" tabindex="-1"></a>avg.chirps<span class="fl">.85</span> <span class="ot">&lt;-</span> <span class="fu">with</span>(mcmc.output, b0 <span class="sc">+</span> b1 <span class="sc">*</span> <span class="dv">85</span>)</span>
+<span id="cb217-2"><a href="bayesian-computation.html#cb217-2" tabindex="-1"></a><span class="fu">summary</span>(avg.chirps<span class="fl">.85</span>)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   16.43   17.49   17.71   17.71   17.93   19.43</code></pre>
-<div class="sourceCode" id="cb220"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb220-1"><a href="bayesian-computation.html#cb220-1" tabindex="-1"></a><span class="fu">quantile</span>(avg.chirps<span class="fl">.85</span>, <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">025</span>, <span class="fl">0.975</span>))</span></code></pre></div>
+##   15.97   17.47   17.69   17.70   17.91   19.36</code></pre>
+<div class="sourceCode" id="cb219"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb219-1"><a href="bayesian-computation.html#cb219-1" tabindex="-1"></a><span class="fu">quantile</span>(avg.chirps<span class="fl">.85</span>, <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">025</span>, <span class="fl">0.975</span>))</span></code></pre></div>
 <pre><code>##     2.5%    97.5% 
-## 17.02771 18.39877</code></pre>
+## 17.00763 18.38933</code></pre>
 <p>We could use the <code>density</code> function to get a quick idea of the shape of the distribution:</p>
-<div class="sourceCode" id="cb222"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb222-1"><a href="bayesian-computation.html#cb222-1" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(avg.chirps<span class="fl">.85</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb221"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb221-1"><a href="bayesian-computation.html#cb221-1" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(avg.chirps<span class="fl">.85</span>))</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
-<p>Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.71, and a central 95% credible interval is (17.03, 18.4).</p>
+<p>Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95% credible interval is (17.01, 18.39).</p>
 <p>Finally, we can use the posterior samples to estimate the uncertainty in a future observation. When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution. The posterior predictive distribution must also include the error around the regression line. We can estimate the posterior predictive distribution as follows. Suppose we denote sample <span class="math inline">\(i\)</span> from the posterior as <span class="math inline">\(\beta_{0, i}\)</span>, <span class="math inline">\(\beta_{1, i}\)</span>, and <span class="math inline">\(\sigma_i\)</span>. Then for each posterior sample we will generate a new hypothetical observation <span class="math inline">\(y_i^\star\)</span> by sampling from a Gaussian distribution with mean equal to $<em>{0,i} + </em>{1,i} x $ and standard deviation <span class="math inline">\(\sigma_i\)</span>, where <span class="math inline">\(x = 85\)</span>. The distribution of the <span class="math inline">\(y_i^*\)</span>’s then gives the posterior predictive distribution that we seek.</p>
-<div class="sourceCode" id="cb223"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb223-1"><a href="bayesian-computation.html#cb223-1" tabindex="-1"></a>n.sims <span class="ot">&lt;-</span> <span class="fu">nrow</span>(mcmc.output)</span>
-<span id="cb223-2"><a href="bayesian-computation.html#cb223-2" tabindex="-1"></a>new.errors <span class="ot">&lt;-</span> <span class="fu">with</span>(mcmc.output, <span class="fu">rnorm</span>(n.sims, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> sigma))</span>
-<span id="cb223-3"><a href="bayesian-computation.html#cb223-3" tabindex="-1"></a>new.chirps<span class="fl">.85</span> <span class="ot">&lt;-</span> <span class="fu">with</span>(mcmc.output, b0 <span class="sc">+</span> b1 <span class="sc">*</span> <span class="dv">85</span>) <span class="sc">+</span> new.errors</span>
-<span id="cb223-4"><a href="bayesian-computation.html#cb223-4" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(new.chirps<span class="fl">.85</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb222"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb222-1"><a href="bayesian-computation.html#cb222-1" tabindex="-1"></a>n.sims <span class="ot">&lt;-</span> <span class="fu">nrow</span>(mcmc.output)</span>
+<span id="cb222-2"><a href="bayesian-computation.html#cb222-2" tabindex="-1"></a>new.errors <span class="ot">&lt;-</span> <span class="fu">with</span>(mcmc.output, <span class="fu">rnorm</span>(n.sims, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> sigma))</span>
+<span id="cb222-3"><a href="bayesian-computation.html#cb222-3" tabindex="-1"></a>new.chirps<span class="fl">.85</span> <span class="ot">&lt;-</span> <span class="fu">with</span>(mcmc.output, b0 <span class="sc">+</span> b1 <span class="sc">*</span> <span class="dv">85</span>) <span class="sc">+</span> new.errors</span>
+<span id="cb222-4"><a href="bayesian-computation.html#cb222-4" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(new.chirps<span class="fl">.85</span>))</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
-<div class="sourceCode" id="cb224"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb224-1"><a href="bayesian-computation.html#cb224-1" tabindex="-1"></a><span class="fu">summary</span>(new.chirps<span class="fl">.85</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb223"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb223-1"><a href="bayesian-computation.html#cb223-1" tabindex="-1"></a><span class="fu">summary</span>(new.chirps<span class="fl">.85</span>)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   13.17   17.02   17.74   17.73   18.43   23.25</code></pre>
-<div class="sourceCode" id="cb226"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb226-1"><a href="bayesian-computation.html#cb226-1" tabindex="-1"></a><span class="fu">quantile</span>(new.chirps<span class="fl">.85</span>, <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">025</span>, <span class="fl">0.975</span>))</span></code></pre></div>
+##   13.09   16.97   17.66   17.68   18.37   23.43</code></pre>
+<div class="sourceCode" id="cb225"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb225-1"><a href="bayesian-computation.html#cb225-1" tabindex="-1"></a><span class="fu">quantile</span>(new.chirps<span class="fl">.85</span>, <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">025</span>, <span class="fl">0.975</span>))</span></code></pre></div>
 <pre><code>##     2.5%    97.5% 
-## 15.52977 19.95123</code></pre>
-<p>Thus, the posterior predictive distribution has a central 95% credible interval of (15.53, 19.95).</p>
+## 15.51019 19.95633</code></pre>
+<p>Thus, the posterior predictive distribution has a central 95% credible interval of (15.51, 19.96).</p>
 <p>Although it hasn’t caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior. We can visualize this posterior correlation:</p>
-<div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb228-1"><a href="bayesian-computation.html#cb228-1" tabindex="-1"></a><span class="fu">library</span>(hexbin)</span>
-<span id="cb228-2"><a href="bayesian-computation.html#cb228-2" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
-<span id="cb228-3"><a href="bayesian-computation.html#cb228-3" tabindex="-1"></a>rf <span class="ot">&lt;-</span> <span class="fu">colorRampPalette</span>(<span class="fu">rev</span>(<span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">&#39;Spectral&#39;</span>)))</span>
-<span id="cb228-4"><a href="bayesian-computation.html#cb228-4" tabindex="-1"></a><span class="fu">with</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list, <span class="fu">hexbinplot</span>(b1 <span class="sc">~</span> b0, <span class="at">colramp =</span> rf))</span></code></pre></div>
+<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb227-1"><a href="bayesian-computation.html#cb227-1" tabindex="-1"></a><span class="fu">library</span>(hexbin)</span>
+<span id="cb227-2"><a href="bayesian-computation.html#cb227-2" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb227-3"><a href="bayesian-computation.html#cb227-3" tabindex="-1"></a>rf <span class="ot">&lt;-</span> <span class="fu">colorRampPalette</span>(<span class="fu">rev</span>(<span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">&#39;Spectral&#39;</span>)))</span>
+<span id="cb227-4"><a href="bayesian-computation.html#cb227-4" tabindex="-1"></a><span class="fu">with</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list, <span class="fu">hexbinplot</span>(b1 <span class="sc">~</span> b0, <span class="at">colramp =</span> rf))</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <p>We can estimate the posterior correlation between the intercept and the slope by accessing the raw MCMC samples</p>
-<div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="bayesian-computation.html#cb229-1" tabindex="-1"></a><span class="fu">cor</span>(mcmc.output[, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>)])</span></code></pre></div>
-<pre><code>##               b0            b1           tau
-## b0   1.000000000 -0.9968300304 -0.0022765289
-## b1  -0.996830030  1.0000000000  0.0005441113
-## tau -0.002276529  0.0005441113  1.0000000000</code></pre>
+<div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb228-1"><a href="bayesian-computation.html#cb228-1" tabindex="-1"></a><span class="fu">cor</span>(mcmc.output[, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>)])</span></code></pre></div>
+<pre><code>##               b0           b1          tau
+## b0   1.000000000 -0.996744043  0.002916663
+## b1  -0.996744043  1.000000000 -0.001119235
+## tau  0.002916663 -0.001119235  1.000000000</code></pre>
 <p>Thus we estimate that the intercept and slope have a posterior correlation of -0.997.</p>
 <p>We could make life easier on ourselves by centering the predictor and trying again:</p>
-<div class="sourceCode" id="cb231"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb231-1"><a href="bayesian-computation.html#cb231-1" tabindex="-1"></a>cricket<span class="sc">$</span>temp.ctr <span class="ot">&lt;-</span> cricket<span class="sc">$</span>temperature <span class="sc">-</span> <span class="fu">mean</span>(cricket<span class="sc">$</span>temperature)</span></code></pre></div>
-<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb232-1"><a href="bayesian-computation.html#cb232-1" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> cricket<span class="sc">$</span>chirps, </span>
-<span id="cb232-2"><a href="bayesian-computation.html#cb232-2" tabindex="-1"></a>                  <span class="at">x =</span> cricket<span class="sc">$</span>temp.ctr,</span>
-<span id="cb232-3"><a href="bayesian-computation.html#cb232-3" tabindex="-1"></a>                  <span class="at">J =</span> <span class="fu">nrow</span>(cricket))</span>
-<span id="cb232-4"><a href="bayesian-computation.html#cb232-4" tabindex="-1"></a></span>
-<span id="cb232-5"><a href="bayesian-computation.html#cb232-5" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;sigma&quot;</span>)</span>
-<span id="cb232-6"><a href="bayesian-computation.html#cb232-6" tabindex="-1"></a></span>
-<span id="cb232-7"><a href="bayesian-computation.html#cb232-7" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb232-8"><a href="bayesian-computation.html#cb232-8" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">&quot;b0&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>), <span class="st">&quot;b1&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>), <span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
-<span id="cb232-9"><a href="bayesian-computation.html#cb232-9" tabindex="-1"></a>}</span>
-<span id="cb232-10"><a href="bayesian-computation.html#cb232-10" tabindex="-1"></a></span>
-<span id="cb232-11"><a href="bayesian-computation.html#cb232-11" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
-<span id="cb232-12"><a href="bayesian-computation.html#cb232-12" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
-<span id="cb232-13"><a href="bayesian-computation.html#cb232-13" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
-<span id="cb232-14"><a href="bayesian-computation.html#cb232-14" tabindex="-1"></a>                <span class="at">model.file         =</span> cricket.model,</span>
-<span id="cb232-15"><a href="bayesian-computation.html#cb232-15" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
-<span id="cb232-16"><a href="bayesian-computation.html#cb232-16" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="dv">5000</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb230-1"><a href="bayesian-computation.html#cb230-1" tabindex="-1"></a>cricket<span class="sc">$</span>temp.ctr <span class="ot">&lt;-</span> cricket<span class="sc">$</span>temperature <span class="sc">-</span> <span class="fu">mean</span>(cricket<span class="sc">$</span>temperature)</span></code></pre></div>
+<div class="sourceCode" id="cb231"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb231-1"><a href="bayesian-computation.html#cb231-1" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> cricket<span class="sc">$</span>chirps, </span>
+<span id="cb231-2"><a href="bayesian-computation.html#cb231-2" tabindex="-1"></a>                  <span class="at">x =</span> cricket<span class="sc">$</span>temp.ctr,</span>
+<span id="cb231-3"><a href="bayesian-computation.html#cb231-3" tabindex="-1"></a>                  <span class="at">J =</span> <span class="fu">nrow</span>(cricket))</span>
+<span id="cb231-4"><a href="bayesian-computation.html#cb231-4" tabindex="-1"></a></span>
+<span id="cb231-5"><a href="bayesian-computation.html#cb231-5" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;tau&quot;</span>, <span class="st">&quot;sigma&quot;</span>)</span>
+<span id="cb231-6"><a href="bayesian-computation.html#cb231-6" tabindex="-1"></a></span>
+<span id="cb231-7"><a href="bayesian-computation.html#cb231-7" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb231-8"><a href="bayesian-computation.html#cb231-8" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">&quot;b0&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>), <span class="st">&quot;b1&quot;</span> <span class="ot">=</span> <span class="fu">rnorm</span>(<span class="dv">1</span>), <span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
+<span id="cb231-9"><a href="bayesian-computation.html#cb231-9" tabindex="-1"></a>}</span>
+<span id="cb231-10"><a href="bayesian-computation.html#cb231-10" tabindex="-1"></a></span>
+<span id="cb231-11"><a href="bayesian-computation.html#cb231-11" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
+<span id="cb231-12"><a href="bayesian-computation.html#cb231-12" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
+<span id="cb231-13"><a href="bayesian-computation.html#cb231-13" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
+<span id="cb231-14"><a href="bayesian-computation.html#cb231-14" tabindex="-1"></a>                <span class="at">model.file         =</span> cricket.model,</span>
+<span id="cb231-15"><a href="bayesian-computation.html#cb231-15" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
+<span id="cb231-16"><a href="bayesian-computation.html#cb231-16" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="dv">5000</span>)</span></code></pre></div>
 <pre><code>## Compiling model graph
 ##    Resolving undeclared variables
 ##    Allocating nodes
@@ -637,37 +639,37 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ##    Total graph size: 70
 ## 
 ## Initializing model</code></pre>
-<div class="sourceCode" id="cb234"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb234-1"><a href="bayesian-computation.html#cb234-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpawYxP6/model4034ffd3311.txt&quot;, fit using jags,
+<div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="bayesian-computation.html#cb233-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpMxtHsx/model37bc4d0d3c04&quot;, fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved
+##  n.sims = 3750 iterations saved. Running time = 0.06 secs
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.657   0.278 16.105 16.482 16.652 16.829 17.223 1.001  3800
-## b1         0.211   0.042  0.128  0.184  0.211  0.238  0.297 1.002  1800
-## sigma      1.035   0.220  0.707  0.874  1.001  1.155  1.556 1.001  3800
-## tau        1.052   0.411  0.413  0.750  0.997  1.310  1.999 1.001  3800
-## deviance  42.911   2.762 39.782 40.894 42.173 44.182 49.917 1.001  3800
+## b0        16.652   0.278 16.093 16.484 16.649 16.819 17.237 1.001  3800
+## b1         0.212   0.043  0.127  0.185  0.211  0.239  0.297 1.001  3800
+## sigma      1.032   0.221  0.712  0.879  0.992  1.148  1.562 1.001  3800
+## tau        1.058   0.408  0.410  0.758  1.017  1.294  1.973 1.001  3800
+## deviance  42.918   2.831 39.791 40.881 42.149 44.132 50.409 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 3.8 and DIC = 46.7
+## DIC info (using the rule: pV = var(deviance)/2)
+## pV = 4.0 and DIC = 46.9
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
-<div class="sourceCode" id="cb236"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb236-1"><a href="bayesian-computation.html#cb236-1" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)</span></code></pre></div>
+<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="bayesian-computation.html#cb235-1" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-1.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-2.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-3.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-4.png" width="672" /><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-24-5.png" width="672" /></p>
 <p>The posteriors for the intercept and slope are now uncorrelated:</p>
-<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="bayesian-computation.html#cb237-1" tabindex="-1"></a><span class="fu">library</span>(hexbin)</span>
-<span id="cb237-2"><a href="bayesian-computation.html#cb237-2" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
-<span id="cb237-3"><a href="bayesian-computation.html#cb237-3" tabindex="-1"></a>rf <span class="ot">&lt;-</span> <span class="fu">colorRampPalette</span>(<span class="fu">rev</span>(<span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">&#39;Spectral&#39;</span>)))</span>
-<span id="cb237-4"><a href="bayesian-computation.html#cb237-4" tabindex="-1"></a><span class="fu">with</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list, <span class="fu">hexbinplot</span>(b1 <span class="sc">~</span> b0, <span class="at">colramp =</span> rf))</span></code></pre></div>
+<div class="sourceCode" id="cb236"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb236-1"><a href="bayesian-computation.html#cb236-1" tabindex="-1"></a><span class="fu">library</span>(hexbin)</span>
+<span id="cb236-2"><a href="bayesian-computation.html#cb236-2" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb236-3"><a href="bayesian-computation.html#cb236-3" tabindex="-1"></a>rf <span class="ot">&lt;-</span> <span class="fu">colorRampPalette</span>(<span class="fu">rev</span>(<span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">&#39;Spectral&#39;</span>)))</span>
+<span id="cb236-4"><a href="bayesian-computation.html#cb236-4" tabindex="-1"></a><span class="fu">with</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list, <span class="fu">hexbinplot</span>(b1 <span class="sc">~</span> b0, <span class="at">colramp =</span> rf))</span></code></pre></div>
 <p><img src="03-BayesianIntro_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
-<div class="sourceCode" id="cb238"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb238-1"><a href="bayesian-computation.html#cb238-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
-<span id="cb238-2"><a href="bayesian-computation.html#cb238-2" tabindex="-1"></a><span class="fu">cor</span>(mcmc.output[, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>)])</span></code></pre></div>
-<pre><code>##                b0           b1          tau
-## b0   1.0000000000 0.0008119091 -0.006817768
-## b1   0.0008119091 1.0000000000  0.009715635
-## tau -0.0068177679 0.0097156355  1.000000000</code></pre>
+<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="bayesian-computation.html#cb237-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
+<span id="cb237-2"><a href="bayesian-computation.html#cb237-2" tabindex="-1"></a><span class="fu">cor</span>(mcmc.output[, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>)])</span></code></pre></div>
+<pre><code>##              b0           b1          tau
+## b0   1.00000000  0.016679848 -0.041161089
+## b1   0.01667985  1.000000000 -0.002451567
+## tau -0.04116109 -0.002451567  1.000000000</code></pre>
 </div>
 </div>
 <div id="rstanarm" class="section level2 hasAnchor" number="3.3">
@@ -675,15 +677,15 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <p>The <code>rstanarm</code> package is a recent set of routines that seeks to provide a user-friendly front end to Bayesian analysis with Stan. Specifically, <code>rstanarm</code> provides functions for fitting standard statistical models that are meant to mimic the analogous fitting functions in R. For example, the basic routine for fitting linear models in R is <code>lm</code>; <code>rstanarm</code> provides a function <code>stan_lm</code> that strives to have the same functionality and interface as <code>lm</code>, albeit using Stan “under the hood” to generate Bayesian inference. (That said, the main workhorse function in <code>rstanarm</code> for model fitting is <code>stan_glm</code>, which attempts to mimic the native R function <code>glm</code> for fitting generalized linear models. Separately, the developers of <code>rstanarm</code> have taken the not unreasonable stance that generalized linear models should supplant general linear models as the analyst’s default approach to model fitting.)</p>
 <p>To provide functionality that is similar to R’s native model-fitting routines, the functions in <code>rstanarm</code> make a number of operational decisions behind the scenes. Most notably, the model fitting routines in <code>rstanarm</code> will select default priors and default HMC parameters. While these defaults can always be modified by the analyst, the implementation of software that chooses priors by default is radical. First, the developers of <code>rstanarm</code> have their own particular view about what the role of the prior should be in data analysis. While their view is a considered one, by no means does it reflect a consensus that extends beyond the developers of the software. If you use <code>rstanarm</code>’s routines out of the box, you are accepting this view as your own if you do not specify the priors yourself. Second, as best I understand, the methods by which <code>rstanarm</code> chooses default priors still appear to be in some flux. That means that future versions of <code>rstanarm</code> may supply different default priors than those that are supplied today. As a result, the behavior of <code>rstanarm</code> today may differ from its behavior tomorrow, if you use the default priors.</p>
 <p>All that said, here is how you might use <code>rstanarm</code> to fit the simple regression to the cricket data:</p>
-<div class="sourceCode" id="cb240"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb240-1"><a href="bayesian-computation.html#cb240-1" tabindex="-1"></a><span class="fu">require</span>(rstanarm)</span></code></pre></div>
+<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb239-1"><a href="bayesian-computation.html#cb239-1" tabindex="-1"></a><span class="fu">require</span>(rstanarm)</span></code></pre></div>
 <pre><code>## Loading required package: rstanarm</code></pre>
 <pre><code>## Loading required package: Rcpp</code></pre>
-<pre><code>## This is rstanarm version 2.26.1</code></pre>
+<pre><code>## This is rstanarm version 2.32.1</code></pre>
 <pre><code>## - See https://mc-stan.org/rstanarm/articles/priors for changes to default priors!</code></pre>
 <pre><code>## - Default priors may change, so it&#39;s safest to specify priors, even if equivalent to the defaults.</code></pre>
 <pre><code>## - For execution on a local, multicore CPU with excess RAM we recommend calling</code></pre>
 <pre><code>##   options(mc.cores = parallel::detectCores())</code></pre>
-<div class="sourceCode" id="cb248"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb248-1"><a href="bayesian-computation.html#cb248-1" tabindex="-1"></a>stanarm.cricket.fit <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(chirps <span class="sc">~</span> temp.ctr, <span class="at">data =</span> cricket, <span class="at">family =</span> gaussian, <span class="at">seed =</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb247"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb247-1"><a href="bayesian-computation.html#cb247-1" tabindex="-1"></a>stanarm.cricket.fit <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(chirps <span class="sc">~</span> temp.ctr, <span class="at">data =</span> cricket, <span class="at">family =</span> gaussian, <span class="at">seed =</span> <span class="dv">1</span>)</span></code></pre></div>
 <pre><code>## 
 ## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 1).
 ## Chain 1: 
@@ -785,7 +787,7 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ## Chain 4:                0.051 seconds (Total)
 ## Chain 4:</code></pre>
 <p>We can discover the priors that <code>stan_glm</code> has selected by using the function <code>prior_summary</code>.</p>
-<div class="sourceCode" id="cb250"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb250-1"><a href="bayesian-computation.html#cb250-1" tabindex="-1"></a><span class="fu">prior_summary</span>(stanarm.cricket.fit)</span></code></pre></div>
+<div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb249-1"><a href="bayesian-computation.html#cb249-1" tabindex="-1"></a><span class="fu">prior_summary</span>(stanarm.cricket.fit)</span></code></pre></div>
 <pre><code>## Priors for model &#39;stanarm.cricket.fit&#39; 
 ## ------
 ## Intercept (after predictors centered)
@@ -808,7 +810,7 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ## ------
 ## See help(&#39;prior_summary.stanreg&#39;) for more details</code></pre>
 <p>The <code>rstanarm</code> package has made a variety of decisions about how many chains to run, how long to run them, etc. We can obtain a summary of the model fit by the <code>print</code> command:</p>
-<div class="sourceCode" id="cb252"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb252-1"><a href="bayesian-computation.html#cb252-1" tabindex="-1"></a><span class="fu">print</span>(stanarm.cricket.fit, <span class="at">digits =</span> <span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb251"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb251-1"><a href="bayesian-computation.html#cb251-1" tabindex="-1"></a><span class="fu">print</span>(stanarm.cricket.fit, <span class="at">digits =</span> <span class="dv">3</span>)</span></code></pre></div>
 <pre><code>## stan_glm
 ##  family:       gaussian [identity]
 ##  formula:      chirps ~ temp.ctr
@@ -833,8 +835,8 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <p>According to the authors of <code>rstanarm</code>, “Because we are so used to working with standard deviations, when we compute the median absolute deviation, we then rescale it by multiplying by 1.483, which reproduces the standard deviation in the special case of the normal distribution. We call this the mad sd.” In other words, the MAD SD is a measure of posterior uncertainty that is meant to be comparable to the posterior standard deviation. (The authors of <code>rstanarm</code> clearly must think this is a more desirable estimate of the posterior uncertainty than the posterior standard deviation; though their reasoning here is not immediately clear to me.)</p>
 <!-- See p 73 of Gelman "Regression and other stories" -->
 <p>If we want to compute our own summary statistics, we can extract the MCMC samples from the <code>stam_glm</code> fit using the <code>as.matrix</code> command:</p>
-<div class="sourceCode" id="cb254"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb254-1"><a href="bayesian-computation.html#cb254-1" tabindex="-1"></a>mcmc.sims <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(stanarm.cricket.fit)</span>
-<span id="cb254-2"><a href="bayesian-computation.html#cb254-2" tabindex="-1"></a><span class="fu">summary</span>(mcmc.sims)</span></code></pre></div>
+<div class="sourceCode" id="cb253"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb253-1"><a href="bayesian-computation.html#cb253-1" tabindex="-1"></a>mcmc.sims <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(stanarm.cricket.fit)</span>
+<span id="cb253-2"><a href="bayesian-computation.html#cb253-2" tabindex="-1"></a><span class="fu">summary</span>(mcmc.sims)</span></code></pre></div>
 <pre><code>##   (Intercept)       temp.ctr           sigma       
 ##  Min.   :15.65   Min.   :0.02782   Min.   :0.5582  
 ##  1st Qu.:16.48   1st Qu.:0.18191   1st Qu.:0.8869  
@@ -843,10 +845,10 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 ##  3rd Qu.:16.83   3rd Qu.:0.23740   3rd Qu.:1.1627  
 ##  Max.   :17.68   Max.   :0.36177   Max.   :2.3400</code></pre>
 <p>We might, for example, then use this output to find the posterior standard deviation of each of the parameters, or to find central 95% credible intervals:</p>
-<div class="sourceCode" id="cb256"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb256-1"><a href="bayesian-computation.html#cb256-1" tabindex="-1"></a><span class="fu">apply</span>(mcmc.sims, <span class="dv">2</span>, sd)</span></code></pre></div>
+<div class="sourceCode" id="cb255"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb255-1"><a href="bayesian-computation.html#cb255-1" tabindex="-1"></a><span class="fu">apply</span>(mcmc.sims, <span class="dv">2</span>, sd)</span></code></pre></div>
 <pre><code>## (Intercept)    temp.ctr       sigma 
 ##  0.27003507  0.04262539  0.22262375</code></pre>
-<div class="sourceCode" id="cb258"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb258-1"><a href="bayesian-computation.html#cb258-1" tabindex="-1"></a><span class="fu">apply</span>(mcmc.sims, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb257"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb257-1"><a href="bayesian-computation.html#cb257-1" tabindex="-1"></a><span class="fu">apply</span>(mcmc.sims, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">quantile</span>(x, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>)))</span></code></pre></div>
 <pre><code>##        parameters
 ##         (Intercept)  temp.ctr     sigma
 ##   2.5%     16.10111 0.1240071 0.7171401
@@ -875,42 +877,42 @@ X_1, \ldots, X_n &amp; \sim \mbox{Pois}(\lambda) \\
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "serif",
-"size": 2
-},
-"edit": {
-"link": null,
-"text": null
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": null,
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "section"
-}
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "serif",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section"
+  }
 });
 });
 </script>

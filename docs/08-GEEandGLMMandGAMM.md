@@ -16,7 +16,7 @@ where $i=1,2$ indexes the two color morphs, $j = 1, \ldots, 7$ indexes the stati
 Before proceeding, we note that one approach is simply to regress the difference of the empirical logits vs.\ distance.  This reduces the problem to a simple regression.  We try this approach first and use it as a benchmark.  The data set used here is reformatted to include one record for each of the 7 stations.
 
 
-```r
+``` r
 moth2 <- read.table("data/moth2.txt", head = TRUE, stringsAsFactors = TRUE)
 
 head(moth2, n = 3)
@@ -29,7 +29,7 @@ head(moth2, n = 3)
 ## 3       ha     24.1 light       52        18       52        22
 ```
 
-```r
+``` r
 elogit <- function(x) log(x / (1 - x))
 
 moth2$elogit.diff <- with(moth2, elogit(d.removed / d.placed) - elogit(l.removed / l.placed))
@@ -46,7 +46,7 @@ abline(fm1)
 
 <img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-2-1.png" width="384" />
 
-```r
+``` r
 summary(fm1)
 ```
 
@@ -71,7 +71,7 @@ summary(fm1)
 ## F-statistic: 21.15 on 1 and 5 DF,  p-value: 0.005846
 ```
 
-```r
+``` r
 confint(fm1)
 ```
 
@@ -90,7 +90,7 @@ The major disadvantage to the approach above is that it doesn't account for the 
 Next we try a GEE with a compound symmetry ("exchangable") correlation structure imposed on the pair of measurements at each station.  Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure.  We fit the model using `geepack::geeglm`. 
 
 
-```r
+``` r
 require(geepack)
 ```
 
@@ -99,7 +99,7 @@ require(geepack)
 ```
 
 
-```r
+``` r
 moth <- read.table("data/moth.txt", head = TRUE, stringsAsFactors = TRUE)
 contrasts(moth$morph) <- contr.treatment(n = 2, base = 2)
 
@@ -144,7 +144,7 @@ summary(fm2)
 The estimate of the difference between slopes on the log-odds scale is 0.0278, with an approximate 95\% confidence interval of (0.0164, 0.0391).  This corresponds to an odds ratio of 1.028, with an approximate 95\% confidence interval of (1.017, 1.040).  To visualize the model, we might plot the fitted proportion removed vs.\ distance for both color morphs.  Bear in mind that fitted values here correspond to marginal mean removal rates.
 
 
-```r
+``` r
 inv.logit <- function(x) exp(x) / (1 + exp(x))
 light.fit <- function(d) inv.logit(-0.71472 - 0.00938 * d)
 dark.fit <- function(d) inv.logit(-0.71472 - 0.41024 + (-0.00938 + 0.02776) * d)
@@ -172,7 +172,7 @@ For the sake of comparing marginal means to conditional means, we will consider 
 
 
 
-```r
+``` r
 dark.fit(20)
 ```
 
@@ -185,7 +185,7 @@ dark.fit(20)
 Next, we will fit the same model with `lme4::glmer`.
 
 
-```r
+``` r
 require(lme4)
 ```
 
@@ -197,7 +197,7 @@ require(lme4)
 ## Loading required package: Matrix
 ```
 
-```r
+``` r
 fm3 <- glmer(cbind(removed, placed - removed) ~ distance * morph + (1 | location), 
              family = binomial(link = "logit"), 
              data = moth)
@@ -212,8 +212,8 @@ summary(fm3)
 ## Formula: cbind(removed, placed - removed) ~ distance * morph + (1 | location)
 ##    Data: moth
 ## 
-##      AIC      BIC   logLik deviance df.resid 
-##     85.7     88.9    -37.8     75.7        9 
+##       AIC       BIC    logLik -2*log(L)  df.resid 
+##      85.7      88.9     -37.8      75.7         9 
 ## 
 ## Scaled residuals: 
 ##      Min       1Q   Median       3Q      Max 
@@ -240,7 +240,7 @@ summary(fm3)
 ## dstnc:mrph1  0.558 -0.660 -0.859
 ```
 
-```r
+``` r
 confint(fm3, parm = c("distance:morph1"))
 ```
 
@@ -259,7 +259,7 @@ Although `summary.glmer` doesn't report the deviance, functions exist to obtain 
 
 <!-- Note: Is this true?  I'm not sure. -->
 
-```r
+``` r
 deviance(fm3)
 ```
 
@@ -267,7 +267,7 @@ deviance(fm3)
 ## [1] 9.250077
 ```
 
-```r
+``` r
 df.residual(fm3)
 ```
 
@@ -280,7 +280,7 @@ The ratio of the deviance to the residual df is approximately 1, suggesting that
 To get a sense of how the conditional means compare to the marginal means, we will compute the conditional mean removal rate of dark morphs at a distance 20 km from the city center.  
 
 
-```r
+``` r
 dark.linpred.glmm <- function(d) -0.71979 - 0.41113 + (-0.00934 + 0.02782) * d
 dark.fit.glmm <- function(d) inv.logit(dark.linpred.glmm(d))
 dark.fit.glmm(20)
@@ -295,7 +295,7 @@ The conditional mean of the predicted removal rate is 0.318.
 Here, the difference between the marginal and conditional means is tiny.  Nevertheless, we can gain a deeper understanding of the difference by taking a look at the fitted population of possible locations at 20 km distance on both the linear predictor scale and the data scale.
 
 
-```r
+``` r
 linpred.sample <- rnorm(1e6, mean = dark.linpred.glmm(20), sd = 0.1072)
 prob.sample <- inv.logit(linpred.sample)
 
@@ -306,15 +306,15 @@ prob.sample <- inv.logit(linpred.sample)
 ## [1] 0.3183597
 ```
 
-```r
+``` r
 (marginal.mean <- mean(prob.sample))
 ```
 
 ```
-## [1] 0.3188409
+## [1] 0.318806
 ```
 
-```r
+``` r
 par(mfrow = c(1, 2))
 hist(linpred.sample, breaks = 50, xlab = "linear predictor", main = "")
 hist(prob.sample, breaks = 50, xlab = "removal probability", main = "")
@@ -329,7 +329,7 @@ We see that the variance of the location-level random effect is small enough tha
 For the sake of illustration, we repeat these calculations by supposing that the location-to-location standard deviation was 10 times larger.
 
 
-```r
+``` r
 linpred.sample <- rnorm(1e6, mean = dark.linpred.glmm(20), sd = 10 * 0.1072)
 prob.sample <- inv.logit(linpred.sample)
 
@@ -340,15 +340,15 @@ prob.sample <- inv.logit(linpred.sample)
 ## [1] 0.3183597
 ```
 
-```r
+``` r
 (marginal.mean <- mean(prob.sample))
 ```
 
 ```
-## [1] 0.3504879
+## [1] 0.3501031
 ```
 
-```r
+``` r
 par(mfrow = c(1, 2))
 hist(linpred.sample, breaks = 50, xlab = "linear predictor", main = "")
 hist(prob.sample, breaks = 50, xlab = "removal probability", main = "")
@@ -363,7 +363,7 @@ abline(v = marginal.mean, col = "blue", lwd = 2)
 We now fit the model using JAGS and vague priors.
 
 
-```r
+``` r
 require(R2jags)
 ```
 
@@ -426,34 +426,11 @@ jagsfit <- jags(data               = jags.data,
 
 For some reason this works without specifying initial values for $a$ and $b$ (now both vectors).  Maybe the initial values are drawn from the prior?
 
-
-```r
-print(jagsfit)
-```
-
-```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpMTJOiA/model2fd84f5416cb.txt", fit using jags,
-##  3 chains, each with 50000 iterations (first 25000 discarded), n.thin = 5
-##  n.sims = 15000 iterations saved
-##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## a[1]      -1.141   0.290 -1.720 -1.320 -1.135 -0.963 -0.577 1.001 13000
-## a[2]      -0.735   0.282 -1.295 -0.908 -0.733 -0.559 -0.185 1.001 15000
-## b.diff     0.028   0.008  0.012  0.022  0.028  0.033  0.044 1.001 15000
-## b[1]       0.019   0.009  0.002  0.013  0.019  0.024  0.036 1.001  6800
-## b[2]      -0.009   0.009 -0.026 -0.015 -0.009 -0.004  0.008 1.001  9700
-## sd_L       0.249   0.147  0.080  0.151  0.215  0.306  0.620 1.002  2200
-## deviance  75.258   4.136 68.632 72.242 74.782 77.723 84.621 1.002  2700
-## 
-## For each parameter, n.eff is a crude measure of effective sample size,
-## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
-## 
-## DIC info (using the rule, pD = var(deviance)/2)
-## pD = 8.5 and DIC = 83.8
-## DIC is an estimate of expected predictive error (lower deviance is better).
-```
+<!-- 8-20-25: For some crazy reason, I'm getting an error ("Error in `round()`: ! non-numeric argument to mathematical function") here when compiling for bookdown.  It all works fine from the command line; I have no idea. -->
 
 
-```r
+
+``` r
 mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
 (post.mean   <- apply(mcmc.output, 2, mean))
 ```
@@ -465,7 +442,7 @@ mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
 ##  0.249026857
 ```
 
-```r
+``` r
 HPDinterval(as.mcmc(mcmc.output['b.diff']))
 ```
 
@@ -479,7 +456,7 @@ HPDinterval(as.mcmc(mcmc.output['b.diff']))
 The posterior mean of the difference in the log-odds slopes --- 0.0278 --- is essentially the same value that we have seen in every analysis.  We can have a look at the full posterior distribution for this difference, and calculate the posterior probability that the difference is $>0$.  
 
 
-```r
+``` r
 bayesplot::mcmc_areas(mcmc.output,
                       pars = c("b.diff"),
                       prob = 0.95) 
@@ -488,7 +465,7 @@ bayesplot::mcmc_areas(mcmc.output,
 <img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
 
-```r
+``` r
 table(mcmc.output$b.diff > 0)
 ```
 
@@ -502,7 +479,7 @@ Thus we would say that there is a 0.9997 posterior probability that the proporti
 
 We can plot the fit of the model using draws from the posterior distribution of the parameters.  The heavy lines below show the fits using the posterior means of the parameters.  Do these fits correspond to the marginal or conditional means?  (There's little difference here, but it's a useful thought exercise.)
 
-```r
+``` r
 subset.samples <- sample(nrow(mcmc.output), size = 100)
 
 moth$prop.removed <- with(moth, removed / placed)
@@ -609,7 +586,7 @@ B_{ijk} & \sim \mathcal{N}(0, \sigma^2_B) \\
 
 
 
-```r
+``` r
 require(lme4)
 require(lattice)
 ```
@@ -618,7 +595,7 @@ require(lattice)
 ## Loading required package: lattice
 ```
 
-```r
+``` r
 tick <- read.table("data/tick.txt", head = T)
 
 names(tick) <- c("index", "ticks", "brood", "elevation", "yr", "loc")
@@ -737,7 +714,7 @@ To test for the significance of a random effect, the usual approach is to conduc
 
 
 
-```r
+``` r
 fm2  <- glmer(ticks ~ yr + elev.z + (1 | brood) + (1 | index),
               family = "poisson",
               data = tick)
@@ -750,9 +727,9 @@ anova(fm2, fm1)
 ## Models:
 ## fm2: ticks ~ yr + elev.z + (1 | brood) + (1 | index)
 ## fm1: ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index)
-##     npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)
-## fm2    6 1794.0 1818.0 -891.02   1782.0                     
-## fm1    7 1794.5 1822.5 -890.27   1780.5 1.4973  1     0.2211
+##     npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(>Chisq)
+## fm2    6 1794.0 1818.0 -891.02    1782.0                     
+## fm1    7 1794.5 1822.5 -890.27    1780.5 1.4973  1     0.2211
 ```
 
 If we use the rough divide-by-2 rule, the approximate $p$-value is $p \approx 0.11$.  Thus, the model with the location-level random effect does not improve significantly on the model without the location-level random effect.  We might conclude that the location-level random effect is unnecessary.
@@ -760,7 +737,7 @@ If we use the rough divide-by-2 rule, the approximate $p$-value is $p \approx 0.
 Although this analysis focused on how different random effects contributed to the overall variation in tick load, it is also helpful to visualize the fit of the model.  The plot below shows the tick load for each individual (plotted on a log + 1 scale) vs.\ the centered and scaled elevation variable, along with the fitted mean line for each year.  Note that the curvature in the fit appears because the response is shown as the log + 1 instead of the log.  The fits would be straight lines on the log scale.
 
 
-```r
+``` r
 par(mfrow = c(1, 3))
 
 plot.subset <- function(year, a, b) {
@@ -812,7 +789,7 @@ Generalized additive mixed models (GAMMs) include just about every model feature
 As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.^[This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of @wood2017generalized.]  I downloaded these data from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  First, some housekeeping and exploratory analysis.
 
 
-```r
+``` r
 rdu <- read.table("data/rdu-temperature.txt", head = T)
 
 # remove NA's, coded as -99
@@ -825,7 +802,7 @@ with(rdu, table(temp == -99))
 ## 10508    15
 ```
 
-```r
+``` r
 rdu <- subset(rdu, temp > -99)
 
 with(rdu, plot(temp ~ time, type = "l", xlab = "day"))
@@ -836,7 +813,7 @@ with(rdu, plot(temp ~ time, type = "l", xlab = "day"))
 We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature.  We also include an AR(1) structure on the errors.  The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so.  Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.
 
 
-```r
+``` r
 require(mgcv)
 ```
 
@@ -860,7 +837,7 @@ require(mgcv)
 ```
 
 ```
-## This is mgcv 1.9-0. For overview type 'help("mgcv-package")'.
+## This is mgcv 1.9-3. For overview type 'help("mgcv-package")'.
 ```
 
 ```r
@@ -869,7 +846,7 @@ fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation 
 
 The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit except the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
 
-```r
+``` r
 summary(fm1$lme)
 ```
 
@@ -919,7 +896,7 @@ summary(fm1$lme)
 ##          1          1
 ```
 
-```r
+``` r
 summary(fm1$gam)
 ```
 
@@ -948,7 +925,7 @@ summary(fm1$gam)
 ##   Scale est. = 57.713    n = 9250
 ```
 
-```r
+``` r
 plot(fm1$gam)
 ```
 
@@ -1009,7 +986,7 @@ The temperature trend is estimated as an increase of 2.64\times 10^{-4} $^\circ$
 To see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
 
 
-```r
+``` r
 fm1a <- gam(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu)
 
 plot(fm1a)
@@ -1017,7 +994,7 @@ plot(fm1a)
 
 <img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
-```r
+``` r
 abline(h = 0, col = "red")
 ```
 

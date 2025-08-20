@@ -229,7 +229,8 @@ jagsfit <- jags(data               = jags.data,
 
 For some reason this works without specifying initial values for $a$ and $b$ (now both vectors).  Maybe the initial values are drawn from the prior?
 
-```{r}
+<!-- 8-20-25: For some crazy reason, I'm getting an error ("Error in `round()`: ! non-numeric argument to mathematical function") here when compiling for bookdown.  It all works fine from the command line; I have no idea. -->
+```{r eval = FALSE, echo = FALSE}
 print(jagsfit)
 ```
 

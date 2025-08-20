@@ -23,7 +23,7 @@ Finally, whatever approach you choose --- generalized linear modeling, direct li
 To emphasize the connection between GLMs and likelihood approaches, we will take another look at fitting the horse-kick data in Chapters \@ref(ML) and \@ref(beyondML).  To fit these data as an iid sample from a Poission distribution, we use a model that includes only an intercept and that uses an "indentity" link.  We will discuss link functions later.
 
 
-```r
+``` r
 horse <- read.table("data/horse.txt", head = T)
 
 fm1 <- glm(deaths ~ 1, 
@@ -61,7 +61,7 @@ Notice that the estimate of the intercept is exactly the same as the MLE of the 
 We will begin with an example of Poisson regression.  These data are originally from @poole1989mate, and were analyzed in @ramsey2002.  They describe an observational study of 41 male elephants  over 8 years at Amboseli National Park in Kenya.  Each record in this data set gives the age of a male elephant at the beginning of a study and the number of successful matings for the elephant over the study's duration.  The number of matings is a count variable.  Our goal is to characterize how the number of matings is related to the elephant's age.  We'll start by fitting a model with the canonical log link.
 
 
-```r
+``` r
 elephant <- read.table("data/elephant.txt", head = T)
 head(elephant)
 ```
@@ -76,13 +76,13 @@ head(elephant)
 ## 6  29       0
 ```
 
-```r
+``` r
 with(elephant, plot(matings ~ age))
 ```
 
 <img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 
-```r
+``` r
 fm1 <- glm(matings ~ age, 
            family = poisson(link = "log"), 
            data   = elephant)  # log link is the default
@@ -118,7 +118,7 @@ $$
 We can visualize the fit by plotting a best-fitting line with a 95\% confidence interval.  Because the scale parameter is not estimated here, we will use a critical value from a standard normal distribution.  Later, when we estimate the scale parameter based on data, we will use a critical value from a $t$-distribution instead. 
 
 
-```r
+``` r
 new.data <- data.frame(age = seq(from = min(elephant$age),
                                  to   = max(elephant$age),
                                  length = 100))
@@ -146,7 +146,7 @@ lines(x   = new.data$age,
 While the canonical link is a natural starting point, we are free to try other link functions as well.  Below, we try the identity link and plot the fit.
 
 
-```r
+``` r
 fm2 <- glm(matings ~ age, family = poisson(link = "identity"), data = elephant)  
 
 summary(fm2)
@@ -174,7 +174,7 @@ summary(fm2)
 ## Number of Fisher Scoring iterations: 5
 ```
 
-```r
+``` r
 predict.fm2 <- predict(fm2, newdata = new.data, type = "response", se.fit = TRUE)
 
 with(elephant, plot(matings ~ age))
@@ -198,7 +198,7 @@ Note that the choice of the link function has a substantial impact on the shape 
 We can also have a look at the residuals to see if they suggest any model deficiencies.  In general, we prefer the deviance residuals, so we will look at them.
 
 
-```r
+``` r
 plot(x = elephant$age, 
      y = residuals(fm2, type = "deviance"),
      xlab = "age",
@@ -214,7 +214,7 @@ The residuals do not suggest any deficiency in the fit.
 For this fit, the residual deviance suggests a small amount of overdispersion.  To be on the safe side, we can fit a quasi-Poisson model in which the scale (overdispersion) parameter is estimated from the data.  Note that when we estimate the overdispersion parameter, the estimates of the model parameters do not change, but their standard errors increase.  Consequently, the uncertainty in the fit increases as well.  In this case, however, the increase is so slight that it is barely noticeable.
 
 
-```r
+``` r
 fm3 <- glm(matings ~ age, family = quasipoisson(link = "identity"), data = elephant)  
 
 summary(fm3)
@@ -242,7 +242,7 @@ summary(fm3)
 ## Number of Fisher Scoring iterations: 5
 ```
 
-```r
+``` r
 predict.fm3 <- predict(fm3, newdata = new.data, type = "response", se.fit = TRUE)
 
 with(elephant, plot(matings ~ age))
@@ -264,7 +264,7 @@ lines(x   = new.data$age,
 As an alternative, we could fit a model that uses a negative binomial distribution for the response.  Negative binomial distributions belong to the exponential family, so we can fit them using the GLM framework.  However, the authors of `glm` did not include a negative binomial family in their initial code.  Venables & Ripley's `MASS` package includes a program called `glm.nb` which is specifically designed for negative binomial responses.  `MASS::glm.nb` uses the parameterization familiar to ecologists, although they use the parameter $\theta$ instead of $k$.  So, in their notation, if $y \sim \mathrm{NB}(\mu, \theta)$, then $\mathrm{Var}(y) = \mu + \mu^2/\theta$.
 
 
-```r
+``` r
 require(MASS)
 ```
 
@@ -272,7 +272,7 @@ require(MASS)
 ## Loading required package: MASS
 ```
 
-```r
+``` r
 fm4 <- glm.nb(matings ~ age, link = identity, data = elephant)  
 
 summary(fm4)
@@ -306,7 +306,7 @@ summary(fm4)
 ##  2 x log-likelihood:  -150.872
 ```
 
-```r
+``` r
 predict.fm4 <- predict(fm4, newdata = new.data, type = "response", se.fit = TRUE)
 
 with(elephant, plot(matings ~ age))
@@ -642,7 +642,7 @@ To illustrate individual binary data, we will use a data set analyzed by @zuur20
 
 Preparatory work:
 
-```r
+``` r
 boar <- read.table("data/boar.txt", head = T)
 
 # remove incomplete records
@@ -667,7 +667,7 @@ summary(boar)
 
 We'll fit the usual logistic regression model first, considering only the animal's size as a predictor.  Size in this case is a measure of the length of the animal, in cm.
 
-```r
+``` r
 fm1 <- glm(tb ~ length, family = binomial(link = "logit"), data = boar)
 summary(fm1)
 ```
@@ -695,7 +695,7 @@ summary(fm1)
 ```
 
 
-```r
+``` r
 with(boar, plot(tb ~ length))
 
 # add a line for the fitted probabilities of tb
@@ -730,7 +730,7 @@ Regression coefficients in logistic regression can be a bit hard to interpret.  
 Overdispersion is typically not an issue with individual binary response data.  Nonetheless, the pseudo-$R^2$ here is fairly low.  We can try the probit and complementary log-log links to see if we obtain a better fit:
 
 
-```r
+``` r
 # probit link
 
 fm1a <- glm(tb ~ length, family = binomial(link = "probit"), data = boar)
@@ -748,7 +748,7 @@ AIC(fm1, fm1a, fm1b)
 ## fm1b  2 645.6100
 ```
 
-```r
+``` r
 # make a plot to compare the fits with the different links
 
 predict.fm1a <- predict(fm1a, newdata = new.data, type = "response", se.fit = TRUE)
@@ -772,7 +772,7 @@ The logit and probit links are nearly identical.  The complementary log-log link
 
 Now we'll try adding sex and age class as predictors.  
 
-```r
+``` r
 # fit a model with sex, age (as a categorical predictor) and their interaction
 
 fm2 <- glm(tb ~ length + sex * as.factor(age),
@@ -812,7 +812,7 @@ summary(fm2)
 Notice the gigantic standard errors on some of the parameter estimates.  These large standard errors indicate that the likelihood is flat, and that the MLEs cannot be found.  In this case, the likelihood surface is flat because because none of the individuals with \texttt{sex = 1} and \texttt{age = 1} are infected.  We can see this by tallying the frequency of infection by sex and age class:
 
 
-```r
+``` r
 with(boar, table(tb, age, sex))
 ```
 
@@ -836,7 +836,7 @@ Because none of the individuals with \texttt{sex = 1} and \texttt{age = 1} are i
 
 There are several possible remedies here.  The first is to try to reduce the number of parameters in the model, perhaps by eliminating the interaction between sex and age class.
 
-```r
+``` r
 # fit a model with sex, age (as a categorical predictor) and their interaction
 
 fm3 <- glm(tb ~ length + sex + as.factor(age),
@@ -878,7 +878,7 @@ A second option is to use so-called ``exact'' methods for inference.  There does
 For an example with grouped binary data, we will consider a second data set from @vicente2006wild, which is also discussed in @zuur2009.  This data set gives the prevalence of tuberculosis infection in red deer in southern Spain at several different estates.  Several deer were sampled at each estate, and the sampled deer were tested for tuberculosis.  We'll import the data first and do a bit of housekeeping.
 
 
-```r
+``` r
 deer <- read.table("data/tbdeer.txt", head = T)
 
 deer <- deer[, c(4, 5, 8:14)]
@@ -888,7 +888,7 @@ deer <- na.omit(deer)
 The data contain several possible covariates.  Here, we will just inspect the relationship between the prevalence of TB and a covariate called `ReedDeerIndex`.  (Presumably the name of the covariate is a typo, and this is instead an index of the abundance of red deer.)  In these data, the variable `DeerPosTB` gives the number of deer that tested positive for TB at each estate, and the variable `DeerSampledTB` gives the total number of deer sampled at each estate.
 
 
-```r
+``` r
 deer$DeerPropTB <- with(deer, DeerPosTB / DeerSampledTB)
 
 with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 16))
@@ -896,7 +896,7 @@ with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 16))
 
 <img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
-```r
+``` r
 fm1 <- glm(cbind(DeerPosTB, DeerSampledTB - DeerPosTB) ~ ReedDeerIndex,
            family = binomial(link = "logit"),
            data = deer)
@@ -931,7 +931,7 @@ Note that the model formula gives the response variable as a 2-column matrix, wh
 With grouped binomial data, overdispersion is again a possibility.  Notice that the residual deviance is much greater than its corresponding df, suggesting that these data show substantial extra-binomial variation.  Thus we will fit a quasibinomial model to account for the extra-binomial variation.
 
 
-```r
+``` r
 fm2 <- glm(cbind(DeerPosTB, DeerSampledTB - DeerPosTB) ~ ReedDeerIndex,
            family = quasibinomial(link = "logit"),
            data = deer)
@@ -964,7 +964,7 @@ summary(fm2)
 Accounting for the extra-binomial variation has nearly doubled the standard error of the slope on the logit scale.  Thus the naive characterization of the uncertainty in the estimate was far too small.  We can see the effect of accounting for the overdispersion by comparing the confidence envelopes for the respective fits. 
 
 
-```r
+``` r
 new.data <- data.frame(ReedDeerIndex = seq(from = min(deer$ReedDeerIndex),
                                            to   = max(deer$ReedDeerIndex),
                                            length = 100))
@@ -1082,12 +1082,12 @@ Zero-truncated distributions are simply those that condition on the count variab
 We illustrate the use of a zero-truncated distribution with a species-abundance data set for butterflies provided in the `VGAM` package.  The description of the data set in `VGAM` reads: "About 3300 individual butterflies were caught in Malaya by naturalist Corbet trapping butterflies. They were classified to about 500 species."  The data give the frequencies in a species abundance distribution.
 
 
-```r
+``` r
 require(VGAM)
 ```
 
 
-```r
+``` r
 data(corbet)
 head(corbet)
 ```
@@ -1102,7 +1102,7 @@ head(corbet)
 ## 6     6      22
 ```
 
-```r
+``` r
 with(corbet, barplot(species, names = ofreq,
                      xlab = "no. of individuals",
                      ylab = "frequency"))
@@ -1114,28 +1114,9 @@ We will fit a zero-truncated negative binomial distribution to these data, and c
 
 <!-- NB: Something is weird here.  The ratio of the first two fitted probabilities is NOT the same as the ratio of the probability masses obtained by dnbinom evaluated at the parameter estimates.  Check into this. -->
 
+<!-- NB: Would not compile 8-20-25; received error message "Error in dposnegbin2(y, kmat, munb = munb, log = TRUE) : could not find function "dposnegbin2" " -->
 
-```r
-corbet.fit <- vglm(ofreq ~ 1, family = posnegbinomial, weights = species, data = corbet)
-Coef(corbet.fit)
-```
 
-```
-##      munb      size 
-## 4.4802271 0.4906395
-```
-
-```r
-mu.hat <- Coef(corbet.fit)["munb"]
-k.hat  <- Coef(corbet.fit)["size"]
-
-fitted.probs <- dgaitdnbinom(x = corbet$ofreq, k.hat, munb.p = fitted(corbet.fit), truncate = 0)
-fitted.vals <- sum(corbet$species) * fitted.probs
-
-barplot(cbind(corbet$species, fitted.vals), beside = T, names = c("actual", "fitted"))
-```
-
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 
 
 
@@ -1146,7 +1127,7 @@ As the name suggests, zero-inflated (henceforth ZI) models are appropriate when 
 To illustrate ZI models, we will use the cod parasite data described in $\S$ 11.3.2 of @zuur2009.  These data are counts of the number of trypanosome blood parasites in individual cod, and were initially reported in Hemmingsen et al.\ (2005).  First we load the data and do some housekeeping.
 
 
-```r
+``` r
 cod <- read.table("data/ParasiteCod.txt", head = T)
 
 # remove observations with missing data
@@ -1181,7 +1162,7 @@ summary(cod)
 There are a large number of potential predictors.  Following the analysis in Zuur et al., we will focus on the effects of length (a measure of the fish's size), year (which we will treat as a categorical predictor for flexibility), and "area", a categorical predictor for one of four areas in which the fish was sampled.  Before beginning, we will plot the data.  In the plot below, each row of the plot corresponds to a year, and each column (unlabeled) corresponds to one of the four areas, going from area 1 (the leftmost column) to area 4 (the rightmost column).  Because most of the parasite loads are zero or close to zero, we plot parasite load on a log(y + 1) scale. 
 
 
-```r
+``` r
 par(mfrow = c(3, 4), mar = c(2, 2, 1, 1), oma = c(3, 7, 0, 0), las = 1)
 
 for (i in unique(cod$Year)) {
@@ -1208,7 +1189,7 @@ With ZI models, one can use separate model combinations of predictors for the tw
 To fit ZI models, we will use the `pscl` library from R.  The name `pscl` is an acronym for political science computing laboratory.  The `pscl` library includes functions for ZI poisson and negative binomial models (henceforth abbreviated ZIP and ZINB models).  
 
 
-```r
+``` r
 require(pscl)
 ```
 
@@ -1217,15 +1198,15 @@ require(pscl)
 ```
 
 ```
-## Classes and Methods for R developed in the
+## Classes and Methods for R originally developed in the
 ## Political Science Computational Laboratory
 ## Department of Political Science
-## Stanford University
-## Simon Jackman
-## hurdle and zeroinfl functions by Achim Zeileis
+## Stanford University (2002-2015),
+## by and under the direction of Simon Jackman.
+## hurdle and zeroinfl functions by Achim Zeileis.
 ```
 
-```r
+``` r
 formula.1 <- formula(Intensity ~ Length + as.factor(Year) * as.factor(Area))
 
 cod.nb.fm1 <- zeroinfl(formula.1, data  = cod, dist = "negbin") 
@@ -1239,52 +1220,52 @@ summary(cod.nb.fm1)
 ## 
 ## Pearson residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -0.6142 -0.4429 -0.3581 -0.1252 11.4529 
+## -0.6142 -0.4429 -0.3581 -0.1252 11.4530 
 ## 
 ## Count model coefficients (negbin with log link):
 ##                                       Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)                           3.733905   0.344398  10.842  < 2e-16 ***
+## (Intercept)                           3.733903   0.344397  10.842  < 2e-16 ***
 ## Length                               -0.036410   0.005108  -7.128 1.02e-12 ***
-## as.factor(Year)2000                   0.063894   0.295639   0.216  0.82889    
-## as.factor(Year)2001                  -0.939183   0.606056  -1.550  0.12122    
-## as.factor(Area)2                      0.197761   0.329133   0.601  0.54794    
-## as.factor(Area)3                     -0.646736   0.277793  -2.328  0.01991 *  
-## as.factor(Area)4                      0.707493   0.252266   2.805  0.00504 ** 
-## as.factor(Year)2000:as.factor(Area)2 -0.653983   0.535418  -1.221  0.22192    
-## as.factor(Year)2001:as.factor(Area)2  0.967305   0.718165   1.347  0.17801    
-## as.factor(Year)2000:as.factor(Area)3  1.024957   0.429599   2.386  0.01704 *  
-## as.factor(Year)2001:as.factor(Area)3  1.002732   0.677502   1.480  0.13886    
-## as.factor(Year)2000:as.factor(Area)4  0.534524   0.414976   1.288  0.19772    
-## as.factor(Year)2001:as.factor(Area)4  0.855195   0.654394   1.307  0.19126    
-## Log(theta)                           -0.966631   0.096345 -10.033  < 2e-16 ***
+## as.factor(Year)2000                   0.063889   0.295638   0.216  0.82890    
+## as.factor(Year)2001                  -0.939151   0.606059  -1.550  0.12124    
+## as.factor(Area)2                      0.197774   0.329133   0.601  0.54791    
+## as.factor(Area)3                     -0.646729   0.277792  -2.328  0.01991 *  
+## as.factor(Area)4                      0.707498   0.252265   2.805  0.00504 ** 
+## as.factor(Year)2000:as.factor(Area)2 -0.653991   0.535416  -1.221  0.22191    
+## as.factor(Year)2001:as.factor(Area)2  0.967267   0.718168   1.347  0.17803    
+## as.factor(Year)2000:as.factor(Area)3  1.024962   0.429598   2.386  0.01704 *  
+## as.factor(Year)2001:as.factor(Area)3  1.002701   0.677504   1.480  0.13888    
+## as.factor(Year)2000:as.factor(Area)4  0.534532   0.414974   1.288  0.19771    
+## as.factor(Year)2001:as.factor(Area)4  0.855163   0.654396   1.307  0.19128    
+## Log(theta)                           -0.966623   0.096344 -10.033  < 2e-16 ***
 ## 
 ## Zero-inflation model coefficients (binomial with logit link):
 ##                                        Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)                             0.19094    0.78133   0.244 0.806941    
+## (Intercept)                             0.19091    0.78132   0.244 0.806971    
 ## Length                                 -0.03884    0.01203  -3.227 0.001249 ** 
-## as.factor(Year)2000                    -1.07163    2.00007  -0.536 0.592100    
-## as.factor(Year)2001                     3.29316    0.71043   4.635 3.56e-06 ***
-## as.factor(Area)2                        2.01367    0.57289   3.515 0.000440 ***
-## as.factor(Area)3                        1.90528    0.54988   3.465 0.000530 ***
-## as.factor(Area)4                       -0.73626    0.86228  -0.854 0.393187    
-## as.factor(Year)2000:as.factor(Area)2    0.46531    2.07876   0.224 0.822883    
-## as.factor(Year)2001:as.factor(Area)2   -3.20740    0.83596  -3.837 0.000125 ***
-## as.factor(Year)2000:as.factor(Area)3   -0.79465    2.15756  -0.368 0.712642    
-## as.factor(Year)2001:as.factor(Area)3   -3.50409    0.83000  -4.222 2.42e-05 ***
-## as.factor(Year)2000:as.factor(Area)4  -13.65190 1572.67468  -0.009 0.993074    
-## as.factor(Year)2001:as.factor(Area)4   -2.91045    1.10462  -2.635 0.008419 ** 
+## as.factor(Year)2000                    -1.07170    2.00018  -0.536 0.592094    
+## as.factor(Year)2001                     3.29315    0.71042   4.636 3.56e-06 ***
+## as.factor(Area)2                        2.01366    0.57288   3.515 0.000440 ***
+## as.factor(Area)3                        1.90526    0.54987   3.465 0.000530 ***
+## as.factor(Area)4                       -0.73617    0.86221  -0.854 0.393206    
+## as.factor(Year)2000:as.factor(Area)2    0.46538    2.07885   0.224 0.822864    
+## as.factor(Year)2001:as.factor(Area)2   -3.20741    0.83595  -3.837 0.000125 ***
+## as.factor(Year)2000:as.factor(Area)3   -0.79455    2.15765  -0.368 0.712690    
+## as.factor(Year)2001:as.factor(Area)3   -3.50408    0.82999  -4.222 2.42e-05 ***
+## as.factor(Year)2000:as.factor(Area)4  -13.57000 1509.57406  -0.009 0.992828    
+## as.factor(Year)2001:as.factor(Area)4   -2.91050    1.10456  -2.635 0.008414 ** 
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 ## 
 ## Theta = 0.3804 
-## Number of iterations in BFGS optimization: 50 
+## Number of iterations in BFGS optimization: 53 
 ## Log-likelihood: -2450 on 27 Df
 ```
 
 The neatly organized output gives coefficients for each component of the model, with the count component presented first and the zero-inflation component presented second. The output for the zero-inflation component shows a very large standard error associated with the coefficient for area 4 in the year 2000. Let's take a look at the frequency of zeros, as broken down by year and area.
 
 
-```r
+``` r
 with(cod, table(Year, Area, Intensity > 0))
 ```
 
@@ -1309,7 +1290,7 @@ with(cod, table(Year, Area, Intensity > 0))
 We see that there are only a few zeros in area 4 for 2000.  Thus, the zero-inflation component is trying to fit a zero probability of zero inflation for area 4 in year 2000, leading to complete separation.  We need to reduce the number of parameters somehow.  Lacking any better ideas, we'll follow Zuur et al. and remove the interaction between year and area for the zero-inflation portion of the model. To do so, we need a model formula that differs between the two model components.  In `pscl`, we implement this model by providing a model formula where the differing predictor combinations for the two components are separated by a vertical bar.
 
 
-```r
+``` r
 formula.2 <- formula(Intensity ~ Length + as.factor(Year) * as.factor(Area) | Length 
                      + as.factor(Year) + as.factor(Area))
 
@@ -1324,39 +1305,39 @@ summary(cod.nb.fm2)
 ## 
 ## Pearson residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -0.5911 -0.4480 -0.3794 -0.1258 12.0795 
+## -0.5911 -0.4480 -0.3794 -0.1258 12.0794 
 ## 
 ## Count model coefficients (negbin with log link):
 ##                                      Estimate Std. Error z value Pr(>|z|)    
 ## (Intercept)                           3.78614    0.34093  11.105  < 2e-16 ***
 ## Length                               -0.03669    0.00502  -7.309 2.70e-13 ***
-## as.factor(Year)2000                   0.03438    0.29188   0.118  0.90624    
-## as.factor(Year)2001                  -2.32204    0.38125  -6.091 1.12e-09 ***
-## as.factor(Area)2                      0.12404    0.32906   0.377  0.70621    
+## as.factor(Year)2000                   0.03438    0.29188   0.118  0.90625    
+## as.factor(Year)2001                  -2.32201    0.38125  -6.090 1.13e-09 ***
+## as.factor(Area)2                      0.12404    0.32906   0.377  0.70620    
 ## as.factor(Area)3                     -0.82582    0.27838  -2.966  0.00301 ** 
 ## as.factor(Area)4                      0.65502    0.25266   2.592  0.00953 ** 
-## as.factor(Year)2000:as.factor(Area)2 -0.75547    0.50817  -1.487  0.13711    
-## as.factor(Year)2001:as.factor(Area)2  2.39047    0.52066   4.591 4.41e-06 ***
-## as.factor(Year)2000:as.factor(Area)3  1.21457    0.42003   2.892  0.00383 ** 
-## as.factor(Year)2001:as.factor(Area)3  2.52720    0.45772   5.521 3.36e-08 ***
-## as.factor(Year)2000:as.factor(Area)4  0.59338    0.41572   1.427  0.15347    
-## as.factor(Year)2001:as.factor(Area)4  2.23077    0.44602   5.001 5.69e-07 ***
-## Log(theta)                           -1.01444    0.09655 -10.507  < 2e-16 ***
+## as.factor(Year)2000:as.factor(Area)2 -0.75546    0.50817  -1.487  0.13711    
+## as.factor(Year)2001:as.factor(Area)2  2.39045    0.52066   4.591 4.41e-06 ***
+## as.factor(Year)2000:as.factor(Area)3  1.21458    0.42003   2.892  0.00383 ** 
+## as.factor(Year)2001:as.factor(Area)3  2.52719    0.45772   5.521 3.37e-08 ***
+## as.factor(Year)2000:as.factor(Area)4  0.59338    0.41572   1.427  0.15348    
+## as.factor(Year)2001:as.factor(Area)4  2.23075    0.44603   5.001 5.69e-07 ***
+## Log(theta)                           -1.01443    0.09655 -10.507  < 2e-16 ***
 ## 
 ## Zero-inflation model coefficients (binomial with logit link):
 ##                     Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)          0.92837    0.70657   1.314 0.188873    
+## (Intercept)          0.92837    0.70656   1.314 0.188870    
 ## Length              -0.04686    0.01252  -3.744 0.000181 ***
-## as.factor(Year)2000 -1.25039    0.50281  -2.487 0.012889 *  
-## as.factor(Year)2001  0.25485    0.32785   0.777 0.436962    
-## as.factor(Area)2     1.62679    0.48056   3.385 0.000711 ***
-## as.factor(Area)3     1.19153    0.49143   2.425 0.015324 *  
-## as.factor(Area)4    -1.26323    0.64393  -1.962 0.049792 *  
+## as.factor(Year)2000 -1.25036    0.50280  -2.487 0.012889 *  
+## as.factor(Year)2001  0.25487    0.32785   0.777 0.436923    
+## as.factor(Area)2     1.62677    0.48056   3.385 0.000711 ***
+## as.factor(Area)3     1.19152    0.49142   2.425 0.015324 *  
+## as.factor(Area)4    -1.26324    0.64392  -1.962 0.049788 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
 ## 
 ## Theta = 0.3626 
-## Number of iterations in BFGS optimization: 29 
+## Number of iterations in BFGS optimization: 32 
 ## Log-likelihood: -2460 on 21 Df
 ```
 
@@ -1365,7 +1346,7 @@ There's a lot of output here to process.  One observation we might make is that 
 Alternatively, we might merge the two model components to generate predicted values as a function of length for each year and area.  The library `pscl` provides methods to extract predicted values directly; see the help documentation for `pscl::predict.zeroinfl`.  We use that method here to generate predicted mean parasite counts (merging the zero-inflation and count components) for each combination of year and area.  In the plot below, bear in mind that because the data are shown on a log scale, the fitted line will not necessarily pass through the center of the plotted data cloud.
 
 
-```r
+``` r
 length.vals <- seq(from = min(cod$Length), to = max(cod$Length), length = 100)
 par(mfrow = c(3, 4), mar = c(2, 2, 1, 1), oma = c(3, 7, 0, 0), las = 1)
 
@@ -1402,7 +1383,7 @@ The `pscl` library contains the `hurdle` function for fitting ZA modes.  However
 We will use the cod parasite data to illustrate hurdle models also.  This is something of an artificial example, however, because the fact that some infected fish will probably yield samples with zero counts suggests that a ZI model has a more natural ecological interpretation.  We will proceed directly to the final model chosen by Zuur et al., which includes additive effects of length, year, and area in the intensity component, and an interaction between area and year (but no effect of length) in the hurdle component.
 
 
-```r
+``` r
 formula.3 <- formula(Intensity ~ Length + as.factor(Year) + as.factor(Area) | as.factor(Year) * as.factor(Area))
 
 cod.hurdle.fm3 <- hurdle(formula.3, data = cod, dist = "negbin")
@@ -1459,7 +1440,7 @@ We illustrate GAMs by considering a data set that gives the size and annual surv
 <!-- Note: The original data file has size labeled as "ln_area_cm2", but if this is true, some of the colonies would be <0.01 cm^2 in size.  Can this be true?  Goddammit, Josh. -->
 
 
-```r
+``` r
 require(mgcv)
 ```
 
@@ -1472,7 +1453,7 @@ require(mgcv)
 ```
 
 ```
-## This is mgcv 1.9-0. For overview type 'help("mgcv-package")'.
+## This is mgcv 1.9-3. For overview type 'help("mgcv-package")'.
 ```
 
 ```
@@ -1486,7 +1467,7 @@ require(mgcv)
 ##     s
 ```
 
-```r
+``` r
 coral <- read.csv("data/coral.csv", head = TRUE, stringsAsFactors = TRUE)
 head(coral)
 ```
@@ -1501,7 +1482,7 @@ head(coral)
 ## 6 Acropora millepora   corymbose -3.661057         0
 ```
 
-```r
+``` r
 with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
 ```
 
@@ -1510,7 +1491,7 @@ with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", 
 We fit a GAM with a binomial response, logit link, and use a smoothing spline to capture the relationship between log size and (the log odds of) mortality.  Recall that a smoothing spline determines the degree of smoothness by generalized cross-validation.
 
 
-```r
+``` r
 fm1 <- gam(mortality ~ s(ln_area), family = binomial(link = "logit"), data = coral)
 
 summary(fm1)
@@ -1540,7 +1521,7 @@ summary(fm1)
 ## UBRE = -0.098118  Scale est. = 1         n = 270
 ```
 
-```r
+``` r
 # plot data with fit overlaid
 
 with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
@@ -1560,7 +1541,7 @@ lines(x.vals, inv.logit(fm1.fit$fit - 1.96 * fm1.fit$se.fit), lty = "dashed")
 Note that the non-linearity in the fit is not just a consequence of converting to the probability scale.  If we plot the fit on the log odds scale, we can see the non-linearity that results from using a penalized regression spline.
 
 
-```r
+``` r
 plot(x.vals, fm1.fit$fit, type = "l", xlab = "log size, x", ylab = "log odds of mortality, s(x)")
 ```
 
@@ -1570,21 +1551,22 @@ plot(x.vals, fm1.fit$fit, type = "l", xlab = "log size, x", ylab = "log odds of 
 We might also try a complementary log-log link.
 
 
-```r
+``` r
 fm2 <- gam(mortality ~ s(ln_area), family = binomial(link = "cloglog"), data = coral)
+
+inv.cloglog <- function(x) 1 - exp(-exp(x))
 
 with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
 
 fm2.fit <- predict(fm2, newdata = data.frame(ln_area = x.vals), se = TRUE)
-
-lines(x.vals, inv.logit(fm2.fit$fit), col = "red")
-lines(x.vals, inv.logit(fm2.fit$fit + 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
-lines(x.vals, inv.logit(fm2.fit$fit - 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
+lines(x.vals, inv.cloglog(fm2.fit$fit), col = "red")
+lines(x.vals, inv.cloglog(fm2.fit$fit + 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
+lines(x.vals, inv.cloglog(fm2.fit$fit - 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
 ```
 
 <img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-34-1.png" width="672" />
 
-```r
+``` r
 AIC(fm1, fm2)
 ```
 
