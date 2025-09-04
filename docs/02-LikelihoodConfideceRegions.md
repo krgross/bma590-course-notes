@@ -230,7 +230,7 @@ for (i.a in 1:length(a.vals)) {
 contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
         xlab = "a", ylab = "h")
 
-points(x = a.mle, y = h.mle, col = "red")
+points(x = a.mle, y = h.mle, col = "red", pch = 16)
 ```
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-5-1.png" width="672" />
@@ -612,9 +612,66 @@ cov2cor(var.matrix)
 ## [2,] 0.8238872 1.0000000
 ```
 
-Note the large correlation between $\hat{a}$ and $\hat{h}$.  Compare with Figure 6.13 of Bolker.
+Note the large correlation between $\hat{a}$ and $\hat{h}$.  
 
-The standard errors of $\hat{a}$ and $\hat{h}$ are the square roots of the diagaonal elements of the variance-covariance matrix.
+There are a few paths that we can take from here.  It turns out that probability contours of a bivariate normal distribution are ellipses.  So, we can use the `ellipse::ellipse` function to find (say) an approximate 95% confidence region for $(a,h)$.  (There is some clever math behind this computation, but that math is beside the point here, so we'll just use the available tools in `R`).  
+
+```
+## Loading required package: ellipse
+```
+
+```
+## 
+## Attaching package: 'ellipse'
+```
+
+```
+## The following object is masked from 'package:graphics':
+## 
+##     pairs
+```
+
+``` r
+approx.95 <- ellipse::ellipse(var.matrix, center = c(a.mle, h.mle), level = 0.95, npoints = 200)
+```
+
+Now we'll recreate our contour plot of the negative log likelihood, show the exact 95% confidence region, and overlay the approximate 95% confidence ellipse.
+
+``` r
+# plot negative likelihood contours
+
+a.vals <- seq(from = 0.3, to = 0.75, by = 0.01)
+h.vals <- seq(from = 0.001, to = 0.03, by = 0.001)
+
+ll.vals <- matrix(nrow = length(a.vals), ncol = length(h.vals))
+
+for (i.a in 1:length(a.vals)) {
+  for(i.h in 1:length(h.vals)) {
+    ll.vals[i.a, i.h] <- frog.neg.ll(c(a.vals[i.a], h.vals[i.h]))
+  }
+}
+
+contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
+        xlab = "a", ylab = "h")
+
+points(x = a.mle, y = h.mle, col = "red", pch = 16)
+
+cut.off <- frog.neg.ll(c(a.mle, h.mle)) + (1 / 2) * qchisq(.95, df = 2)
+
+contour(x = a.vals, y = h.vals, z = ll.vals, 
+        levels = cut.off,
+        add = TRUE, col = "red", lwd = 2)
+
+# add the approximate confidence ellipse
+
+lines(approx.95, col = "blue", lwd = 2)
+```
+
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+
+Compare this with Fig.\ 6.13 in Bolker.
+
+We can also use the curvature to compute approximate standard errors for both parameters, as simply the square roots of the diagaonal elements of the variance-covariance matrix.
 
 ``` r
 (a.se <- sqrt(var.matrix[1, 1]))
@@ -631,7 +688,6 @@ The standard errors of $\hat{a}$ and $\hat{h}$ are the square roots of the diaga
 ```
 ## [1] 0.004881647
 ```
-Note the large correlation between $\hat{a}$ and $\hat{h}$.
 
 Let's use the (approximate) standard error of $\hat{a}$ to calculate an (approximate) 95\% confidence interval:
 
@@ -642,7 +698,7 @@ Let's use the (approximate) standard error of $\hat{a}$ to calculate an (approxi
 ```
 ## [1] 0.3865830 0.6651283
 ```
-Recall that the 95\% confidence interval we calculated by the profile likelihood was $(0.402, 0.682)$.  So the quadratic approximation has gotten the width of the interval more or less correct, but it has fared less at capturing the asymmetry of the interval.
+Recall that the 95\% confidence interval we calculated by the profile likelihood was $(0.402, 0.682)$.  So the quadratic approximation has gotten the width of the interval more or less correct, but it has fared less well at capturing the asymmetry of the interval.
 
 ## Comparing models: Likelihood ratio test and AIC
 
@@ -698,7 +754,7 @@ plot(cones ~ dbh, data = fir, type = "n", main = "non-wave")
 points(cones ~ dbh, data = subset(fir, wave == "n"))
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-25-1.png" width="672" />
 
 ``` r
 # any non-integral responses?
@@ -802,7 +858,7 @@ with(fir, plot(cones ~ dbh))  # plot the data points
 lines(fit.vals ~ dbh.vals, col = "blue")  
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-25-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
 Now fit the full model with separate values of $a$ and $b$ for each population:
 
@@ -896,7 +952,7 @@ for (i in seq(along = dbh.vals)) {
 lines(fit.vals.non ~ dbh.vals, col = "red")  
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 Note that to compute the negative log likelihood for the full model, we compute the negative log likelihood for each population separately, and then sum the two negative log likelihoods.  We can see the justification for doing so by writing out the log likelihood function explicitly:
 \begin{eqnarray*}
@@ -1031,7 +1087,7 @@ legend(x = 4, y = 280,
        bty = "n")
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 ## The negative binomial distriution, revisited
 
@@ -1126,7 +1182,7 @@ lines(fit.vals.alt ~ dbh.vals, col = "red")
 legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alternate"))
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 However, the two models imply very different relationships between the variance in cone production and tree size.  Let's look at the implied relationship between the standard deviation of cone production and tree size:
 
@@ -1141,7 +1197,7 @@ lines(mu.vals, sd.vals.nb2, col = "red")
 legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alternate"))
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-38-1.png" width="672" />
 
 We can calculate the AIC for this alternate parameterization as well:
 

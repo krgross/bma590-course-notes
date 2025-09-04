@@ -136,7 +136,7 @@ for (i.a in 1:length(a.vals)) {
 contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
         xlab = "a", ylab = "h")
 
-points(x = a.mle, y = h.mle, col = "red")
+points(x = a.mle, y = h.mle, col = "red", pch = 16)
 ```
 
 Equipped with the contour plot, graphing the appropriate confidence region is straightforward.
@@ -377,20 +377,60 @@ We can use the handy `cov2cor` function to convert the variance matrix into a co
 cov2cor(var.matrix)
 ```
 
-Note the large correlation between $\hat{a}$ and $\hat{h}$.  Compare with Figure 6.13 of Bolker.
+Note the large correlation between $\hat{a}$ and $\hat{h}$.  
 
-The standard errors of $\hat{a}$ and $\hat{h}$ are the square roots of the diagaonal elements of the variance-covariance matrix.
+There are a few paths that we can take from here.  It turns out that probability contours of a bivariate normal distribution are ellipses.  So, we can use the `ellipse::ellipse` function to find (say) an approximate 95% confidence region for $(a,h)$.  (There is some clever math behind this computation, but that math is beside the point here, so we'll just use the available tools in `R`).  
+```{r echo = FALSE}
+require(ellipse)
+```
+```{r}
+approx.95 <- ellipse::ellipse(var.matrix, center = c(a.mle, h.mle), level = 0.95, npoints = 200)
+```
+
+Now we'll recreate our contour plot of the negative log likelihood, show the exact 95% confidence region, and overlay the approximate 95% confidence ellipse.
+```{r}
+# plot negative likelihood contours
+
+a.vals <- seq(from = 0.3, to = 0.75, by = 0.01)
+h.vals <- seq(from = 0.001, to = 0.03, by = 0.001)
+
+ll.vals <- matrix(nrow = length(a.vals), ncol = length(h.vals))
+
+for (i.a in 1:length(a.vals)) {
+  for(i.h in 1:length(h.vals)) {
+    ll.vals[i.a, i.h] <- frog.neg.ll(c(a.vals[i.a], h.vals[i.h]))
+  }
+}
+
+contour(x = a.vals, y = h.vals, z = ll.vals, nlevels = 100,
+        xlab = "a", ylab = "h")
+
+points(x = a.mle, y = h.mle, col = "red", pch = 16)
+
+cut.off <- frog.neg.ll(c(a.mle, h.mle)) + (1 / 2) * qchisq(.95, df = 2)
+
+contour(x = a.vals, y = h.vals, z = ll.vals, 
+        levels = cut.off,
+        add = TRUE, col = "red", lwd = 2)
+
+# add the approximate confidence ellipse
+
+lines(approx.95, col = "blue", lwd = 2)
+```
+
+Compare this with Fig.\ 6.13 in Bolker.
+
+We can also use the curvature to compute approximate standard errors for both parameters, as simply the square roots of the diagaonal elements of the variance-covariance matrix.
 ```{r}
 (a.se <- sqrt(var.matrix[1, 1]))
 (h.se <- sqrt(var.matrix[2, 2]))
 ```
-Note the large correlation between $\hat{a}$ and $\hat{h}$.
 
 Let's use the (approximate) standard error of $\hat{a}$ to calculate an (approximate) 95\% confidence interval:
 ```{r}
 (ci.approx <- a.mle + qnorm(c(0.025, .975)) * a.se)
 ```
-Recall that the 95\% confidence interval we calculated by the profile likelihood was $(0.402, 0.682)$.  So the quadratic approximation has gotten the width of the interval more or less correct, but it has fared less at capturing the asymmetry of the interval.
+Recall that the 95\% confidence interval we calculated by the profile likelihood was $(0.402, 0.682)$.  So the quadratic approximation has gotten the width of the interval more or less correct, but it has fared less well at capturing the asymmetry of the interval.
 
 ## Comparing models: Likelihood ratio test and AIC
 
