@@ -257,18 +257,43 @@ contour(x = a.vals, y = h.vals, z = ll.vals,
 
 There are several drawbacks to confidence regions.  First, while a two-dimensional confidence region can be readily visualized, it is hard to summarize or describe.  Second, and more importantly, most models have more than two parameters.  In these models, a confidence region would have more than 2 dimensions, and thus would be impractical to visualize.  Thus it is helpful, or even essential, to be able to generate univariate confidence intervals for single parameters from high-dimensional likelihoods.  
 
-The recommended approach for generating univariate confidence intervals from a high-dimensional likelihood surface is to use a technique called *profiling*.  A profile likelihood for one or more parameters is found by optimizing the likelihood when the parameter(s) of interest is fixed, and all other parameters are allowed to vary.  To be a bit more precise, suppose we have a model a parameter(s) of interest $\theta$ and nuisance parameter(s) $\phi$.  (Here, we'll let both $\theta$ and $\phi$ denote either single parameters or vectors of several parameters, as the situation requires.  Doing this allows us to cut down on the notation.)  Write the likelihood function as $\L{\theta, \phi}$.  The profile likelihood for $\theta$, which we might write as $\mathcal{L}_{\theta}(\theta)$, is
+There are two common approaches for generating univariate confidence intervals from a high-dimensional likelihood surface.  The first method is called *slicing*.  As the name perhaps suggests, a slice likelihood function is computed by allowing one or more parameter(s) of interest to vary while holding the other parameter(s) fixed at their MLEs.  The slice likelihood then tells us about how the quality of the fit changes as we vary our parameter(s) of interest.
+
+In notation, write our parameter(s) of interest as $\theta$ and write the other parameter(s) in the model as $\phi$.  (Here, we'll let both $\theta$ and $\phi$ denote either single parameters or vectors of several parameters, as the situation requires.  Doing this allows us to cut down on the notation.)  Write the full likelihood function as $\mathcal{L}(\theta, \phi)$.  The slice likelihood for $\theta$, which we might write as $\mathcal{L}_s(\theta)$, is
 \begin{equation}
-\mathcal{L}_{\theta}(\theta) = \max_{\phi} \, \L{\theta, \phi}.
+\mathcal{L}_s(\theta) = \mathcal{L}(\theta, \hat{\phi})
 \end{equation}
-If we're working with the negative log-likelihood instead of the likelihood, we'd replace the maximization above with a minimization.  We can find a confidence region for $\theta$ using the upper contour sets of the profile likelihood, in just the same way as we did with the full likelihood.
+where $\hat{\phi}$ is the MLE of $\phi$.  
 
-We will illustrate this approach by computing a profile-based confidence interval for the attack rate $a$ in the tadpole data.
-
+The advantage to the slice likelihood is that it is easy to compute.  To write a slice-likelihood function for $a$ in the tadpole data, all we need is
 
 ``` r
-# profile log-likelihood function for the attack rate a
+slice.ll <- function(a) frog.neg.ll(c(a, h.mle))
+```
 
+Now we can plot the slice likelihood for different values of $a$.
+
+``` r
+a.values <- seq(from = 0.3, to = 0.8, by = 0.01)
+a.slice <- double(length = length(a.values))
+
+for (i in 1:length(a.values)) a.slice[i] <- slice.ll(a.values[i])
+
+plot(x = a.values, y = a.slice, xlab = "a", ylab = "negative slice log-likelihood", type = "l")
+```
+
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+
+The downside to a slice likelihood is that as we vary our parameter(s) of interest, we might be able to improve the fit by allowing the other parameters in the model to adjust.  A *profile* likelihood tells us how the fit changes as we vary our parameter(s) of interest, while allowing the other parameters in the model to adjust. In other words, the profile likelihood tells us about the best fit available for a particular value of our parameter(s) of interest (which isn't necessarily found by keeping the other model parameters fixed at their MLEs, as the slice likelihood does). Computing a profile likelihood takes a little more work, but it generally provides a more accurate understanding of how our parameter(s) of interest affects the fit.
+
+Continuing with our notation above, the profile likelihood for $\theta$, which we might write as $\mathcal{L}_p(\theta)$, is
+\begin{equation}
+\mathcal{L}_p(\theta) = \max_{\phi} \, \mathcal{L}(\theta, \phi).
+\end{equation}
+
+The code below calculates the (negative) profile log-likelihood for $a$ in the tadpole data.
+
+``` r
 profile.ll <- function(my.a) {
   
   # Calculate the minimum log likelihood value for a given value of a, the attack rate
@@ -280,22 +305,17 @@ profile.ll <- function(my.a) {
 }
 
 # plot the profile likelihood vs. a
-# not necessary for finding the CI, but useful for understanding
 
-a.values <- seq(from = 0.3, to = 0.8, by = 0.01)
 a.profile <- double(length = length(a.values))
 
-for (i in 1:length(a.values)) {
-  
-  a.profile[i] <- profile.ll(a.values[i])
-}
+for (i in 1:length(a.values)) a.profile[i] <- profile.ll(a.values[i])
 
-plot(x = a.values, y = a.profile, xlab = "a", ylab = "negative log-likelihood", type = "l")
+plot(x = a.values, y = a.profile, xlab = "a", ylab = "profile negative log-likelihood", type = "l")
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 
-Now we'll follow the same steps as before to compute the profile-based 95% CI.
+We can find a confidence region for $\theta$ using the upper contour sets of the profile likelihood, in just the same way as we did with the full likelihood.  The code below computes a profile-based confidence interval for the attack rate $a$ in the tadpole data.
 
 
 ``` r
@@ -352,7 +372,7 @@ abline(v = c(lower$root, upper$root), col = "blue")
 abline(h = cut.off, col = "blue", lty = "dashed")
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-10-1.png" width="672" />
 
 So, the 95\% profile CI for $a$ is (0.402, 0.682).
 
@@ -517,7 +537,7 @@ legend(x = 0.65, y = 326,
        bty = "n")
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
 ``` r
 # clean up
@@ -667,7 +687,7 @@ contour(x = a.vals, y = h.vals, z = ll.vals,
 lines(approx.95, col = "blue", lwd = 2)
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-24-1.png" width="672" />
 
 Compare this with Fig.\ 6.13 in Bolker.
 
@@ -754,7 +774,7 @@ plot(cones ~ dbh, data = fir, type = "n", main = "non-wave")
 points(cones ~ dbh, data = subset(fir, wave == "n"))
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-25-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-27-1.png" width="672" />
 
 ``` r
 # any non-integral responses?
@@ -858,7 +878,7 @@ with(fir, plot(cones ~ dbh))  # plot the data points
 lines(fit.vals ~ dbh.vals, col = "blue")  
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 Now fit the full model with separate values of $a$ and $b$ for each population:
 
@@ -952,7 +972,7 @@ for (i in seq(along = dbh.vals)) {
 lines(fit.vals.non ~ dbh.vals, col = "red")  
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 Note that to compute the negative log likelihood for the full model, we compute the negative log likelihood for each population separately, and then sum the two negative log likelihoods.  We can see the justification for doing so by writing out the log likelihood function explicitly:
 \begin{eqnarray*}
@@ -1087,7 +1107,7 @@ legend(x = 4, y = 280,
        bty = "n")
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 ## The negative binomial distriution, revisited
 
@@ -1182,7 +1202,7 @@ lines(fit.vals.alt ~ dbh.vals, col = "red")
 legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alternate"))
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-39-1.png" width="672" />
 
 However, the two models imply very different relationships between the variance in cone production and tree size.  Let's look at the implied relationship between the standard deviation of cone production and tree size:
 
@@ -1197,7 +1217,7 @@ lines(mu.vals, sd.vals.nb2, col = "red")
 legend("topleft", col = c("blue", "red"), pch = 16, leg = c("original", "alternate"))
 ```
 
-<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-38-1.png" width="672" />
+<img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-40-1.png" width="672" />
 
 We can calculate the AIC for this alternate parameterization as well:
 
