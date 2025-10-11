@@ -315,6 +315,8 @@ plot(x = a.values, y = a.profile, xlab = "a", ylab = "profile negative log-likel
 
 <img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 
+Notice that the profile likelihood is shallower than the slice likelihood.
+
 We can find a confidence region for $\theta$ using the upper contour sets of the profile likelihood, in just the same way as we did with the full likelihood.  The code below computes a profile-based confidence interval for the attack rate $a$ in the tadpole data.
 
 

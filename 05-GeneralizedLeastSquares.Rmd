@@ -180,7 +180,7 @@ anova(gls0, gls1, gls2)
 
 By either AIC or the LRT, the model with the autocorrelated errors does not provide a statistically significant improvement in fit. 
 
-We can now use the model with heterogeneous variances and independent errors to conduct the usual inferences on the fixed effects.  Because we now compare models with different fixed-effect structures, we must work on the ML fits.  Let's start with a model that removes the interaction between time and country.  The fixed-effects component of this model is:
+We can now use the model with heterogeneous variances and independent errors to conduct the usual inferences on the fixed effects.  Because we now compare models with different fixed-effect structures, we must work on the ML fits.  Let's start with a model that removes the interaction between time and country.  The model is:
 \begin{equation}
 y_{it} = a_i + b x_{it} + \varepsilon_{it}.
 \end{equation}

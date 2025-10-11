@@ -1,50 +1,62 @@
-# Smooth regression
+# Smooth regression and GAMs
 
 
 
-## Loess smoothers
+In this chapter, we examine methods for fitting a flexible trend between a response and a predictor that don't require first committing ourselves to a particular mathematical assumption about the shape of that trend.  In the first sections, we will explore fitting a flexible trend line for a single predictor and a single response.  Later, we will see how these flexible trends can be included in regression models with several predictors. 
 
-We will illustrate LOESS smoothers with the bioluminescence data found in the ISIT data set.  These data are featured in @zuur2009, and can be found by visiting the webpage associated with the book.  A link to this webpage appears on the course website.  The data were originally reported in @gillibrand2007seasonal, and detail the number of sources of bioluminescence detected along a depth gradient in the North Atlantic.  The name of the data set ("ISIT") refers to the type of camera used in the study.
-
-The methods that we discuss in this chapter allow a flexible specification of how the predictor(s) are associated with the mean response.  All of the methods we discuss are variations on regression.  As such, they inherent all of the usual regression assumptions about the distribution of the errors, namely, that the errors are iid draws from a Gaussian distribution.
-
-Unfortunately, the bioluminescence data discussed in this chapter violate these assumptions rather severely. We will see right away that the data display the usual non-constant variance that we expect when measuring an ecological abundance, namely, larger responses are also more variable.  In addition, because these data are collected at locations along a transect, they are likely characterized by substantial autocorrelation.  For the sake of illustration, we ignore both the non-constant variance and the autocorrelation in the analyses that follow.  See the discussion of [GAMMs] to learn about coping with autocorrelation in generalized additive models.
+As a running example, we will consider a data set originally published by @gillibrand2007seasonal, and analyzed extensively in the textbook by @zuur2009.  Zuur et al. say that these data describe the number of sources of "pelagic bioluminescence along a depth gradient in the northeast Atlantic Ocean."  The name of the data set ("ISIT") refers to the type of camera used in the study.  We focus particularly on the data at station 19.  The pattern that we wish to characterize is shown below.
 
 
 ``` r
 ## download the data from the book's website
-
 isit <- read.table("data/ISIT.txt", head = T)
 
-## extract the data from station 16
+## extract the data from station 19
 
-st16 <- subset(isit, Station == 16)
+st19 <- subset(isit, Station == 19)
 
 ## retain just the variables that we want, and rename
 
-st16 <- st16[, c("SampleDepth", "Sources")]
-names(st16) <- c("depth", "sources")
-with(st16, plot(sources ~ depth))
+st19 <- st19[, c("SampleDepth", "Sources")]
+names(st19) <- c("depth", "sources")
+with(st19, plot(sources ~ depth))
 ```
 
 <img src="04-SmoothRegression_files/figure-html/unnamed-chunk-2-1.png" width="672" />
 
-Fit a loess smoother using the factory settings:
+As a preliminary consideration, all of the methods we discuss are variations on regression.  As such, they inherent all of the usual regression assumptions about the distribution of the errors, namely, that the errors are iid draws from a Gaussian distribution.
+
+The bioluminescence data discussed in this chapter violate these assumptions rather severely. We see right away that, as typically happens when measuring the abundance of a particular organism or taxa, larger responses are more variable.  To cope with this non-constant variance, we will take the usual step of modeling the (natural) log of the response, shown below.
 
 
 ``` r
-st16.lo <- loess(sources ~ depth, data = st16)
-summary(st16.lo)
+with(st19, plot(log(sources) ~ depth))
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+
+The log transformation successfully stabilizes the variance.
+
+In addition, because these data are collected at locations along a transect, they are likely characterized by substantial autocorrelation.  For the sake of illustration, we ignore the autocorrelation in the analyses that follow.  See the discussion of [GAMMs] to learn about coping with autocorrelation in generalized additive models.
+
+## Loess smoothers
+
+We illustrate a LOESS smoother first, using the `loess` function. We will first fit the smoother with the factory settings. 
+
+
+``` r
+st19.lo <- loess(log(sources) ~ depth, data = st19)
+summary(st19.lo)
 ```
 
 ```
 ## Call:
-## loess(formula = sources ~ depth, data = st16)
+## loess(formula = log(sources) ~ depth, data = st19)
 ## 
-## Number of Observations: 51 
-## Equivalent Number of Parameters: 4.33 
-## Residual Standard Error: 4.18 
-## Trace of smoother matrix: 4.73  (exact)
+## Number of Observations: 49 
+## Equivalent Number of Parameters: 4.67 
+## Residual Standard Error: 0.2054 
+## Trace of smoother matrix: 5.12  (exact)
 ## 
 ## Control settings:
 ##   span     :  0.75 
@@ -59,51 +71,41 @@ summary(st16.lo)
 Plot the fit, this takes a little work
 
 ``` r
-depth.vals <- with(st16, seq(from   = min(depth), 
+depth.vals <- with(st19, seq(from   = min(depth), 
                              to     = max(depth), 
                              length = 100))
 
-st16.fit <- predict(object  = st16.lo,
+st19.fit <- predict(object  = st19.lo,
                     newdata = depth.vals,
                     se      = TRUE)
 
-with(st16, plot(sources ~ depth))
-lines(x = depth.vals, y = st16.fit$fit, col = "blue")
+with(st19, plot(log(sources) ~ depth))
+lines(x = depth.vals, y = st19.fit$fit, col = "blue")
 
 # add 95% error bars
 lines(x   = depth.vals, 
-      y   = st16.fit$fit + st16.fit$se.fit * qt(p = .975, df = st16.fit$df),
+      y   = st19.fit$fit + st19.fit$se.fit * qt(p = .975, df = st19.fit$df),
       col = "blue",
       lty = "dashed")
 
 lines(x   = depth.vals, 
-      y   = st16.fit$fit - st16.fit$se.fit * qt(p = .975, df = st16.fit$df),
+      y   = st19.fit$fit - st19.fit$se.fit * qt(p = .975, df = st19.fit$df),
       col = "blue",
       lty = "dashed")
 ```
 
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 
 Examine the residuals:
 
 ``` r
-## see what the fit returns; maybe the residuals are already there
-
-names(st16.lo)  # they are!
-```
-
-```
-##  [1] "n"         "fitted"    "residuals" "enp"       "s"         "one.delta"
-##  [7] "two.delta" "trace.hat" "divisor"   "robust"    "pars"      "kd"       
-## [13] "call"      "terms"     "xnames"    "x"         "y"         "weights"
-```
-
-``` r
-plot(st16.lo$residuals ~ st16$depth)
+plot(st19.lo$residuals ~ st19$depth)
 abline(h = 0, lty = "dotted")
 ```
 
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+
+Note the autocorrelation in the residuals.
 
 Let's look at how changing the span changes the fit.  We'll write a custom function to fit a LOESS curve, and then call the function with various values for the span.
 
@@ -153,45 +155,158 @@ Now we'll call the function several times, each time chanigng the value of the `
 
 
 ``` r
-PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.5)
-```
-
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-1.png" width="672" />
-
-``` r
-PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.25)
-```
-
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-2.png" width="672" />
-
-``` r
-PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.1)
-```
-
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-7-3.png" width="672" />
-
-Let's try a loess fit with a locally linear regression:
-
-
-``` r
-PlotLoessFit(x = st16$depth, y = st16$sources, span = 0.25, degree = 1)
+PlotLoessFit(x = st19$depth, y = log(st19$sources), span = 0.6)
 ```
 
 <img src="04-SmoothRegression_files/figure-html/unnamed-chunk-8-1.png" width="672" />
 
+``` r
+PlotLoessFit(x = st19$depth, y = log(st19$sources), span = 0.4)
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-8-2.png" width="672" />
+
+``` r
+PlotLoessFit(x = st19$depth, y = log(st19$sources), span = 0.2)
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-8-3.png" width="672" />
+
+Notice how the fit becomes rougher as the span decreases.
+
+The `loess` function includes an argument `degree` that specifies the degree of the polynomial regression fit at each location.  The default value for `degree` is 2, so the fits that we have seen so far are local quadratic regressions.  Let's try a loess fit with a locally linear regression:
+
+
+``` r
+PlotLoessFit(x = st19$depth, y = log(st19$sources), span = 0.4, degree = 1)
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+
 ## Splines
 
-We'll use the `gam` function in the `mgcv` package to fit splines and additive models.  The name of the package is an acronym for "Mixed GAM Computation Vehicle".  GAM is an acronym for Generalized Additive Model.  **Warning**.  I do not understand much of the functionality of `mgcv::gam`.  What follows is my best guess of how the procedure works.
+Next we consider splines. There are many types of splines, and, correspondingly, there are many `R` tools for fitting splines.  Most ecologists use the `mgcv` package to fit splines (and GAMs that include splines).  While `mgcv` is a remarkable package, it's a complicated piece of machinery.  I've found the `splines` library to be more accessible to the non-expert, at least for regression splines.  The downside to the `splines` library is that it doesn't fit smoothing splines. The discussion in this section draws from Chapter 7 of @james2021introduction.
 
-The code below fits a regression spline to the bioluminescence data.  Actually, the code fits an additive model with the spline as the only predictor. We will say more about additive models later.  For now, we can define an additive model as a type of regression in which the linear effect of the predictor has been replaced by a spline.  In other words, in terms of a word equation, the model can be represented as
-$$
-\mbox{response = intercept + spline + error}
-$$
+### Regression splines
 
-The `s()` component of the model formula designates a spline, and specifies details about the particular type of spline to be fit.  The `fx = TRUE` component of the formula indicates that the amount of smoothing is fixed.  The default value for the `fx` argument is `fx = FALSE`, in which case the amount of smoothing is determined by (generalized) cross-validation.  When `fx = TRUE`, the parameter `k` determines the dimensionality (degree of flexibility) of the spline.  Larger values of `k` correspond to greater flexibility, and a less smooth fit.  For cubic splines, the number of knots is $k-4$, such that setting $k=4$ fits a familiar cubic polynomial with no knots.  Setting $k=5$ then fits a cubic regression spline with one knot, etc.  I believe that the knots are placed at the empirical quantiles of the data.  In other words, a regression spline with one knot places the knot at the median value of the predictor.  A regression spline with three knots ($k=7$) places the knots at the lower quartile, the median, and the upper quartile of the predictor, and so on.
+The code below fits a regression spline to the bioluminescence data.  Actually, the code uses the command `bs` (no bull) to create the basis functions for a cubic regression spline, which are then treated as predictors in a standard regression fit with `lm`.  For expository purposes, we will construct a spline with two knots, arbitrarily placed at 1000 m and 2000 m depth.
 
-We'll fit a cubic regression spline with two knots:
 
+``` r
+library(splines)
+fm1 <- lm(log(sources) ~ bs(depth, knots = c(1000, 2000)), data = st19)
+
+# plot using predict.lm; code adapted from James et al (2021)
+
+depth.vals <- seq(from = min(st19$depth), to = max(st19$depth), length = 100)
+fm1.pred <- predict(fm1, newdata = list(depth = depth.vals), se = T)
+with(st19, plot(log(sources) ~ depth))
+lines(depth.vals, fm1.pred$fit, lwd = 2, col = "red")
+lines(depth.vals, fm1.pred$fit + qt(0.975, df = 43) * fm1.pred$se, lty = "dashed", col = "red")
+lines(depth.vals, fm1.pred$fit + qt(0.025, df = 43) * fm1.pred$se, lty = "dashed", col = "red")
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+
+Just for fun, let's fit a linear regression spline with a single knot at 1500m. We'll use the `degree` argument of `bs` to specify a linear (as opposed to cubic) spline.
+
+
+``` r
+fm2 <- lm(log(sources) ~ bs(depth, knots = c(1500), degree = 1), data = st19)
+
+fm2.pred <- predict(fm2, newdata = list(depth = depth.vals), se = T)
+with(st19, plot(log(sources) ~ depth))
+lines(depth.vals, fm2.pred$fit, lwd = 2, col = "red")
+lines(depth.vals, fm2.pred$fit + qt(0.975, df = 43) * fm2.pred$se, lty = "dashed", col = "red")
+lines(depth.vals, fm2.pred$fit + qt(0.025, df = 43) * fm2.pred$se, lty = "dashed", col = "red")
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+
+Alternatively, instead of using the `knots` argument to specify the knots, we can use the `df` argument to specify the number of basis functions.  For a cubic regression spline, the number of knots will then be the value of `df` minus 4 (because there are four basis functions, or degrees of freedom, needed for a cubic regression without any knots).  According to the documentation for `bs`, the knots are placed at "suitable quantiles of $x$".  Here is code for a (cubic) regression spline with 4 knots (and thus `df = 8`).
+
+
+``` r
+fm3 <- lm(log(sources) ~ bs(depth, df = 8), data = st19)
+
+fm3.pred <- predict(fm3, newdata = list(depth = depth.vals), se = T)
+with(st19, plot(log(sources) ~ depth))
+lines(depth.vals, fm3.pred$fit, lwd = 2, col = "red")
+lines(depth.vals, fm3.pred$fit + qt(0.975, df = 43) * fm3.pred$se, lty = "dashed", col = "red")
+lines(depth.vals, fm3.pred$fit + qt(0.025, df = 43) * fm3.pred$se, lty = "dashed", col = "red")
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+
+Note that if we want to test for the significance of the regression spline, we can conduct an $F$-test in the usual way.
+
+``` r
+fm0 <- lm(log(sources) ~ 1, data = st19)
+anova(fm0, fm3)
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: log(sources) ~ 1
+## Model 2: log(sources) ~ bs(depth, df = 8)
+##   Res.Df    RSS Df Sum of Sq      F    Pr(>F)    
+## 1     48 38.652                                  
+## 2     40  0.914  8    37.739 206.54 < 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+It can be a bit enlightening to see how `bs` creates basis functions.  Here are the basis functions for the linear spline with a single knot at 1500m.
+
+``` r
+linear.basis <- bs(st19$depth, knots = c(1500), degree = 1)
+par(mfrow = c(1, 2))
+for (i in 1:2) plot(st19$depth, linear.basis[, i], xlab = "depth", ylab = "basis function")
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+
+And the basis function for the cubic regression spline with 6 df.
+
+``` r
+cubic.basis <- bs(st19$depth, df = 6)
+par(mfrow = c(2, 3))
+for (i in 1:6) plot(st19$depth, cubic.basis[, i], xlab = "depth", ylab = "basis function")
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+
+### Natural splines
+
+A (cubic) regression spline typically suffers from having too much flexibility in the regions outside the outermost knots.  A *natural spline* is a regression spline that (a) places boundary knots at the minimun and maximum of the predictor values (in addition to any internal knots), and then (b) uses cubic fits for the segments between the knots, and linear fits for the segments outside the boundary knots.  The effect of requiring a linear fit outside the boundary knots is to temper the flexibility of the spline near the extreme predictor values.  In the `splines` library, the function `ns` generates basis functions for a natural spline.  Here is an example of a natural spline with two internal knots, compared to a cubic regression spline with the same internal knots.
+
+
+``` r
+fm4 <- lm(log(sources) ~ ns(depth, knots = c(1000, 2000)), data = st19)
+
+fm4.pred <- predict(fm4, newdata = list(depth = depth.vals), se = T)
+
+par(mfrow = c(1, 2))
+
+with(st19, plot(log(sources) ~ depth, main = "regression spline"))
+lines(depth.vals, fm1.pred$fit, lwd = 2, col = "red")
+lines(depth.vals, fm1.pred$fit + qt(0.975, df = 43) * fm1.pred$se, lty = "dashed", col = "red")
+lines(depth.vals, fm1.pred$fit + qt(0.025, df = 43) * fm1.pred$se, lty = "dashed", col = "red")
+
+with(st19, plot(log(sources) ~ depth, main = "natural spline"))
+lines(depth.vals, fm4.pred$fit, lwd = 2, col = "red")
+lines(depth.vals, fm4.pred$fit + qt(0.975, df = 43) * fm4.pred$se, lty = "dashed", col = "red")
+lines(depth.vals, fm4.pred$fit + qt(0.025, df = 43) * fm4.pred$se, lty = "dashed", col = "red")
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-16-1.png" width="768" />
+
+### Smoothing splines
+
+In regression splines, the analyst chooses the degree of the spline (typically 3, for a cubic spline) and the number and location of the knots.  In a smoothing spline, also known as a penalized regression spline, one begins with a large number of knots and then optimizes with respect to an objective function that is the sum of the residual sum of squares plus a penalty term for the roughness of the fit.  The strength of the penalty is set by a tuning parameter that is typically determined by cross-validation.
+
+Most ecologists these days would use the `gam` function in the `mgcv` library.  The code below illustrates.  The `bs` argument specifies the type of basis function; the smooth shown below is based on a cubic regression (`cr`) basis.
 
 ``` r
 library(mgcv)
@@ -206,100 +321,30 @@ library(mgcv)
 ```
 
 ``` r
-st16.rspline <- mgcv::gam(sources ~ s(depth, k = 6, fx = TRUE), data = st16)
-plot(st16.rspline, se = TRUE)
+st19.sspline <- mgcv::gam(log(sources) ~ s(depth, bs = "cr"), data = st19)
+plot(st19.sspline, se = TRUE)
 ```
 
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-9-1.png" width="672" />
-
-Note that the plot includes only the portion of the model attributable to the covariate effect.  This is because we have actually fit an additive model (e.g., a GAM).  
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
 The plot shows only the spline component, which thus does not include the intercept. To visualize the fit, we'll need to do a bit more work.
 
 ``` r
-with(st16, plot(sources ~ depth))  
+with(st19, plot(log(sources) ~ depth))  
 
-st16.fit <- predict(st16.rspline, 
+st19.fit <- predict(st19.sspline, 
                     newdata = data.frame(depth = depth.vals), 
                     se      = TRUE)
 
-lines(x = depth.vals, y = st16.fit$fit)
-
-## use 45 df because the estimate of the residual error is based on 51-6 = 45 df
-
-lines(x = depth.vals, y = st16.fit$fit + qt(0.975, df = 45) * st16.fit$se.fit, lty = "dashed")
-lines(x = depth.vals, y = st16.fit$fit + qt(0.025, df = 45) * st16.fit$se.fit, lty = "dashed")
+lines(x = depth.vals, y = st19.fit$fit)
 ```
 
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-10-1.png" width="672" />
-
-We see that this particular fit is not flexible enough to capture the trend in luminescence at shallow depth.
-
-Let's take a look at the information produced by a call to `summary`:
-
-
-``` r
-summary(st16.rspline)
-```
-
-```
-## 
-## Family: gaussian 
-## Link function: identity 
-## 
-## Formula:
-## sources ~ s(depth, k = 6, fx = TRUE)
-## 
-## Parametric coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)  12.4771     0.5858    21.3   <2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Approximate significance of smooth terms:
-##          edf Ref.df     F p-value    
-## s(depth)   5      5 122.6  <2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## R-sq.(adj) =  0.924   Deviance explained = 93.2%
-## GCV = 19.837  Scale est. = 17.503    n = 51
-```
-
-This summary requires a bit more explanation as well.  In this GAM, the spline component of the model effectively creates a set of new predictor variables.  A cubic regression spline with $x$ internal knots requires $x+3$ new regression predictors to fit the spline.  In this fit, there are two internal knots, so the spline requires 5 new predictor variables. Because the predictors are determined in advance with regression splines, we can use the usual theory of $F$-tests from regression to assess the statistical significance of the spline terms.  In the section of the output labeled "Approximate significance of smooth terms", we see that these 5 predictors together provide a significantly better fit than a model that does not include the spline.  This test is exact.  It is labeled "approximate" because the default behavior of `mgcv::gam` is to fit a *penalized* regression spline, for which the test is indeed only approximate.  
-
-Now we'll fit and plot a penalized regression spline.  A penalized regression spline is based on a regression spline with a large number of knots, but the fit is obtained using a penalty that penalizes the "wiggliness" of the fit.  When the underlying regression spline is a cubic spline, the wiggliness is defined as the intergral of the squared second derivative of the fit.  The most appropriate value for the penalty is determined by (generalized) cross validation.  In this way, the penalized regression spline automatically determines the appropriate amount of smoothness.  We still have to specify $k$ to make sure that the initial regression spline has enough flexibility.
-
-
-``` r
-st16.spline <- mgcv::gam(sources ~ s(depth, k = 20), data = st16)
-plot(st16.spline, se = TRUE)  # note that the plot does not include the intercept
-```
-
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-12-1.png" width="672" />
-
-Again, we make a plot that includes both the points and the fit
-
-
-``` r
-with(st16, plot(sources ~ depth))  
-
-st16.fit <- predict(st16.spline, 
-                    newdata = data.frame(depth = depth.vals), 
-                    se      = TRUE)
-
-lines(x = depth.vals, y = st16.fit$fit)
-
-lines(x = depth.vals, y = st16.fit$fit + qt(0.975, df = 51 - 13.41) * st16.fit$se.fit, lty = "dashed")
-lines(x = depth.vals, y = st16.fit$fit + qt(0.025, df = 51 - 13.41) * st16.fit$se.fit, lty = "dashed")
-```
-
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 
 Let's ask for a summary:
 
 ``` r
-summary(st16.spline)
+summary(st19.sspline)
 ```
 
 ```
@@ -308,59 +353,58 @@ summary(st16.spline)
 ## Link function: identity 
 ## 
 ## Formula:
-## sources ~ s(depth, k = 20)
+## log(sources) ~ s(depth, bs = "cr")
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)  12.4771     0.3222   38.73   <2e-16 ***
+## (Intercept)  2.83855    0.02226   127.5   <2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Approximate significance of smooth terms:
 ##            edf Ref.df     F p-value    
-## s(depth) 12.41  14.31 148.6  <2e-16 ***
+## s(depth) 8.541  8.928 173.6  <2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## R-sq.(adj) =  0.977   Deviance explained = 98.3%
-## GCV = 7.1813  Scale est. = 5.2928    n = 51
+## R-sq.(adj) =   0.97   Deviance explained = 97.5%
+## GCV = 0.030161  Scale est. = 0.024288  n = 49
 ```
 
-Note the `edf` component in the "Approximate significance of smooth terms" section.  The label `edf` stands for effective degrees of freedom.  We can think of the edf as the effective number of new predictors that have been added to the model to accommodate the spline.  For a penalized regression spline, the number and values of the newly created predictors are determined by fitting the model to the data.  Because the predictors are calculated in this way, the usual theory of $F$-testing does not apply.  This is why the $F$-test shown for the penalized regression spline is labeled as "approximate".  
+Note the `edf` component in the "Approximate significance of smooth terms" section.  The label `edf` stands for effective degrees of freedom.  We can think of the edf as the effective number of new predictors (basis functions) that have been added to the model to accommodate the spline.  
 
-Find the AIC for the penalized regression spline fit:
+<!-- For a penalized regression spline, the number and values of the newly created predictors are determined by fitting the model to the data.  Because the predictors are calculated in this way, the usual theory of $F$-testing does not apply.  This is why the $F$-test shown for the penalized regression spline is labeled as "approximate". -->
+
+We can use the edf to determine the appropriate confidence bounds on our smooth.  There are 49 data points in this data set, so the estimate of the residual error is based on 49 - (8.5 + 1) = 39.5 df.
 
 
 ``` r
-AIC(st16.spline)
-```
+with(st19, plot(log(sources) ~ depth))  
 
-```
-## [1] 242.9773
-```
-Here's a small detail.  Notice that the syntax of the call to `predict` is slightly different when making a prediction for a `loess`  object vs.\ making a prediction for a `gam` object (which the spline fit is).  For a call to `predict` with a `loess` object, the new predictor values can be provided in the form of a vector.  So, we were able to use
-
-``` r
-depth.vals <- with(st16, seq(from   = min(depth), 
-                             to     = max(depth), 
-                             length = 100))
-
-st16.fit <- predict(object  = st16.lo,
-                    newdata = depth.vals,
-                    se      = TRUE)
-```
-
-However, for a call to `predict` with a `gam` object, the new predictor values must be provided in the form of a new data frame, with variable names that match the variables in the `gam` model.  So, to get predicted values for the spline fit, we needed to use the more cumbersome
-
-
-``` r
-depth.vals <- with(st16, seq(from   = min(depth), 
-                             to     = max(depth), 
-                             length = 100))
-
-st16.fit <- predict(st16.spline, 
+st19.fit <- predict(st19.sspline, 
                     newdata = data.frame(depth = depth.vals), 
                     se      = TRUE)
+
+lines(x = depth.vals, y = st19.fit$fit)
+
+lines(x = depth.vals, y = st19.fit$fit + qt(0.975, df = 39.5) * st19.fit$se.fit, lty = "dashed")
+lines(x = depth.vals, y = st19.fit$fit + qt(0.025, df = 39.5) * st19.fit$se.fit, lty = "dashed")
+```
+
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+
+
+The `s()` component of the model formula designates a spline, and specifies details about the particular type of spline to be fit.  To fit a regression spline, fix the number of basis functions with the `fx = TRUE` argument.  The default value for the `fx` argument is `fx = FALSE`, in which case the amount of smoothing is determined by (generalized) cross-validation.  When `fx = TRUE`, the parameter `k` determines the dimensionality (degree of flexibility) of the spline.  Larger values of `k` correspond to greater flexibility, and a less smooth fit. 
+
+The `AIC` function will generate an AIC value for the penalized regression spline fit:
+
+
+``` r
+AIC(st19.sspline)
+```
+
+```
+## [1] -32.64326
 ```
 
 ## Generalized additive models (GAMs) {#GAMs}
@@ -451,7 +495,7 @@ summary(bird)
 Our first attempt at a GAM will use penalized regression splines for all of the continuous predictors in the model.  We will use a linear term for GRAZE because there are too few unique values to support a smooth term:
 
 ``` r
-bird.gam1 <- mgcv::gam(ABUND ~ s(L.AREA, k = 10) + s(L.DIST, k = 10) + s(L.LDIST, k = 10) + s(YR.ISOL, k = 10) + GRAZE + s(ALT, k = 10), data = bird)
+bird.gam1 <- mgcv::gam(ABUND ~ s(L.AREA) + s(L.DIST) + s(L.LDIST) + s(YR.ISOL) + GRAZE + s(ALT), data = bird)
 
 summary(bird.gam1)
 ```
@@ -462,8 +506,8 @@ summary(bird.gam1)
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA, k = 10) + s(L.DIST, k = 10) + s(L.LDIST, k = 10) + 
-##     s(YR.ISOL, k = 10) + GRAZE + s(ALT, k = 10)
+## ABUND ~ s(L.AREA) + s(L.DIST) + s(L.LDIST) + s(YR.ISOL) + GRAZE + 
+##     s(ALT)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
@@ -492,12 +536,12 @@ The output reports the partial regression coefficient for the lone quantitative 
 plot(bird.gam1)
 ```
 
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-2.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-3.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-4.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-5.png" width="672" />
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-1.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-2.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-3.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-4.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-5.png" width="672" />
 
-In the interest of time, we take a casual approach to variable selection here.  We'll drop smooth terms that are clearly not significant to obtain:
+The usual theory of $F$-testing does not apply to smoothing splines, which is why the $F$-test shown for the penalized regression spline is labeled as "approximate".  The variable selection that follows is thus rather casual.  We'll drop smooth terms with large $p$-values to obtain:
 
 ``` r
-bird.gam2 <- mgcv::gam(ABUND ~ s(L.AREA, k = 10) + GRAZE, data = bird)
+bird.gam2 <- mgcv::gam(ABUND ~ s(L.AREA) + GRAZE, data = bird)
 summary(bird.gam2)
 ```
 
@@ -507,7 +551,7 @@ summary(bird.gam2)
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA, k = 10) + GRAZE
+## ABUND ~ s(L.AREA) + GRAZE
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
@@ -530,7 +574,7 @@ summary(bird.gam2)
 plot(bird.gam2)
 ```
 
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-25-1.png" width="672" />
 
 Note that the GRAZE variable is currently treated as a numerical predictor.  We'll try fitting a model with GRAZE as a factor.  First we'll create a new variable that treats GRAZE as a factor.  We'll use the `summary` command to confirm that the new variable fGRAZE is indeed a factor.
 
@@ -559,11 +603,11 @@ summary(bird)
 Now we'll proceed to fit the model
 
 ``` r
-bird.gam3 <- gam(ABUND ~ s(L.AREA, k = 10) + fGRAZE, data = bird)
+bird.gam3 <- gam(ABUND ~ s(L.AREA) + fGRAZE, data = bird)
 plot(bird.gam3)
 ```
 
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-27-1.png" width="672" />
 
 ``` r
 summary(bird.gam3)
@@ -575,7 +619,7 @@ summary(bird.gam3)
 ## Link function: identity 
 ## 
 ## Formula:
-## ABUND ~ s(L.AREA, k = 10) + fGRAZE
+## ABUND ~ s(L.AREA) + fGRAZE
 ## 
 ## Parametric coefficients:
 ##               Estimate Std. Error t value Pr(>|t|)    
@@ -641,17 +685,17 @@ The output here is somewhat opaque because the levels of fGRAZE are 1, 2, $\ldot
 Fit an additive model with only a smooth effect of L.AREA, in order to show residuals vs.\ GRAZE:
 
 ``` r
-bird.gam4 <- gam(ABUND ~ s(L.AREA, k = 10), data = bird)
+bird.gam4 <- gam(ABUND ~ s(L.AREA), data = bird)
 
 plot(x = bird$GRAZE, y = bird.gam4$residuals)
 abline(h = 0, lty = "dashed")
 ```
 
-<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+<img src="04-SmoothRegression_files/figure-html/unnamed-chunk-30-1.png" width="672" />
 
 Both the plot and the model output suggest that the effect of grazing is primarily due to lower bird abundance in the most heavily grazed category.
 
-To conclude, we'll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE.  In this case, we have to use regression splines for the smooth effect of L.AREA.  We'll use regression "splines" without any internal knots^[I would have thought that a spline without any internal knots would have been exactly the same as a cubic fit.  However, a cubic fit is slightly different, though not by much.  I can't figure out why.] because the effect of log area seems to be reasonably well captured by a cubic trend anyway:
+To conclude, we'll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE.  In this case, we have to use regression splines for the smooth effect of L.AREA.  If we want to continue working in `mgcv::gam`, we need to fix the number of knots by setting `fx = TRUE`. If we fix the number of knots, then we need to specify the number of knots with the argument `k`.  Here, the edf of the log area effect is about 3, so we will set `k=4`.
 
 ``` r
 bird.gam5 <- gam(ABUND ~ s(L.AREA, k = 4, fx = TRUE) + GRAZE, data = bird)
@@ -671,7 +715,29 @@ anova(bird.gam5, bird.gam6, test = "F")
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
+Alternatively, we could use the spline basis from the `splines` library.
 
-Both AIC and the $F$-test suggest that the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE ($F_{3,48} = 3.38, p = 0.026$).
+``` r
+bird.gam7 <- lm(ABUND ~ bs(L.AREA, df = 3) + GRAZE, data = bird)
+bird.gam8 <- lm(ABUND ~ bs(L.AREA, df = 3) + fGRAZE, data = bird)
+
+anova(bird.gam7, bird.gam8, test = "F")  
+```
+
+```
+## Analysis of Variance Table
+## 
+## Model 1: ABUND ~ bs(L.AREA, df = 3) + GRAZE
+## Model 2: ABUND ~ bs(L.AREA, df = 3) + fGRAZE
+##   Res.Df    RSS Df Sum of Sq      F  Pr(>F)  
+## 1     51 1877.2                              
+## 2     48 1561.0  3    316.23 3.2414 0.03003 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+I don't know why the results differ slightly, but they don't differ much.
+
+Both AIC and the $F$-test suggest that the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE ($F_{3,48} = 3.24, p = 0.030$).
 
 As a final note, Zuur et al. (p.550) observe that "the non-linear L.AREA effect is mainly due to two large patches. It would be useful to sample more of this type of patch in the future."  (Note the rug plots in any of the plots of the area effect above.)

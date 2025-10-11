@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 4 Smooth regression and GAMs | Applied statistical analysis of non-normal and/or correlated data</title>
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 4 Smooth regression and GAMs | Applied statistical analysis of non-normal and/or correlated data" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 4 Smooth regression and GAMs | Applied statistical analysis of non-normal and/or correlated data" />
+  
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  
+
+<meta name="author" content="Kevin Gross" />
+
+
+<meta name="date" content="2025-10-10" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="bayesian-computation.html"/>
+<link rel="next" href="generalized-least-squares.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.11.0/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Maximum likelihood estimation</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#mathematical-basics"><i class="fa fa-check"></i><b>1.1</b> Mathematical basics</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#horse"><i class="fa fa-check"></i><b>1.2</b> Horse-kick data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#calculate-and-plot-the-log-likelihood-function"><i class="fa fa-check"></i><b>1.2.1</b> Calculate and plot the log-likelihood function</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#find-the-mle-numerically-using-optimize"><i class="fa fa-check"></i><b>1.2.2</b> Find the MLE numerically using ‘optimize’</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#pulse-rate-data"><i class="fa fa-check"></i><b>1.3</b> Pulse rate data</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#transformable-constraints"><i class="fa fa-check"></i><b>1.5</b> Transformable constraints</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="beyondML.html"><a href="beyondML.html"><i class="fa fa-check"></i><b>2</b> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="beyondML.html"><a href="beyondML.html#confidence-intervals-for-single-parameters"><i class="fa fa-check"></i><b>2.1</b> Confidence intervals for single parameters</a></li>
+<li class="chapter" data-level="2.2" data-path="beyondML.html"><a href="beyondML.html#two-param-mle"><i class="fa fa-check"></i><b>2.2</b> Confidence regions, profile likelihoods, and associated univariate intervals</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="beyondML.html"><a href="beyondML.html#profile-likelihoods"><i class="fa fa-check"></i><b>2.2.1</b> Profile likelihoods</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="beyondML.html"><a href="beyondML.html#quadapprox"><i class="fa fa-check"></i><b>2.3</b> Quadratic approximations to confidence intervals and regions</a></li>
+<li class="chapter" data-level="2.4" data-path="beyondML.html"><a href="beyondML.html#comparing-models-likelihood-ratio-test-and-aic"><i class="fa fa-check"></i><b>2.4</b> Comparing models: Likelihood ratio test and AIC</a></li>
+<li class="chapter" data-level="2.5" data-path="beyondML.html"><a href="beyondML.html#the-negative-binomial-distriution-revisited"><i class="fa fa-check"></i><b>2.5</b> The negative binomial distriution, revisited</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="bayesian-computation.html"><a href="bayesian-computation.html"><i class="fa fa-check"></i><b>3</b> Bayesian computation</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="bayesian-computation.html"><a href="bayesian-computation.html#computations-with-conjugate-priors"><i class="fa fa-check"></i><b>3.1</b> Computations with conjugate priors</a></li>
+<li class="chapter" data-level="3.2" data-path="bayesian-computation.html"><a href="bayesian-computation.html#mcmc-and-stochastic-approximations-of-the-posterior"><i class="fa fa-check"></i><b>3.2</b> MCMC and stochastic approximations of the posterior</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="bayesian-computation.html"><a href="bayesian-computation.html#the-horse-kick-data-once-more"><i class="fa fa-check"></i><b>3.2.1</b> The horse-kick data, once more</a></li>
+<li class="chapter" data-level="3.2.2" data-path="bayesian-computation.html"><a href="bayesian-computation.html#a-simple-regression-example"><i class="fa fa-check"></i><b>3.2.2</b> A simple regression example</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="bayesian-computation.html"><a href="bayesian-computation.html#rstanarm"><i class="fa fa-check"></i><b>3.3</b> rstanarm</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="smooth-regression-and-gams.html"><a href="smooth-regression-and-gams.html"><i class="fa fa-check"></i><b>4</b> Smooth regression and GAMs</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="smooth-regression-and-gams.html"><a href="smooth-regression-and-gams.html#loess-smoothers"><i class="fa fa-check"></i><b>4.1</b> Loess smoothers</a></li>
+<li class="chapter" data-level="4.2" data-path="smooth-regression-and-gams.html"><a href="smooth-regression-and-gams.html#splines"><i class="fa fa-check"></i><b>4.2</b> Splines</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="smooth-regression-and-gams.html"><a href="smooth-regression-and-gams.html#regression-splines"><i class="fa fa-check"></i><b>4.2.1</b> Regression splines</a></li>
+<li class="chapter" data-level="4.2.2" data-path="smooth-regression-and-gams.html"><a href="smooth-regression-and-gams.html#natural-splines"><i class="fa fa-check"></i><b>4.2.2</b> Natural splines</a></li>
+<li class="chapter" data-level="4.2.3" data-path="smooth-regression-and-gams.html"><a href="smooth-regression-and-gams.html#smoothing-splines"><i class="fa fa-check"></i><b>4.2.3</b> Smoothing splines</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="smooth-regression-and-gams.html"><a href="smooth-regression-and-gams.html#GAMs"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html"><i class="fa fa-check"></i><b>5</b> Generalized Least Squares</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#heterogeneous-variance"><i class="fa fa-check"></i><b>5.1</b> Heterogeneous variance</a></li>
+<li class="chapter" data-level="5.2" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#temporal-serial-correlation"><i class="fa fa-check"></i><b>5.2</b> Temporal (serial) correlation</a></li>
+<li class="chapter" data-level="5.3" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#spatial-data"><i class="fa fa-check"></i><b>5.3</b> Spatial data</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html"><i class="fa fa-check"></i><b>6</b> Hierarchical (mixed) models</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#one-factor-layout-dyestuff-data"><i class="fa fa-check"></i><b>6.1</b> One-factor layout: Dyestuff data</a></li>
+<li class="chapter" data-level="6.2" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#bayesian-analysis"><i class="fa fa-check"></i><b>6.2</b> Bayesian analysis</a></li>
+<li class="chapter" data-level="6.3" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#negative-within-group-correlations"><i class="fa fa-check"></i><b>6.3</b> Negative within-group correlations</a></li>
+<li class="chapter" data-level="6.4" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#random-coefficient-models-rikz-data"><i class="fa fa-check"></i><b>6.4</b> Random coefficient models: RIKZ data</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#analysis-without-beach-level-covariate"><i class="fa fa-check"></i><b>6.4.1</b> Analysis without beach-level covariate</a></li>
+<li class="chapter" data-level="6.4.2" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#adding-a-beach-level-covariate"><i class="fa fa-check"></i><b>6.4.2</b> Adding a beach-level covariate</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#nested-and-crossed-random-effects"><i class="fa fa-check"></i><b>6.5</b> Nested and crossed random effects</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#nested-random-effects"><i class="fa fa-check"></i><b>6.5.1</b> Nested random effects</a></li>
+<li class="chapter" data-level="6.5.2" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#crossed-random-effects"><i class="fa fa-check"></i><b>6.5.2</b> Crossed random effects</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>7</b> Generalized linear models</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#glms-the-big-picture"><i class="fa fa-check"></i><b>7.1</b> GLMs: The big picture</a></li>
+<li class="chapter" data-level="7.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#poisson-regression"><i class="fa fa-check"></i><b>7.2</b> Poisson regression</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#horse-kick-data-revisited"><i class="fa fa-check"></i><b>7.2.1</b> Horse-kick data revisited</a></li>
+<li class="chapter" data-level="7.2.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#elephant-matings"><i class="fa fa-check"></i><b>7.2.2</b> Elephant matings</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#binary-responses"><i class="fa fa-check"></i><b>7.3</b> Binary responses</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#individual-binary-responses-tb-in-boar"><i class="fa fa-check"></i><b>7.3.1</b> Individual binary responses: TB in boar</a></li>
+<li class="chapter" data-level="7.3.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#grouped-binary-data-tb-in-red-deer"><i class="fa fa-check"></i><b>7.3.2</b> Grouped binary data: TB in red deer</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-adjusted-models-for-count-data"><i class="fa fa-check"></i><b>7.4</b> Zero-adjusted models for count data</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-truncated-models"><i class="fa fa-check"></i><b>7.4.1</b> Zero-truncated models</a></li>
+<li class="chapter" data-level="7.4.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-inflated-models"><i class="fa fa-check"></i><b>7.4.2</b> Zero-inflated models</a></li>
+<li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html"><i class="fa fa-check"></i><b>8</b> Generalized linear mixed models</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#example-1-industrial-melanism-data"><i class="fa fa-check"></i><b>8.1</b> Example 1: Industrial melanism data</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#gees"><i class="fa fa-check"></i><b>8.1.1</b> GEEs</a></li>
+<li class="chapter" data-level="8.1.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#glmms"><i class="fa fa-check"></i><b>8.1.2</b> GLMMs</a></li>
+<li class="chapter" data-level="8.1.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#bayesian-fit"><i class="fa fa-check"></i><b>8.1.3</b> Bayesian fit</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#example-2-ticks-on-red-grouse"><i class="fa fa-check"></i><b>8.2</b> Example 2: Ticks on red grouse</a></li>
+<li class="chapter" data-level="8.3" data-path="generalized-linear-mixed-models.html"><a href="generalized-linear-mixed-models.html#GAMMs"><i class="fa fa-check"></i><b>8.3</b> GAMMs</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="bibliography.html"><a href="bibliography.html"><i class="fa fa-check"></i>Bibliography</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Applied statistical analysis of non-normal and/or correlated data</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="smooth-regression-and-gams" class="section level1 hasAnchor" number="4">
+<h1><span class="header-section-number">Chapter 4</span> Smooth regression and GAMs<a href="smooth-regression-and-gams.html#smooth-regression-and-gams" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>In this chapter, we examine methods for fitting a flexible trend between a response and a predictor that don’t require first committing ourselves to a particular mathematical assumption about the shape of that trend. In the first sections, we will explore fitting a flexible trend line for a single predictor and a single response. Later, we will see how these flexible trends can be included in regression models with several predictors.</p>
+<p>As a running example, we will consider a data set originally published by <span class="citation">Gillibrand et al. (<a href="#ref-gillibrand2007seasonal">2007</a>)</span>, and analyzed extensively in the textbook by <span class="citation">Zuur et al. (<a href="#ref-zuur2009">2009</a>)</span>. Zuur et al. say that these data describe the number of sources of “pelagic bioluminescence along a depth gradient in the northeast Atlantic Ocean.” The name of the data set (“ISIT”) refers to the type of camera used in the study. We focus particularly on the data at station 19. The pattern that we wish to characterize is shown below.</p>
+<div class="sourceCode" id="cb266"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb266-1"><a href="smooth-regression-and-gams.html#cb266-1" tabindex="-1"></a><span class="do">## download the data from the book&#39;s website</span></span>
+<span id="cb266-2"><a href="smooth-regression-and-gams.html#cb266-2" tabindex="-1"></a>isit <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/ISIT.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb266-3"><a href="smooth-regression-and-gams.html#cb266-3" tabindex="-1"></a></span>
+<span id="cb266-4"><a href="smooth-regression-and-gams.html#cb266-4" tabindex="-1"></a><span class="do">## extract the data from station 19</span></span>
+<span id="cb266-5"><a href="smooth-regression-and-gams.html#cb266-5" tabindex="-1"></a></span>
+<span id="cb266-6"><a href="smooth-regression-and-gams.html#cb266-6" tabindex="-1"></a>st19 <span class="ot">&lt;-</span> <span class="fu">subset</span>(isit, Station <span class="sc">==</span> <span class="dv">19</span>)</span>
+<span id="cb266-7"><a href="smooth-regression-and-gams.html#cb266-7" tabindex="-1"></a></span>
+<span id="cb266-8"><a href="smooth-regression-and-gams.html#cb266-8" tabindex="-1"></a><span class="do">## retain just the variables that we want, and rename</span></span>
+<span id="cb266-9"><a href="smooth-regression-and-gams.html#cb266-9" tabindex="-1"></a></span>
+<span id="cb266-10"><a href="smooth-regression-and-gams.html#cb266-10" tabindex="-1"></a>st19 <span class="ot">&lt;-</span> st19[, <span class="fu">c</span>(<span class="st">&quot;SampleDepth&quot;</span>, <span class="st">&quot;Sources&quot;</span>)]</span>
+<span id="cb266-11"><a href="smooth-regression-and-gams.html#cb266-11" tabindex="-1"></a><span class="fu">names</span>(st19) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;depth&quot;</span>, <span class="st">&quot;sources&quot;</span>)</span>
+<span id="cb266-12"><a href="smooth-regression-and-gams.html#cb266-12" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(sources <span class="sc">~</span> depth))</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>As a preliminary consideration, all of the methods we discuss are variations on regression. As such, they inherent all of the usual regression assumptions about the distribution of the errors, namely, that the errors are iid draws from a Gaussian distribution.</p>
+<p>The bioluminescence data discussed in this chapter violate these assumptions rather severely. We see right away that, as typically happens when measuring the abundance of a particular organism or taxa, larger responses are more variable. To cope with this non-constant variance, we will take the usual step of modeling the (natural) log of the response, shown below.</p>
+<div class="sourceCode" id="cb267"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb267-1"><a href="smooth-regression-and-gams.html#cb267-1" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth))</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>The log transformation successfully stabilizes the variance.</p>
+<p>In addition, because these data are collected at locations along a transect, they are likely characterized by substantial autocorrelation. For the sake of illustration, we ignore the autocorrelation in the analyses that follow. See the discussion of <a href="generalized-linear-mixed-models.html#GAMMs">GAMMs</a> to learn about coping with autocorrelation in generalized additive models.</p>
+<div id="loess-smoothers" class="section level2 hasAnchor" number="4.1">
+<h2><span class="header-section-number">4.1</span> Loess smoothers<a href="smooth-regression-and-gams.html#loess-smoothers" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We illustrate a LOESS smoother first, using the <code>loess</code> function. We will first fit the smoother with the factory settings.</p>
+<div class="sourceCode" id="cb268"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb268-1"><a href="smooth-regression-and-gams.html#cb268-1" tabindex="-1"></a>st19.lo <span class="ot">&lt;-</span> <span class="fu">loess</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth, <span class="at">data =</span> st19)</span>
+<span id="cb268-2"><a href="smooth-regression-and-gams.html#cb268-2" tabindex="-1"></a><span class="fu">summary</span>(st19.lo)</span></code></pre></div>
+<pre><code>## Call:
+## loess(formula = log(sources) ~ depth, data = st19)
+## 
+## Number of Observations: 49 
+## Equivalent Number of Parameters: 4.67 
+## Residual Standard Error: 0.2054 
+## Trace of smoother matrix: 5.12  (exact)
+## 
+## Control settings:
+##   span     :  0.75 
+##   degree   :  2 
+##   family   :  gaussian
+##   surface  :  interpolate      cell = 0.2
+##   normalize:  TRUE
+##  parametric:  FALSE
+## drop.square:  FALSE</code></pre>
+<p>Plot the fit, this takes a little work</p>
+<div class="sourceCode" id="cb270"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb270-1"><a href="smooth-regression-and-gams.html#cb270-1" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">with</span>(st19, <span class="fu">seq</span>(<span class="at">from   =</span> <span class="fu">min</span>(depth), </span>
+<span id="cb270-2"><a href="smooth-regression-and-gams.html#cb270-2" tabindex="-1"></a>                             <span class="at">to     =</span> <span class="fu">max</span>(depth), </span>
+<span id="cb270-3"><a href="smooth-regression-and-gams.html#cb270-3" tabindex="-1"></a>                             <span class="at">length =</span> <span class="dv">100</span>))</span>
+<span id="cb270-4"><a href="smooth-regression-and-gams.html#cb270-4" tabindex="-1"></a></span>
+<span id="cb270-5"><a href="smooth-regression-and-gams.html#cb270-5" tabindex="-1"></a>st19.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> st19.lo,</span>
+<span id="cb270-6"><a href="smooth-regression-and-gams.html#cb270-6" tabindex="-1"></a>                    <span class="at">newdata =</span> depth.vals,</span>
+<span id="cb270-7"><a href="smooth-regression-and-gams.html#cb270-7" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb270-8"><a href="smooth-regression-and-gams.html#cb270-8" tabindex="-1"></a></span>
+<span id="cb270-9"><a href="smooth-regression-and-gams.html#cb270-9" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth))</span>
+<span id="cb270-10"><a href="smooth-regression-and-gams.html#cb270-10" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st19.fit<span class="sc">$</span>fit, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb270-11"><a href="smooth-regression-and-gams.html#cb270-11" tabindex="-1"></a></span>
+<span id="cb270-12"><a href="smooth-regression-and-gams.html#cb270-12" tabindex="-1"></a><span class="co"># add 95% error bars</span></span>
+<span id="cb270-13"><a href="smooth-regression-and-gams.html#cb270-13" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x   =</span> depth.vals, </span>
+<span id="cb270-14"><a href="smooth-regression-and-gams.html#cb270-14" tabindex="-1"></a>      <span class="at">y   =</span> st19.fit<span class="sc">$</span>fit <span class="sc">+</span> st19.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> st19.fit<span class="sc">$</span>df),</span>
+<span id="cb270-15"><a href="smooth-regression-and-gams.html#cb270-15" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb270-16"><a href="smooth-regression-and-gams.html#cb270-16" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb270-17"><a href="smooth-regression-and-gams.html#cb270-17" tabindex="-1"></a></span>
+<span id="cb270-18"><a href="smooth-regression-and-gams.html#cb270-18" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x   =</span> depth.vals, </span>
+<span id="cb270-19"><a href="smooth-regression-and-gams.html#cb270-19" tabindex="-1"></a>      <span class="at">y   =</span> st19.fit<span class="sc">$</span>fit <span class="sc">-</span> st19.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> st19.fit<span class="sc">$</span>df),</span>
+<span id="cb270-20"><a href="smooth-regression-and-gams.html#cb270-20" tabindex="-1"></a>      <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb270-21"><a href="smooth-regression-and-gams.html#cb270-21" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Examine the residuals:</p>
+<div class="sourceCode" id="cb271"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb271-1"><a href="smooth-regression-and-gams.html#cb271-1" tabindex="-1"></a><span class="fu">plot</span>(st19.lo<span class="sc">$</span>residuals <span class="sc">~</span> st19<span class="sc">$</span>depth)</span>
+<span id="cb271-2"><a href="smooth-regression-and-gams.html#cb271-2" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Note the autocorrelation in the residuals.</p>
+<p>Let’s look at how changing the span changes the fit. We’ll write a custom function to fit a LOESS curve, and then call the function with various values for the span.</p>
+<div class="sourceCode" id="cb272"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb272-1"><a href="smooth-regression-and-gams.html#cb272-1" tabindex="-1"></a>PlotLoessFit <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, <span class="at">return.fit =</span> <span class="cn">FALSE</span>, ...){</span>
+<span id="cb272-2"><a href="smooth-regression-and-gams.html#cb272-2" tabindex="-1"></a>  </span>
+<span id="cb272-3"><a href="smooth-regression-and-gams.html#cb272-3" tabindex="-1"></a>  <span class="co"># Caluclates a loess fit with the &#39;loess&#39; function, and makes a plot</span></span>
+<span id="cb272-4"><a href="smooth-regression-and-gams.html#cb272-4" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb272-5"><a href="smooth-regression-and-gams.html#cb272-5" tabindex="-1"></a>  <span class="co"># Args:</span></span>
+<span id="cb272-6"><a href="smooth-regression-and-gams.html#cb272-6" tabindex="-1"></a>  <span class="co">#   x: predictor</span></span>
+<span id="cb272-7"><a href="smooth-regression-and-gams.html#cb272-7" tabindex="-1"></a>  <span class="co">#   y: response</span></span>
+<span id="cb272-8"><a href="smooth-regression-and-gams.html#cb272-8" tabindex="-1"></a>  <span class="co">#   return.fit: logical</span></span>
+<span id="cb272-9"><a href="smooth-regression-and-gams.html#cb272-9" tabindex="-1"></a>  <span class="co">#   ...: Optional arguments to loess</span></span>
+<span id="cb272-10"><a href="smooth-regression-and-gams.html#cb272-10" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb272-11"><a href="smooth-regression-and-gams.html#cb272-11" tabindex="-1"></a>  <span class="co"># Returns:</span></span>
+<span id="cb272-12"><a href="smooth-regression-and-gams.html#cb272-12" tabindex="-1"></a>  <span class="co">#   the loess fit</span></span>
+<span id="cb272-13"><a href="smooth-regression-and-gams.html#cb272-13" tabindex="-1"></a>  </span>
+<span id="cb272-14"><a href="smooth-regression-and-gams.html#cb272-14" tabindex="-1"></a>  my.lo <span class="ot">&lt;-</span> <span class="fu">loess</span>(y <span class="sc">~</span> x, ...)</span>
+<span id="cb272-15"><a href="smooth-regression-and-gams.html#cb272-15" tabindex="-1"></a>  </span>
+<span id="cb272-16"><a href="smooth-regression-and-gams.html#cb272-16" tabindex="-1"></a>  x.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(x), <span class="at">to =</span> <span class="fu">max</span>(x), <span class="at">length =</span> <span class="dv">100</span>)</span>
+<span id="cb272-17"><a href="smooth-regression-and-gams.html#cb272-17" tabindex="-1"></a>  </span>
+<span id="cb272-18"><a href="smooth-regression-and-gams.html#cb272-18" tabindex="-1"></a>  my.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object  =</span> my.lo,</span>
+<span id="cb272-19"><a href="smooth-regression-and-gams.html#cb272-19" tabindex="-1"></a>                    <span class="at">newdata =</span> x.vals,</span>
+<span id="cb272-20"><a href="smooth-regression-and-gams.html#cb272-20" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb272-21"><a href="smooth-regression-and-gams.html#cb272-21" tabindex="-1"></a>  </span>
+<span id="cb272-22"><a href="smooth-regression-and-gams.html#cb272-22" tabindex="-1"></a>  <span class="fu">plot</span>(x, y)</span>
+<span id="cb272-23"><a href="smooth-regression-and-gams.html#cb272-23" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x =</span> x.vals, <span class="at">y =</span> my.fit<span class="sc">$</span>fit, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb272-24"><a href="smooth-regression-and-gams.html#cb272-24" tabindex="-1"></a>  </span>
+<span id="cb272-25"><a href="smooth-regression-and-gams.html#cb272-25" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x   =</span> x.vals, </span>
+<span id="cb272-26"><a href="smooth-regression-and-gams.html#cb272-26" tabindex="-1"></a>        <span class="at">y   =</span> my.fit<span class="sc">$</span>fit <span class="sc">+</span> my.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> my.fit<span class="sc">$</span>df),</span>
+<span id="cb272-27"><a href="smooth-regression-and-gams.html#cb272-27" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb272-28"><a href="smooth-regression-and-gams.html#cb272-28" tabindex="-1"></a>        <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb272-29"><a href="smooth-regression-and-gams.html#cb272-29" tabindex="-1"></a>  </span>
+<span id="cb272-30"><a href="smooth-regression-and-gams.html#cb272-30" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">x   =</span> x.vals, </span>
+<span id="cb272-31"><a href="smooth-regression-and-gams.html#cb272-31" tabindex="-1"></a>        <span class="at">y   =</span> my.fit<span class="sc">$</span>fit <span class="sc">-</span> my.fit<span class="sc">$</span>se.fit <span class="sc">*</span> <span class="fu">qt</span>(<span class="at">p =</span> .<span class="dv">975</span>, <span class="at">df =</span> my.fit<span class="sc">$</span>df),</span>
+<span id="cb272-32"><a href="smooth-regression-and-gams.html#cb272-32" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>,</span>
+<span id="cb272-33"><a href="smooth-regression-and-gams.html#cb272-33" tabindex="-1"></a>        <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb272-34"><a href="smooth-regression-and-gams.html#cb272-34" tabindex="-1"></a>  </span>
+<span id="cb272-35"><a href="smooth-regression-and-gams.html#cb272-35" tabindex="-1"></a>  <span class="cf">if</span> (return.fit) {</span>
+<span id="cb272-36"><a href="smooth-regression-and-gams.html#cb272-36" tabindex="-1"></a>    <span class="fu">return</span>(my.lo)</span>
+<span id="cb272-37"><a href="smooth-regression-and-gams.html#cb272-37" tabindex="-1"></a>  }</span>
+<span id="cb272-38"><a href="smooth-regression-and-gams.html#cb272-38" tabindex="-1"></a>}</span></code></pre></div>
+<p>Now we’ll call the function several times, each time chanigng the value of the <code>span</code> argument to the <code>loess</code> function:</p>
+<div class="sourceCode" id="cb273"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb273-1"><a href="smooth-regression-and-gams.html#cb273-1" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st19<span class="sc">$</span>depth, <span class="at">y =</span> <span class="fu">log</span>(st19<span class="sc">$</span>sources), <span class="at">span =</span> <span class="fl">0.6</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<div class="sourceCode" id="cb274"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb274-1"><a href="smooth-regression-and-gams.html#cb274-1" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st19<span class="sc">$</span>depth, <span class="at">y =</span> <span class="fu">log</span>(st19<span class="sc">$</span>sources), <span class="at">span =</span> <span class="fl">0.4</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-8-2.png" width="672" /></p>
+<div class="sourceCode" id="cb275"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb275-1"><a href="smooth-regression-and-gams.html#cb275-1" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st19<span class="sc">$</span>depth, <span class="at">y =</span> <span class="fu">log</span>(st19<span class="sc">$</span>sources), <span class="at">span =</span> <span class="fl">0.2</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-8-3.png" width="672" /></p>
+<p>Notice how the fit becomes rougher as the span decreases.</p>
+<p>The <code>loess</code> function includes an argument <code>degree</code> that specifies the degree of the polynomial regression fit at each location. The default value for <code>degree</code> is 2, so the fits that we have seen so far are local quadratic regressions. Let’s try a loess fit with a locally linear regression:</p>
+<div class="sourceCode" id="cb276"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb276-1"><a href="smooth-regression-and-gams.html#cb276-1" tabindex="-1"></a><span class="fu">PlotLoessFit</span>(<span class="at">x =</span> st19<span class="sc">$</span>depth, <span class="at">y =</span> <span class="fu">log</span>(st19<span class="sc">$</span>sources), <span class="at">span =</span> <span class="fl">0.4</span>, <span class="at">degree =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="splines" class="section level2 hasAnchor" number="4.2">
+<h2><span class="header-section-number">4.2</span> Splines<a href="smooth-regression-and-gams.html#splines" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Next we consider splines. There are many types of splines, and, correspondingly, there are many <code>R</code> tools for fitting splines. Most ecologists use the <code>mgcv</code> package to fit splines (and GAMs that include splines). While <code>mgcv</code> is a remarkable package, it’s a complicated piece of machinery. I’ve found the <code>splines</code> library to be more accessible to the non-expert, at least for regression splines. The downside to the <code>splines</code> library is that it doesn’t fit smoothing splines. The discussion in this section draws from Chapter 7 of <span class="citation">James et al. (<a href="#ref-james2021introduction">2021</a>)</span>.</p>
+<div id="regression-splines" class="section level3 hasAnchor" number="4.2.1">
+<h3><span class="header-section-number">4.2.1</span> Regression splines<a href="smooth-regression-and-gams.html#regression-splines" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The code below fits a regression spline to the bioluminescence data. Actually, the code uses the command <code>bs</code> (no bull) to create the basis functions for a cubic regression spline, which are then treated as predictors in a standard regression fit with <code>lm</code>. For expository purposes, we will construct a spline with two knots, arbitrarily placed at 1000 m and 2000 m depth.</p>
+<div class="sourceCode" id="cb277"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb277-1"><a href="smooth-regression-and-gams.html#cb277-1" tabindex="-1"></a><span class="fu">library</span>(splines)</span>
+<span id="cb277-2"><a href="smooth-regression-and-gams.html#cb277-2" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> <span class="fu">bs</span>(depth, <span class="at">knots =</span> <span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>)), <span class="at">data =</span> st19)</span>
+<span id="cb277-3"><a href="smooth-regression-and-gams.html#cb277-3" tabindex="-1"></a></span>
+<span id="cb277-4"><a href="smooth-regression-and-gams.html#cb277-4" tabindex="-1"></a><span class="co"># plot using predict.lm; code adapted from James et al (2021)</span></span>
+<span id="cb277-5"><a href="smooth-regression-and-gams.html#cb277-5" tabindex="-1"></a></span>
+<span id="cb277-6"><a href="smooth-regression-and-gams.html#cb277-6" tabindex="-1"></a>depth.vals <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="fu">min</span>(st19<span class="sc">$</span>depth), <span class="at">to =</span> <span class="fu">max</span>(st19<span class="sc">$</span>depth), <span class="at">length =</span> <span class="dv">100</span>)</span>
+<span id="cb277-7"><a href="smooth-regression-and-gams.html#cb277-7" tabindex="-1"></a>fm1.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fm1, <span class="at">newdata =</span> <span class="fu">list</span>(<span class="at">depth =</span> depth.vals), <span class="at">se =</span> T)</span>
+<span id="cb277-8"><a href="smooth-regression-and-gams.html#cb277-8" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth))</span>
+<span id="cb277-9"><a href="smooth-regression-and-gams.html#cb277-9" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm1.pred<span class="sc">$</span>fit, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb277-10"><a href="smooth-regression-and-gams.html#cb277-10" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm1.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm1.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb277-11"><a href="smooth-regression-and-gams.html#cb277-11" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm1.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.025</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm1.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Just for fun, let’s fit a linear regression spline with a single knot at 1500m. We’ll use the <code>degree</code> argument of <code>bs</code> to specify a linear (as opposed to cubic) spline.</p>
+<div class="sourceCode" id="cb278"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb278-1"><a href="smooth-regression-and-gams.html#cb278-1" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> <span class="fu">bs</span>(depth, <span class="at">knots =</span> <span class="fu">c</span>(<span class="dv">1500</span>), <span class="at">degree =</span> <span class="dv">1</span>), <span class="at">data =</span> st19)</span>
+<span id="cb278-2"><a href="smooth-regression-and-gams.html#cb278-2" tabindex="-1"></a></span>
+<span id="cb278-3"><a href="smooth-regression-and-gams.html#cb278-3" tabindex="-1"></a>fm2.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fm2, <span class="at">newdata =</span> <span class="fu">list</span>(<span class="at">depth =</span> depth.vals), <span class="at">se =</span> T)</span>
+<span id="cb278-4"><a href="smooth-regression-and-gams.html#cb278-4" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth))</span>
+<span id="cb278-5"><a href="smooth-regression-and-gams.html#cb278-5" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm2.pred<span class="sc">$</span>fit, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb278-6"><a href="smooth-regression-and-gams.html#cb278-6" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm2.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm2.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb278-7"><a href="smooth-regression-and-gams.html#cb278-7" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm2.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.025</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm2.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>Alternatively, instead of using the <code>knots</code> argument to specify the knots, we can use the <code>df</code> argument to specify the number of basis functions. For a cubic regression spline, the number of knots will then be the value of <code>df</code> minus 4 (because there are four basis functions, or degrees of freedom, needed for a cubic regression without any knots). According to the documentation for <code>bs</code>, the knots are placed at “suitable quantiles of <span class="math inline">\(x\)</span>”. Here is code for a (cubic) regression spline with 4 knots (and thus <code>df = 8</code>).</p>
+<div class="sourceCode" id="cb279"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb279-1"><a href="smooth-regression-and-gams.html#cb279-1" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> <span class="fu">bs</span>(depth, <span class="at">df =</span> <span class="dv">8</span>), <span class="at">data =</span> st19)</span>
+<span id="cb279-2"><a href="smooth-regression-and-gams.html#cb279-2" tabindex="-1"></a></span>
+<span id="cb279-3"><a href="smooth-regression-and-gams.html#cb279-3" tabindex="-1"></a>fm3.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fm3, <span class="at">newdata =</span> <span class="fu">list</span>(<span class="at">depth =</span> depth.vals), <span class="at">se =</span> T)</span>
+<span id="cb279-4"><a href="smooth-regression-and-gams.html#cb279-4" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth))</span>
+<span id="cb279-5"><a href="smooth-regression-and-gams.html#cb279-5" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm3.pred<span class="sc">$</span>fit, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb279-6"><a href="smooth-regression-and-gams.html#cb279-6" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm3.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm3.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb279-7"><a href="smooth-regression-and-gams.html#cb279-7" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm3.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.025</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm3.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>Note that if we want to test for the significance of the regression spline, we can conduct an <span class="math inline">\(F\)</span>-test in the usual way.</p>
+<div class="sourceCode" id="cb280"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb280-1"><a href="smooth-regression-and-gams.html#cb280-1" tabindex="-1"></a>fm0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> st19)</span>
+<span id="cb280-2"><a href="smooth-regression-and-gams.html#cb280-2" tabindex="-1"></a><span class="fu">anova</span>(fm0, fm3)</span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: log(sources) ~ 1
+## Model 2: log(sources) ~ bs(depth, df = 8)
+##   Res.Df    RSS Df Sum of Sq      F    Pr(&gt;F)    
+## 1     48 38.652                                  
+## 2     40  0.914  8    37.739 206.54 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>It can be a bit enlightening to see how <code>bs</code> creates basis functions. Here are the basis functions for the linear spline with a single knot at 1500m.</p>
+<div class="sourceCode" id="cb282"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb282-1"><a href="smooth-regression-and-gams.html#cb282-1" tabindex="-1"></a>linear.basis <span class="ot">&lt;-</span> <span class="fu">bs</span>(st19<span class="sc">$</span>depth, <span class="at">knots =</span> <span class="fu">c</span>(<span class="dv">1500</span>), <span class="at">degree =</span> <span class="dv">1</span>)</span>
+<span id="cb282-2"><a href="smooth-regression-and-gams.html#cb282-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb282-3"><a href="smooth-regression-and-gams.html#cb282-3" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>) <span class="fu">plot</span>(st19<span class="sc">$</span>depth, linear.basis[, i], <span class="at">xlab =</span> <span class="st">&quot;depth&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;basis function&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>And the basis function for the cubic regression spline with 6 df.</p>
+<div class="sourceCode" id="cb283"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb283-1"><a href="smooth-regression-and-gams.html#cb283-1" tabindex="-1"></a>cubic.basis <span class="ot">&lt;-</span> <span class="fu">bs</span>(st19<span class="sc">$</span>depth, <span class="at">df =</span> <span class="dv">6</span>)</span>
+<span id="cb283-2"><a href="smooth-regression-and-gams.html#cb283-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>))</span>
+<span id="cb283-3"><a href="smooth-regression-and-gams.html#cb283-3" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>) <span class="fu">plot</span>(st19<span class="sc">$</span>depth, cubic.basis[, i], <span class="at">xlab =</span> <span class="st">&quot;depth&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;basis function&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+<div id="natural-splines" class="section level3 hasAnchor" number="4.2.2">
+<h3><span class="header-section-number">4.2.2</span> Natural splines<a href="smooth-regression-and-gams.html#natural-splines" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>A (cubic) regression spline typically suffers from having too much flexibility in the regions outside the outermost knots. A <em>natural spline</em> is a regression spline that (a) places boundary knots at the minimun and maximum of the predictor values (in addition to any internal knots), and then (b) uses cubic fits for the segments between the knots, and linear fits for the segments outside the boundary knots. The effect of requiring a linear fit outside the boundary knots is to temper the flexibility of the spline near the extreme predictor values. In the <code>splines</code> library, the function <code>ns</code> generates basis functions for a natural spline. Here is an example of a natural spline with two internal knots, compared to a cubic regression spline with the same internal knots.</p>
+<div class="sourceCode" id="cb284"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb284-1"><a href="smooth-regression-and-gams.html#cb284-1" tabindex="-1"></a>fm4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> <span class="fu">ns</span>(depth, <span class="at">knots =</span> <span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>)), <span class="at">data =</span> st19)</span>
+<span id="cb284-2"><a href="smooth-regression-and-gams.html#cb284-2" tabindex="-1"></a></span>
+<span id="cb284-3"><a href="smooth-regression-and-gams.html#cb284-3" tabindex="-1"></a>fm4.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fm4, <span class="at">newdata =</span> <span class="fu">list</span>(<span class="at">depth =</span> depth.vals), <span class="at">se =</span> T)</span>
+<span id="cb284-4"><a href="smooth-regression-and-gams.html#cb284-4" tabindex="-1"></a></span>
+<span id="cb284-5"><a href="smooth-regression-and-gams.html#cb284-5" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb284-6"><a href="smooth-regression-and-gams.html#cb284-6" tabindex="-1"></a></span>
+<span id="cb284-7"><a href="smooth-regression-and-gams.html#cb284-7" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth, <span class="at">main =</span> <span class="st">&quot;regression spline&quot;</span>))</span>
+<span id="cb284-8"><a href="smooth-regression-and-gams.html#cb284-8" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm1.pred<span class="sc">$</span>fit, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb284-9"><a href="smooth-regression-and-gams.html#cb284-9" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm1.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm1.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb284-10"><a href="smooth-regression-and-gams.html#cb284-10" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm1.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.025</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm1.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb284-11"><a href="smooth-regression-and-gams.html#cb284-11" tabindex="-1"></a></span>
+<span id="cb284-12"><a href="smooth-regression-and-gams.html#cb284-12" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth, <span class="at">main =</span> <span class="st">&quot;natural spline&quot;</span>))</span>
+<span id="cb284-13"><a href="smooth-regression-and-gams.html#cb284-13" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm4.pred<span class="sc">$</span>fit, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb284-14"><a href="smooth-regression-and-gams.html#cb284-14" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm4.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm4.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb284-15"><a href="smooth-regression-and-gams.html#cb284-15" tabindex="-1"></a><span class="fu">lines</span>(depth.vals, fm4.pred<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.025</span>, <span class="at">df =</span> <span class="dv">43</span>) <span class="sc">*</span> fm4.pred<span class="sc">$</span>se, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-16-1.png" width="768" /></p>
+</div>
+<div id="smoothing-splines" class="section level3 hasAnchor" number="4.2.3">
+<h3><span class="header-section-number">4.2.3</span> Smoothing splines<a href="smooth-regression-and-gams.html#smoothing-splines" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In regression splines, the analyst chooses the degree of the spline (typically 3, for a cubic spline) and the number and location of the knots. In a smoothing spline, also known as a penalized regression spline, one begins with a large number of knots and then optimizes with respect to an objective function that is the sum of the residual sum of squares plus a penalty term for the roughness of the fit. The strength of the penalty is set by a tuning parameter that is typically determined by cross-validation.</p>
+<p>Most ecologists these days would use the <code>gam</code> function in the <code>mgcv</code> library. The code below illustrates. The <code>bs</code> argument specifies the type of basis function; the smooth shown below is based on a cubic regression (<code>cr</code>) basis.</p>
+<div class="sourceCode" id="cb285"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb285-1"><a href="smooth-regression-and-gams.html#cb285-1" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span></code></pre></div>
+<pre><code>## Loading required package: nlme</code></pre>
+<pre><code>## This is mgcv 1.9-3. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+<div class="sourceCode" id="cb288"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb288-1"><a href="smooth-regression-and-gams.html#cb288-1" tabindex="-1"></a>st19.sspline <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> <span class="fu">s</span>(depth, <span class="at">bs =</span> <span class="st">&quot;cr&quot;</span>), <span class="at">data =</span> st19)</span>
+<span id="cb288-2"><a href="smooth-regression-and-gams.html#cb288-2" tabindex="-1"></a><span class="fu">plot</span>(st19.sspline, <span class="at">se =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>The plot shows only the spline component, which thus does not include the intercept. To visualize the fit, we’ll need to do a bit more work.</p>
+<div class="sourceCode" id="cb289"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb289-1"><a href="smooth-regression-and-gams.html#cb289-1" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth))  </span>
+<span id="cb289-2"><a href="smooth-regression-and-gams.html#cb289-2" tabindex="-1"></a></span>
+<span id="cb289-3"><a href="smooth-regression-and-gams.html#cb289-3" tabindex="-1"></a>st19.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st19.sspline, </span>
+<span id="cb289-4"><a href="smooth-regression-and-gams.html#cb289-4" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
+<span id="cb289-5"><a href="smooth-regression-and-gams.html#cb289-5" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb289-6"><a href="smooth-regression-and-gams.html#cb289-6" tabindex="-1"></a></span>
+<span id="cb289-7"><a href="smooth-regression-and-gams.html#cb289-7" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st19.fit<span class="sc">$</span>fit)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p>Let’s ask for a summary:</p>
+<div class="sourceCode" id="cb290"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb290-1"><a href="smooth-regression-and-gams.html#cb290-1" tabindex="-1"></a><span class="fu">summary</span>(st19.sspline)</span></code></pre></div>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## log(sources) ~ s(depth, bs = &quot;cr&quot;)
+## 
+## Parametric coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  2.83855    0.02226   127.5   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##            edf Ref.df     F p-value    
+## s(depth) 8.541  8.928 173.6  &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =   0.97   Deviance explained = 97.5%
+## GCV = 0.030161  Scale est. = 0.024288  n = 49</code></pre>
+<p>Note the <code>edf</code> component in the “Approximate significance of smooth terms” section. The label <code>edf</code> stands for effective degrees of freedom. We can think of the edf as the effective number of new predictors (basis functions) that have been added to the model to accommodate the spline.</p>
+<!-- For a penalized regression spline, the number and values of the newly created predictors are determined by fitting the model to the data.  Because the predictors are calculated in this way, the usual theory of $F$-testing does not apply.  This is why the $F$-test shown for the penalized regression spline is labeled as "approximate". -->
+<p>We can use the edf to determine the appropriate confidence bounds on our smooth. There are 49 data points in this data set, so the estimate of the residual error is based on 49 - (8.5 + 1) = 39.5 df.</p>
+<div class="sourceCode" id="cb292"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb292-1"><a href="smooth-regression-and-gams.html#cb292-1" tabindex="-1"></a><span class="fu">with</span>(st19, <span class="fu">plot</span>(<span class="fu">log</span>(sources) <span class="sc">~</span> depth))  </span>
+<span id="cb292-2"><a href="smooth-regression-and-gams.html#cb292-2" tabindex="-1"></a></span>
+<span id="cb292-3"><a href="smooth-regression-and-gams.html#cb292-3" tabindex="-1"></a>st19.fit <span class="ot">&lt;-</span> <span class="fu">predict</span>(st19.sspline, </span>
+<span id="cb292-4"><a href="smooth-regression-and-gams.html#cb292-4" tabindex="-1"></a>                    <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">depth =</span> depth.vals), </span>
+<span id="cb292-5"><a href="smooth-regression-and-gams.html#cb292-5" tabindex="-1"></a>                    <span class="at">se      =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb292-6"><a href="smooth-regression-and-gams.html#cb292-6" tabindex="-1"></a></span>
+<span id="cb292-7"><a href="smooth-regression-and-gams.html#cb292-7" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st19.fit<span class="sc">$</span>fit)</span>
+<span id="cb292-8"><a href="smooth-regression-and-gams.html#cb292-8" tabindex="-1"></a></span>
+<span id="cb292-9"><a href="smooth-regression-and-gams.html#cb292-9" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st19.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="fl">39.5</span>) <span class="sc">*</span> st19.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb292-10"><a href="smooth-regression-and-gams.html#cb292-10" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x =</span> depth.vals, <span class="at">y =</span> st19.fit<span class="sc">$</span>fit <span class="sc">+</span> <span class="fu">qt</span>(<span class="fl">0.025</span>, <span class="at">df =</span> <span class="fl">39.5</span>) <span class="sc">*</span> st19.fit<span class="sc">$</span>se.fit, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p>The <code>s()</code> component of the model formula designates a spline, and specifies details about the particular type of spline to be fit. To fit a regression spline, fix the number of basis functions with the <code>fx = TRUE</code> argument. The default value for the <code>fx</code> argument is <code>fx = FALSE</code>, in which case the amount of smoothing is determined by (generalized) cross-validation. When <code>fx = TRUE</code>, the parameter <code>k</code> determines the dimensionality (degree of flexibility) of the spline. Larger values of <code>k</code> correspond to greater flexibility, and a less smooth fit.</p>
+<p>The <code>AIC</code> function will generate an AIC value for the penalized regression spline fit:</p>
+<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="smooth-regression-and-gams.html#cb293-1" tabindex="-1"></a><span class="fu">AIC</span>(st19.sspline)</span></code></pre></div>
+<pre><code>## [1] -32.64326</code></pre>
+</div>
+</div>
+<div id="GAMs" class="section level2 hasAnchor" number="4.3">
+<h2><span class="header-section-number">4.3</span> Generalized additive models (GAMs)<a href="smooth-regression-and-gams.html#GAMs" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Generalized additive models replace the usual linear terms that appear in multiple regression models with splines. That is, suppose we seek to model the relationship between a response <span class="math inline">\(y\)</span> and two predictors, <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>. A standard regression model without polynomial effects or interactions would be written as
+<span class="math display">\[
+y = \beta_0 + \beta_1 x_1 +\beta_2 x_2 + \varepsilon
+\]</span>
+where <span class="math inline">\(\varepsilon\)</span> is assumed to be an iid Gaussian random variate with variance <span class="math inline">\(\sigma^2_\varepsilon\)</span>. This is an additive model, in the sense that the combined effects of the two predictors equal the sum of their individual effects.</p>
+<p>A generalized additive model (GAM) replaces the individual regression terms with splines. Continuing with the generic example, a GAM would instead model the effects of the two predictors as
+<span class="math display">\[
+y = \beta_0 + s(x_1) +s(x_2) + \varepsilon
+\]</span>
+where <span class="math inline">\(s(\cdot)\)</span> represents a spline. We continue to assume that, conditional on the covariate effects, the responses are normally distributed with constant variance <span class="math inline">\(\sigma^2_\varepsilon\)</span>.</p>
+<p>We will illustrate additive modeling using the bird data found in Appendix A of <span class="citation">Zuur et al. (<a href="#ref-zuur2009">2009</a>)</span>. Zuur et al. report that these data originally appeared in <span class="citation">Loyn (<a href="#ref-loyn1987effects">1987</a>)</span> and were featured in Quinn &amp; Keough (2002)’s text. Zuur et al. describe these data in the following way:</p>
+<blockquote>
+<p>Forest bird densities were measured in 56 forest patches in south-eastern Victoria, Australia. The aim of the study was to relate bird densities to six habitat variables; size of the forest patch, distance to the nearest patch, distance to the nearest larger patch, mean altitude of the patch, year of isolation by clearing, and an index of stock grazing history (1 = light, 5 = intensive).</p>
+</blockquote>
+<p>We first read the data and perform some light exploratory analysis and housekeeping.</p>
+<div class="sourceCode" id="cb295"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb295-1"><a href="smooth-regression-and-gams.html#cb295-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb295-2"><a href="smooth-regression-and-gams.html#cb295-2" tabindex="-1"></a><span class="fu">require</span>(mgcv)</span>
+<span id="cb295-3"><a href="smooth-regression-and-gams.html#cb295-3" tabindex="-1"></a></span>
+<span id="cb295-4"><a href="smooth-regression-and-gams.html#cb295-4" tabindex="-1"></a>bird <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/Loyn.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb295-5"><a href="smooth-regression-and-gams.html#cb295-5" tabindex="-1"></a></span>
+<span id="cb295-6"><a href="smooth-regression-and-gams.html#cb295-6" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
+<pre><code>##       Site           ABUND            AREA              DIST       
+##  Min.   : 1.00   Min.   : 1.50   Min.   :   0.10   Min.   :  26.0  
+##  1st Qu.:14.75   1st Qu.:12.40   1st Qu.:   2.00   1st Qu.:  93.0  
+##  Median :28.50   Median :21.05   Median :   7.50   Median : 234.0  
+##  Mean   :28.50   Mean   :19.51   Mean   :  69.27   Mean   : 240.4  
+##  3rd Qu.:42.25   3rd Qu.:28.30   3rd Qu.:  29.75   3rd Qu.: 333.2  
+##  Max.   :56.00   Max.   :39.60   Max.   :1771.00   Max.   :1427.0  
+##      LDIST           YR.ISOL         GRAZE            ALT       
+##  Min.   :  26.0   Min.   :1890   Min.   :1.000   Min.   : 60.0  
+##  1st Qu.: 158.2   1st Qu.:1928   1st Qu.:2.000   1st Qu.:120.0  
+##  Median : 338.5   Median :1962   Median :3.000   Median :140.0  
+##  Mean   : 733.3   Mean   :1950   Mean   :2.982   Mean   :146.2  
+##  3rd Qu.: 913.8   3rd Qu.:1966   3rd Qu.:4.000   3rd Qu.:182.5  
+##  Max.   :4426.0   Max.   :1976   Max.   :5.000   Max.   :260.0</code></pre>
+<div class="sourceCode" id="cb297"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb297-1"><a href="smooth-regression-and-gams.html#cb297-1" tabindex="-1"></a><span class="co"># get rid of the &#39;Site&#39; variable; it is redundant with the row label</span></span>
+<span id="cb297-2"><a href="smooth-regression-and-gams.html#cb297-2" tabindex="-1"></a></span>
+<span id="cb297-3"><a href="smooth-regression-and-gams.html#cb297-3" tabindex="-1"></a>bird <span class="ot">&lt;-</span> bird[, <span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb297-4"><a href="smooth-regression-and-gams.html#cb297-4" tabindex="-1"></a></span>
+<span id="cb297-5"><a href="smooth-regression-and-gams.html#cb297-5" tabindex="-1"></a><span class="co"># log-transform area, distance, ldistance, to remove right-skew</span></span>
+<span id="cb297-6"><a href="smooth-regression-and-gams.html#cb297-6" tabindex="-1"></a></span>
+<span id="cb297-7"><a href="smooth-regression-and-gams.html#cb297-7" tabindex="-1"></a>bird<span class="sc">$</span>L.AREA <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>AREA)</span>
+<span id="cb297-8"><a href="smooth-regression-and-gams.html#cb297-8" tabindex="-1"></a>bird<span class="sc">$</span>L.DIST <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>DIST)</span>
+<span id="cb297-9"><a href="smooth-regression-and-gams.html#cb297-9" tabindex="-1"></a>bird<span class="sc">$</span>L.LDIST <span class="ot">&lt;-</span> <span class="fu">log</span>(bird<span class="sc">$</span>LDIST)</span>
+<span id="cb297-10"><a href="smooth-regression-and-gams.html#cb297-10" tabindex="-1"></a></span>
+<span id="cb297-11"><a href="smooth-regression-and-gams.html#cb297-11" tabindex="-1"></a><span class="co"># change YR.ISOL to years since isolation (study was published in 1987)</span></span>
+<span id="cb297-12"><a href="smooth-regression-and-gams.html#cb297-12" tabindex="-1"></a></span>
+<span id="cb297-13"><a href="smooth-regression-and-gams.html#cb297-13" tabindex="-1"></a>bird<span class="sc">$</span>YR.ISOL <span class="ot">&lt;-</span> <span class="dv">1987</span> <span class="sc">-</span> bird<span class="sc">$</span>YR.ISOL</span>
+<span id="cb297-14"><a href="smooth-regression-and-gams.html#cb297-14" tabindex="-1"></a></span>
+<span id="cb297-15"><a href="smooth-regression-and-gams.html#cb297-15" tabindex="-1"></a><span class="co"># keep the only the variables we want</span></span>
+<span id="cb297-16"><a href="smooth-regression-and-gams.html#cb297-16" tabindex="-1"></a></span>
+<span id="cb297-17"><a href="smooth-regression-and-gams.html#cb297-17" tabindex="-1"></a>bird <span class="ot">&lt;-</span> bird[, <span class="fu">c</span>(<span class="st">&quot;ABUND&quot;</span>, <span class="st">&quot;L.AREA&quot;</span>, <span class="st">&quot;L.DIST&quot;</span>, <span class="st">&quot;L.LDIST&quot;</span>, <span class="st">&quot;YR.ISOL&quot;</span>, <span class="st">&quot;ALT&quot;</span>, <span class="st">&quot;GRAZE&quot;</span>)]</span>
+<span id="cb297-18"><a href="smooth-regression-and-gams.html#cb297-18" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
+<pre><code>##      ABUND           L.AREA            L.DIST         L.LDIST     
+##  Min.   : 1.50   Min.   :-2.3026   Min.   :3.258   Min.   :3.258  
+##  1st Qu.:12.40   1st Qu.: 0.6931   1st Qu.:4.533   1st Qu.:5.064  
+##  Median :21.05   Median : 2.0127   Median :5.455   Median :5.824  
+##  Mean   :19.51   Mean   : 2.1459   Mean   :5.102   Mean   :5.859  
+##  3rd Qu.:28.30   3rd Qu.: 3.3919   3rd Qu.:5.809   3rd Qu.:6.816  
+##  Max.   :39.60   Max.   : 7.4793   Max.   :7.263   Max.   :8.395  
+##     YR.ISOL           ALT            GRAZE      
+##  Min.   :11.00   Min.   : 60.0   Min.   :1.000  
+##  1st Qu.:21.00   1st Qu.:120.0   1st Qu.:2.000  
+##  Median :24.50   Median :140.0   Median :3.000  
+##  Mean   :37.25   Mean   :146.2   Mean   :2.982  
+##  3rd Qu.:59.50   3rd Qu.:182.5   3rd Qu.:4.000  
+##  Max.   :97.00   Max.   :260.0   Max.   :5.000</code></pre>
+<p>Our first attempt at a GAM will use penalized regression splines for all of the continuous predictors in the model. We will use a linear term for GRAZE because there are too few unique values to support a smooth term:</p>
+<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="smooth-regression-and-gams.html#cb299-1" tabindex="-1"></a>bird.gam1 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> <span class="fu">s</span>(L.DIST) <span class="sc">+</span> <span class="fu">s</span>(L.LDIST) <span class="sc">+</span> <span class="fu">s</span>(YR.ISOL) <span class="sc">+</span> GRAZE <span class="sc">+</span> <span class="fu">s</span>(ALT), <span class="at">data =</span> bird)</span>
+<span id="cb299-2"><a href="smooth-regression-and-gams.html#cb299-2" tabindex="-1"></a></span>
+<span id="cb299-3"><a href="smooth-regression-and-gams.html#cb299-3" tabindex="-1"></a><span class="fu">summary</span>(bird.gam1)</span></code></pre></div>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## ABUND ~ s(L.AREA) + s(L.DIST) + s(L.LDIST) + s(YR.ISOL) + GRAZE + 
+##     s(ALT)
+## 
+## Parametric coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  25.4443     2.7798   9.153 9.42e-12 ***
+## GRAZE        -1.9885     0.8968  -2.217   0.0318 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##              edf Ref.df      F  p-value    
+## s(L.AREA)  2.446  3.089 12.635 3.98e-06 ***
+## s(L.DIST)  3.693  4.559  0.855    0.461    
+## s(L.LDIST) 1.000  1.000  0.386    0.538    
+## s(YR.ISOL) 1.814  2.238  1.231    0.262    
+## s(ALT)     1.000  1.000  0.629    0.432    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =   0.72   Deviance explained = 77.6%
+## GCV = 40.987  Scale est. = 32.238    n = 56</code></pre>
+<p>The output reports the partial regression coefficient for the lone quantitative predictor GRAZE, and approximate significance tests for the smooth terms for each of the other predictors. We can visualize these smooth terms with a call to <code>plot</code>:</p>
+<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb301-1"><a href="smooth-regression-and-gams.html#cb301-1" tabindex="-1"></a><span class="fu">plot</span>(bird.gam1)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-1.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-2.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-3.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-4.png" width="672" /><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-24-5.png" width="672" /></p>
+<p>The usual theory of <span class="math inline">\(F\)</span>-testing does not apply to smoothing splines, which is why the <span class="math inline">\(F\)</span>-test shown for the penalized regression spline is labeled as “approximate”. The variable selection that follows is thus rather casual. We’ll drop smooth terms with large <span class="math inline">\(p\)</span>-values to obtain:</p>
+<div class="sourceCode" id="cb302"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb302-1"><a href="smooth-regression-and-gams.html#cb302-1" tabindex="-1"></a>bird.gam2 <span class="ot">&lt;-</span> mgcv<span class="sc">::</span><span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb302-2"><a href="smooth-regression-and-gams.html#cb302-2" tabindex="-1"></a><span class="fu">summary</span>(bird.gam2)</span></code></pre></div>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## ABUND ~ s(L.AREA) + GRAZE
+## 
+## Parametric coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   28.400      2.201  12.903  &lt; 2e-16 ***
+## GRAZE         -2.980      0.686  -4.344 6.56e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##             edf Ref.df     F p-value    
+## s(L.AREA) 2.284  2.903 13.18 3.4e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =   0.68   Deviance explained = 69.9%
+## GCV = 39.992  Scale est. = 36.932    n = 56</code></pre>
+<div class="sourceCode" id="cb304"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb304-1"><a href="smooth-regression-and-gams.html#cb304-1" tabindex="-1"></a><span class="fu">plot</span>(bird.gam2)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<p>Note that the GRAZE variable is currently treated as a numerical predictor. We’ll try fitting a model with GRAZE as a factor. First we’ll create a new variable that treats GRAZE as a factor. We’ll use the <code>summary</code> command to confirm that the new variable fGRAZE is indeed a factor.</p>
+<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb305-1"><a href="smooth-regression-and-gams.html#cb305-1" tabindex="-1"></a>bird<span class="sc">$</span>fGRAZE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(bird<span class="sc">$</span>GRAZE)</span>
+<span id="cb305-2"><a href="smooth-regression-and-gams.html#cb305-2" tabindex="-1"></a><span class="fu">summary</span>(bird)</span></code></pre></div>
+<pre><code>##      ABUND           L.AREA            L.DIST         L.LDIST     
+##  Min.   : 1.50   Min.   :-2.3026   Min.   :3.258   Min.   :3.258  
+##  1st Qu.:12.40   1st Qu.: 0.6931   1st Qu.:4.533   1st Qu.:5.064  
+##  Median :21.05   Median : 2.0127   Median :5.455   Median :5.824  
+##  Mean   :19.51   Mean   : 2.1459   Mean   :5.102   Mean   :5.859  
+##  3rd Qu.:28.30   3rd Qu.: 3.3919   3rd Qu.:5.809   3rd Qu.:6.816  
+##  Max.   :39.60   Max.   : 7.4793   Max.   :7.263   Max.   :8.395  
+##     YR.ISOL           ALT            GRAZE       fGRAZE
+##  Min.   :11.00   Min.   : 60.0   Min.   :1.000   1:13  
+##  1st Qu.:21.00   1st Qu.:120.0   1st Qu.:2.000   2: 8  
+##  Median :24.50   Median :140.0   Median :3.000   3:15  
+##  Mean   :37.25   Mean   :146.2   Mean   :2.982   4: 7  
+##  3rd Qu.:59.50   3rd Qu.:182.5   3rd Qu.:4.000   5:13  
+##  Max.   :97.00   Max.   :260.0   Max.   :5.000</code></pre>
+<p>Now we’ll proceed to fit the model</p>
+<div class="sourceCode" id="cb307"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb307-1"><a href="smooth-regression-and-gams.html#cb307-1" tabindex="-1"></a>bird.gam3 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb307-2"><a href="smooth-regression-and-gams.html#cb307-2" tabindex="-1"></a><span class="fu">plot</span>(bird.gam3)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="smooth-regression-and-gams.html#cb308-1" tabindex="-1"></a><span class="fu">summary</span>(bird.gam3)</span></code></pre></div>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## ABUND ~ s(L.AREA) + fGRAZE
+## 
+## Parametric coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  22.727275   1.944080  11.691 1.11e-15 ***
+## fGRAZE2       0.006623   2.845343   0.002 0.998152    
+## fGRAZE3      -0.660124   2.585878  -0.255 0.799592    
+## fGRAZE4      -2.170994   3.050736  -0.712 0.480122    
+## fGRAZE5     -11.913966   2.872911  -4.147 0.000136 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##             edf Ref.df     F  p-value    
+## s(L.AREA) 2.761  3.478 11.67 4.71e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =  0.723   Deviance explained = 75.7%
+## GCV = 37.013  Scale est. = 31.883    n = 56</code></pre>
+<p>To formally compare the models with GRAZE as a numerical vs. categorical predictor, we’ll have to use AIC. We can’t use an <span class="math inline">\(F\)</span>-test here because we have used penalized regression splines to capture the effect of L.AREA. Thus, the models are not nested. (If we had used regression splines for L.AREA, then the models would have been nested.) We can extract the AICs for these models by a simple call to the <code>AIC</code> function.</p>
+<div class="sourceCode" id="cb310"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb310-1"><a href="smooth-regression-and-gams.html#cb310-1" tabindex="-1"></a><span class="fu">AIC</span>(bird.gam2)</span></code></pre></div>
+<pre><code>## [1] 367.1413</code></pre>
+<div class="sourceCode" id="cb312"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb312-1"><a href="smooth-regression-and-gams.html#cb312-1" tabindex="-1"></a><span class="fu">AIC</span>(bird.gam3)</span></code></pre></div>
+<pre><code>## [1] 361.9655</code></pre>
+<!-- Compare the design matrices for these two models (only the first few rows of each matrix are shown in this transcript): -->
+<!-- ```{r} -->
+<!-- head(model.matrix(bird.gam3)) -->
+<!-- head(model.matrix(bird.gam4)) -->
+<!-- ``` -->
+<p>We can see the contrasts used to incorporate the factor fGRAZE in the model by a call to <code>contrasts</code>:</p>
+<div class="sourceCode" id="cb314"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb314-1"><a href="smooth-regression-and-gams.html#cb314-1" tabindex="-1"></a><span class="fu">with</span>(bird, <span class="fu">contrasts</span>(fGRAZE))</span></code></pre></div>
+<pre><code>##   2 3 4 5
+## 1 0 0 0 0
+## 2 1 0 0 0
+## 3 0 1 0 0
+## 4 0 0 1 0
+## 5 0 0 0 1</code></pre>
+<p>The output here is somewhat opaque because the levels of fGRAZE are 1, 2, <span class="math inline">\(\ldots\)</span>, 5. The output of the call to <code>contrasts</code> shows each of the newly created indicator variables as a column. For example, the first column shows that the predictor named <code>fGRAZE2</code> takes the value of 1 when the variable fGRAZE equals 2, and is 0 otherwise.</p>
+<p>Fit an additive model with only a smooth effect of L.AREA, in order to show residuals vs. GRAZE:</p>
+<div class="sourceCode" id="cb316"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb316-1"><a href="smooth-regression-and-gams.html#cb316-1" tabindex="-1"></a>bird.gam4 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA), <span class="at">data =</span> bird)</span>
+<span id="cb316-2"><a href="smooth-regression-and-gams.html#cb316-2" tabindex="-1"></a></span>
+<span id="cb316-3"><a href="smooth-regression-and-gams.html#cb316-3" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> bird<span class="sc">$</span>GRAZE, <span class="at">y =</span> bird.gam4<span class="sc">$</span>residuals)</span>
+<span id="cb316-4"><a href="smooth-regression-and-gams.html#cb316-4" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span></code></pre></div>
+<p><img src="04-SmoothRegression_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+<p>Both the plot and the model output suggest that the effect of grazing is primarily due to lower bird abundance in the most heavily grazed category.</p>
+<p>To conclude, we’ll conduct a formal test of whether the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE. In this case, we have to use regression splines for the smooth effect of L.AREA. If we want to continue working in <code>mgcv::gam</code>, we need to fix the number of knots by setting <code>fx = TRUE</code>. If we fix the number of knots, then we need to specify the number of knots with the argument <code>k</code>. Here, the edf of the log area effect is about 3, so we will set <code>k=4</code>.</p>
+<div class="sourceCode" id="cb317"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb317-1"><a href="smooth-regression-and-gams.html#cb317-1" tabindex="-1"></a>bird.gam5 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">4</span>, <span class="at">fx =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb317-2"><a href="smooth-regression-and-gams.html#cb317-2" tabindex="-1"></a>bird.gam6 <span class="ot">&lt;-</span> <span class="fu">gam</span>(ABUND <span class="sc">~</span> <span class="fu">s</span>(L.AREA, <span class="at">k =</span> <span class="dv">4</span>, <span class="at">fx =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb317-3"><a href="smooth-regression-and-gams.html#cb317-3" tabindex="-1"></a></span>
+<span id="cb317-4"><a href="smooth-regression-and-gams.html#cb317-4" tabindex="-1"></a><span class="fu">anova</span>(bird.gam5, bird.gam6, <span class="at">test =</span> <span class="st">&quot;F&quot;</span>)  </span></code></pre></div>
+<pre><code>## Analysis of Deviance Table
+## 
+## Model 1: ABUND ~ s(L.AREA, k = 4, fx = TRUE) + GRAZE
+## Model 2: ABUND ~ s(L.AREA, k = 4, fx = TRUE) + fGRAZE
+##   Resid. Df Resid. Dev Df Deviance      F  Pr(&gt;F)  
+## 1        51     1869.0                             
+## 2        48     1543.1  3   325.93 3.3796 0.02565 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Alternatively, we could use the spline basis from the <code>splines</code> library.</p>
+<div class="sourceCode" id="cb319"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb319-1"><a href="smooth-regression-and-gams.html#cb319-1" tabindex="-1"></a>bird.gam7 <span class="ot">&lt;-</span> <span class="fu">lm</span>(ABUND <span class="sc">~</span> <span class="fu">bs</span>(L.AREA, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">+</span> GRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb319-2"><a href="smooth-regression-and-gams.html#cb319-2" tabindex="-1"></a>bird.gam8 <span class="ot">&lt;-</span> <span class="fu">lm</span>(ABUND <span class="sc">~</span> <span class="fu">bs</span>(L.AREA, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">+</span> fGRAZE, <span class="at">data =</span> bird)</span>
+<span id="cb319-3"><a href="smooth-regression-and-gams.html#cb319-3" tabindex="-1"></a></span>
+<span id="cb319-4"><a href="smooth-regression-and-gams.html#cb319-4" tabindex="-1"></a><span class="fu">anova</span>(bird.gam7, bird.gam8, <span class="at">test =</span> <span class="st">&quot;F&quot;</span>)  </span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: ABUND ~ bs(L.AREA, df = 3) + GRAZE
+## Model 2: ABUND ~ bs(L.AREA, df = 3) + fGRAZE
+##   Res.Df    RSS Df Sum of Sq      F  Pr(&gt;F)  
+## 1     51 1877.2                              
+## 2     48 1561.0  3    316.23 3.2414 0.03003 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>I don’t know why the results differ slightly, but they don’t differ much.</p>
+<p>Both AIC and the <span class="math inline">\(F\)</span>-test suggest that the model with GRAZE as a factor provides a significantly better fit than the model with a linear effect of GRAZE (<span class="math inline">\(F_{3,48} = 3.24, p = 0.030\)</span>).</p>
+<p>As a final note, Zuur et al. (p.550) observe that “the non-linear L.AREA effect is mainly due to two large patches. It would be useful to sample more of this type of patch in the future.” (Note the rug plots in any of the plots of the area effect above.)</p>
+
+</div>
+</div>
+<h3>Bibliography<a href="bibliography.html#bibliography" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-gillibrand2007seasonal" class="csl-entry">
+Gillibrand, EJV, AJ Jamieson, PM Bagley, Alain F Zuur, and IG Priede. 2007. <span>“Seasonal Development of a Deep Pelagic Bioluminescent Layer in the Temperate NE Atlantic Ocean.”</span> <em>Marine Ecology Progress Series</em> 341: 37–44.
+</div>
+<div id="ref-james2021introduction" class="csl-entry">
+James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. 2021. <em>An Introduction to Statistical Learning: With Applications in r</em>. 2nd ed. Springer.
+</div>
+<div id="ref-loyn1987effects" class="csl-entry">
+Loyn, RH. 1987. <span>“Effects of Patch Area and Habitat on Bird Abundances, Species Numbers and Tree Health in Fragmented Victorian Forests.”</span> In <em>Nature Conservation: The Role of Remnants of Native Vegetation</em>, edited by A. A. Burbidge DA Saunders GW Arnold and AJM Hopkins, 65–77. Chipping Norton, NSW: Surrey Beatty &amp; Sons.
+</div>
+<div id="ref-zuur2009" class="csl-entry">
+Zuur, Alain F, Elena N Ieno, Neil J Walker, Anatoly A Saveliev, Graham M Smith, et al. 2009. <em>Mixed Effects Models and Extensions in Ecology with <span>R</span></em>. Vol. 574. Springer.
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="bayesian-computation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="generalized-least-squares.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "serif",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
