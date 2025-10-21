@@ -70,15 +70,8 @@ We'll regress the percentage of male births on year and country.  Following Zuur
 \begin{equation}
 y_{it} = a_i + b_i x_{it} + \varepsilon_{it}
 \end{equation}
-where $i = 1, \ldots, 4$ is an index that distinguishes among the four countries, and $t = 1, \ldots, 21$ is an index that distinguishes among the 21 years.  The response $y_{it}$ is the percentage of male births in country $i$ in year $t$, $x_{it}$ is the year to which measurement $y_{it}$ corresponds, the $a_i$ are the country-specific intercepts, the $b_i$ are the country-specific slopes, and the $\varepsilon_{it}$'s are the errors.  To begin, we make the usual OLS assumption that the errors are iid, that is, $\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2)$.  
+where $i = 1, \ldots, 4$ is an index that distinguishes among the four countries, and $t = 1, \ldots, 21$ is an index that distinguishes among the 21 years.  The response $y_{it}$ is the percentage of male births in country $i$ in year $t$, $x_{it}$ is the year to which measurement $y_{it}$ corresponds, the $a_i$ are the country-specific intercepts, the $b_i$ are the country-specific slopes, and the $\varepsilon_{it}$'s are the errors. We'll shift the predictor $x_{it}$ so that it gives the number of years before or after 1980, so that the intercepts will give the fitted percentage of male births in the year 1980. (If we set $x_{it}$ to the actual year, then the intercepts would give the percentage of male births extrapolated back to the year 1 BCE, which isn't very useful.) To begin, we make the usual OLS assumption that the errors are iid, that is, $\varepsilon_{it} \sim \mathcal{N}(0, \sigma^2)$.  
 
-```{r}
-fm1 <- with(births, lm(pct.male ~ year * country))
-summary(fm1)
-```
-
-Inconveniently, the intercepts here refer to the percentage of male births extrapolated back to the year 1 BCE.  That's not very useful, so we'll center the year predictor.  Now, the predictor $x_{it}$ will refer to the number of years before or after 1980, and the intercepts will give the fitted percentage of male births in the year 1980. 
- 
 ```{r}
 births$yr.ctr <- births$year - 1980
 fm1 <- with(births, lm(pct.male ~ yr.ctr * country))
@@ -128,7 +121,7 @@ require(nlme)
 gls1 <- gls(pct.male ~ yr.ctr * country, data = births, weights = varIdent(form = ~ 1 | country))
 summary(gls1)
 ```
-Notice that the model estimates separate error standard deviations for each country.  
+The `summary` doesn't provide the residual variances for each country directly. Instead, in the portion of the summary labeled "Variance function", we find the estimated ratio of the residual variance for each country to the residual variance for the reference country, Denmark.  Thus, for example, the residual variance for the Netherlands is $0.726$ times the residual variance for Denmark, and so on. 
 
 We would like to ask if model with country-specific variances provides a statistically significant improvement in fit relative to the model with homogeneous error variances.  Here, it is crucial to remember that the default fitting scheme in `nlme::gls` is REML.  However, because the models share the same fixed-effect structure, we can compare AIC values from the REML fits directly.  Further, because the modes are nested, we can use the REML fits for a likelihood ratio test.  The `anova.gls` command provides both.
 ```{r}
@@ -207,11 +200,10 @@ anova(gls4ML, gls3ML, gls1ML)
 
 There is strong evidence that the percentage of male births differs among countries, after accounting for the effect of the temporal trend.
 
-We can visualize the model by making scatterplots and overlaying fitted regression lines.  Having finished with model selection, we'll revert to the REML fits for final parameter estimation.  Again, we'll use the trick of eliminating the global intercept to make it easier to find the country-specific intercepts.
-
+We can visualize the model by making scatterplots and overlaying fitted regression lines.  Having finished with model selection, we'll revert to the REML fits for final parameter estimation.  
 ```{r}
-gls3a <- gls(pct.male ~ yr.ctr + country - 1, data = births, weights = varIdent(form = ~ 1 | country))
-summary(gls3a)
+gls3.reml <- gls(pct.male ~ yr.ctr + country, data = births, weights = varIdent(form = ~ 1 | country))
+summary(gls3.reml)
 ```
 
 ```{r}
@@ -238,7 +230,7 @@ summary(gls3a)
   abline(a = 51.2162 + 0.00586 * 1980, b = -0.00586)
 ```
 
-It is interesting to compare the estimate of the slope between the GLS model and the naive OLS fit.  In the GLS model, the slope is estimated to be $-0.00586\%$ per year, with a standard error of $8.8 \times 10^{-4}$.  In the OLS fit, the estimate is $-0.00555\%$ per year, with a standard error of $2.8 \times 10^{-3}$.  Thus the GLS fit has substantially improved the precision of the estimate of the temporal trend.
+It is interesting to compare the estimate of the slope between the GLS model and the naive OLS fit.  In the GLS model, the slope is estimated to be $-0.00586\%$ per year, with a standard error of $8.8 \times 10^{-4}$.  In the OLS fit, the estimate is $-0.00556\%$ per year, with a standard error of $2.3 \times 10^{-3}$.  Thus the GLS fit has substantially improved the precision of the estimate of the temporal trend.
 ```{r}
 summary(gls(pct.male ~ yr.ctr + country, data = births))
 ```

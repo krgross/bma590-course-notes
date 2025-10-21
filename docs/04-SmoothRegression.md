@@ -1,4 +1,4 @@
-# Smooth regression and GAMs
+# Smoothing and GAMs
 
 
 
@@ -306,7 +306,7 @@ lines(depth.vals, fm4.pred$fit + qt(0.025, df = 43) * fm4.pred$se, lty = "dashed
 
 In regression splines, the analyst chooses the degree of the spline (typically 3, for a cubic spline) and the number and location of the knots.  In a smoothing spline, also known as a penalized regression spline, one begins with a large number of knots and then optimizes with respect to an objective function that is the sum of the residual sum of squares plus a penalty term for the roughness of the fit.  The strength of the penalty is set by a tuning parameter that is typically determined by cross-validation.
 
-Most ecologists these days would use the `gam` function in the `mgcv` library.  The code below illustrates.  The `bs` argument specifies the type of basis function; the smooth shown below is based on a cubic regression (`cr`) basis.
+Most ecologists these days would use the `gam` function in the `mgcv` library.  The code below illustrates.  The `mgcv::gam` program is a complicated piece of machinery; see @wood2017generalized for the necessary background theory.  The `bs` argument specifies the type of basis function; the smooth shown below is based on a cubic regression (`cr`) basis.
 
 ``` r
 library(mgcv)

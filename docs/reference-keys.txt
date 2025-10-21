@@ -19,7 +19,7 @@ mcmc-and-stochastic-approximations-of-the-posterior
 the-horse-kick-data-once-more
 a-simple-regression-example
 rstanarm
-smooth-regression-and-gams
+smoothing-and-gams
 loess-smoothers
 splines
 regression-splines
