@@ -15,7 +15,7 @@ X_1, \ldots, X_n & \sim \mbox{Pois}(\lambda) \\
 \lambda | X_1, \ldots, X_n & \sim \mbox{Gamma}(a + \sum_n X_n, r + n) \\
 \end{align*}
 
-In the horse-kick data, $\sum_n x_n = 196$ and $n = 280$.  Suppose we start with the vague Gamma prior $a=.01$, $r = .01$ on $\lambda$.  This prior has mean $a/r = 1$ and variance $a/r^2 = 100$.  The posterior distribution for $\lambda$ is then a Gamma with shape parameter $a = 196.01$ and rate parameter $280.01$.  We can plot it:
+In the horse-kick data, $\sum_n x_n = 196$ and $n = 280$.  Suppose we start with the vague Gamma prior $a=1$, $r = 1$ on $\lambda$.  This prior has mean $a/r = 1$ and variance $a/r^2 = 1$.^[Actually, a Gamma distribution with shape and rate parameters equal to 1 is the same as an exponential distribution with rate 1.  Indeed, any Gamma distribution with shape parameter equal to 1 and rate parameter equal to $r$ is the same as an exponential distribution with rate parameter equal to $r$.]  The posterior distribution for $\lambda$ is then a Gamma with shape parameter $a = 197$ and rate parameter $281$.  We can plot it:
 
 ```{r}
 horse <- read.table("data/horse.txt", 
@@ -23,9 +23,9 @@ horse <- read.table("data/horse.txt",
                     stringsAsFactors = TRUE)
 
 l.vals <- seq(from = 0, to = 2, length = 200)
-plot(l.vals, dgamma(l.vals, shape = 196.01, rate = 280.01), type = "l", 
+plot(l.vals, dgamma(l.vals, shape = 197, rate = 281), type = "l", 
      xlab = expression(lambda), ylab = "")
-lines(l.vals, dgamma(l.vals, shape = .01, rate = .01), lty = "dashed")
+lines(l.vals, dgamma(l.vals, shape = 1, rate = 1), lty = "dashed")
 
 abline(v = 0.7, col = "red")
 
@@ -38,40 +38,40 @@ The red line shows the MLE, which is displaced slightly from the posterior mode.
 
 As a point estimate, we might consider any of the following.  The posterior mean can be found exactly as $a/r$ = `r round(196.01 /280.01, 5)`.  Alternatively, we might consider the posterior median
 ```{r}
-qgamma(0.5, shape = 196.01, rate = 280.01)
+qgamma(0.5, shape = 197, rate = 281)
 ```
 
 Finally, we might conisder the posterior mode:
 ```{r}
-optimize(f = function(x) dgamma(x, shape = 196.01, rate = 280.01), interval = c(0.5, 1), maximum = TRUE)
+optimize(f = function(x) dgamma(x, shape = 197, rate = 281), interval = c(0.5, 1), maximum = TRUE)
 ```
 
 To find a 95\% confidence interval, we might consider the central 95\% interval:
 ```{r}
-qgamma(c(0.025, 0.975), shape = 196.01, rate = 280.01)
+qgamma(c(0.025, 0.975), shape = 197, rate = 281)
 ```
 
 A 95\% highest posterior density (HPD) interval takes a bit more work.  We'll write a function to compute the width of a 95\% credible interval based on the quantile of the upper endpoint, and then find the quantile that minimizes this width.
 ```{r}
 interval.width <- function(x){
   
-  upper <- qgamma(p = x, shape = 196.01, rate = 280.01)
-  lower <- qgamma(p = x - .95, shape = 196.01, rate = 280.01)
+  upper <- qgamma(p = x, shape = 197, rate = 281)
+  lower <- qgamma(p = x - .95, shape = 197, rate = 281)
   
   upper - lower
 }
 
 (upper.qtile <- optimize(interval.width, interval = c(0.95, 1))$minimum)
 
-(hpd.ci <- qgamma(p = c(upper.qtile - .95, upper.qtile), shape = 196.01, rate = 280.01))
+(hpd.ci <- qgamma(p = c(upper.qtile - .95, upper.qtile), shape = 197, rate = 281))
 ```
 
 We might also ask questions like: What is the posterior probability that $\lambda > 2/3$?  These caluclations are straightforward in a Bayesian context, and they make full sense.
 ```{r}
-pgamma(2/3, shape = 196.01, rate = 280.01, lower.tail = FALSE)
+pgamma(2/3, shape = 197, rate = 281, lower.tail = FALSE)
 ```
 
-Thus we would say that there is a `r round(pgamma(2/3, shape = 196.01, rate = 280.01, lower.tail = FALSE), 3)` posterior probability that $\lambda > 2/3$.
+Thus we would say that there is a `r round(pgamma(2/3, shape = 197, rate = 281, lower.tail = FALSE), 3)` posterior probability that $\lambda > 2/3$.
 
 As an illustration, note that if we had begun with a more informative prior --- say, a gamma distribution with shape parameter $a = 50$ and rate parameter = $100$ --- then the posterior would have been more of a compromise between the prior and the information in the data:
 
@@ -108,7 +108,7 @@ horse.model <- function() {
     y[j] ~ dpois (lambda)      # data model:  the likelihood      
   }
   
-  lambda ~ dgamma (0.01, 0.01) # prior 
+  lambda ~ dgamma (1, 1) # prior 
                                # note that BUGS / JAGS parameterizes 
                                # gamma by shape, rate
 }
@@ -118,7 +118,7 @@ jags.data <- list(y = horse$deaths, J = length(horse$deaths))
 jags.params <- c("lambda")
 
 jags.inits <- function(){
-  list("lambda" = rgamma(0.01, 0.01))
+  list("lambda" = rgamma(1, 1, 1))
 }
 
 jagsfit <- jags(data               = jags.data, 
@@ -126,7 +126,8 @@ jagsfit <- jags(data               = jags.data,
                 parameters.to.save = jags.params,
                 model.file         = horse.model,
                 n.chains           = 3,
-                n.iter             = 5000)
+                n.iter             = 5000,
+                jags.seed          = 1)
 
 ```
 
@@ -180,7 +181,7 @@ cricket.model <- function() {
   
   b0 ~ dnorm (0.0, 1E-6)       # prior for intercept
   b1 ~ dnorm (0.0, 1E-6)       # prior for slope
-  tau ~ dgamma (0.01, 0.01)    # prior for tau
+  tau ~ dgamma (1, 1)      # prior for tau
                                # note that BUGS / JAGS parameterizes 
                                # gamma by shape, rate
   
@@ -194,7 +195,7 @@ jags.data <- list(y = cricket$chirps,
 jags.params <- c("b0", "b1", "tau", "sigma")
 
 jags.inits <- function(){
-  list("b0" = rnorm(1), "b1" = rnorm(1), "tau" = runif(1))
+  list("b0" = rnorm(1), "b1" = rnorm(1), "tau" = rgamma(1, 1, 1))
 }
 
 jagsfit <- jags(data               = jags.data, 
@@ -202,7 +203,8 @@ jagsfit <- jags(data               = jags.data,
                 parameters.to.save = jags.params,
                 model.file         = cricket.model,
                 n.chains           = 3,
-                n.iter             = 5000)
+                n.iter             = 5000,
+                jags.seed          = 2)
 
 print(jagsfit)
 traceplot(jagsfit)
@@ -302,7 +304,8 @@ jagsfit <- jags(data               = jags.data,
                 parameters.to.save = jags.params,
                 model.file         = cricket.model,
                 n.chains           = 3,
-                n.iter             = 5000)
+                n.iter             = 5000,
+                jags.seed          = 3)
 
 print(jagsfit)
 traceplot(jagsfit)

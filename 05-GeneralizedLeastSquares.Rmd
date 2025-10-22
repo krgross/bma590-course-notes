@@ -66,7 +66,7 @@ These are the types of questions that we would usually address with a regression
   
   3. The data are time series.  We will devote our attention to time-series data more fully later in the course.  For now, it suffices to realize that time series data are typically autocorrelated.  In other words, the residual errors for consecutive data points are often correlated (and usually positively correlated), and this correlation typically decays as the time between data points increases.  For these data, it is less clear why the errors might be autocorrelated, but we want to allow for the possibility all the same.
 
-We'll regress the percentage of male births on year and country.  Following Zuur et al.'s good advice, we'll begin with a model with richly specified fixed effects.   In this case, that means country specific intercepts and slopes.   In an equation, this model is
+We'll regress the percentage of male births on year and country.  Following @zuur2009's good advice, we'll begin with a model with richly specified fixed effects.   In this case, that means country specific intercepts and slopes.   In an equation, this model is
 \begin{equation}
 y_{it} = a_i + b_i x_{it} + \varepsilon_{it}
 \end{equation}
@@ -121,7 +121,9 @@ require(nlme)
 gls1 <- gls(pct.male ~ yr.ctr * country, data = births, weights = varIdent(form = ~ 1 | country))
 summary(gls1)
 ```
-The `summary` doesn't provide the residual variances for each country directly. Instead, in the portion of the summary labeled "Variance function", we find the estimated ratio of the residual variance for each country to the residual variance for the reference country, Denmark.  Thus, for example, the residual variance for the Netherlands is $0.726$ times the residual variance for Denmark, and so on. 
+The `summary` doesn't provide the residual variances for each country directly. Instead, in the portion of the summary labeled "Variance function", we find the estimated ratio of the residual standard deviation for each country to the residual standard deviation for the reference country, Denmark.  Thus, for example, the residual standard deviation for the Netherlands is $0.726$ times the residual standard deviation for Denmark, and so on. 
+
+<!-- Note that, remarkably, there is a discrepancy between the help documentation for varIdent and Pinheiro and Bates.  PB say the parameters are the ratios of the SDs, the help documentation says the parameters are the ratios of the variances. -->
 
 We would like to ask if model with country-specific variances provides a statistically significant improvement in fit relative to the model with homogeneous error variances.  Here, it is crucial to remember that the default fitting scheme in `nlme::gls` is REML.  However, because the models share the same fixed-effect structure, we can compare AIC values from the REML fits directly.  Further, because the modes are nested, we can use the REML fits for a likelihood ratio test.  The `anova.gls` command provides both.
 ```{r}
@@ -237,7 +239,7 @@ summary(gls(pct.male ~ yr.ctr + country, data = births))
 
 ## Temporal (serial) correlation
 
-Temporal structure often induces a (positive) correlation between data points that occur close together in time.  These are the same types of correlations that we would expect to find for any data that occur as part of a series, or serial correlation.  (Other data types may display serial correlations that are not driven by time, such as positions along a one-dimensional spatial transect.)  We will illustrate how to handle temporal correlations using a time series of annual moorhen abundance on the island of Kauai.  These data are analyzed in Ch.\ 6 of Zuur et al.\ (2009), and are originally from Reed et al.\ (2007).  The data are available for download from the website associated with Zuur et al.'s text.  More details about the models available to handle serial correlations in `nlme::gls` can be found in $\S$ 5.3.1 of Pinheiro \& Bates (2000).
+Temporal structure often induces a (positive) correlation between data points that occur close together in time.  These are the same types of correlations that we would expect to find for any data that occur as part of a series, or serial correlation.  (Other data types may display serial correlations that are not driven by time, such as positions along a one-dimensional spatial transect.)  We will illustrate how to handle temporal correlations using a time series of annual moorhen abundance on the island of Kauai.  These data are analyzed in Ch.\ 6 of @zuur2009, and are originally from Reed et al.\ (2007).  The data are available for download from the website associated with @zuur2009's text.  More details about the models available to handle serial correlations in `nlme::gls` can be found in $\S$ 5.3.1 of @pinheiro2000.
 
 First we load the data and do some housekeeping.
 ```{r}
@@ -296,7 +298,7 @@ The LRT suggests that the model with a first-order autocorrelation signficantly 
 
 ## Spatial data
 
-Data that are organized in space are also often correlated, with data points that occur close together in space being strongly (positively) correlated with one another.  To illustrate spatial correlations, we will use the `Wheat2` data provided as part of the `nlme` package.  Pinheiro \& Bates (2000, p.\ 260) introduce the data as follows:
+Data that are organized in space are also often correlated, with data points that occur close together in space being strongly (positively) correlated with one another.  To illustrate spatial correlations, we will use the `Wheat2` data provided as part of the `nlme` package.  @pinheiro2000 (p.\ 260) introduce the data as follows:
 
 > "Stroup and Baenziger (1994) describe an agronomic experiment to compare the yield of 56 different varieties of wheat planted in four blocks arranged according to a randomized complete complete block design. All 56 varieties of wheat were used in each block. The latitude and longitude of each experimental unit in the trial were also recorded."
 
@@ -335,7 +337,7 @@ The residuals suggest a clear spatial trend in fertility.  Next, We plot the sem
 plot(Variogram(fm1, form = ~ latitude + longitude))
 ```
 
-The semivariogram suggests a non-zero nugget.  Here, we will fit spherical, Gaussian, and linear correlation models based on the latitude and longitude coordinates of each data point.  For each fit, we will then plot a semivariogram of the normalized residuals.  Again, if the model has done a good job accounting for the correlation structure in the data, then the normalized residuals should be independent.  See $\S$ 5.3.2 of Pinheiro \& Bates (2000) for more details about the different spatial correlation structures available in `nlme::gls`.  In particular, see their Fig.\ 5.9 for a display of how different spatial correlation models compare.
+The semivariogram suggests a non-zero nugget.  Here, we will fit spherical, Gaussian, and linear correlation models based on the latitude and longitude coordinates of each data point.  For each fit, we will then plot a semivariogram of the normalized residuals.  Again, if the model has done a good job accounting for the correlation structure in the data, then the normalized residuals should be independent.  See $\S$ 5.3.2 of @pinheiro2000 for more details about the different spatial correlation structures available in `nlme::gls`.  In particular, see their Fig.\ 5.9 for a display of how different spatial correlation models compare.
 
 For each model, we must supply starting values for the range and nugget.  Rough starting values based on the semivariogram of the raw residuals will suffice.  Calls to `Variogram` will plot the calculated semivariances and overlay the fitted semivariogram.
 

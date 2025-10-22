@@ -15,7 +15,7 @@ X_1, \ldots, X_n & \sim \mbox{Pois}(\lambda) \\
 \lambda | X_1, \ldots, X_n & \sim \mbox{Gamma}(a + \sum_n X_n, r + n) \\
 \end{align*}
 
-In the horse-kick data, $\sum_n x_n = 196$ and $n = 280$.  Suppose we start with the vague Gamma prior $a=.01$, $r = .01$ on $\lambda$.  This prior has mean $a/r = 1$ and variance $a/r^2 = 100$.  The posterior distribution for $\lambda$ is then a Gamma with shape parameter $a = 196.01$ and rate parameter $280.01$.  We can plot it:
+In the horse-kick data, $\sum_n x_n = 196$ and $n = 280$.  Suppose we start with the vague Gamma prior $a=1$, $r = 1$ on $\lambda$.  This prior has mean $a/r = 1$ and variance $a/r^2 = 1$.^[Actually, a Gamma distribution with shape and rate parameters equal to 1 is the same as an exponential distribution with rate 1.  Indeed, any Gamma distribution with shape parameter equal to 1 and rate parameter equal to $r$ is the same as an exponential distribution with rate parameter equal to $r$.]  The posterior distribution for $\lambda$ is then a Gamma with shape parameter $a = 197$ and rate parameter $281$.  We can plot it:
 
 
 ``` r
@@ -24,9 +24,9 @@ horse <- read.table("data/horse.txt",
                     stringsAsFactors = TRUE)
 
 l.vals <- seq(from = 0, to = 2, length = 200)
-plot(l.vals, dgamma(l.vals, shape = 196.01, rate = 280.01), type = "l", 
+plot(l.vals, dgamma(l.vals, shape = 197, rate = 281), type = "l", 
      xlab = expression(lambda), ylab = "")
-lines(l.vals, dgamma(l.vals, shape = .01, rate = .01), lty = "dashed")
+lines(l.vals, dgamma(l.vals, shape = 1, rate = 1), lty = "dashed")
 
 abline(v = 0.7, col = "red")
 
@@ -41,35 +41,35 @@ The red line shows the MLE, which is displaced slightly from the posterior mode.
 As a point estimate, we might consider any of the following.  The posterior mean can be found exactly as $a/r$ = 0.70001.  Alternatively, we might consider the posterior median
 
 ``` r
-qgamma(0.5, shape = 196.01, rate = 280.01)
+qgamma(0.5, shape = 197, rate = 281)
 ```
 
 ```
-## [1] 0.6988206
+## [1] 0.6998817
 ```
 
 Finally, we might conisder the posterior mode:
 
 ``` r
-optimize(f = function(x) dgamma(x, shape = 196.01, rate = 280.01), interval = c(0.5, 1), maximum = TRUE)
+optimize(f = function(x) dgamma(x, shape = 197, rate = 281), interval = c(0.5, 1), maximum = TRUE)
 ```
 
 ```
 ## $maximum
-## [1] 0.6964383
+## [1] 0.6975082
 ## 
 ## $objective
-## [1] 7.995941
+## [1] 8.003938
 ```
 
 To find a 95\% confidence interval, we might consider the central 95\% interval:
 
 ``` r
-qgamma(c(0.025, 0.975), shape = 196.01, rate = 280.01)
+qgamma(c(0.025, 0.975), shape = 197, rate = 281)
 ```
 
 ```
-## [1] 0.6054387 0.8013454
+## [1] 0.6065824 0.8022917
 ```
 
 A 95\% highest posterior density (HPD) interval takes a bit more work.  We'll write a function to compute the width of a 95\% credible interval based on the quantile of the upper endpoint, and then find the quantile that minimizes this width.
@@ -77,8 +77,8 @@ A 95\% highest posterior density (HPD) interval takes a bit more work.  We'll wr
 ``` r
 interval.width <- function(x){
   
-  upper <- qgamma(p = x, shape = 196.01, rate = 280.01)
-  lower <- qgamma(p = x - .95, shape = 196.01, rate = 280.01)
+  upper <- qgamma(p = x, shape = 197, rate = 281)
+  lower <- qgamma(p = x - .95, shape = 197, rate = 281)
   
   upper - lower
 }
@@ -87,28 +87,28 @@ interval.width <- function(x){
 ```
 
 ```
-## [1] 0.9722295
+## [1] 0.9722365
 ```
 
 ``` r
-(hpd.ci <- qgamma(p = c(upper.qtile - .95, upper.qtile), shape = 196.01, rate = 280.01))
+(hpd.ci <- qgamma(p = c(upper.qtile - .95, upper.qtile), shape = 197, rate = 281))
 ```
 
 ```
-## [1] 0.6031834 0.7988678
+## [1] 0.6043347 0.7998231
 ```
 
 We might also ask questions like: What is the posterior probability that $\lambda > 2/3$?  These caluclations are straightforward in a Bayesian context, and they make full sense.
 
 ``` r
-pgamma(2/3, shape = 196.01, rate = 280.01, lower.tail = FALSE)
+pgamma(2/3, shape = 197, rate = 281, lower.tail = FALSE)
 ```
 
 ```
-## [1] 0.7434032
+## [1] 0.7506288
 ```
 
-Thus we would say that there is a 0.743 posterior probability that $\lambda > 2/3$.
+Thus we would say that there is a 0.751 posterior probability that $\lambda > 2/3$.
 
 As an illustration, note that if we had begun with a more informative prior --- say, a gamma distribution with shape parameter $a = 50$ and rate parameter = $100$ --- then the posterior would have been more of a compromise between the prior and the information in the data:
 
@@ -180,7 +180,7 @@ horse.model <- function() {
     y[j] ~ dpois (lambda)      # data model:  the likelihood      
   }
   
-  lambda ~ dgamma (0.01, 0.01) # prior 
+  lambda ~ dgamma (1, 1) # prior 
                                # note that BUGS / JAGS parameterizes 
                                # gamma by shape, rate
 }
@@ -190,7 +190,7 @@ jags.data <- list(y = horse$deaths, J = length(horse$deaths))
 jags.params <- c("lambda")
 
 jags.inits <- function(){
-  list("lambda" = rgamma(0.01, 0.01))
+  list("lambda" = rgamma(1, 1, 1))
 }
 
 jagsfit <- jags(data               = jags.data, 
@@ -198,7 +198,8 @@ jagsfit <- jags(data               = jags.data,
                 parameters.to.save = jags.params,
                 model.file         = horse.model,
                 n.chains           = 3,
-                n.iter             = 5000)
+                n.iter             = 5000,
+                jags.seed          = 1)
 ```
 
 ```
@@ -224,18 +225,18 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpo1oUaH/model59cc409730ad", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpE9tYX2/model6670555f222a", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved. Running time = 1 secs
+##  n.sims = 3750 iterations saved. Running time = 0.19 secs
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.701   0.050   0.605   0.667   0.700   0.733   0.804 1.001  3800
-## deviance 629.318   1.499 628.310 628.406 628.739 629.604 633.345 1.002  3800
+## lambda     0.701   0.050   0.603   0.666   0.701   0.734   0.800 1.001  3800
+## deviance 629.320   1.442 628.310 628.407 628.769 629.642 633.433 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 1.1 and DIC = 630.4
+## pV = 1.0 and DIC = 630.4
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -250,12 +251,12 @@ summary(mcmc.output)
 
 ```
 ##     deviance         lambda      
-##  Min.   :628.3   Min.   :0.5166  
-##  1st Qu.:628.4   1st Qu.:0.6671  
-##  Median :628.7   Median :0.6999  
+##  Min.   :628.3   Min.   :0.5443  
+##  1st Qu.:628.4   1st Qu.:0.6662  
+##  Median :628.8   Median :0.7010  
 ##  Mean   :629.3   Mean   :0.7008  
-##  3rd Qu.:629.6   3rd Qu.:0.7325  
-##  Max.   :644.7   Max.   :0.9160
+##  3rd Qu.:629.6   3rd Qu.:0.7341  
+##  Max.   :641.9   Max.   :0.9007
 ```
 
 ``` r
@@ -263,7 +264,7 @@ median(mcmc.output$lambda)
 ```
 
 ```
-## [1] 0.6998957
+## [1] 0.7010051
 ```
 
 ``` r
@@ -272,7 +273,7 @@ quantile(mcmc.output$lambda, c(.025, .975))
 
 ```
 ##      2.5%     97.5% 
-## 0.6048446 0.8036678
+## 0.6026313 0.7999124
 ```
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
@@ -347,7 +348,7 @@ cricket.model <- function() {
   
   b0 ~ dnorm (0.0, 1E-6)       # prior for intercept
   b1 ~ dnorm (0.0, 1E-6)       # prior for slope
-  tau ~ dgamma (0.01, 0.01)    # prior for tau
+  tau ~ dgamma (1, 1)      # prior for tau
                                # note that BUGS / JAGS parameterizes 
                                # gamma by shape, rate
   
@@ -361,7 +362,7 @@ jags.data <- list(y = cricket$chirps,
 jags.params <- c("b0", "b1", "tau", "sigma")
 
 jags.inits <- function(){
-  list("b0" = rnorm(1), "b1" = rnorm(1), "tau" = runif(1))
+  list("b0" = rnorm(1), "b1" = rnorm(1), "tau" = rgamma(1, 1, 1))
 }
 
 jagsfit <- jags(data               = jags.data, 
@@ -369,7 +370,8 @@ jagsfit <- jags(data               = jags.data,
                 parameters.to.save = jags.params,
                 model.file         = cricket.model,
                 n.chains           = 3,
-                n.iter             = 5000)
+                n.iter             = 5000,
+                jags.seed          = 2)
 ```
 
 ```
@@ -379,7 +381,7 @@ jagsfit <- jags(data               = jags.data,
 ## Graph information:
 ##    Observed stochastic nodes: 15
 ##    Unobserved stochastic nodes: 3
-##    Total graph size: 70
+##    Total graph size: 69
 ## 
 ## Initializing model
 ```
@@ -389,21 +391,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpo1oUaH/model59cc63335ee3", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpE9tYX2/model667045dd3356", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved. Running time = 0.06 secs
+##  n.sims = 3750 iterations saved. Running time = 0.08 secs
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.303   3.350 -6.932 -2.437 -0.267  1.830  6.302 1.001  3700
-## b1         0.212   0.042  0.129  0.185  0.211  0.239  0.294 1.001  3800
-## sigma      1.038   0.222  0.702  0.885  1.003  1.149  1.566 1.001  3800
-## tau        1.047   0.409  0.408  0.757  0.993  1.278  2.029 1.001  3800
-## deviance  42.833   2.692 39.791 40.886 42.161 44.094 49.753 1.001  3800
+## b0        -0.276   3.319 -6.858 -2.404 -0.326  1.877  6.259 1.001  3800
+## b1         0.211   0.041  0.130  0.185  0.212  0.238  0.293 1.001  3800
+## sigma      1.029   0.203  0.719  0.889  0.998  1.138  1.525 1.001  3400
+## tau        1.049   0.387  0.430  0.772  1.004  1.266  1.934 1.001  3400
+## deviance  42.730   2.547 39.790 40.841 42.064 43.966 48.968 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 3.6 and DIC = 46.5
+## pV = 3.2 and DIC = 46.0
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -422,20 +424,20 @@ summary(mcmc.output)
 ```
 
 ```
-##        b0                 b1             deviance         sigma       
-##  Min.   :-13.1658   Min.   :0.03941   Min.   :39.58   Min.   :0.5867  
-##  1st Qu.: -2.4375   1st Qu.:0.18517   1st Qu.:40.89   1st Qu.:0.8846  
-##  Median : -0.2665   Median :0.21129   Median :42.16   Median :1.0035  
-##  Mean   : -0.3030   Mean   :0.21179   Mean   :42.83   Mean   :1.0379  
-##  3rd Qu.:  1.8295   3rd Qu.:0.23881   3rd Qu.:44.09   3rd Qu.:1.1490  
-##  Max.   : 14.0670   Max.   :0.37815   Max.   :68.20   Max.   :2.9931  
+##        b0                 b1            deviance         sigma       
+##  Min.   :-12.2605   Min.   :0.0356   Min.   :39.56   Min.   :0.5234  
+##  1st Qu.: -2.4037   1st Qu.:0.1852   1st Qu.:40.84   1st Qu.:0.8889  
+##  Median : -0.3258   Median :0.2119   Median :42.06   Median :0.9980  
+##  Mean   : -0.2760   Mean   :0.2115   Mean   :42.73   Mean   :1.0292  
+##  3rd Qu.:  1.8765   3rd Qu.:0.2382   3rd Qu.:43.97   3rd Qu.:1.1379  
+##  Max.   : 13.7674   Max.   :0.3612   Max.   :63.09   Max.   :2.0964  
 ##       tau        
-##  Min.   :0.1116  
-##  1st Qu.:0.7575  
-##  Median :0.9931  
-##  Mean   :1.0465  
-##  3rd Qu.:1.2779  
-##  Max.   :2.9051
+##  Min.   :0.2275  
+##  1st Qu.:0.7723  
+##  Median :1.0039  
+##  Mean   :1.0489  
+##  3rd Qu.:1.2656  
+##  Max.   :3.6503
 ```
 
 Now we'll coerce the data frame `mcmc.output` to an MCMC object, and pass it to `HPDinterval`:
@@ -446,11 +448,11 @@ HPDinterval(as.mcmc(mcmc.output))
 
 ```
 ##               lower      upper
-## b0       -6.7360156  6.4761698
-## b1        0.1325089  0.2973778
-## deviance 39.6129789 47.9822687
-## sigma     0.6382489  1.4481293
-## tau       0.2983668  1.8350374
+## b0       -6.2979450  6.7412089
+## b1        0.1247905  0.2873566
+## deviance 39.5645988 47.6490920
+## sigma     0.6910891  1.4409892
+## tau       0.3611716  1.8173815
 ## attr(,"Probability")
 ## [1] 0.9498667
 ```
@@ -485,7 +487,7 @@ summary(avg.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   16.10   17.48   17.70   17.70   17.92   20.10
+##   16.18   17.48   17.70   17.70   17.92   19.20
 ```
 
 ``` r
@@ -494,7 +496,7 @@ quantile(avg.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 17.02454 18.37030
+## 17.01347 18.41269
 ```
 
 We could use the `density` function to get a quick idea of the shape of the distribution:
@@ -505,7 +507,7 @@ plot(density(avg.chirps.85))
 
 <img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
-Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95\% credible interval is (17.02, 18.37).
+Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95\% credible interval is (17.01, 18.41).
 
 Finally, we can use the posterior samples to estimate the uncertainty in a future observation.  When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution.  The posterior predictive distribution must also include the error around the regression line.  We can estimate the posterior predictive distribution as follows.  Suppose we denote sample $i$ from the posterior as $\beta_{0, i}$, $\beta_{1, i}$, and $\sigma_i$.  Then for each posterior sample we will generate a new hypothetical observation $y_i^\star$ by sampling from a Gaussian distribution with mean equal to $\beta_{0,i} + \beta_{1,i} x $ and standard deviation $\sigma_i$, where $x = 85$.  The distribution of the $y_i^*$'s then gives the posterior predictive distribution that we seek.
 
@@ -524,7 +526,7 @@ summary(new.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   12.73   16.99   17.71   17.70   18.42   22.73
+##   13.74   17.01   17.72   17.71   18.40   22.37
 ```
 
 ``` r
@@ -533,10 +535,10 @@ quantile(new.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 15.49916 19.86500
+## 15.53013 19.93890
 ```
 
-Thus, the posterior predictive distribution has a central 95\% credible interval of (15.5, 19.86).
+Thus, the posterior predictive distribution has a central 95\% credible interval of (15.53, 19.94).
 
 Although it hasn't caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
@@ -557,10 +559,10 @@ cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##              b0          b1         tau
-## b0   1.00000000 -0.99675664  0.01442628
-## b1  -0.99675664  1.00000000 -0.01225101
-## tau  0.01442628 -0.01225101  1.00000000
+##               b0           b1          tau
+## b0   1.000000000 -0.996724240  0.003856079
+## b1  -0.996724240  1.000000000 -0.005250785
+## tau  0.003856079 -0.005250785  1.000000000
 ```
 
 Thus we estimate that the intercept and slope have a posterior correlation of -0.997.
@@ -589,7 +591,8 @@ jagsfit <- jags(data               = jags.data,
                 parameters.to.save = jags.params,
                 model.file         = cricket.model,
                 n.chains           = 3,
-                n.iter             = 5000)
+                n.iter             = 5000,
+                jags.seed          = 3)
 ```
 
 ```
@@ -599,7 +602,7 @@ jagsfit <- jags(data               = jags.data,
 ## Graph information:
 ##    Observed stochastic nodes: 15
 ##    Unobserved stochastic nodes: 3
-##    Total graph size: 70
+##    Total graph size: 69
 ## 
 ## Initializing model
 ```
@@ -609,21 +612,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmpo1oUaH/model59cc1c0f6ec2", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpE9tYX2/model66706246a8b", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved. Running time = 0.05 secs
+##  n.sims = 3750 iterations saved. Running time = 0.08 secs
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.654   0.267 16.129 16.482 16.646 16.830 17.189 1.001  3800
-## b1         0.210   0.042  0.123  0.184  0.211  0.238  0.290 1.001  3800
-## sigma      1.032   0.222  0.710  0.877  0.995  1.149  1.576 1.001  3800
-## tau        1.059   0.409  0.403  0.758  1.010  1.299  1.983 1.001  3800
-## deviance  42.857   2.657 39.775 40.864 42.176 44.189 49.580 1.001  3800
+## b0        16.649   0.273 16.101 16.473 16.647 16.821 17.187 1.002  1200
+## b1         0.212   0.042  0.129  0.185  0.211  0.239  0.292 1.001  3800
+## sigma      1.032   0.202  0.722  0.892  1.003  1.140  1.512 1.001  3800
+## tau        1.043   0.384  0.437  0.769  0.995  1.257  1.916 1.001  3800
+## deviance  42.780   2.553 39.787 40.891 42.166 43.928 49.376 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 3.5 and DIC = 46.4
+## pV = 3.3 and DIC = 46.0
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -652,9 +655,9 @@ cor(mcmc.output[, -c(3:4)])
 
 ```
 ##               b0          b1          tau
-## b0   1.000000000 -0.02813716 -0.001464623
-## b1  -0.028137160  1.00000000  0.043335138
-## tau -0.001464623  0.04333514  1.000000000
+## b0   1.000000000 0.016148384 -0.005153823
+## b1   0.016148384 1.000000000  0.000674642
+## tau -0.005153823 0.000674642  1.000000000
 ```
 
 ## rstanarm
