@@ -311,7 +311,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3187808
+## [1] 0.318859
 ```
 
 ``` r
@@ -345,7 +345,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3503592
+## [1] 0.350087
 ```
 
 ``` r
@@ -786,7 +786,7 @@ plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
 
 Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlated errors.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
 
-As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.^[This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of @wood2017generalized.]  I downloaded these data from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  First, some housekeeping and exploratory analysis.
+As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from January 1, 1995 to August 27, 2025.^[This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of @wood2017generalized.  The first portion of these data were downloaded from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  The more recent data were downloaded from NOAA's Climate Data Online (CDO) portal, https://www.ncdc.noaa.gov/cdo-web/search .]   First, some housekeeping and exploratory analysis.
 
 
 ``` r
@@ -799,7 +799,7 @@ with(rdu, table(temp == -99))
 ```
 ## 
 ## FALSE  TRUE 
-## 10508    15
+## 11182    15
 ```
 
 ``` r
@@ -840,8 +840,8 @@ require(mgcv)
 ## This is mgcv 1.9-3. For overview type 'help("mgcv-package")'.
 ```
 
-```r
-fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
+``` r
+fm1 <- gamm(temp ~ s(doy, bs = "cc") + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
 ```
 
 The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit except the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
@@ -853,44 +853,40 @@ summary(fm1$lme)
 ```
 ## Linear mixed-effects model fit by maximum likelihood
 ##   Data: strip.offset(mf) 
-##        AIC     BIC   logLik
-##   58047.81 58090.6 -29017.9
+##        AIC      BIC    logLik
+##   69855.65 69899.58 -34921.83
 ## 
 ## Random effects:
 ##  Formula: ~Xr - 1 | g
 ##  Structure: pdIdnot
-##               Xr1       Xr2       Xr3       Xr4       Xr5       Xr6       Xr7
-## StdDev: 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296
-##               Xr8       Xr9      Xr10      Xr11      Xr12      Xr13      Xr14
-## StdDev: 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296 0.5311296
-##              Xr15      Xr16      Xr17      Xr18
-## StdDev: 0.5311296 0.5311296 0.5311296 0.5311296
+##              Xr1      Xr2      Xr3      Xr4      Xr5      Xr6      Xr7      Xr8
+## StdDev: 1.856569 1.856569 1.856569 1.856569 1.856569 1.856569 1.856569 1.856569
 ## 
 ##  Formula: ~Xr.0 - 1 | g.0 %in% g
 ##  Structure: pdIdnot
 ##               Xr.01       Xr.02       Xr.03       Xr.04       Xr.05       Xr.06
-## StdDev: 0.001644904 0.001644904 0.001644904 0.001644904 0.001644904 0.001644904
+## StdDev: 0.008279714 0.008279714 0.008279714 0.008279714 0.008279714 0.008279714
 ##               Xr.07       Xr.08 Residual
-## StdDev: 0.001644904 0.001644904 7.596932
+## StdDev: 0.008279714 0.008279714 7.523312
 ## 
 ## Correlation Structure: AR(1)
 ##  Formula: ~1 | g/g.0/yr 
 ##  Parameter estimate(s):
 ##       Phi 
-## 0.6815075 
+## 0.6845975 
 ## Fixed effects:  y ~ X - 1 
-##                 Value Std.Error   DF  t-value p-value
-## X(Intercept) 60.55577 0.1805467 9248 335.4022   0e+00
-## Xs(time)Fx1   0.70615 0.1804134 9248   3.9140   1e-04
+##                 Value Std.Error    DF  t-value p-value
+## X(Intercept) 61.09894 0.1635474 11180 373.5856       0
+## Xs(time)Fx1   1.04041 0.1634872 11180   6.3639       0
 ##  Correlation: 
 ##             X(Int)
 ## Xs(time)Fx1 0     
 ## 
 ## Standardized Within-Group Residuals:
 ##          Min           Q1          Med           Q3          Max 
-## -4.071281352 -0.648513253 -0.002229428  0.590788103  3.645626473 
+## -4.135868506 -0.651586784 -0.001947138  0.594334324  3.671830628 
 ## 
-## Number of Observations: 9250
+## Number of Observations: 11182
 ## Number of Groups: 
 ##          g g.0 %in% g 
 ##          1          1
@@ -906,23 +902,23 @@ summary(fm1$gam)
 ## Link function: identity 
 ## 
 ## Formula:
-## temp ~ s(doy, bs = "cc", k = 20) + s(time)
+## temp ~ s(doy, bs = "cc") + s(time)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)  60.5558     0.1805   335.4   <2e-16 ***
+## (Intercept)  61.0989     0.1635   373.6   <2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Approximate significance of smooth terms:
-##           edf Ref.df      F  p-value    
-## s(doy)  10.13     18 310.51  < 2e-16 ***
-## s(time)  1.00      1  15.32 9.15e-05 ***
+##           edf Ref.df      F p-value    
+## s(doy)  7.438      8 839.69  <2e-16 ***
+## s(time) 1.000      1  40.51  <2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## R-sq.(adj) =   0.76   
-##   Scale est. = 57.713    n = 9250
+## R-sq.(adj) =  0.762   
+##   Scale est. = 56.6      n = 11182
 ```
 
 ``` r
@@ -933,7 +929,7 @@ plot(fm1$gam)
 
 Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down.  Fall in the Piedmont is ever fleeting.
 
-Less substantially, but still interestingly, the estimate of the correlation between temperature anomalies on consecutive days is $\approx$ 0.68, which matches lived experience.
+Less substantially, but still interestingly, the estimate of the correlation between temperature anomalies on consecutive days is $\approx$ 0.68, which matches experience.
 
 The best-fitting smoothing spline for the among-year trend is linear.  Let's replace the smoothing spline by a linear term so that it is easier to extract the slope, which will now be contained in the `lme` portion.
 
@@ -987,7 +983,7 @@ To see the effect of the AR(1) correlation structure, let's compare our model fi
 
 
 ``` r
-fm1a <- gam(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu)
+fm1a <- gam(temp ~ s(doy, bs = "cc") + s(time), data = rdu)
 
 plot(fm1a)
 ```

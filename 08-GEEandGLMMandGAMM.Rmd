@@ -484,7 +484,7 @@ plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
 
 Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlated errors.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
 
-As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from Jan 1 1995 to May 13 2020.^[This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of @wood2017generalized.]  I downloaded these data from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  First, some housekeeping and exploratory analysis.
+As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from January 1, 1995 to August 27, 2025.^[This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of @wood2017generalized.  The first portion of these data were downloaded from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  The more recent data were downloaded from NOAA's Climate Data Online (CDO) portal, https://www.ncdc.noaa.gov/cdo-web/search .]   First, some housekeeping and exploratory analysis.
 
 ```{r}
 rdu <- read.table("data/rdu-temperature.txt", head = T)
@@ -503,7 +503,7 @@ We will fit a model that is the sum of two splines: a cyclic spine to capture th
 require(mgcv)
 ```
 ```{r cache = TRUE}
-fm1 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
+fm1 <- gamm(temp ~ s(doy, bs = "cc") + s(time), data = rdu, correlation = corAR1(form = ~ 1 | yr))
 ```
 
 The output of `mgcv::gamm` is a list of two parts.  The first part, named `lme`, includes the output of the model that includes most of the model fit except the smooth terms.  The second part, named `gam`, includes any smoothing splines.  For the model above, most of the interesting elements are in the `gam` portion.  We'll look at the `lme` portion, too, as this contains the estimate of the correlation parameter between consecutive days.
@@ -515,7 +515,7 @@ plot(fm1$gam)
 
 Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down.  Fall in the Piedmont is ever fleeting.
 
-Less substantially, but still interestingly, the estimate of the correlation between temperature anomalies on consecutive days is $\approx$ 0.68, which matches lived experience.
+Less substantially, but still interestingly, the estimate of the correlation between temperature anomalies on consecutive days is $\approx$ 0.68, which matches experience.
 
 The best-fitting smoothing spline for the among-year trend is linear.  Let's replace the smoothing spline by a linear term so that it is easier to extract the slope, which will now be contained in the `lme` portion.
 
@@ -530,7 +530,7 @@ The temperature trend is estimated as an increase of `r round(fm2$lme$coefficien
 To see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
 
 ```{r}
-fm1a <- gam(temp ~ s(doy, bs = "cc", k = 20) + s(time), data = rdu)
+fm1a <- gam(temp ~ s(doy, bs = "cc") + s(time), data = rdu)
 
 plot(fm1a)
 abline(h = 0, col = "red")

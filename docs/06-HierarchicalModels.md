@@ -573,9 +573,9 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpoFSm2n/model51a059246040", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpAdBho4/model31e83fabf4b", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.33 secs
+##  n.sims = 3000 iterations saved. Running time = 0.42 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
 ## B[1]     1513.191  20.679 1470.083 1499.791 1513.943 1527.456 1552.320 1.001
 ## B[2]     1528.043  19.201 1488.647 1516.093 1528.416 1540.146 1566.297 1.001

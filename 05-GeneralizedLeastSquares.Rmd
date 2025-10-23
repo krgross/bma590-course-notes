@@ -303,10 +303,12 @@ Data that are organized in space are also often correlated, with data points tha
 > "Stroup and Baenziger (1994) describe an agronomic experiment to compare the yield of 56 different varieties of wheat planted in four blocks arranged according to a randomized complete complete block design. All 56 varieties of wheat were used in each block. The latitude and longitude of each experimental unit in the trial were also recorded."
 
 
-```{r}
+```{r echo = FALSE}
 rm(list = ls())
-data("Wheat2")
+```
 
+```{r}
+data("Wheat2")
 summary(Wheat2)
 ```
 
