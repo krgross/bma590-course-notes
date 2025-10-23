@@ -334,7 +334,7 @@ All that said, here is how you might use `rstanarm` to fit the simple regression
 require(rstanarm)
 ```
 
-```{r cache = TRUE}
+```{r}
 stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaussian, seed = 1)
 ```
 
