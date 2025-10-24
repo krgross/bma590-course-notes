@@ -196,7 +196,7 @@ moth.model <- function() {
    b[1] ~ dnorm (0.0, 1E-6)       # prior for slope
    b[2] ~ dnorm (0.0, 1E-6)       # prior for slope
    
-   tau_L   ~ dgamma (0.01, 0.01)    # prior for location-level random effect
+   tau_L   ~ dexp(1)    # prior for location-level random effect
    
    sd_L   <- pow(tau_L, -1/2)
    
@@ -484,6 +484,8 @@ plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
 
 Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlated errors.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
 
+### mgcv::gamm
+
 As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from January 1, 1995 to August 27, 2025.^[This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of @wood2017generalized.  The first portion of these data were downloaded from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  The more recent data were downloaded from NOAA's Climate Data Online (CDO) portal, https://www.ncdc.noaa.gov/cdo-web/search .]   First, some housekeeping and exploratory analysis.
 
 ```{r}
@@ -520,7 +522,7 @@ Less substantially, but still interestingly, the estimate of the correlation bet
 The best-fitting smoothing spline for the among-year trend is linear.  Let's replace the smoothing spline by a linear term so that it is easier to extract the slope, which will now be contained in the `lme` portion.
 
 ```{r cache = TRUE}
-fm2 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + time, data = rdu, correlation = corAR1(form = ~ 1 | yr))
+fm2 <- gamm(temp ~ s(doy, bs = "cc") + time, data = rdu, correlation = corAR1(form = ~ 1 | yr))
 
 summary(fm2$lme)
 ```
@@ -537,6 +539,18 @@ abline(h = 0, col = "red")
 ```
 
 Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both indicate overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
+
+The temperature increase in the RDU data is hard to believe. As a sanity check, we can plot the average recorded temperature for all (nearly) complete years from 1995--2024.  (We say nearly complete because some years have occasional missing values.)
+
+```{r}
+yr_avg <- with(subset(rdu, yr < 2025), aggregate(temp, list(yr), FUN = mean))  
+names(yr_avg) <- c("year", "avg_temp")
+with(yr_avg, plot(avg_temp ~ year))
+```
+
+These data are a little odd because the source of the data changes after 2020 (and the two sources don't completely agree for temperature data before 2020). The data for 2023--24 are so anomalous that it makes one wonder if something about the measurement device changed.  Even prior to 2023, though, the trend in average annual temperature is clear. 
+
+### gamm::gamm4
 
 Finally, we will use `gamm4::gamm4` to fit a new model to the tick data from @elston2001, this time using a smoothing spline to estimate the effect of elevation on tick abundance.  Like `mgcv::gamm`, `gamm4::gamm4` returns models with two compoments: one called `mer` that contains output from the portion of the model that invokes `lme4::(g)lmer`, and one called `gam` that contains the smoothing terms.
 

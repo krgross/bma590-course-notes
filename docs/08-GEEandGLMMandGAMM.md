@@ -311,7 +311,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.318859
+## [1] 0.3188137
 ```
 
 ``` r
@@ -345,7 +345,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.350087
+## [1] 0.3503211
 ```
 
 ``` r
@@ -368,7 +368,7 @@ require(R2jags)
 ```
 
 
-```r
+``` r
 moth.model <- function() {
    
    for (j in 1:J) {             # J = number of data points
@@ -389,7 +389,7 @@ moth.model <- function() {
    b[1] ~ dnorm (0.0, 1E-6)       # prior for slope
    b[2] ~ dnorm (0.0, 1E-6)       # prior for slope
    
-   tau_L   ~ dgamma (0.01, 0.01)    # prior for location-level random effect
+   tau_L   ~ dexp(1)    # prior for location-level random effect
    
    sd_L   <- pow(tau_L, -1/2)
    
@@ -436,10 +436,10 @@ mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
 ```
 
 ```
-##          a.1          a.2       b.diff          b.1          b.2     deviance 
-## -1.140722211 -0.734757896  0.027796240  0.018614882 -0.009181358 75.257872581 
-##         sd_L 
-##  0.249026857
+##         a.1         a.2      b.diff         b.1         b.2    deviance 
+## -1.14532242 -0.73593138  0.02792038  0.01844916 -0.00947122 74.26101714 
+##        sd_L 
+##  0.67703526
 ```
 
 ``` r
@@ -448,12 +448,12 @@ HPDinterval(as.mcmc(mcmc.output['b.diff']))
 
 ```
 ##             lower      upper
-## b.diff 0.01168872 0.04370766
+## b.diff 0.01232351 0.04384734
 ## attr(,"Probability")
 ## [1] 0.95
 ```
 
-The posterior mean of the difference in the log-odds slopes --- 0.0278 --- is essentially the same value that we have seen in every analysis.  We can have a look at the full posterior distribution for this difference, and calculate the posterior probability that the difference is $>0$.  
+The posterior mean of the difference in the log-odds slopes --- 0.0279 --- is essentially the same value that we have seen in every analysis.  We can have a look at the full posterior distribution for this difference, and calculate the posterior probability that the difference is $>0$.  
 
 
 ``` r
@@ -472,10 +472,10 @@ table(mcmc.output$b.diff > 0)
 ```
 ## 
 ## FALSE  TRUE 
-##     4 14996
+##     3 14997
 ```
 
-Thus we would say that there is a 0.9997 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
+Thus we would say that there is a 0.9998 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
 
 We can plot the fit of the model using draws from the posterior distribution of the parameters.  The heavy lines below show the fits using the posterior means of the parameters.  Do these fits correspond to the marginal or conditional means?  (There's little difference here, but it's a useful thought exercise.)
 
@@ -786,6 +786,8 @@ plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
 
 Generalized additive mixed models (GAMMs) include just about every model feature we've discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlated errors.  There are two software routines available for fitting GAMMs in R: `mgcv::gamm` and `gamm4::gamm4`.  The routine `mgcv::gamm` is based on `lme`, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares.  The routine `gamm4::gamm4` is based on `lme4`, and thus provides access to the same fitting syntax as `lmer` and `glmer`.  We will illustrate each in turn.
 
+### mgcv::gamm
+
 As we have seen, serial data usually have a serial dependence structure.  They are also data for which one might want to use splines to capture the underlying trend.  Time series provide a prime example.  Below, we will analyze daily average temperature data from RDU from January 1, 1995 to August 27, 2025.^[This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of @wood2017generalized.  The first portion of these data were downloaded from Kelly Kissock's website at the University of Dayton, although that website no longer seems to be maintained.  The more recent data were downloaded from NOAA's Climate Data Online (CDO) portal, https://www.ncdc.noaa.gov/cdo-web/search .]   First, some housekeeping and exploratory analysis.
 
 
@@ -934,8 +936,8 @@ Less substantially, but still interestingly, the estimate of the correlation bet
 The best-fitting smoothing spline for the among-year trend is linear.  Let's replace the smoothing spline by a linear term so that it is easier to extract the slope, which will now be contained in the `lme` portion.
 
 
-```r
-fm2 <- gamm(temp ~ s(doy, bs = "cc", k = 20) + time, data = rdu, correlation = corAR1(form = ~ 1 | yr))
+``` r
+fm2 <- gamm(temp ~ s(doy, bs = "cc") + time, data = rdu, correlation = corAR1(form = ~ 1 | yr))
 
 summary(fm2$lme)
 ```
@@ -943,41 +945,39 @@ summary(fm2$lme)
 ```
 ## Linear mixed-effects model fit by maximum likelihood
 ##   Data: strip.offset(mf) 
-##        AIC      BIC   logLik
-##   58045.81 58081.47 -29017.9
+##        AIC      BIC    logLik
+##   69853.65 69890.26 -34921.83
 ## 
 ## Random effects:
 ##  Formula: ~Xr - 1 | g
 ##  Structure: pdIdnot
-##               Xr1       Xr2       Xr3       Xr4       Xr5       Xr6       Xr7
-## StdDev: 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421
-##               Xr8       Xr9      Xr10      Xr11      Xr12      Xr13      Xr14
-## StdDev: 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421 0.5311421
-##              Xr15      Xr16      Xr17      Xr18 Residual
-## StdDev: 0.5311421 0.5311421 0.5311421 0.5311421 7.596946
+##              Xr1      Xr2      Xr3      Xr4      Xr5      Xr6      Xr7      Xr8
+## StdDev: 1.856608 1.856608 1.856608 1.856608 1.856608 1.856608 1.856608 1.856608
+##         Residual
+## StdDev: 7.523295
 ## 
 ## Correlation Structure: AR(1)
 ##  Formula: ~1 | g/yr 
 ##  Parameter estimate(s):
 ##       Phi 
-## 0.6815089 
+## 0.6845958 
 ## Fixed effects:  y ~ X - 1 
-##                 Value Std.Error   DF   t-value p-value
-## X(Intercept) 59.33167 0.3611717 9248 164.27550   0e+00
-## Xtime         0.00026 0.0000675 9248   3.91405   1e-04
+##                 Value Std.Error    DF   t-value p-value
+## X(Intercept) 59.29523 0.3272265 11180 181.20547       0
+## Xtime         0.00032 0.0000506 11180   6.36501       0
 ##  Correlation: 
 ##       X(Int)
 ## Xtime -0.866
 ## 
 ## Standardized Within-Group Residuals:
 ##          Min           Q1          Med           Q3          Max 
-## -4.071273712 -0.648512192 -0.002229388  0.590786427  3.645621019 
+## -4.135878917 -0.651585309 -0.001948106  0.594336225  3.671840351 
 ## 
-## Number of Observations: 9250
+## Number of Observations: 11182
 ## Number of Groups: 1
 ```
 
-The temperature trend is estimated as an increase of 2.64\times 10^{-4} $^\circ$F per day.  That equates to a trend of 0.0964 $^\circ$F per year, or 0.964 per decade.  Yikes!
+The temperature trend is estimated as an increase of 3.22\times 10^{-4} $^\circ$F per day.  That equates to a trend of 0.1176 $^\circ$F per year, or 1.176 per decade.  Yikes!
 
 To see the effect of the AR(1) correlation structure, let's compare our model fit to one that doesn't account for autocorrelated errors.
 
@@ -998,10 +998,25 @@ abline(h = 0, col = "red")
 
 Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both indicate overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
 
+The temperature increase in the RDU data is hard to believe. As a sanity check, we can plot the average recorded temperature for all (nearly) complete years from 1995--2024.  (We say nearly complete because some years have occasional missing values.)
+
+
+``` r
+yr_avg <- with(subset(rdu, yr < 2025), aggregate(temp, list(yr), FUN = mean))  
+names(yr_avg) <- c("year", "avg_temp")
+with(yr_avg, plot(avg_temp ~ year))
+```
+
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+
+These data are a little odd because the source of the data changes after 2020 (and the two sources don't completely agree for temperature data before 2020). The data for 2023--24 are so anomalous that it makes one wonder if something about the measurement device changed.  Even prior to 2023, though, the trend in average annual temperature is clear. 
+
+### gamm::gamm4
+
 Finally, we will use `gamm4::gamm4` to fit a new model to the tick data from @elston2001, this time using a smoothing spline to estimate the effect of elevation on tick abundance.  Like `mgcv::gamm`, `gamm4::gamm4` returns models with two compoments: one called `mer` that contains output from the portion of the model that invokes `lme4::(g)lmer`, and one called `gam` that contains the smoothing terms.
 
 
-```r
+``` r
 require(gamm4)
 
 fm4  <- gamm4(ticks ~ yr + s(elev.z), random = ~ (1 | loc) + (1 | brood) + (1 | index), 
@@ -1016,27 +1031,27 @@ summary(fm4$mer)
 ##   Approximation) [glmerMod]
 ##  Family: poisson  ( log )
 ## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1796.5   1828.5   -890.3   1780.5      395 
+##       AIC       BIC    logLik -2*log(L)  df.resid 
+##    1796.5    1828.5    -890.3    1780.5       395 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -1.6123 -0.5536 -0.1486  0.2849  2.4430 
+## -1.6123 -0.5536 -0.1486  0.2850  2.4430 
 ## 
 ## Random effects:
 ##  Groups Name        Variance  Std.Dev. 
-##  index  (Intercept) 2.932e-01 0.5415175
-##  brood  (Intercept) 5.625e-01 0.7499952
-##  loc    (Intercept) 2.796e-01 0.5287786
-##  Xr     s(elev.z)   1.359e-08 0.0001166
+##  index  (Intercept) 2.932e-01 0.5415095
+##  brood  (Intercept) 5.626e-01 0.7500387
+##  loc    (Intercept) 2.795e-01 0.5287004
+##  Xr     s(elev.z)   7.426e-08 0.0002725
 ## Number of obs: 403, groups:  index, 403; brood, 118; loc, 63; Xr, 8
 ## 
 ## Fixed effects:
 ##               Estimate Std. Error z value Pr(>|z|)    
-## X(Intercept)    0.3727     0.1964   1.898 0.057694 .  
-## Xyr96           1.1805     0.2381   4.958 7.14e-07 ***
+## X(Intercept)    0.3728     0.1964   1.898 0.057632 .  
+## Xyr96           1.1804     0.2381   4.957 7.15e-07 ***
 ## Xyr97          -0.9787     0.2628  -3.724 0.000196 ***
-## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.84e-12 ***
+## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.83e-12 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -1047,7 +1062,7 @@ summary(fm4$mer)
 ## Xs(lv.z)Fx1  0.011  0.048  0.047
 ```
 
-```r
+``` r
 summary(fm4$gam)
 ```
 
@@ -1061,8 +1076,8 @@ summary(fm4$gam)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)   0.3727     0.1904   1.958 0.050278 .  
-## yr96          1.1805     0.2356   5.010 5.44e-07 ***
+## (Intercept)   0.3728     0.1904   1.958 0.050222 .  
+## yr96          1.1804     0.2356   5.010 5.45e-07 ***
 ## yr97         -0.9787     0.2630  -3.722 0.000198 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1077,16 +1092,16 @@ summary(fm4$gam)
 ## glmer.ML = 220.92  Scale est. = 1         n = 403
 ```
 
-```r
+``` r
 plot(fm4$gam)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-34-1.png" width="672" />
 
 Our best fitting model continues to contain a linear association between elevation and tick abundance.  Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.
 
 
-```r
+``` r
 fm5  <- gam(ticks ~ yr + s(elev.z), 
               family = "poisson",
               data = tick)
@@ -1094,4 +1109,4 @@ fm5  <- gam(ticks ~ yr + s(elev.z),
 plot(fm5)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-35-1.png" width="672" />

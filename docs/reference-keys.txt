@@ -62,3 +62,5 @@ glmms
 bayesian-fit
 example-2-ticks-on-red-grouse
 GAMMs
+mgcvgamm
+gammgamm4

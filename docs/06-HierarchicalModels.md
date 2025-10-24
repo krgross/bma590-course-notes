@@ -6,7 +6,7 @@
 
 
 
-We will illustrate the basic ideas of hierarchical models with the `Dyestuff` data contained in `lme4`.  According to Bates (2012+), these data originally appeared in Davies (1947), and "are described in Davies and Goldsmith (1972, Table 6.3, p. 131) ... as coming from 'an investigation to find out how much the variation from batch to bach in the quality of an intermediate product contributes to the variation in the yield of the dyestuff made from it'".  The data consist of 6 batches, each of which gives rise to 5 observations. 
+We will illustrate the basic ideas of hierarchical models with the `Dyestuff` data contained in `lme4`.  According to @bates2012lme4, these data originally appeared in Davies (1947), and "are described in Davies and Goldsmith (1972, Table 6.3, p. 131) ... as coming from 'an investigation to find out how much the variation from batch to batch in the quality of an intermediate product contributes to the variation in the yield of the dyestuff made from it'".  The data consist of 6 batches, each of which gives rise to 5 observations. 
 
 Preparatory work:
 
@@ -45,59 +45,7 @@ with(Dyestuff, stripchart(Yield ~ Batch, pch = 16))
 
 To develop some notation, let $i = 1, \ldots, 6$ index the batches, let $j = 1, \ldots, 5$ index the observations within each batch, and let $y_{ij}$ denote observation $j$ from batch $i$.
 
-As a starting point, we will fit the usual one-factor ANOVA model to these data.  This model is
-\begin{align}
-y_{ij} & \sim \mathcal{N}(\mu_i, \sigma^2)
-\end{align}
-
-``` r
-fm0 <- lm(Yield ~ 1, data = Dyestuff)          # model with common mean
-fm1 <- lm(Yield ~ Batch - 1, data = Dyestuff)  # mean varies by group
-anova(fm0, fm1)  # usual F-test for differences among group means
-```
-
-```
-## Analysis of Variance Table
-## 
-## Model 1: Yield ~ 1
-## Model 2: Yield ~ Batch - 1
-##   Res.Df    RSS Df Sum of Sq      F   Pr(>F)   
-## 1     29 115187                                
-## 2     24  58830  5     56358 4.5983 0.004398 **
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
-
-``` r
-summary(fm1)  # eliminating the intercept gives sample means for each group
-```
-
-```
-## 
-## Call:
-## lm(formula = Yield ~ Batch - 1, data = Dyestuff)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -85.00 -33.00   3.00  31.75  97.00 
-## 
-## Coefficients:
-##        Estimate Std. Error t value Pr(>|t|)    
-## BatchA  1505.00      22.14   67.97   <2e-16 ***
-## BatchB  1528.00      22.14   69.01   <2e-16 ***
-## BatchC  1564.00      22.14   70.64   <2e-16 ***
-## BatchD  1498.00      22.14   67.66   <2e-16 ***
-## BatchE  1600.00      22.14   72.26   <2e-16 ***
-## BatchF  1470.00      22.14   66.39   <2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 49.51 on 24 degrees of freedom
-## Multiple R-squared:  0.9992,	Adjusted R-squared:  0.999 
-## F-statistic:  4763 on 6 and 24 DF,  p-value: < 2.2e-16
-```
-
-Now we will use `nlme::gls` to fit a model that assumes that the data within each batch are correlated.  In other words, we fit the model
+We will use `nlme::gls` to fit a model that assumes that the data within each batch are correlated.  In other words, we fit the model
 \begin{align}
 y_{ij} & \sim \mathcal{N}(\mu_i, \sigma^2) \\
 \mathrm{Corr}(y_{ij}, y_{ik}) & = \rho
@@ -240,7 +188,7 @@ It is informative to compare the conditional models for each batch to the sample
 ## 1505 1528 1564 1498 1600 1470
 ```
 
-These are the same as the LS estimates of the batch-specific means in the ANOVA model, `fm1`.  Now plot the sample means against the conditional modes:
+Now plot the sample means against the conditional modes:
 
 
 ``` r
@@ -270,7 +218,7 @@ plot(x    = batch.means,
 abline(a = 0, b = 1)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-10-1.png" width="672" />
 
 The conditional modes are "shrunken" towards the global mean relative to the sample means.  Why is this so?
 
@@ -313,7 +261,7 @@ pr <- profile(fm3ML)
 lattice::xyplot(pr)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-12-1.png" width="672" />
 
 There are three panels here, one for each of the parameters in the model.  These parameters are labeled as $\sigma_1$ for the standard deviation of the block-level random effect (what we have written $\sigma_B$), $\sigma$ for the standard deviation of the errors (what we have written as $\sigma_\varepsilon$), and "(Intercept)" for the global mean (what we have written as $\mu$).  
 
@@ -340,7 +288,7 @@ Here is a bit more about the logic behind zeta plots (feel free to skip this par
 lattice::xyplot(pr, absVal = TRUE)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-14-1.png" width="672" />
 
 The purpose of using a signed square root is to turn these V-shaped plots into straight lines.  Straight lines are useful in turn because if the profile log likelihood is actually quadratic, then the zeta plot will yield a perfectly straight line, and thus a local approximation to the confidence interval will be appropriate.  If the zeta-plot is non-linear, then the confidence interval becomes more asymmetric, and a local approximation fares more poorly.
 
@@ -440,7 +388,7 @@ Equipped with this information, we could construct a 95\% confidence interval fo
 
 Compare this interval with the profile interval generated by `lme4::profile`.
 
-Finally, we can also obtain prediction intervals on the conditional modes of the random effects by using the `condVar = TRUE` option in a call to `ranef`.  We illustrate below, and direct the output to `lattice::dotplot` for visualization.  Each line below shows a 95\% prediction interval for a conditional mode.  When there are many levels of the random effect, @bates2010lme4 recommends using `lattice::qqmath` instead of `lattice::dotplot`.
+Finally, we can also obtain prediction intervals on the conditional modes of the random effects by using the `condVar = TRUE` option in a call to `ranef`.  We illustrate below, and direct the output to `lattice::dotplot` for visualization.  Each line below shows a 95\% prediction interval for a conditional mode.  When there are many levels of the random effect, @bates2012lme4 recommends using `lattice::qqmath` instead of `lattice::dotplot`.
 
 
 ``` r
@@ -451,7 +399,7 @@ lattice::dotplot(ranef(fm3, condVar = TRUE))
 ## $Batch
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 
 
 ## Bayesian analysis
@@ -525,8 +473,8 @@ dyestuff.model <- function() {
   
   mu ~ dnorm (0.0, 1E-6)  # prior for the overall mean
   
-  tau_eps ~ dgamma (0.01, 0.01)
-  tauB    ~ dgamma (0.01, 0.01)
+  tau_eps ~ dexp(1)
+  tauB    ~ dexp(1)
   
   sd_eps <- pow(tau_eps, -1/2)
   sdB    <- pow(tauB, -1/2)
@@ -539,7 +487,7 @@ jags.data <- list(y     = Dyestuff$Yield,
 jags.params <- c("mu", "sd_eps", "sdB", "B[1]", "B[2]")
 
 jags.inits <- function(){
-  list("mu" = rnorm(1, .01), "tauB" = runif(1), "tau_eps" = runif(1))
+  list("mu" = rnorm(1, .01), "tauB" = dexp(1, 1), "tau_eps" = dexp(1, 1))
 }
 
 set.seed(1)
@@ -573,29 +521,29 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpAdBho4/model31e83fabf4b", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp2BJURJ/model3bec10234ac8", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.42 secs
+##  n.sims = 3000 iterations saved. Running time = 0.37 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.191  20.679 1470.083 1499.791 1513.943 1527.456 1552.320 1.001
-## B[2]     1528.043  19.201 1488.647 1516.093 1528.416 1540.146 1566.297 1.001
-## mu       1526.597  21.848 1481.731 1515.002 1527.347 1538.398 1569.707 1.007
-## sdB        39.674  27.039    0.322   23.495   37.059   51.440  104.668 1.003
-## sd_eps     53.756   9.208   39.676   47.069   52.263   59.236   75.897 1.001
-## deviance  323.265   6.298  314.782  318.381  321.568  327.403  336.265 1.002
+## B[1]     1525.776  12.999 1498.380 1517.780 1526.067 1534.411 1549.825 1.008
+## B[2]     1526.784  12.497 1501.919 1518.518 1526.927 1535.140 1551.098 1.008
+## mu       1526.816  12.216 1503.319 1518.746 1526.803 1534.865 1550.369 1.010
+## sdB         3.920   9.155    0.517    0.894    1.314    2.275   33.258 1.004
+## sd_eps     61.451   8.542   45.806   55.750   60.929   66.486   79.838 1.002
+## deviance  333.690   3.848  320.020  333.007  333.863  335.205  339.778 1.002
 ##          n.eff
-## B[1]      3000
-## B[2]      3000
-## mu         780
-## sdB       1100
-## sd_eps    3000
-## deviance  1400
+## B[1]       350
+## B[2]       290
+## mu         230
+## sdB        920
+## sd_eps    1500
+## deviance  1500
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 19.8 and DIC = 343.1
+## pV = 7.4 and DIC = 341.1
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -603,7 +551,7 @@ print(jagsfit)
 traceplot(jagsfit)  
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-1.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-2.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-3.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-4.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-5.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-6.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-2.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-3.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-4.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-5.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-6.png" width="672" />
 
 ``` r
 require(lattice)
@@ -618,7 +566,7 @@ jagsfit.mcmc <- as.mcmc(jagsfit)
 densityplot(jagsfit.mcmc)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-7.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-7.png" width="672" />
 
 As of this writing, there are some aspects of the output that I don't understand.  The traceplots show that one chain starts far away from the region of high posterior density and then rapidly converges to it. This behavior seems to persist regardless of how long the burn-in period is, which doesn't make sense to me.  I also do not understand why `densityplot` produces a 6-by-1 stack of panels instead of a more useful layout.  
 
@@ -648,7 +596,7 @@ summary(Dyestuff2)
 with(Dyestuff2, stripchart(Yield ~ Batch, pch = 16))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 
 We'll begin by fitting a GLS model that includes a within-batch correlation:
 
@@ -735,15 +683,15 @@ Can you think of any ecological mechanisms that might give rise to negative with
 
 So-called random coefficient models are popular modeling structures in ecology.  Random-coefficient models are useful when data are grouped, like the Dyestuff data.  However, unlike the Dyestuff data, random-coefficient models refer to scenarios where the statistical model that we want to entertain within each group is more complex than just a simple random sample with a group-specific mean.
 
-To illustrate random-coefficient models, we will consider the RIKZ data from Zuur et al. (2009).  These data were first analyzed in an earlier textbook (Zuur et al.\ 2007).  Zuur et al. (2009, p. 101) describe the data as follows:
+To illustrate random-coefficient models, we will consider the RIKZ data from @zuur2009.  These data were first analyzed in an earlier textbook (@zuur2007analysing).  @zuur2009 (p. 101) describe the data as follows:
 
-> "Zuur et al. (2007) used marine benthic data from nine inter-tidal areas along the Dutch coast. The data were collected by the Dutch institute RIKZ in the summer of 2002. In each inter-tidal area (denoted by ‘beach’), five samples were taken, and the macro-fauna and abiotic variables were measured. ... The underlying question for these data is whether there is a relationship between species richness, exposure, and NAP (the height of a sampling station compared to mean tidal level). Exposure is an index composed of the following elements: wave action, length of the surf zone, slope, grain size, and the depth of the anaerobic layer."
+> "@zuur2007analysing used marine benthic data from nine inter-tidal areas along the Dutch coast. The data were collected by the Dutch institute RIKZ in the summer of 2002. In each inter-tidal area (denoted by ‘beach’), five samples were taken, and the macro-fauna and abiotic variables were measured. ... The underlying question for these data is whether there is a relationship between species richness, exposure, and NAP (the height of a sampling station compared to mean tidal level). Exposure is an index composed of the following elements: wave action, length of the surf zone, slope, grain size, and the depth of the anaerobic layer."
 
 In other words, there are 9 beaches, and 5 samples from each beach.  The response, measured at each sample, is the macrofaunal species richness.  There are two covariates: NAP, which is a sample-level covariate, and exposure, which is a beach-level covariate.  Because species richness is a count variable and includes the occasional zero (and because we have not yet discussed hierarchical models for non-Gaussian responses) we will use the square-root of richness as a variance-stabilizing transformation.  Using the square root of species richness as the response has the added benefit of making our analysis different from the analysis in Zuur et al. (2009).
 
 We are going to analyze these data exhaustively, considering various approaches for their analysis and comparing the pros and cons.  In our first pass, we will ignore the exposure covariate, and seek only to model the relationship between species richness and NAP.  Once that analysis is complete, we will circle back and consider how the analysis changes when we consider the beach-level covariate as well.
 
-Like all data from Zuur et al. (2009), the data are available for download from the book's associated webpage.  We will read in the data and do some housekeeping first.
+Like all data from @zuur2009, the data are available for download from the book's associated webpage.  We will read in the data and do some housekeeping first.
 
 
 ``` r
@@ -755,14 +703,14 @@ rikz <- read.table("data/RIKZ.txt", head = T)
 with(rikz, plot(Richness ~ NAP, pch = Beach))  # raw response; note the non-constant variance
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-24-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-1.png" width="672" />
 
 ``` r
 with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach))  # transformation stabilizes the variance
 legend("topright", leg = 1:9, pch = 1:9)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-24-2.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-2.png" width="672" />
 
 
 ``` r
@@ -904,7 +852,7 @@ for(i in 1:9){
 }
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-29-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
 
 Continuing with the fixed-effects analysis, we might also consider a model in which the relationship between NAP and species richness varies among beaches.  In other words, we might fit a model with a beach-by-NAP interaction.  This model is
@@ -1008,7 +956,7 @@ for(i in 1:9){
 }
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 
 #### Using random-effects for among-beach differences
@@ -1094,7 +1042,7 @@ for(i in 1:9){
 }
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 
 Though it's subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.
 
@@ -1265,7 +1213,7 @@ with(conditional.modes, points(slope ~ intercept, pch = 1:9))
 points(fixef(fm3)[1], fixef(fm3)[2], pch = 16, col = "red", cex = 2)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-43-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-42-1.png" width="672" />
 
 Note, again, that the conditional modes of the intercepts and slopes have shrunk (sometimes substantially) back towards the population means of each.  The population means of the intercept and slope are shown by the red dot on the right-hand panel.  Finally, we visualize the model by plotting beach-specific "fits":
 
@@ -1283,7 +1231,7 @@ for(i in 1:9){
 abline(a = fixef(fm3)[1], b = fixef(fm3)[2], col = "red", lwd = 2)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-44-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-43-1.png" width="672" />
 
 ### Adding a beach-level covariate
 
@@ -1602,7 +1550,7 @@ for (i in 1:length(high.beaches)) {
 }
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-50-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-49-1.png" width="672" />
 
 <!-- Finally, we'll fit a model in which the slope does not depend on exposure, just for comparison.  That is, we entertain the model -->
 <!-- \begin{align*} -->
@@ -1875,7 +1823,7 @@ We see that only the linear trend of the nitrogen treatment is significant.  Let
 with(oats, plot(Y ~ N))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-55-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-54-1.png" width="672" />
 
 ### Crossed random effects
 
@@ -1947,7 +1895,7 @@ confint(pp.golf)
 lattice::xyplot(pp.golf, absVal = TRUE)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-57-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-56-1.png" width="672" />
 
 
 We can also extract the conditional modes for the players and rounds.
@@ -1993,7 +1941,7 @@ with(player.stats, stripchart(mode ~ as.factor(rds), method = "jitter", ylab = "
                               xlab = "conditional mode", pch = 1))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-59-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-58-1.png" width="672" />
 
 Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were "cut".  We might infer that these players played above their abilities on days 1 and 2.
 
