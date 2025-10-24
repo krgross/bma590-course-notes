@@ -195,8 +195,8 @@ dyestuff.model <- function() {
   
   mu ~ dnorm (0.0, 1E-6)  # prior for the overall mean
   
-  tau_eps ~ dexp(1)
-  tauB    ~ dexp(1)
+  tau_eps ~ dgamma(.1, .1)
+  tauB    ~ dgamma(.1, .1)
   
   sd_eps <- pow(tau_eps, -1/2)
   sdB    <- pow(tauB, -1/2)

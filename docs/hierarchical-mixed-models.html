@@ -551,8 +551,8 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <span id="cb449-16"><a href="hierarchical-mixed-models.html#cb449-16" tabindex="-1"></a>  </span>
 <span id="cb449-17"><a href="hierarchical-mixed-models.html#cb449-17" tabindex="-1"></a>  mu <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)  <span class="co"># prior for the overall mean</span></span>
 <span id="cb449-18"><a href="hierarchical-mixed-models.html#cb449-18" tabindex="-1"></a>  </span>
-<span id="cb449-19"><a href="hierarchical-mixed-models.html#cb449-19" tabindex="-1"></a>  tau_eps <span class="sc">~</span> <span class="fu">dexp</span>(<span class="dv">1</span>)</span>
-<span id="cb449-20"><a href="hierarchical-mixed-models.html#cb449-20" tabindex="-1"></a>  tauB    <span class="sc">~</span> <span class="fu">dexp</span>(<span class="dv">1</span>)</span>
+<span id="cb449-19"><a href="hierarchical-mixed-models.html#cb449-19" tabindex="-1"></a>  tau_eps <span class="sc">~</span> <span class="fu">dgamma</span>(.<span class="dv">1</span>, .<span class="dv">1</span>)</span>
+<span id="cb449-20"><a href="hierarchical-mixed-models.html#cb449-20" tabindex="-1"></a>  tauB    <span class="sc">~</span> <span class="fu">dgamma</span>(.<span class="dv">1</span>, .<span class="dv">1</span>)</span>
 <span id="cb449-21"><a href="hierarchical-mixed-models.html#cb449-21" tabindex="-1"></a>  </span>
 <span id="cb449-22"><a href="hierarchical-mixed-models.html#cb449-22" tabindex="-1"></a>  sd_eps <span class="ot">&lt;-</span> <span class="fu">pow</span>(tau_eps, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
 <span id="cb449-23"><a href="hierarchical-mixed-models.html#cb449-23" tabindex="-1"></a>  sdB    <span class="ot">&lt;-</span> <span class="fu">pow</span>(tauB, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
@@ -583,29 +583,29 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb452-1"><a href="hierarchical-mixed-models.html#cb452-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmp2BJURJ/model3bec10234ac8&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmp0Y6f62/model3304c6539f8&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.37 secs
+##  n.sims = 3000 iterations saved. Running time = 0.34 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1525.776  12.999 1498.380 1517.780 1526.067 1534.411 1549.825 1.008
-## B[2]     1526.784  12.497 1501.919 1518.518 1526.927 1535.140 1551.098 1.008
-## mu       1526.816  12.216 1503.319 1518.746 1526.803 1534.865 1550.369 1.010
-## sdB         3.920   9.155    0.517    0.894    1.314    2.275   33.258 1.004
-## sd_eps     61.451   8.542   45.806   55.750   60.929   66.486   79.838 1.002
-## deviance  333.690   3.848  320.020  333.007  333.863  335.205  339.778 1.002
+## B[1]     1513.686  19.332 1474.441 1501.079 1515.075 1527.207 1548.378 1.001
+## B[2]     1526.920  19.084 1490.881 1514.551 1526.882 1538.502 1566.481 1.001
+## mu       1526.644  20.320 1483.504 1515.818 1527.076 1538.074 1567.462 1.003
+## sdB        36.782  25.641    0.481   20.352   35.033   49.224   95.307 1.006
+## sd_eps     53.651   9.262   38.914   47.164   52.396   58.987   75.790 1.001
+## deviance  323.666   6.500  314.954  318.451  321.889  328.567  336.638 1.002
 ##          n.eff
-## B[1]       350
-## B[2]       290
-## mu         230
-## sdB        920
-## sd_eps    1500
-## deviance  1500
+## B[1]      3000
+## B[2]      3000
+## mu        3000
+## sdB        450
+## sd_eps    3000
+## deviance  1600
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 7.4 and DIC = 341.1
+## pV = 21.1 and DIC = 344.8
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
 <div class="sourceCode" id="cb454"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb454-1"><a href="hierarchical-mixed-models.html#cb454-1" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)  </span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-2.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-3.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-4.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-5.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-6.png" width="672" /></p>

@@ -473,8 +473,8 @@ dyestuff.model <- function() {
   
   mu ~ dnorm (0.0, 1E-6)  # prior for the overall mean
   
-  tau_eps ~ dexp(1)
-  tauB    ~ dexp(1)
+  tau_eps ~ dgamma(.1, .1)
+  tauB    ~ dgamma(.1, .1)
   
   sd_eps <- pow(tau_eps, -1/2)
   sdB    <- pow(tauB, -1/2)
@@ -521,29 +521,29 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp2BJURJ/model3bec10234ac8", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp0Y6f62/model3304c6539f8", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.37 secs
+##  n.sims = 3000 iterations saved. Running time = 0.34 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1525.776  12.999 1498.380 1517.780 1526.067 1534.411 1549.825 1.008
-## B[2]     1526.784  12.497 1501.919 1518.518 1526.927 1535.140 1551.098 1.008
-## mu       1526.816  12.216 1503.319 1518.746 1526.803 1534.865 1550.369 1.010
-## sdB         3.920   9.155    0.517    0.894    1.314    2.275   33.258 1.004
-## sd_eps     61.451   8.542   45.806   55.750   60.929   66.486   79.838 1.002
-## deviance  333.690   3.848  320.020  333.007  333.863  335.205  339.778 1.002
+## B[1]     1513.686  19.332 1474.441 1501.079 1515.075 1527.207 1548.378 1.001
+## B[2]     1526.920  19.084 1490.881 1514.551 1526.882 1538.502 1566.481 1.001
+## mu       1526.644  20.320 1483.504 1515.818 1527.076 1538.074 1567.462 1.003
+## sdB        36.782  25.641    0.481   20.352   35.033   49.224   95.307 1.006
+## sd_eps     53.651   9.262   38.914   47.164   52.396   58.987   75.790 1.001
+## deviance  323.666   6.500  314.954  318.451  321.889  328.567  336.638 1.002
 ##          n.eff
-## B[1]       350
-## B[2]       290
-## mu         230
-## sdB        920
-## sd_eps    1500
-## deviance  1500
+## B[1]      3000
+## B[2]      3000
+## mu        3000
+## sdB        450
+## sd_eps    3000
+## deviance  1600
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 7.4 and DIC = 341.1
+## pV = 21.1 and DIC = 344.8
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
