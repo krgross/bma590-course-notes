@@ -1,93 +1,21 @@
-# Generalized linear mixed models
+# Generalized linear mixed models {#glmms}
 
 
 
-## Example 1: Industrial melanism data
+## Example 1: Industrial melanism data, continued
 
-We will examine several possible approaches to analyzing the industrial melanism data.  The original source for these data is @bishop1972; I obtained them from @ramsey2002. Recall that these data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  In notation, the model that we seek to fit is
+We first encountered the industrial melanism data when we studied [mixed models](#moth-mm).  There, we fit models that accounted for the correlation among observations from the same location, but we didn't fully accommodate the non-normal nature of the responses.  If we can accommodate the fact that the responses are binomially distributed, then we can account for the fact that differing numbers of moths were placed at the different stations---a fact that our previous approach ignores.  To account for the correlated, binomial nature of the responses, we shall  fit the model 
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
 \mathrm{logit}(p_{ij}) & = \eta_{ij} \\
 \eta_{ij} & = a_i + b_i x_j + L_j \\
 L_j & \sim \mathcal{N}(0, \sigma^2_L)
 \end{align*}
-where $i=1,2$ indexes the two color morphs, $j = 1, \ldots, 7$ indexes the stations, $y_{ij}$ is the number of moths removed, $n_{ij}$ is the number of moths placed, and let $x_j$ is the distance of the station from Liverpool.  We are most interested in learning about the difference $b_1 - b_2$, which quantifies how the relationship between log odds of removal and distance differs between the two color morphs, and determining whether there is evidence that this difference $\neq 0$.  Alternatively, we might prefer to consider the quantity $e^{b_1 - b_2} = e^{b_1} / e^{b_2}$, which tells us how the odds ratio for removal changes between the two morphs as distance increases.  This odds ratio is a bit closer to something that we can mentall grasp.  In terms of the odds ratio, we are interested in learning if the odds ratio $\neq 1$.
-
-Before proceeding, we note that one approach is simply to regress the difference of the empirical logits vs.\ distance.  This reduces the problem to a simple regression.  We try this approach first and use it as a benchmark.  The data set used here is reformatted to include one record for each of the 7 stations.
-
-
-``` r
-moth2 <- read.table("data/moth2.txt", head = TRUE, stringsAsFactors = TRUE)
-
-head(moth2, n = 3)
-```
-
-```
-##   location distance morph l.placed l.removed d.placed d.removed
-## 1       sp      0.0 light       56        17       56        14
-## 2       ef      7.2 light       80        28       80        20
-## 3       ha     24.1 light       52        18       52        22
-```
-
-``` r
-elogit <- function(x) log(x / (1 - x))
-
-moth2$elogit.diff <- with(moth2, elogit(d.removed / d.placed) - elogit(l.removed / l.placed))
-
-fm1 <- lm(elogit.diff ~ distance, data = moth2)
-
-with(moth2, plot(elogit.diff ~ distance,
-                xlab = "distance from city center (km)",
-                ylab = "difference in log odds of removal, dark - light"))
-
-abline(h = 0, lty = "dashed")
-abline(fm1)
-```
-
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-2-1.png" width="384" />
-
-``` r
-summary(fm1)
-```
-
-```
-## 
-## Call:
-## lm(formula = elogit.diff ~ distance, data = moth2)
-## 
-## Residuals:
-##        1        2        3        4        5        6        7 
-##  0.10557 -0.30431  0.03501  0.26395 -0.09387  0.29714 -0.30349 
-## 
-## Coefficients:
-##              Estimate Std. Error t value Pr(>|t|)   
-## (Intercept) -0.373830   0.192503  -1.942  0.10980   
-## distance     0.027579   0.005997   4.599  0.00585 **
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 0.2698 on 5 degrees of freedom
-## Multiple R-squared:  0.8088,	Adjusted R-squared:  0.7706 
-## F-statistic: 21.15 on 1 and 5 DF,  p-value: 0.005846
-```
-
-``` r
-confint(fm1)
-```
-
-```
-##                   2.5 %     97.5 %
-## (Intercept) -0.86867531 0.12101544
-## distance     0.01216371 0.04299419
-```
-
-This approach tells us that the difference in log-odds slopes (defined as dark morph - light morph) is 0.0276, with a 95\% confidence interval of (0.012, 0.043).   This corresponds to an odds ratio of 1.028, with a 95\% confidence interval of (1.012, 1.044).  In other words, with every additional km from the city center, the odds ratio for a dark moth's removal vs.\ a light moth's removal increases by about 2.8\%.
-
-The major disadvantage to the approach above is that it doesn't account for the fact that differing numbers of moths were placed at the different stations.  We could try to account for this with a weighted regression, but it's not clear what the weights should be.  We were also fortunate in the sense that there were no instances of either none or all of the moths being removed at a particular station, which would have led to an infinite empirical logit.
+continuing to use the notation scheme that we developed [previously](#moth-mm).
 
 ### GEEs
 
-Next we try a GEE with a compound symmetry ("exchangable") correlation structure imposed on the pair of measurements at each station.  Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure.  We fit the model using `geepack::geeglm`. 
+First we try a GEE with a compound symmetry ("exchangable") correlation structure imposed on the pair of measurements at each station.  Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure.  We fit the model using `geepack::geeglm`. 
 
 
 ``` r
@@ -164,7 +92,7 @@ with(subset(moth, morph == "dark"), points(removed / placed ~ distance, pch = 16
 with(subset(moth, morph == "light"), points(removed / placed ~ distance, pch = 1))
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-4-1.png" width="672" />
 
 For the sake of comparing marginal means to conditional means, we will consider the predicted removal rate of dark morphs at a hypothetical location 20 km from the city center.  This predicted removal rate is 0.319.
 
@@ -311,7 +239,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3188174
+## [1] 0.318814
 ```
 
 ``` r
@@ -322,7 +250,7 @@ abline(v = conditional.mean, col = "darkorange", lwd =2)
 abline(v = marginal.mean, col = "blue", lwd = 2)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-10-1.png" width="672" />
 
 We see that the variance of the location-level random effect is small enough that the inverse logit transformation is effectively linear. Thus, the distribution of removal probabilities across locations is nearly normal, and the conditional and marginal means nearly coincide.  The estimate of the marginal mean that we have generated by simulation is not quite the same as the marginal mean generated by the GEE, which could either be due to the stochastic sampling that we have used above, and/or small numerical differences in the estimation.
 
@@ -345,7 +273,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3503541
+## [1] 0.3502591
 ```
 
 ``` r
@@ -356,7 +284,7 @@ abline(v = conditional.mean, col = "darkorange", lwd =2)
 abline(v = marginal.mean, col = "blue", lwd = 2)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-11-1.png" width="672" />
 
 ### Bayesian fit
 
@@ -389,7 +317,7 @@ moth.model <- function() {
    b[1] ~ dnorm (0.0, 1E-6)       # prior for slope
    b[2] ~ dnorm (0.0, 1E-6)       # prior for slope
    
-   tau_L   ~ dexp(1)    # prior for location-level random effect
+   tau_L   ~ dgamma(.01, .01)    # prior for location-level random effect
    
    sd_L   <- pow(tau_L, -1/2)
    
@@ -436,10 +364,10 @@ mcmc.output <- as.data.frame(jagsfit$BUGSoutput$sims.list)
 ```
 
 ```
-##         a.1         a.2      b.diff         b.1         b.2    deviance 
-## -1.14532242 -0.73593138  0.02792038  0.01844916 -0.00947122 74.26101714 
-##        sd_L 
-##  0.67703526
+##          a.1          a.2       b.diff          b.1          b.2     deviance 
+## -1.141163349 -0.732065931  0.027819509  0.018564400 -0.009255109 75.282988014 
+##         sd_L 
+##  0.248625835
 ```
 
 ``` r
@@ -448,12 +376,12 @@ HPDinterval(as.mcmc(mcmc.output['b.diff']))
 
 ```
 ##             lower      upper
-## b.diff 0.01232351 0.04384734
+## b.diff 0.01250506 0.04463559
 ## attr(,"Probability")
 ## [1] 0.95
 ```
 
-The posterior mean of the difference in the log-odds slopes --- 0.0279 --- is essentially the same value that we have seen in every analysis.  We can have a look at the full posterior distribution for this difference, and calculate the posterior probability that the difference is $>0$.  
+The posterior mean of the difference in the log-odds slopes --- 0.0278 --- is essentially the same value that we have seen in every analysis.  We can have a look at the full posterior distribution for this difference, and calculate the posterior probability that the difference is $>0$.  
 
 
 ``` r
@@ -462,7 +390,7 @@ bayesplot::mcmc_areas(mcmc.output,
                       prob = 0.95) 
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-16-1.png" width="672" />
 
 
 ``` r
@@ -472,10 +400,10 @@ table(mcmc.output$b.diff > 0)
 ```
 ## 
 ## FALSE  TRUE 
-##     3 14997
+##     5 14995
 ```
 
-Thus we would say that there is a 0.9998 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
+Thus we would say that there is a 0.9997 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.
 
 We can plot the fit of the model using draws from the posterior distribution of the parameters.  The heavy lines below show the fits using the posterior means of the parameters.  Do these fits correspond to the marginal or conditional means?  (There's little difference here, but it's a useful thought exercise.)
 
@@ -558,7 +486,7 @@ curve(fitted.mean.curve,
 points(x = dark$distance, y = dark$prop.removed, pch = 16)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 
 ## Example 2: Ticks on red grouse
 
@@ -589,13 +517,7 @@ B_{ijk} & \sim \mathcal{N}(0, \sigma^2_B) \\
 ``` r
 require(lme4)
 require(lattice)
-```
 
-```
-## Loading required package: lattice
-```
-
-``` r
 tick <- read.table("data/tick.txt", head = T)
 
 names(tick) <- c("index", "ticks", "brood", "elevation", "yr", "loc")
@@ -613,7 +535,7 @@ tick$elev.z <- with(tick, (elevation - mean(elevation)) / sd(elevation))
 Model fitting:
 
 
-```r
+``` r
 fm1  <- glmer(ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index),
               family = "poisson",
               data = tick)
@@ -628,12 +550,12 @@ summary(fm1)
 ## Formula: ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index)
 ##    Data: tick
 ## 
-##      AIC      BIC   logLik deviance df.resid 
-##   1794.5   1822.5   -890.3   1780.5      396 
+##       AIC       BIC    logLik -2*log(L)  df.resid 
+##    1794.5    1822.5    -890.3    1780.5       396 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -1.6123 -0.5536 -0.1486  0.2850  2.4430 
+## -1.6123 -0.5536 -0.1486  0.2849  2.4430 
 ## 
 ## Random effects:
 ##  Groups Name        Variance Std.Dev.
@@ -644,9 +566,9 @@ summary(fm1)
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)   0.3728     0.1964   1.898 0.057639 .  
+## (Intercept)   0.3728     0.1964   1.899 0.057622 .  
 ## yr96          1.1804     0.2381   4.957 7.15e-07 ***
-## yr97         -0.9787     0.2628  -3.724 0.000196 ***
+## yr97         -0.9786     0.2628  -3.724 0.000196 ***
 ## elev.z       -0.8543     0.1236  -6.910 4.83e-12 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -670,7 +592,7 @@ summary(fm1)
 We can have a look at the profile confidence intervals and profile confidence regions for each of the model parameters.
 
 
-```r
+``` r
 pp <- profile(fm1)
 
 confint(pp)
@@ -678,26 +600,26 @@ confint(pp)
 
 ```
 ##                   2.5 %     97.5 %
-## .sig01       0.45148400  0.6451853
-## .sig02       0.52127907  1.0569688
+## .sig01       0.45148391  0.6451854
+## .sig02       0.52127951  1.0569758
 ## .sig03       0.00000000  0.8928761
-## (Intercept) -0.02822382  0.7485777
-## yr96         0.71308911  1.6583691
-## yr97        -1.50239867 -0.4606278
-## elev.z      -1.10589101 -0.6090505
+## (Intercept) -0.02822276  0.7485772
+## yr96         0.71308987  1.6583683
+## yr97        -1.50239845 -0.4606279
+## elev.z      -1.10589089 -0.6090507
 ```
 
-```r
+``` r
 xyplot(pp, absVal = TRUE)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 
-```r
+``` r
 splom(pp)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-23-2.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-22-2.png" width="672" />
 
 We see that the standard deviation of the location-level random effect (".sig03") has a 95\% confidence interval that includes 0.  We might conclude that the location-level random effect is unnecessary. In other words, there is no evidence that different broods from the same location are more strongly (positively) correlated than two broods at different locations at the same elevation.  The bivariate confidence regions show us that the estimated SD of the location-level random effect is negatively correlated with the estimated SD of the brood-level random effect (".sig02").  Thus, the location-to-location variability (above and beyond the elevation effect) from brood-to-brood variability are confounded, which makes sense, given that most locations are represented by a small number of broods. 
 
@@ -755,7 +677,7 @@ plot.subset("96", a = 0.3728 + 1.1804, b = -0.8543)
 plot.subset("97", a = 0.3728 - 0.9787, b = -0.8543)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-25-1.png" width="672" />
 
 
 <!-- In any case, all of this seems to beg the question: What is the cost, if any, of overspecifying the random effects? -->
@@ -810,36 +732,13 @@ rdu <- subset(rdu, temp > -99)
 with(rdu, plot(temp ~ time, type = "l", xlab = "day"))
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-27-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-26-1.png" width="672" />
 
 We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature.  We also include an AR(1) structure on the errors.  The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so.  Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.
 
 
 ``` r
 require(mgcv)
-```
-
-```
-## Loading required package: mgcv
-```
-
-```
-## Loading required package: nlme
-```
-
-```
-## 
-## Attaching package: 'nlme'
-```
-
-```
-## The following object is masked from 'package:lme4':
-## 
-##     lmList
-```
-
-```
-## This is mgcv 1.9-3. For overview type 'help("mgcv-package")'.
 ```
 
 ``` r
@@ -927,7 +826,7 @@ summary(fm1$gam)
 plot(fm1$gam)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-30-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-30-2.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-2.png" width="672" />
 
 Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down.  Fall in the Piedmont is ever fleeting.
 
@@ -988,13 +887,13 @@ fm1a <- gam(temp ~ s(doy, bs = "cc") + s(time), data = rdu)
 plot(fm1a)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-1.png" width="672" />
 
 ``` r
 abline(h = 0, col = "red")
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-2.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-2.png" width="672" />
 
 Without the autocorrelated errors, both smoothing splines are quite a bit wigglier.  The confidence intervals around the fit are also too small.  Both indicate overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.
 
@@ -1007,7 +906,7 @@ names(yr_avg) <- c("year", "avg_temp")
 with(yr_avg, plot(avg_temp ~ year))
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" />
 
 These data are a little odd because the source of the data changes after 2020 (and the two sources don't completely agree for temperature data before 2020). The data for 2023--24 are so anomalous that it makes one wonder if something about the measurement device changed.  Even prior to 2023, though, the trend in average annual temperature is clear. 
 
@@ -1016,7 +915,7 @@ These data are a little odd because the source of the data changes after 2020 (a
 Finally, we will use `gamm4::gamm4` to fit a new model to the tick data from @elston2001, this time using a smoothing spline to estimate the effect of elevation on tick abundance.  Like `mgcv::gamm`, `gamm4::gamm4` returns models with two compoments: one called `mer` that contains output from the portion of the model that invokes `lme4::(g)lmer`, and one called `gam` that contains the smoothing terms.
 
 
-``` r
+```r
 require(gamm4)
 
 fm4  <- gamm4(ticks ~ yr + s(elev.z), random = ~ (1 | loc) + (1 | brood) + (1 | index), 
@@ -1031,27 +930,27 @@ summary(fm4$mer)
 ##   Approximation) [glmerMod]
 ##  Family: poisson  ( log )
 ## 
-##       AIC       BIC    logLik -2*log(L)  df.resid 
-##    1796.5    1828.5    -890.3    1780.5       395 
+##      AIC      BIC   logLik deviance df.resid 
+##   1796.5   1828.5   -890.3   1780.5      395 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -1.6123 -0.5536 -0.1486  0.2850  2.4430 
+## -1.6123 -0.5536 -0.1486  0.2849  2.4430 
 ## 
 ## Random effects:
 ##  Groups Name        Variance  Std.Dev. 
-##  index  (Intercept) 2.932e-01 0.5415095
-##  brood  (Intercept) 5.626e-01 0.7500387
-##  loc    (Intercept) 2.795e-01 0.5287004
-##  Xr     s(elev.z)   7.426e-08 0.0002725
+##  index  (Intercept) 2.932e-01 0.5415175
+##  brood  (Intercept) 5.625e-01 0.7499952
+##  loc    (Intercept) 2.796e-01 0.5287786
+##  Xr     s(elev.z)   1.359e-08 0.0001166
 ## Number of obs: 403, groups:  index, 403; brood, 118; loc, 63; Xr, 8
 ## 
 ## Fixed effects:
 ##               Estimate Std. Error z value Pr(>|z|)    
-## X(Intercept)    0.3728     0.1964   1.898 0.057632 .  
-## Xyr96           1.1804     0.2381   4.957 7.15e-07 ***
+## X(Intercept)    0.3727     0.1964   1.898 0.057694 .  
+## Xyr96           1.1805     0.2381   4.958 7.14e-07 ***
 ## Xyr97          -0.9787     0.2628  -3.724 0.000196 ***
-## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.83e-12 ***
+## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.84e-12 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -1062,7 +961,7 @@ summary(fm4$mer)
 ## Xs(lv.z)Fx1  0.011  0.048  0.047
 ```
 
-``` r
+```r
 summary(fm4$gam)
 ```
 
@@ -1076,8 +975,8 @@ summary(fm4$gam)
 ## 
 ## Parametric coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)   0.3728     0.1904   1.958 0.050222 .  
-## yr96          1.1804     0.2356   5.010 5.45e-07 ***
+## (Intercept)   0.3727     0.1904   1.958 0.050278 .  
+## yr96          1.1805     0.2356   5.010 5.44e-07 ***
 ## yr97         -0.9787     0.2630  -3.722 0.000198 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1092,11 +991,11 @@ summary(fm4$gam)
 ## glmer.ML = 220.92  Scale est. = 1         n = 403
 ```
 
-``` r
+```r
 plot(fm4$gam)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" />
 
 Our best fitting model continues to contain a linear association between elevation and tick abundance.  Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.
 
@@ -1109,4 +1008,4 @@ fm5  <- gam(ticks ~ yr + s(elev.z),
 plot(fm5)
 ```
 
-<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+<img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-34-1.png" width="672" />

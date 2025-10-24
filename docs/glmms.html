@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 8 Generalized linear mixed models | Applied statistical analysis of non-normal and/or correlated data</title>
+  <meta name="description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 8 Generalized linear mixed models | Applied statistical analysis of non-normal and/or correlated data" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 8 Generalized linear mixed models | Applied statistical analysis of non-normal and/or correlated data" />
+  
+  <meta name="twitter:description" content="This is a proto-textbook for BMA / ST 590, Statistical Modeling in Ecology." />
+  
+
+<meta name="author" content="Kevin Gross" />
+
+
+<meta name="date" content="2025-10-24" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="generalized-linear-models.html"/>
+<link rel="next" href="bibliography.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.11.0/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Maximum likelihood estimation</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#mathematical-basics"><i class="fa fa-check"></i><b>1.1</b> Mathematical basics</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#horse"><i class="fa fa-check"></i><b>1.2</b> Horse-kick data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="index.html"><a href="index.html#calculate-and-plot-the-log-likelihood-function"><i class="fa fa-check"></i><b>1.2.1</b> Calculate and plot the log-likelihood function</a></li>
+<li class="chapter" data-level="1.2.2" data-path="index.html"><a href="index.html#find-the-mle-numerically-using-optimize"><i class="fa fa-check"></i><b>1.2.2</b> Find the MLE numerically using ‘optimize’</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#pulse-rate-data"><i class="fa fa-check"></i><b>1.3</b> Pulse rate data</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#tadpole-data"><i class="fa fa-check"></i><b>1.4</b> Tadpole data</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#transformable-constraints"><i class="fa fa-check"></i><b>1.5</b> Transformable constraints</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="beyondML.html"><a href="beyondML.html"><i class="fa fa-check"></i><b>2</b> Beyond the MLE: Confidence regions and hypothesis tests using the likelihood function</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="beyondML.html"><a href="beyondML.html#confidence-intervals-for-single-parameters"><i class="fa fa-check"></i><b>2.1</b> Confidence intervals for single parameters</a></li>
+<li class="chapter" data-level="2.2" data-path="beyondML.html"><a href="beyondML.html#two-param-mle"><i class="fa fa-check"></i><b>2.2</b> Confidence regions, profile likelihoods, and associated univariate intervals</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="beyondML.html"><a href="beyondML.html#profile-likelihoods"><i class="fa fa-check"></i><b>2.2.1</b> Profile likelihoods</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="beyondML.html"><a href="beyondML.html#quadapprox"><i class="fa fa-check"></i><b>2.3</b> Quadratic approximations to confidence intervals and regions</a></li>
+<li class="chapter" data-level="2.4" data-path="beyondML.html"><a href="beyondML.html#comparing-models-likelihood-ratio-test-and-aic"><i class="fa fa-check"></i><b>2.4</b> Comparing models: Likelihood ratio test and AIC</a></li>
+<li class="chapter" data-level="2.5" data-path="beyondML.html"><a href="beyondML.html#the-negative-binomial-distriution-revisited"><i class="fa fa-check"></i><b>2.5</b> The negative binomial distriution, revisited</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="bayesian-computation.html"><a href="bayesian-computation.html"><i class="fa fa-check"></i><b>3</b> Bayesian computation</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="bayesian-computation.html"><a href="bayesian-computation.html#computations-with-conjugate-priors"><i class="fa fa-check"></i><b>3.1</b> Computations with conjugate priors</a></li>
+<li class="chapter" data-level="3.2" data-path="bayesian-computation.html"><a href="bayesian-computation.html#mcmc-and-stochastic-approximations-of-the-posterior"><i class="fa fa-check"></i><b>3.2</b> MCMC and stochastic approximations of the posterior</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="bayesian-computation.html"><a href="bayesian-computation.html#the-horse-kick-data-once-more"><i class="fa fa-check"></i><b>3.2.1</b> The horse-kick data, once more</a></li>
+<li class="chapter" data-level="3.2.2" data-path="bayesian-computation.html"><a href="bayesian-computation.html#a-simple-regression-example"><i class="fa fa-check"></i><b>3.2.2</b> A simple regression example</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="bayesian-computation.html"><a href="bayesian-computation.html#rstanarm"><i class="fa fa-check"></i><b>3.3</b> rstanarm</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="smoothing-and-gams.html"><a href="smoothing-and-gams.html"><i class="fa fa-check"></i><b>4</b> Smoothing and GAMs</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="smoothing-and-gams.html"><a href="smoothing-and-gams.html#loess-smoothers"><i class="fa fa-check"></i><b>4.1</b> Loess smoothers</a></li>
+<li class="chapter" data-level="4.2" data-path="smoothing-and-gams.html"><a href="smoothing-and-gams.html#splines"><i class="fa fa-check"></i><b>4.2</b> Splines</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="smoothing-and-gams.html"><a href="smoothing-and-gams.html#regression-splines"><i class="fa fa-check"></i><b>4.2.1</b> Regression splines</a></li>
+<li class="chapter" data-level="4.2.2" data-path="smoothing-and-gams.html"><a href="smoothing-and-gams.html#natural-splines"><i class="fa fa-check"></i><b>4.2.2</b> Natural splines</a></li>
+<li class="chapter" data-level="4.2.3" data-path="smoothing-and-gams.html"><a href="smoothing-and-gams.html#smoothing-splines"><i class="fa fa-check"></i><b>4.2.3</b> Smoothing splines</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="smoothing-and-gams.html"><a href="smoothing-and-gams.html#GAMs"><i class="fa fa-check"></i><b>4.3</b> Generalized additive models (GAMs)</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html"><i class="fa fa-check"></i><b>5</b> Generalized Least Squares</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#heterogeneous-variance"><i class="fa fa-check"></i><b>5.1</b> Heterogeneous variance</a></li>
+<li class="chapter" data-level="5.2" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#temporal-serial-correlation"><i class="fa fa-check"></i><b>5.2</b> Temporal (serial) correlation</a></li>
+<li class="chapter" data-level="5.3" data-path="generalized-least-squares.html"><a href="generalized-least-squares.html#spatial-data"><i class="fa fa-check"></i><b>5.3</b> Spatial data</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html"><i class="fa fa-check"></i><b>6</b> Hierarchical (mixed) models</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#one-factor-layout-dyestuff-data"><i class="fa fa-check"></i><b>6.1</b> One-factor layout: Dyestuff data</a>
+<ul>
+<li class="chapter" data-level="6.1.1" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#comparing-fixed-vs.-random-effects"><i class="fa fa-check"></i><b>6.1.1</b> Comparing fixed vs. random effects</a></li>
+<li class="chapter" data-level="6.1.2" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#bayesian-analysis"><i class="fa fa-check"></i><b>6.1.2</b> Bayesian analysis</a></li>
+<li class="chapter" data-level="6.1.3" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#negative-within-group-correlations"><i class="fa fa-check"></i><b>6.1.3</b> Negative within-group correlations</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#moth-mm"><i class="fa fa-check"></i><b>6.2</b> Industrial melanism data</a></li>
+<li class="chapter" data-level="6.3" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#random-coefficient-models-rikz-data"><i class="fa fa-check"></i><b>6.3</b> Random coefficient models: RIKZ data</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#analysis-without-beach-level-covariate"><i class="fa fa-check"></i><b>6.3.1</b> Analysis without beach-level covariate</a></li>
+<li class="chapter" data-level="6.3.2" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#adding-a-beach-level-covariate"><i class="fa fa-check"></i><b>6.3.2</b> Adding a beach-level covariate</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#nested-and-crossed-random-effects"><i class="fa fa-check"></i><b>6.4</b> Nested and crossed random effects</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#nested-random-effects"><i class="fa fa-check"></i><b>6.4.1</b> Nested random effects</a></li>
+<li class="chapter" data-level="6.4.2" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#crossed-random-effects"><i class="fa fa-check"></i><b>6.4.2</b> Crossed random effects</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>7</b> Generalized linear models</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#glms-the-big-picture"><i class="fa fa-check"></i><b>7.1</b> GLMs: The big picture</a></li>
+<li class="chapter" data-level="7.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#poisson-regression"><i class="fa fa-check"></i><b>7.2</b> Poisson regression</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#horse-kick-data-revisited"><i class="fa fa-check"></i><b>7.2.1</b> Horse-kick data revisited</a></li>
+<li class="chapter" data-level="7.2.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#elephant-matings"><i class="fa fa-check"></i><b>7.2.2</b> Elephant matings</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#binary-responses"><i class="fa fa-check"></i><b>7.3</b> Binary responses</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#individual-binary-responses-tb-in-boar"><i class="fa fa-check"></i><b>7.3.1</b> Individual binary responses: TB in boar</a></li>
+<li class="chapter" data-level="7.3.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#grouped-binary-data-tb-in-red-deer"><i class="fa fa-check"></i><b>7.3.2</b> Grouped binary data: TB in red deer</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-adjusted-models-for-count-data"><i class="fa fa-check"></i><b>7.4</b> Zero-adjusted models for count data</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-truncated-models"><i class="fa fa-check"></i><b>7.4.1</b> Zero-truncated models</a></li>
+<li class="chapter" data-level="7.4.2" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-inflated-models"><i class="fa fa-check"></i><b>7.4.2</b> Zero-inflated models</a></li>
+<li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="glmms.html"><a href="glmms.html"><i class="fa fa-check"></i><b>8</b> Generalized linear mixed models</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="glmms.html"><a href="glmms.html#example-1-industrial-melanism-data-continued"><i class="fa fa-check"></i><b>8.1</b> Example 1: Industrial melanism data, continued</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="glmms.html"><a href="glmms.html#gees"><i class="fa fa-check"></i><b>8.1.1</b> GEEs</a></li>
+<li class="chapter" data-level="8.1.2" data-path="glmms.html"><a href="glmms.html#glmms-1"><i class="fa fa-check"></i><b>8.1.2</b> GLMMs</a></li>
+<li class="chapter" data-level="8.1.3" data-path="glmms.html"><a href="glmms.html#bayesian-fit"><i class="fa fa-check"></i><b>8.1.3</b> Bayesian fit</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="glmms.html"><a href="glmms.html#example-2-ticks-on-red-grouse"><i class="fa fa-check"></i><b>8.2</b> Example 2: Ticks on red grouse</a></li>
+<li class="chapter" data-level="8.3" data-path="glmms.html"><a href="glmms.html#GAMMs"><i class="fa fa-check"></i><b>8.3</b> GAMMs</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="glmms.html"><a href="glmms.html#mgcvgamm"><i class="fa fa-check"></i><b>8.3.1</b> mgcv::gamm</a></li>
+<li class="chapter" data-level="8.3.2" data-path="glmms.html"><a href="glmms.html#gammgamm4"><i class="fa fa-check"></i><b>8.3.2</b> gamm::gamm4</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="bibliography.html"><a href="bibliography.html"><i class="fa fa-check"></i>Bibliography</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Applied statistical analysis of non-normal and/or correlated data</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="glmms" class="section level1 hasAnchor" number="8">
+<h1><span class="header-section-number">Chapter 8</span> Generalized linear mixed models<a href="glmms.html#glmms" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="example-1-industrial-melanism-data-continued" class="section level2 hasAnchor" number="8.1">
+<h2><span class="header-section-number">8.1</span> Example 1: Industrial melanism data, continued<a href="glmms.html#example-1-industrial-melanism-data-continued" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We first encountered the industrial melanism data when we studied <a href="hierarchical-mixed-models.html#moth-mm">mixed models</a>. There, we fit models that accounted for the correlation among observations from the same location, but we didn’t fully accommodate the non-normal nature of the responses. If we can accommodate the fact that the responses are binomially distributed, then we can account for the fact that differing numbers of moths were placed at the different stations—a fact that our previous approach ignores. To account for the correlated, binomial nature of the responses, we shall fit the model
+<span class="math display">\[\begin{align*}
+y_{ij} &amp; \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
+\mathrm{logit}(p_{ij}) &amp; = \eta_{ij} \\
+\eta_{ij} &amp; = a_i + b_i x_j + L_j \\
+L_j &amp; \sim \mathcal{N}(0, \sigma^2_L)
+\end{align*}\]</span>
+continuing to use the notation scheme that we developed <a href="hierarchical-mixed-models.html#moth-mm">previously</a>.</p>
+<div id="gees" class="section level3 hasAnchor" number="8.1.1">
+<h3><span class="header-section-number">8.1.1</span> GEEs<a href="glmms.html#gees" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>First we try a GEE with a compound symmetry (“exchangable”) correlation structure imposed on the pair of measurements at each station. Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure. We fit the model using <code>geepack::geeglm</code>.</p>
+<div class="sourceCode" id="cb628"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb628-1"><a href="glmms.html#cb628-1" tabindex="-1"></a><span class="fu">require</span>(geepack)</span></code></pre></div>
+<pre><code>## Loading required package: geepack</code></pre>
+<div class="sourceCode" id="cb630"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb630-1"><a href="glmms.html#cb630-1" tabindex="-1"></a>moth <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/moth.txt&quot;</span>, <span class="at">head =</span> <span class="cn">TRUE</span>, <span class="at">stringsAsFactors =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb630-2"><a href="glmms.html#cb630-2" tabindex="-1"></a><span class="fu">contrasts</span>(moth<span class="sc">$</span>morph) <span class="ot">&lt;-</span> <span class="fu">contr.treatment</span>(<span class="at">n =</span> <span class="dv">2</span>, <span class="at">base =</span> <span class="dv">2</span>)</span>
+<span id="cb630-3"><a href="glmms.html#cb630-3" tabindex="-1"></a></span>
+<span id="cb630-4"><a href="glmms.html#cb630-4" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">geeglm</span>(<span class="fu">cbind</span>(removed, placed <span class="sc">-</span> removed) <span class="sc">~</span> distance <span class="sc">*</span> morph, </span>
+<span id="cb630-5"><a href="glmms.html#cb630-5" tabindex="-1"></a>              <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>), </span>
+<span id="cb630-6"><a href="glmms.html#cb630-6" tabindex="-1"></a>              <span class="at">data   =</span> moth,</span>
+<span id="cb630-7"><a href="glmms.html#cb630-7" tabindex="-1"></a>              <span class="at">id     =</span> location, </span>
+<span id="cb630-8"><a href="glmms.html#cb630-8" tabindex="-1"></a>              <span class="at">corstr =</span> <span class="st">&quot;exchangeable&quot;</span>)</span>
+<span id="cb630-9"><a href="glmms.html#cb630-9" tabindex="-1"></a></span>
+<span id="cb630-10"><a href="glmms.html#cb630-10" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## geeglm(formula = cbind(removed, placed - removed) ~ distance * 
+##     morph, family = binomial(link = &quot;logit&quot;), data = moth, id = location, 
+##     corstr = &quot;exchangeable&quot;)
+## 
+##  Coefficients:
+##                  Estimate   Std.err   Wald Pr(&gt;|W|)    
+## (Intercept)     -0.714717  0.129102 30.648 3.09e-08 ***
+## distance        -0.009385  0.003221  8.489  0.00357 ** 
+## morph1          -0.410238  0.163953  6.261  0.01234 *  
+## distance:morph1  0.027762  0.005812 22.815 1.78e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation structure = exchangeable 
+## Estimated Scale Parameters:
+## 
+##             Estimate  Std.err
+## (Intercept)  0.01313 0.006935
+##   Link = identity 
+## 
+## Estimated Correlation Parameters:
+##       Estimate Std.err
+## alpha   0.3911   0.298
+## Number of clusters:   7  Maximum cluster size: 2</code></pre>
+<p>The estimate of the difference between slopes on the log-odds scale is 0.0278, with an approximate 95% confidence interval of (0.0164, 0.0391). This corresponds to an odds ratio of 1.028, with an approximate 95% confidence interval of (1.017, 1.040). To visualize the model, we might plot the fitted proportion removed vs. distance for both color morphs. Bear in mind that fitted values here correspond to marginal mean removal rates.</p>
+<div class="sourceCode" id="cb632"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb632-1"><a href="glmms.html#cb632-1" tabindex="-1"></a>inv.logit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
+<span id="cb632-2"><a href="glmms.html#cb632-2" tabindex="-1"></a>light.fit <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="sc">-</span><span class="fl">0.71472</span> <span class="sc">-</span> <span class="fl">0.00938</span> <span class="sc">*</span> d)</span>
+<span id="cb632-3"><a href="glmms.html#cb632-3" tabindex="-1"></a>dark.fit <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="sc">-</span><span class="fl">0.71472</span> <span class="sc">-</span> <span class="fl">0.41024</span> <span class="sc">+</span> (<span class="sc">-</span><span class="fl">0.00938</span> <span class="sc">+</span> <span class="fl">0.02776</span>) <span class="sc">*</span> d)</span>
+<span id="cb632-4"><a href="glmms.html#cb632-4" tabindex="-1"></a></span>
+<span id="cb632-5"><a href="glmms.html#cb632-5" tabindex="-1"></a><span class="fu">curve</span>(dark.fit, <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance), <span class="at">to =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb632-6"><a href="glmms.html#cb632-6" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;distance from city center (km)&quot;</span>,</span>
+<span id="cb632-7"><a href="glmms.html#cb632-7" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">&quot;proportion removed&quot;</span>,</span>
+<span id="cb632-8"><a href="glmms.html#cb632-8" tabindex="-1"></a>      <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">0.15</span>, <span class="fl">0.5</span>))</span>
+<span id="cb632-9"><a href="glmms.html#cb632-9" tabindex="-1"></a></span>
+<span id="cb632-10"><a href="glmms.html#cb632-10" tabindex="-1"></a><span class="fu">curve</span>(light.fit, <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance), <span class="at">to =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb632-11"><a href="glmms.html#cb632-11" tabindex="-1"></a>      <span class="at">xlab =</span> <span class="st">&quot;distance from city center (km)&quot;</span>,</span>
+<span id="cb632-12"><a href="glmms.html#cb632-12" tabindex="-1"></a>      <span class="at">ylab =</span> <span class="st">&quot;proportion removed&quot;</span>,</span>
+<span id="cb632-13"><a href="glmms.html#cb632-13" tabindex="-1"></a>      <span class="at">add =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb632-14"><a href="glmms.html#cb632-14" tabindex="-1"></a>      <span class="at">lty =</span> <span class="st">&quot;dashed&quot;</span>)</span>
+<span id="cb632-15"><a href="glmms.html#cb632-15" tabindex="-1"></a></span>
+<span id="cb632-16"><a href="glmms.html#cb632-16" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;dark&quot;</span>), <span class="fu">points</span>(removed <span class="sc">/</span> placed <span class="sc">~</span> distance, <span class="at">pch =</span> <span class="dv">16</span>))</span>
+<span id="cb632-17"><a href="glmms.html#cb632-17" tabindex="-1"></a><span class="fu">with</span>(<span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;light&quot;</span>), <span class="fu">points</span>(removed <span class="sc">/</span> placed <span class="sc">~</span> distance, <span class="at">pch =</span> <span class="dv">1</span>))</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>For the sake of comparing marginal means to conditional means, we will consider the predicted removal rate of dark morphs at a hypothetical location 20 km from the city center. This predicted removal rate is 0.319.</p>
+<div class="sourceCode" id="cb633"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb633-1"><a href="glmms.html#cb633-1" tabindex="-1"></a><span class="fu">dark.fit</span>(<span class="dv">20</span>)</span></code></pre></div>
+<pre><code>## [1] 0.3192197</code></pre>
+</div>
+<div id="glmms-1" class="section level3 hasAnchor" number="8.1.2">
+<h3><span class="header-section-number">8.1.2</span> GLMMs<a href="glmms.html#glmms-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Next, we will fit the same model with <code>lme4::glmer</code>.</p>
+<div class="sourceCode" id="cb635"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb635-1"><a href="glmms.html#cb635-1" tabindex="-1"></a><span class="fu">require</span>(lme4)</span></code></pre></div>
+<pre><code>## Loading required package: lme4</code></pre>
+<pre><code>## Loading required package: Matrix</code></pre>
+<div class="sourceCode" id="cb638"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb638-1"><a href="glmms.html#cb638-1" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> <span class="fu">glmer</span>(<span class="fu">cbind</span>(removed, placed <span class="sc">-</span> removed) <span class="sc">~</span> distance <span class="sc">*</span> morph <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> location), </span>
+<span id="cb638-2"><a href="glmms.html#cb638-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>), </span>
+<span id="cb638-3"><a href="glmms.html#cb638-3" tabindex="-1"></a>             <span class="at">data =</span> moth)</span>
+<span id="cb638-4"><a href="glmms.html#cb638-4" tabindex="-1"></a></span>
+<span id="cb638-5"><a href="glmms.html#cb638-5" tabindex="-1"></a><span class="fu">summary</span>(fm3)</span></code></pre></div>
+<pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: cbind(removed, placed - removed) ~ distance * morph + (1 | location)
+##    Data: moth
+## 
+##       AIC       BIC    logLik -2*log(L)  df.resid 
+##      85.7      88.9     -37.8      75.7         9 
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -1.73965 -0.41890  0.02967  0.66584  1.08052 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  location (Intercept) 0.01148  0.1072  
+## Number of obs: 14, groups:  location, 7
+## 
+## Fixed effects:
+##                  Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)     -0.719786   0.205488  -3.503 0.000460 ***
+## distance        -0.009341   0.006270  -1.490 0.136243    
+## morph1          -0.411128   0.274765  -1.496 0.134578    
+## distance:morph1  0.027819   0.008094   3.437 0.000588 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr) distnc morph1
+## distance    -0.843              
+## morph1      -0.641  0.538       
+## dstnc:mrph1  0.558 -0.660 -0.859</code></pre>
+<div class="sourceCode" id="cb640"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb640-1"><a href="glmms.html#cb640-1" tabindex="-1"></a><span class="fu">confint</span>(fm3, <span class="at">parm =</span> <span class="fu">c</span>(<span class="st">&quot;distance:morph1&quot;</span>))</span></code></pre></div>
+<pre><code>## Computing profile confidence intervals ...</code></pre>
+<pre><code>##                      2.5 %     97.5 %
+## distance:morph1 0.01201418 0.04377205</code></pre>
+<p>Nothing here is radically different. The parameter estimates are so similar to those from the GEE that a plot of the GEE and GLMM fits would be indistinguishable to the eye.</p>
+<p>Although <code>summary.glmer</code> doesn’t report the deviance, functions exist to obtain this information. We can use the deviance to assess overdispersion in the same way that we would in a GLM.</p>
+<!-- Note: Is this true?  I'm not sure. -->
+<div class="sourceCode" id="cb643"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb643-1"><a href="glmms.html#cb643-1" tabindex="-1"></a><span class="fu">deviance</span>(fm3)</span></code></pre></div>
+<pre><code>## [1] 9.250077</code></pre>
+<div class="sourceCode" id="cb645"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb645-1"><a href="glmms.html#cb645-1" tabindex="-1"></a><span class="fu">df.residual</span>(fm3)</span></code></pre></div>
+<pre><code>## [1] 9</code></pre>
+<p>The ratio of the deviance to the residual df is approximately 1, suggesting that the data are not overdispersed. Note that including the location random effect in the GLMM has eliminated the mild overdispersion that we detected in the GLM without the location random effect.</p>
+<p>To get a sense of how the conditional means compare to the marginal means, we will compute the conditional mean removal rate of dark morphs at a distance 20 km from the city center.</p>
+<div class="sourceCode" id="cb647"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb647-1"><a href="glmms.html#cb647-1" tabindex="-1"></a>dark.linpred.glmm <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="sc">-</span><span class="fl">0.71979</span> <span class="sc">-</span> <span class="fl">0.41113</span> <span class="sc">+</span> (<span class="sc">-</span><span class="fl">0.00934</span> <span class="sc">+</span> <span class="fl">0.02782</span>) <span class="sc">*</span> d</span>
+<span id="cb647-2"><a href="glmms.html#cb647-2" tabindex="-1"></a>dark.fit.glmm <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(d))</span>
+<span id="cb647-3"><a href="glmms.html#cb647-3" tabindex="-1"></a><span class="fu">dark.fit.glmm</span>(<span class="dv">20</span>)</span></code></pre></div>
+<pre><code>## [1] 0.3183597</code></pre>
+<p>The conditional mean of the predicted removal rate is 0.318.</p>
+<p>Here, the difference between the marginal and conditional means is tiny. Nevertheless, we can gain a deeper understanding of the difference by taking a look at the fitted population of possible locations at 20 km distance on both the linear predictor scale and the data scale.</p>
+<div class="sourceCode" id="cb649"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb649-1"><a href="glmms.html#cb649-1" tabindex="-1"></a>linpred.sample <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e6</span>, <span class="at">mean =</span> <span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>), <span class="at">sd =</span> <span class="fl">0.1072</span>)</span>
+<span id="cb649-2"><a href="glmms.html#cb649-2" tabindex="-1"></a>prob.sample <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(linpred.sample)</span>
+<span id="cb649-3"><a href="glmms.html#cb649-3" tabindex="-1"></a></span>
+<span id="cb649-4"><a href="glmms.html#cb649-4" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
+<pre><code>## [1] 0.3183597</code></pre>
+<div class="sourceCode" id="cb651"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb651-1"><a href="glmms.html#cb651-1" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
+<pre><code>## [1] 0.318814</code></pre>
+<div class="sourceCode" id="cb653"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb653-1"><a href="glmms.html#cb653-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb653-2"><a href="glmms.html#cb653-2" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb653-3"><a href="glmms.html#cb653-3" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb653-4"><a href="glmms.html#cb653-4" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> conditional.mean, <span class="at">col =</span> <span class="st">&quot;darkorange&quot;</span>, <span class="at">lwd =</span><span class="dv">2</span>)</span>
+<span id="cb653-5"><a href="glmms.html#cb653-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> marginal.mean, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>We see that the variance of the location-level random effect is small enough that the inverse logit transformation is effectively linear. Thus, the distribution of removal probabilities across locations is nearly normal, and the conditional and marginal means nearly coincide. The estimate of the marginal mean that we have generated by simulation is not quite the same as the marginal mean generated by the GEE, which could either be due to the stochastic sampling that we have used above, and/or small numerical differences in the estimation.</p>
+<p>For the sake of illustration, we repeat these calculations by supposing that the location-to-location standard deviation was 10 times larger.</p>
+<div class="sourceCode" id="cb654"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb654-1"><a href="glmms.html#cb654-1" tabindex="-1"></a>linpred.sample <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e6</span>, <span class="at">mean =</span> <span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>), <span class="at">sd =</span> <span class="dv">10</span> <span class="sc">*</span> <span class="fl">0.1072</span>)</span>
+<span id="cb654-2"><a href="glmms.html#cb654-2" tabindex="-1"></a>prob.sample <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(linpred.sample)</span>
+<span id="cb654-3"><a href="glmms.html#cb654-3" tabindex="-1"></a></span>
+<span id="cb654-4"><a href="glmms.html#cb654-4" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
+<pre><code>## [1] 0.3183597</code></pre>
+<div class="sourceCode" id="cb656"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb656-1"><a href="glmms.html#cb656-1" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
+<pre><code>## [1] 0.3502591</code></pre>
+<div class="sourceCode" id="cb658"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb658-1"><a href="glmms.html#cb658-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb658-2"><a href="glmms.html#cb658-2" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb658-3"><a href="glmms.html#cb658-3" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb658-4"><a href="glmms.html#cb658-4" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> conditional.mean, <span class="at">col =</span> <span class="st">&quot;darkorange&quot;</span>, <span class="at">lwd =</span><span class="dv">2</span>)</span>
+<span id="cb658-5"><a href="glmms.html#cb658-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> marginal.mean, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="bayesian-fit" class="section level3 hasAnchor" number="8.1.3">
+<h3><span class="header-section-number">8.1.3</span> Bayesian fit<a href="glmms.html#bayesian-fit" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We now fit the model using JAGS and vague priors.</p>
+<div class="sourceCode" id="cb659"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb659-1"><a href="glmms.html#cb659-1" tabindex="-1"></a><span class="fu">require</span>(R2jags)</span></code></pre></div>
+<div class="sourceCode" id="cb660"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb660-1"><a href="glmms.html#cb660-1" tabindex="-1"></a>moth.model <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb660-2"><a href="glmms.html#cb660-2" tabindex="-1"></a>   </span>
+<span id="cb660-3"><a href="glmms.html#cb660-3" tabindex="-1"></a>   <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J) {             <span class="co"># J = number of data points</span></span>
+<span id="cb660-4"><a href="glmms.html#cb660-4" tabindex="-1"></a>      </span>
+<span id="cb660-5"><a href="glmms.html#cb660-5" tabindex="-1"></a>      y[j]   <span class="sc">~</span> <span class="fu">dbin</span>(p[j], n[j])      <span class="co"># data distribution</span></span>
+<span id="cb660-6"><a href="glmms.html#cb660-6" tabindex="-1"></a>      </span>
+<span id="cb660-7"><a href="glmms.html#cb660-7" tabindex="-1"></a>      p[j]   <span class="ot">&lt;-</span> <span class="fu">ilogit</span>(eta[j])      <span class="co"># inverse link</span></span>
+<span id="cb660-8"><a href="glmms.html#cb660-8" tabindex="-1"></a>      eta[j] <span class="ot">&lt;-</span> a[morph[j]] <span class="sc">+</span> b[morph[j]] <span class="sc">*</span> dist[j] <span class="sc">+</span> L[loc[j]]  <span class="co"># linear predictor,</span></span>
+<span id="cb660-9"><a href="glmms.html#cb660-9" tabindex="-1"></a>   }</span>
+<span id="cb660-10"><a href="glmms.html#cb660-10" tabindex="-1"></a>   </span>
+<span id="cb660-11"><a href="glmms.html#cb660-11" tabindex="-1"></a>   <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>){  <span class="co"># random effects for location</span></span>
+<span id="cb660-12"><a href="glmms.html#cb660-12" tabindex="-1"></a>    </span>
+<span id="cb660-13"><a href="glmms.html#cb660-13" tabindex="-1"></a>     L[j] <span class="sc">~</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, tau_L)</span>
+<span id="cb660-14"><a href="glmms.html#cb660-14" tabindex="-1"></a>   }</span>
+<span id="cb660-15"><a href="glmms.html#cb660-15" tabindex="-1"></a>  </span>
+<span id="cb660-16"><a href="glmms.html#cb660-16" tabindex="-1"></a>   a[<span class="dv">1</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># priors for intercept</span></span>
+<span id="cb660-17"><a href="glmms.html#cb660-17" tabindex="-1"></a>   a[<span class="dv">2</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># priors for intercept</span></span>
+<span id="cb660-18"><a href="glmms.html#cb660-18" tabindex="-1"></a>   b[<span class="dv">1</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for slope</span></span>
+<span id="cb660-19"><a href="glmms.html#cb660-19" tabindex="-1"></a>   b[<span class="dv">2</span>] <span class="sc">~</span> <span class="fu">dnorm</span> (<span class="fl">0.0</span>, <span class="fl">1E-6</span>)       <span class="co"># prior for slope</span></span>
+<span id="cb660-20"><a href="glmms.html#cb660-20" tabindex="-1"></a>   </span>
+<span id="cb660-21"><a href="glmms.html#cb660-21" tabindex="-1"></a>   tau_L   <span class="sc">~</span> <span class="fu">dgamma</span>(.<span class="dv">01</span>, .<span class="dv">01</span>)    <span class="co"># prior for location-level random effect</span></span>
+<span id="cb660-22"><a href="glmms.html#cb660-22" tabindex="-1"></a>   </span>
+<span id="cb660-23"><a href="glmms.html#cb660-23" tabindex="-1"></a>   sd_L   <span class="ot">&lt;-</span> <span class="fu">pow</span>(tau_L, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb660-24"><a href="glmms.html#cb660-24" tabindex="-1"></a>   </span>
+<span id="cb660-25"><a href="glmms.html#cb660-25" tabindex="-1"></a>   b.diff <span class="ot">&lt;-</span> b[<span class="dv">1</span>] <span class="sc">-</span> b[<span class="dv">2</span>]</span>
+<span id="cb660-26"><a href="glmms.html#cb660-26" tabindex="-1"></a>}</span>
+<span id="cb660-27"><a href="glmms.html#cb660-27" tabindex="-1"></a></span>
+<span id="cb660-28"><a href="glmms.html#cb660-28" tabindex="-1"></a>jags.data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y     =</span> moth<span class="sc">$</span>removed, </span>
+<span id="cb660-29"><a href="glmms.html#cb660-29" tabindex="-1"></a>                  <span class="at">n     =</span> moth<span class="sc">$</span>placed,</span>
+<span id="cb660-30"><a href="glmms.html#cb660-30" tabindex="-1"></a>                  <span class="at">dist  =</span> moth<span class="sc">$</span>distance,</span>
+<span id="cb660-31"><a href="glmms.html#cb660-31" tabindex="-1"></a>                  <span class="at">loc   =</span> <span class="fu">as.numeric</span>(moth<span class="sc">$</span>location),</span>
+<span id="cb660-32"><a href="glmms.html#cb660-32" tabindex="-1"></a>                  <span class="at">morph =</span> <span class="fu">as.numeric</span>(moth<span class="sc">$</span>morph),</span>
+<span id="cb660-33"><a href="glmms.html#cb660-33" tabindex="-1"></a>                  <span class="at">J     =</span> <span class="fu">nrow</span>(moth))</span>
+<span id="cb660-34"><a href="glmms.html#cb660-34" tabindex="-1"></a></span>
+<span id="cb660-35"><a href="glmms.html#cb660-35" tabindex="-1"></a>jags.params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;a[1]&quot;</span>, <span class="st">&quot;a[2]&quot;</span>, <span class="st">&quot;b[1]&quot;</span>, <span class="st">&quot;b[2]&quot;</span>, <span class="st">&quot;b.diff&quot;</span>, <span class="st">&quot;sd_L&quot;</span>)</span>
+<span id="cb660-36"><a href="glmms.html#cb660-36" tabindex="-1"></a></span>
+<span id="cb660-37"><a href="glmms.html#cb660-37" tabindex="-1"></a>jags.inits <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb660-38"><a href="glmms.html#cb660-38" tabindex="-1"></a>   <span class="fu">list</span>(<span class="st">&quot;tau_L&quot;</span> <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>))</span>
+<span id="cb660-39"><a href="glmms.html#cb660-39" tabindex="-1"></a>}</span>
+<span id="cb660-40"><a href="glmms.html#cb660-40" tabindex="-1"></a></span>
+<span id="cb660-41"><a href="glmms.html#cb660-41" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb660-42"><a href="glmms.html#cb660-42" tabindex="-1"></a></span>
+<span id="cb660-43"><a href="glmms.html#cb660-43" tabindex="-1"></a>jagsfit <span class="ot">&lt;-</span> <span class="fu">jags</span>(<span class="at">data               =</span> jags.data, </span>
+<span id="cb660-44"><a href="glmms.html#cb660-44" tabindex="-1"></a>                <span class="at">inits              =</span> jags.inits, </span>
+<span id="cb660-45"><a href="glmms.html#cb660-45" tabindex="-1"></a>                <span class="at">parameters.to.save =</span> jags.params,</span>
+<span id="cb660-46"><a href="glmms.html#cb660-46" tabindex="-1"></a>                <span class="at">model.file         =</span> moth.model,</span>
+<span id="cb660-47"><a href="glmms.html#cb660-47" tabindex="-1"></a>                <span class="at">n.chains           =</span> <span class="dv">3</span>,</span>
+<span id="cb660-48"><a href="glmms.html#cb660-48" tabindex="-1"></a>                <span class="at">n.iter             =</span> <span class="fl">5E4</span>,</span>
+<span id="cb660-49"><a href="glmms.html#cb660-49" tabindex="-1"></a>                <span class="at">n.thin             =</span> <span class="dv">5</span>)</span></code></pre></div>
+<pre><code>## module glm loaded</code></pre>
+<p>For some reason this works without specifying initial values for <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> (now both vectors). Maybe the initial values are drawn from the prior?</p>
+<!-- 8-20-25: For some crazy reason, I'm getting an error ("Error in `round()`: ! non-numeric argument to mathematical function") here when compiling for bookdown.  It all works fine from the command line; I have no idea. -->
+<div class="sourceCode" id="cb662"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb662-1"><a href="glmms.html#cb662-1" tabindex="-1"></a>mcmc.output <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(jagsfit<span class="sc">$</span>BUGSoutput<span class="sc">$</span>sims.list)</span>
+<span id="cb662-2"><a href="glmms.html#cb662-2" tabindex="-1"></a>(post.mean   <span class="ot">&lt;-</span> <span class="fu">apply</span>(mcmc.output, <span class="dv">2</span>, mean))</span></code></pre></div>
+<pre><code>##          a.1          a.2       b.diff          b.1          b.2     deviance 
+## -1.141163349 -0.732065931  0.027819509  0.018564400 -0.009255109 75.282988014 
+##         sd_L 
+##  0.248625835</code></pre>
+<div class="sourceCode" id="cb664"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb664-1"><a href="glmms.html#cb664-1" tabindex="-1"></a><span class="fu">HPDinterval</span>(<span class="fu">as.mcmc</span>(mcmc.output[<span class="st">&#39;b.diff&#39;</span>]))</span></code></pre></div>
+<pre><code>##             lower      upper
+## b.diff 0.01250506 0.04463559
+## attr(,&quot;Probability&quot;)
+## [1] 0.95</code></pre>
+<p>The posterior mean of the difference in the log-odds slopes — 0.0278 — is essentially the same value that we have seen in every analysis. We can have a look at the full posterior distribution for this difference, and calculate the posterior probability that the difference is <span class="math inline">\(&gt;0\)</span>.</p>
+<div class="sourceCode" id="cb666"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb666-1"><a href="glmms.html#cb666-1" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_areas</span>(mcmc.output,</span>
+<span id="cb666-2"><a href="glmms.html#cb666-2" tabindex="-1"></a>                      <span class="at">pars =</span> <span class="fu">c</span>(<span class="st">&quot;b.diff&quot;</span>),</span>
+<span id="cb666-3"><a href="glmms.html#cb666-3" tabindex="-1"></a>                      <span class="at">prob =</span> <span class="fl">0.95</span>) </span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<div class="sourceCode" id="cb667"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb667-1"><a href="glmms.html#cb667-1" tabindex="-1"></a><span class="fu">table</span>(mcmc.output<span class="sc">$</span>b.diff <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
+<pre><code>## 
+## FALSE  TRUE 
+##     5 14995</code></pre>
+<p>Thus we would say that there is a 0.9997 posterior probability that the proportion of dark moths removed increases more rapidly with increasing distance from Liverpool than the proportion of light moths removed.</p>
+<p>We can plot the fit of the model using draws from the posterior distribution of the parameters. The heavy lines below show the fits using the posterior means of the parameters. Do these fits correspond to the marginal or conditional means? (There’s little difference here, but it’s a useful thought exercise.)</p>
+<div class="sourceCode" id="cb669"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb669-1"><a href="glmms.html#cb669-1" tabindex="-1"></a>subset.samples <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(mcmc.output), <span class="at">size =</span> <span class="dv">100</span>)</span>
+<span id="cb669-2"><a href="glmms.html#cb669-2" tabindex="-1"></a></span>
+<span id="cb669-3"><a href="glmms.html#cb669-3" tabindex="-1"></a>moth<span class="sc">$</span>prop.removed <span class="ot">&lt;-</span> <span class="fu">with</span>(moth, removed <span class="sc">/</span> placed)</span>
+<span id="cb669-4"><a href="glmms.html#cb669-4" tabindex="-1"></a></span>
+<span id="cb669-5"><a href="glmms.html#cb669-5" tabindex="-1"></a>light <span class="ot">&lt;-</span> <span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;light&quot;</span>)</span>
+<span id="cb669-6"><a href="glmms.html#cb669-6" tabindex="-1"></a>dark  <span class="ot">&lt;-</span> <span class="fu">subset</span>(moth, morph <span class="sc">==</span> <span class="st">&quot;dark&quot;</span>)</span>
+<span id="cb669-7"><a href="glmms.html#cb669-7" tabindex="-1"></a></span>
+<span id="cb669-8"><a href="glmms.html#cb669-8" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb669-9"><a href="glmms.html#cb669-9" tabindex="-1"></a></span>
+<span id="cb669-10"><a href="glmms.html#cb669-10" tabindex="-1"></a><span class="co">#------ light morph</span></span>
+<span id="cb669-11"><a href="glmms.html#cb669-11" tabindex="-1"></a></span>
+<span id="cb669-12"><a href="glmms.html#cb669-12" tabindex="-1"></a><span class="fu">plot</span>(prop.removed <span class="sc">~</span> distance,</span>
+<span id="cb669-13"><a href="glmms.html#cb669-13" tabindex="-1"></a>     <span class="at">data =</span> moth,</span>
+<span id="cb669-14"><a href="glmms.html#cb669-14" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">&quot;n&quot;</span>,</span>
+<span id="cb669-15"><a href="glmms.html#cb669-15" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Light morph&quot;</span>,</span>
+<span id="cb669-16"><a href="glmms.html#cb669-16" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;proprotion removed&quot;</span>)</span>
+<span id="cb669-17"><a href="glmms.html#cb669-17" tabindex="-1"></a></span>
+<span id="cb669-18"><a href="glmms.html#cb669-18" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> light<span class="sc">$</span>distance, <span class="at">y =</span> light<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span>
+<span id="cb669-19"><a href="glmms.html#cb669-19" tabindex="-1"></a></span>
+<span id="cb669-20"><a href="glmms.html#cb669-20" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> subset.samples) {</span>
+<span id="cb669-21"><a href="glmms.html#cb669-21" tabindex="-1"></a></span>
+<span id="cb669-22"><a href="glmms.html#cb669-22" tabindex="-1"></a>  a <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>a<span class="fl">.2</span>[i]</span>
+<span id="cb669-23"><a href="glmms.html#cb669-23" tabindex="-1"></a>  b <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>b<span class="fl">.2</span>[i]</span>
+<span id="cb669-24"><a href="glmms.html#cb669-24" tabindex="-1"></a></span>
+<span id="cb669-25"><a href="glmms.html#cb669-25" tabindex="-1"></a>  fitted.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(a <span class="sc">+</span> b <span class="sc">*</span> x)</span>
+<span id="cb669-26"><a href="glmms.html#cb669-26" tabindex="-1"></a></span>
+<span id="cb669-27"><a href="glmms.html#cb669-27" tabindex="-1"></a>  <span class="fu">curve</span>(fitted.curve,</span>
+<span id="cb669-28"><a href="glmms.html#cb669-28" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb669-29"><a href="glmms.html#cb669-29" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb669-30"><a href="glmms.html#cb669-30" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb669-31"><a href="glmms.html#cb669-31" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;deepskyblue&quot;</span>)</span>
+<span id="cb669-32"><a href="glmms.html#cb669-32" tabindex="-1"></a>}</span>
+<span id="cb669-33"><a href="glmms.html#cb669-33" tabindex="-1"></a></span>
+<span id="cb669-34"><a href="glmms.html#cb669-34" tabindex="-1"></a>fitted.mean.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(post.mean[<span class="st">&#39;a.2&#39;</span>] <span class="sc">+</span> post.mean[<span class="st">&#39;b.2&#39;</span>] <span class="sc">*</span> x)</span>
+<span id="cb669-35"><a href="glmms.html#cb669-35" tabindex="-1"></a></span>
+<span id="cb669-36"><a href="glmms.html#cb669-36" tabindex="-1"></a><span class="fu">curve</span>(fitted.mean.curve,</span>
+<span id="cb669-37"><a href="glmms.html#cb669-37" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb669-38"><a href="glmms.html#cb669-38" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb669-39"><a href="glmms.html#cb669-39" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb669-40"><a href="glmms.html#cb669-40" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;darkblue&quot;</span>,</span>
+<span id="cb669-41"><a href="glmms.html#cb669-41" tabindex="-1"></a>        <span class="at">lwd  =</span> <span class="dv">2</span>)</span>
+<span id="cb669-42"><a href="glmms.html#cb669-42" tabindex="-1"></a></span>
+<span id="cb669-43"><a href="glmms.html#cb669-43" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> light<span class="sc">$</span>distance, <span class="at">y =</span> light<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span>
+<span id="cb669-44"><a href="glmms.html#cb669-44" tabindex="-1"></a></span>
+<span id="cb669-45"><a href="glmms.html#cb669-45" tabindex="-1"></a><span class="co">#--------- dark morph</span></span>
+<span id="cb669-46"><a href="glmms.html#cb669-46" tabindex="-1"></a></span>
+<span id="cb669-47"><a href="glmms.html#cb669-47" tabindex="-1"></a><span class="fu">plot</span>(prop.removed <span class="sc">~</span> distance,</span>
+<span id="cb669-48"><a href="glmms.html#cb669-48" tabindex="-1"></a>     <span class="at">data =</span> moth,</span>
+<span id="cb669-49"><a href="glmms.html#cb669-49" tabindex="-1"></a>     <span class="at">type =</span> <span class="st">&quot;n&quot;</span>,</span>
+<span id="cb669-50"><a href="glmms.html#cb669-50" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Dark morph&quot;</span>,</span>
+<span id="cb669-51"><a href="glmms.html#cb669-51" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">&quot;proprotion removed&quot;</span>)</span>
+<span id="cb669-52"><a href="glmms.html#cb669-52" tabindex="-1"></a></span>
+<span id="cb669-53"><a href="glmms.html#cb669-53" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> subset.samples) {</span>
+<span id="cb669-54"><a href="glmms.html#cb669-54" tabindex="-1"></a></span>
+<span id="cb669-55"><a href="glmms.html#cb669-55" tabindex="-1"></a>  a <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>a<span class="fl">.1</span>[i]</span>
+<span id="cb669-56"><a href="glmms.html#cb669-56" tabindex="-1"></a>  b <span class="ot">&lt;-</span> mcmc.output<span class="sc">$</span>b<span class="fl">.1</span>[i]</span>
+<span id="cb669-57"><a href="glmms.html#cb669-57" tabindex="-1"></a></span>
+<span id="cb669-58"><a href="glmms.html#cb669-58" tabindex="-1"></a>  fitted.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(a <span class="sc">+</span> b <span class="sc">*</span> x)</span>
+<span id="cb669-59"><a href="glmms.html#cb669-59" tabindex="-1"></a></span>
+<span id="cb669-60"><a href="glmms.html#cb669-60" tabindex="-1"></a>  <span class="fu">curve</span>(fitted.curve,</span>
+<span id="cb669-61"><a href="glmms.html#cb669-61" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb669-62"><a href="glmms.html#cb669-62" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb669-63"><a href="glmms.html#cb669-63" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb669-64"><a href="glmms.html#cb669-64" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;deepskyblue&quot;</span>)</span>
+<span id="cb669-65"><a href="glmms.html#cb669-65" tabindex="-1"></a>}</span>
+<span id="cb669-66"><a href="glmms.html#cb669-66" tabindex="-1"></a></span>
+<span id="cb669-67"><a href="glmms.html#cb669-67" tabindex="-1"></a>fitted.mean.curve <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">inv.logit</span>(post.mean[<span class="st">&#39;a.1&#39;</span>] <span class="sc">+</span> post.mean[<span class="st">&#39;b.1&#39;</span>] <span class="sc">*</span> x)</span>
+<span id="cb669-68"><a href="glmms.html#cb669-68" tabindex="-1"></a></span>
+<span id="cb669-69"><a href="glmms.html#cb669-69" tabindex="-1"></a><span class="fu">curve</span>(fitted.mean.curve,</span>
+<span id="cb669-70"><a href="glmms.html#cb669-70" tabindex="-1"></a>        <span class="at">from =</span> <span class="fu">min</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb669-71"><a href="glmms.html#cb669-71" tabindex="-1"></a>        <span class="at">to   =</span> <span class="fu">max</span>(moth<span class="sc">$</span>distance),</span>
+<span id="cb669-72"><a href="glmms.html#cb669-72" tabindex="-1"></a>        <span class="at">add  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb669-73"><a href="glmms.html#cb669-73" tabindex="-1"></a>        <span class="at">col  =</span> <span class="st">&quot;darkblue&quot;</span>,</span>
+<span id="cb669-74"><a href="glmms.html#cb669-74" tabindex="-1"></a>        <span class="at">lwd  =</span> <span class="dv">2</span>)</span>
+<span id="cb669-75"><a href="glmms.html#cb669-75" tabindex="-1"></a></span>
+<span id="cb669-76"><a href="glmms.html#cb669-76" tabindex="-1"></a><span class="fu">points</span>(<span class="at">x =</span> dark<span class="sc">$</span>distance, <span class="at">y =</span> dark<span class="sc">$</span>prop.removed, <span class="at">pch =</span> <span class="dv">16</span>)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+</div>
+<div id="example-2-ticks-on-red-grouse" class="section level2 hasAnchor" number="8.2">
+<h2><span class="header-section-number">8.2</span> Example 2: Ticks on red grouse<a href="glmms.html#example-2-ticks-on-red-grouse" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>This example comes from Ben Bolker’s chapter in <span class="citation">Fox, Negrete-Yankelevich, and Sosa (<a href="#ref-fox2015">2015</a>)</span>. Bolker describes the data as follows:</p>
+<blockquote>
+<p>“<span class="citation">Elston et al. (<a href="#ref-elston2001">2001</a>)</span> used data on numbers of ticks sampled from the heads of red grouse chicks in Scotland to explore patterns of aggregation. Ticks have potentially large fitness and demographic consequences on red grouse individuals and populations, but Elston et al.’s goal was just to decompose patterns of variation into different scales (within-brood, within-site, by altitude and year). The response is the tick count (TICKS, again Poisson or negative binomial); altitude (HEIGHT, treated as continuous) and year (YEAR, treated as categorical) are fixed predictor variables. Individual within brood (INDEX) and brood within location are nested random-effect grouping variables, with the baseline expected number of ticks (intercept) varying among groups.”</p>
+</blockquote>
+<p>An alternative analysis of these data can be found on Bolker’s Github page at <a href="https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html" class="uri">https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html</a>.</p>
+<p>The data include 3 years and 63 locations. Location and year are crossed (some locations are sampled in multiple years), but not every location is sampled every year. There are 118 broods, and each brood is nested within a year-location pair. Each observation corresponds to one of 403 individuals. Individuals are nested within broods. We also know each location’s elevation.</p>
+<p>To develop notation, let <span class="math inline">\(i=1, \ldots, 3\)</span> index the years, let <span class="math inline">\(j = 1, \ldots, 63\)</span> index the locations, let <span class="math inline">\(k = 1, \ldots, n_{ij}\)</span> index the broods sampled in each year-location pair, and let <span class="math inline">\(l = 1, \ldots, n_{ijk}\)</span> index the separate individuals in each brood. Note that almost all year-location pairs will be represented by at most 1 brood (<span class="math inline">\(n_{ij}=0\)</span> or <span class="math inline">\(=1\)</span> for almost all combination of years and locations) but there is at least one year-location pair with multiple broods (<span class="math inline">\(n_{ij} &gt; 1\)</span>). Let <span class="math inline">\(y_{ijkl}\)</span> (the response) be the number of ticks found on individual <span class="math inline">\(l\)</span> of brood <span class="math inline">\(k\)</span> at location <span class="math inline">\(j\)</span> in year <span class="math inline">\(i\)</span>, and let <span class="math inline">\(x_j\)</span> be the elevation of location <span class="math inline">\(j\)</span>. We are interested in characterizing how tick load varies among locations, among broods within locations, and among individuals within broods. We are also interested in characterizing the relationship between elevation and tick load. It seems unlikely that 3 years are enough to estimate year-to-year variation, so we will use fixed-effect parameters to capture the differences among years. We will begin by assuming that the tick load takes a Poisson distribution, and use the canonical log link. We include an observation-level random effect so that we have a variance parameter that captures individual-to-individual variation among individuals in the same brood.</p>
+<p>In notation, our GLMM is
+<span class="math display">\[\begin{align*}
+y_{ijkl} &amp; \sim \mathrm{Pois}(\mu_{ijkl})\\
+\log(\mu_{ijkl}) &amp; = \eta_{ijkl} \\
+\eta_{ijkl} &amp; = a_i + b x_j + L_j + B_{ijk} + \varepsilon_{ijkl} \\
+L_j &amp; \sim \mathcal{N}(0, \sigma^2_L) \\
+B_{ijk} &amp; \sim \mathcal{N}(0, \sigma^2_B) \\
+\varepsilon_{ijkl} &amp; \sim \mathcal{N}(0, \sigma^2_\varepsilon) \\
+\end{align*}\]</span></p>
+<div class="sourceCode" id="cb670"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb670-1"><a href="glmms.html#cb670-1" tabindex="-1"></a><span class="fu">require</span>(lme4)</span>
+<span id="cb670-2"><a href="glmms.html#cb670-2" tabindex="-1"></a><span class="fu">require</span>(lattice)</span>
+<span id="cb670-3"><a href="glmms.html#cb670-3" tabindex="-1"></a></span>
+<span id="cb670-4"><a href="glmms.html#cb670-4" tabindex="-1"></a>tick <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/tick.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb670-5"><a href="glmms.html#cb670-5" tabindex="-1"></a></span>
+<span id="cb670-6"><a href="glmms.html#cb670-6" tabindex="-1"></a><span class="fu">names</span>(tick) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;index&quot;</span>, <span class="st">&quot;ticks&quot;</span>, <span class="st">&quot;brood&quot;</span>, <span class="st">&quot;elevation&quot;</span>, <span class="st">&quot;yr&quot;</span>, <span class="st">&quot;loc&quot;</span>)</span>
+<span id="cb670-7"><a href="glmms.html#cb670-7" tabindex="-1"></a></span>
+<span id="cb670-8"><a href="glmms.html#cb670-8" tabindex="-1"></a>tick<span class="sc">$</span>index <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>index)</span>
+<span id="cb670-9"><a href="glmms.html#cb670-9" tabindex="-1"></a>tick<span class="sc">$</span>brood <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>brood)</span>
+<span id="cb670-10"><a href="glmms.html#cb670-10" tabindex="-1"></a>tick<span class="sc">$</span>yr    <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>yr)</span>
+<span id="cb670-11"><a href="glmms.html#cb670-11" tabindex="-1"></a>tick<span class="sc">$</span>loc   <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(tick<span class="sc">$</span>loc)</span>
+<span id="cb670-12"><a href="glmms.html#cb670-12" tabindex="-1"></a></span>
+<span id="cb670-13"><a href="glmms.html#cb670-13" tabindex="-1"></a><span class="co"># center and scale elevation</span></span>
+<span id="cb670-14"><a href="glmms.html#cb670-14" tabindex="-1"></a></span>
+<span id="cb670-15"><a href="glmms.html#cb670-15" tabindex="-1"></a>tick<span class="sc">$</span>elev.z <span class="ot">&lt;-</span> <span class="fu">with</span>(tick, (elevation <span class="sc">-</span> <span class="fu">mean</span>(elevation)) <span class="sc">/</span> <span class="fu">sd</span>(elevation))</span></code></pre></div>
+<p>Model fitting:</p>
+<div class="sourceCode" id="cb671"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb671-1"><a href="glmms.html#cb671-1" tabindex="-1"></a>fm1  <span class="ot">&lt;-</span> <span class="fu">glmer</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> elev.z <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> loc) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index),</span>
+<span id="cb671-2"><a href="glmms.html#cb671-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb671-3"><a href="glmms.html#cb671-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
+<span id="cb671-4"><a href="glmms.html#cb671-4" tabindex="-1"></a></span>
+<span id="cb671-5"><a href="glmms.html#cb671-5" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: poisson  ( log )
+## Formula: ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index)
+##    Data: tick
+## 
+##       AIC       BIC    logLik -2*log(L)  df.resid 
+##    1794.5    1822.5    -890.3    1780.5       396 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.6123 -0.5536 -0.1486  0.2849  2.4430 
+## 
+## Random effects:
+##  Groups Name        Variance Std.Dev.
+##  index  (Intercept) 0.2932   0.5415  
+##  brood  (Intercept) 0.5625   0.7500  
+##  loc    (Intercept) 0.2796   0.5287  
+## Number of obs: 403, groups:  index, 403; brood, 118; loc, 63
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)   0.3728     0.1964   1.899 0.057622 .  
+## yr96          1.1804     0.2381   4.957 7.15e-07 ***
+## yr97         -0.9786     0.2628  -3.724 0.000196 ***
+## elev.z       -0.8543     0.1236  -6.910 4.83e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##        (Intr) yr96   yr97  
+## yr96   -0.728              
+## yr97   -0.610  0.514       
+## elev.z  0.011  0.048  0.047</code></pre>
+<!-- We'll conduct some residual diagnostics by pulling out the deviance residuals and plotting them against elevation. -->
+<!-- ```{r} -->
+<!-- d.resid <- residuals(fm1, type = "deviance") -->
+<!-- plot(tick$elev.z, d.resid) -->
+<!-- abline(h = 0, lty = "dashed") -->
+<!-- ``` -->
+<p>We can have a look at the profile confidence intervals and profile confidence regions for each of the model parameters.</p>
+<div class="sourceCode" id="cb673"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb673-1"><a href="glmms.html#cb673-1" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm1)</span>
+<span id="cb673-2"><a href="glmms.html#cb673-2" tabindex="-1"></a></span>
+<span id="cb673-3"><a href="glmms.html#cb673-3" tabindex="-1"></a><span class="fu">confint</span>(pp)</span></code></pre></div>
+<pre><code>##                   2.5 %     97.5 %
+## .sig01       0.45148391  0.6451854
+## .sig02       0.52127951  1.0569758
+## .sig03       0.00000000  0.8928761
+## (Intercept) -0.02822276  0.7485772
+## yr96         0.71308987  1.6583683
+## yr97        -1.50239845 -0.4606279
+## elev.z      -1.10589089 -0.6090507</code></pre>
+<div class="sourceCode" id="cb675"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb675-1"><a href="glmms.html#cb675-1" tabindex="-1"></a><span class="fu">xyplot</span>(pp, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<div class="sourceCode" id="cb676"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb676-1"><a href="glmms.html#cb676-1" tabindex="-1"></a><span class="fu">splom</span>(pp)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-22-2.png" width="672" /></p>
+<p>We see that the standard deviation of the location-level random effect (“.sig03”) has a 95% confidence interval that includes 0. We might conclude that the location-level random effect is unnecessary. In other words, there is no evidence that different broods from the same location are more strongly (positively) correlated than two broods at different locations at the same elevation. The bivariate confidence regions show us that the estimated SD of the location-level random effect is negatively correlated with the estimated SD of the brood-level random effect (“.sig02”). Thus, the location-to-location variability (above and beyond the elevation effect) from brood-to-brood variability are confounded, which makes sense, given that most locations are represented by a small number of broods.</p>
+<p>It is something of a judgment call as to whether it would make sense at this point to drop the location-level random effect. We could retain it on the grounds that one expects some location-to-location variation beyond the effect of elevation, even if that variation is small.</p>
+<!-- Further, some (such as Bolker) would argue that model selection on the random effects is risky.  In his GLMM FAQ page, Bolker writes: -->
+<!-- > Consider *not* testing the significance of random effects. If the random effect is part of the experimental design, this procedure may be considered ‘sacrificial pseudoreplication’ (@hurlbert1984). Using stepwise approaches to eliminate non-significant terms in order to squeeze more significance out of the remaining terms is dangerous in any case. -->
+<!-- However, these red grouse data do not come from a designed experiment.   -->
+<p>To test for the significance of a random effect, the usual approach is to conduct a likelihood-ratio test to compare models with and without the random effect. In this case, the null hypothesis is that the variance of the tested random effect is 0, which is on the boundary of the allowable values for a variance. Thus, the <span class="math inline">\(p\)</span>-value from a LRT is conservative (too big). In simple models, the <span class="math inline">\(p\)</span>-value for the LRT is twice as big as it should be, suggesting that the appropriate correction is to divide the <span class="math inline">\(p\)</span>-value by 2 (<span class="citation">Pinheiro and Bates (<a href="#ref-pinheiro2000">2000</a>)</span>). For more complex models, however, the divide-by-2 rule is only a rough rule of thumb. We illustrate by comparing a model with the location-level random effect to one without it. (In notation, we are testing <span class="math inline">\(\sigma^2_L = 0\)</span>.)</p>
+<div class="sourceCode" id="cb677"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb677-1"><a href="glmms.html#cb677-1" tabindex="-1"></a>fm2  <span class="ot">&lt;-</span> <span class="fu">glmer</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> elev.z <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index),</span>
+<span id="cb677-2"><a href="glmms.html#cb677-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb677-3"><a href="glmms.html#cb677-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
+<span id="cb677-4"><a href="glmms.html#cb677-4" tabindex="-1"></a></span>
+<span id="cb677-5"><a href="glmms.html#cb677-5" tabindex="-1"></a><span class="fu">anova</span>(fm2, fm1)</span></code></pre></div>
+<pre><code>## Data: tick
+## Models:
+## fm2: ticks ~ yr + elev.z + (1 | brood) + (1 | index)
+## fm1: ticks ~ yr + elev.z + (1 | loc) + (1 | brood) + (1 | index)
+##     npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(&gt;Chisq)
+## fm2    6 1794.0 1818.0 -891.02    1782.0                     
+## fm1    7 1794.5 1822.5 -890.27    1780.5 1.4973  1     0.2211</code></pre>
+<p>If we use the rough divide-by-2 rule, the approximate <span class="math inline">\(p\)</span>-value is <span class="math inline">\(p \approx 0.11\)</span>. Thus, the model with the location-level random effect does not improve significantly on the model without the location-level random effect. We might conclude that the location-level random effect is unnecessary.</p>
+<p>Although this analysis focused on how different random effects contributed to the overall variation in tick load, it is also helpful to visualize the fit of the model. The plot below shows the tick load for each individual (plotted on a log + 1 scale) vs. the centered and scaled elevation variable, along with the fitted mean line for each year. Note that the curvature in the fit appears because the response is shown as the log + 1 instead of the log. The fits would be straight lines on the log scale.</p>
+<div class="sourceCode" id="cb679"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb679-1"><a href="glmms.html#cb679-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb679-2"><a href="glmms.html#cb679-2" tabindex="-1"></a></span>
+<span id="cb679-3"><a href="glmms.html#cb679-3" tabindex="-1"></a>plot.subset <span class="ot">&lt;-</span> <span class="cf">function</span>(year, a, b) {</span>
+<span id="cb679-4"><a href="glmms.html#cb679-4" tabindex="-1"></a>   </span>
+<span id="cb679-5"><a href="glmms.html#cb679-5" tabindex="-1"></a>   <span class="fu">with</span>(tick, <span class="fu">plot</span>(<span class="fu">log</span>(ticks <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">~</span> elev.z, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>, <span class="at">main =</span> year))</span>
+<span id="cb679-6"><a href="glmms.html#cb679-6" tabindex="-1"></a>   </span>
+<span id="cb679-7"><a href="glmms.html#cb679-7" tabindex="-1"></a>   <span class="fu">with</span>(<span class="fu">subset</span>(tick, yr <span class="sc">==</span> year), <span class="fu">points</span>(<span class="fu">jitter</span>(<span class="fu">log</span>(ticks <span class="sc">+</span> <span class="dv">1</span>)) <span class="sc">~</span> elev.z))</span>
+<span id="cb679-8"><a href="glmms.html#cb679-8" tabindex="-1"></a>   </span>
+<span id="cb679-9"><a href="glmms.html#cb679-9" tabindex="-1"></a>   fit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(a <span class="sc">+</span> b <span class="sc">*</span> x))</span>
+<span id="cb679-10"><a href="glmms.html#cb679-10" tabindex="-1"></a>   <span class="fu">curve</span>(fit, <span class="at">from =</span> <span class="fu">min</span>(tick<span class="sc">$</span>elev.z), <span class="at">to =</span> <span class="fu">max</span>(tick<span class="sc">$</span>elev.z), <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span>
+<span id="cb679-11"><a href="glmms.html#cb679-11" tabindex="-1"></a>}</span>
+<span id="cb679-12"><a href="glmms.html#cb679-12" tabindex="-1"></a></span>
+<span id="cb679-13"><a href="glmms.html#cb679-13" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;95&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span>
+<span id="cb679-14"><a href="glmms.html#cb679-14" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;96&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span> <span class="sc">+</span> <span class="fl">1.1804</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span>
+<span id="cb679-15"><a href="glmms.html#cb679-15" tabindex="-1"></a><span class="fu">plot.subset</span>(<span class="st">&quot;97&quot;</span>, <span class="at">a =</span> <span class="fl">0.3728</span> <span class="sc">-</span> <span class="fl">0.9787</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.8543</span>)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<!-- In any case, all of this seems to beg the question: What is the cost, if any, of overspecifying the random effects? -->
+<!-- # model without observation-level random effect -->
+<!-- fm2  <- glmer(ticks ~ yr + elev.z + (1 | loc / brood),  -->
+<!--               family = "poisson", -->
+<!--               data = tick) -->
+<!-- anova(fm1, fm2) -->
+<!-- d.resid.2 <- residuals(fm2, type = "deviance") -->
+<!-- sum(d.resid.2^2) -->
+<!-- df.residual(fm2) -->
+<!-- # Interaction between year and elevation -->
+<!-- fm3  <- glmer(ticks ~ yr * elev.z + (1 | loc / brood / index),  -->
+<!--               family = "poisson", -->
+<!--               data = tick) -->
+<!-- anova(fm1, fm3)  # can use LRT because models are nested, and both have been fit with ML -->
+<!-- ``` -->
+</div>
+<div id="GAMMs" class="section level2 hasAnchor" number="8.3">
+<h2><span class="header-section-number">8.3</span> GAMMs<a href="glmms.html#GAMMs" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Generalized additive mixed models (GAMMs) include just about every model feature we’ve discussed: splines to capture smooth effects of predictors, non-Gaussian responses, and correlated errors. There are two software routines available for fitting GAMMs in R: <code>mgcv::gamm</code> and <code>gamm4::gamm4</code>. The routine <code>mgcv::gamm</code> is based on <code>lme</code>, and thus provides access to the non-constant variance and correlation structures that we saw when discussing generalized least squares. The routine <code>gamm4::gamm4</code> is based on <code>lme4</code>, and thus provides access to the same fitting syntax as <code>lmer</code> and <code>glmer</code>. We will illustrate each in turn.</p>
+<div id="mgcvgamm" class="section level3 hasAnchor" number="8.3.1">
+<h3><span class="header-section-number">8.3.1</span> mgcv::gamm<a href="glmms.html#mgcvgamm" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>As we have seen, serial data usually have a serial dependence structure. They are also data for which one might want to use splines to capture the underlying trend. Time series provide a prime example. Below, we will analyze daily average temperature data from RDU from January 1, 1995 to August 27, 2025.<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a> First, some housekeeping and exploratory analysis.</p>
+<div class="sourceCode" id="cb680"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb680-1"><a href="glmms.html#cb680-1" tabindex="-1"></a>rdu <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/rdu-temperature.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb680-2"><a href="glmms.html#cb680-2" tabindex="-1"></a></span>
+<span id="cb680-3"><a href="glmms.html#cb680-3" tabindex="-1"></a><span class="co"># remove NA&#39;s, coded as -99</span></span>
+<span id="cb680-4"><a href="glmms.html#cb680-4" tabindex="-1"></a><span class="fu">with</span>(rdu, <span class="fu">table</span>(temp <span class="sc">==</span> <span class="sc">-</span><span class="dv">99</span>))</span></code></pre></div>
+<pre><code>## 
+## FALSE  TRUE 
+## 11182    15</code></pre>
+<div class="sourceCode" id="cb682"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb682-1"><a href="glmms.html#cb682-1" tabindex="-1"></a>rdu <span class="ot">&lt;-</span> <span class="fu">subset</span>(rdu, temp <span class="sc">&gt;</span> <span class="sc">-</span><span class="dv">99</span>)</span>
+<span id="cb682-2"><a href="glmms.html#cb682-2" tabindex="-1"></a></span>
+<span id="cb682-3"><a href="glmms.html#cb682-3" tabindex="-1"></a><span class="fu">with</span>(rdu, <span class="fu">plot</span>(temp <span class="sc">~</span> time, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">xlab =</span> <span class="st">&quot;day&quot;</span>))</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p>We will fit a model that is the sum of two splines: a cyclic spine to capture the within-year trend in temperature, and a smoothing spline to capture the among-year trend in temperature. We also include an AR(1) structure on the errors. The AR(1) structure really should pertain to the entire time series, but the fitting takes too long if we do so. Instead, we just fit the AR(1) structure to the errors within each year, which is only a minimal modification of the model (the only consequence is that we have assumed the errors on Dec 31 and the following Jan 1 are independent), but it allows the model to be fit more quickly.</p>
+<div class="sourceCode" id="cb683"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb683-1"><a href="glmms.html#cb683-1" tabindex="-1"></a><span class="fu">require</span>(mgcv)</span></code></pre></div>
+<div class="sourceCode" id="cb684"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb684-1"><a href="glmms.html#cb684-1" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> <span class="fu">gamm</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>) <span class="sc">+</span> <span class="fu">s</span>(time), <span class="at">data =</span> rdu, <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> yr))</span></code></pre></div>
+<p>The output of <code>mgcv::gamm</code> is a list of two parts. The first part, named <code>lme</code>, includes the output of the model that includes most of the model fit except the smooth terms. The second part, named <code>gam</code>, includes any smoothing splines. For the model above, most of the interesting elements are in the <code>gam</code> portion. We’ll look at the <code>lme</code> portion, too, as this contains the estimate of the correlation parameter between consecutive days.</p>
+<div class="sourceCode" id="cb685"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb685-1"><a href="glmms.html#cb685-1" tabindex="-1"></a><span class="fu">summary</span>(fm1<span class="sc">$</span>lme)</span></code></pre></div>
+<pre><code>## Linear mixed-effects model fit by maximum likelihood
+##   Data: strip.offset(mf) 
+##        AIC      BIC    logLik
+##   69855.65 69899.58 -34921.83
+## 
+## Random effects:
+##  Formula: ~Xr - 1 | g
+##  Structure: pdIdnot
+##              Xr1      Xr2      Xr3      Xr4      Xr5      Xr6      Xr7      Xr8
+## StdDev: 1.856569 1.856569 1.856569 1.856569 1.856569 1.856569 1.856569 1.856569
+## 
+##  Formula: ~Xr.0 - 1 | g.0 %in% g
+##  Structure: pdIdnot
+##               Xr.01       Xr.02       Xr.03       Xr.04       Xr.05       Xr.06
+## StdDev: 0.008279714 0.008279714 0.008279714 0.008279714 0.008279714 0.008279714
+##               Xr.07       Xr.08 Residual
+## StdDev: 0.008279714 0.008279714 7.523312
+## 
+## Correlation Structure: AR(1)
+##  Formula: ~1 | g/g.0/yr 
+##  Parameter estimate(s):
+##       Phi 
+## 0.6845975 
+## Fixed effects:  y ~ X - 1 
+##                 Value Std.Error    DF  t-value p-value
+## X(Intercept) 61.09894 0.1635474 11180 373.5856       0
+## Xs(time)Fx1   1.04041 0.1634872 11180   6.3639       0
+##  Correlation: 
+##             X(Int)
+## Xs(time)Fx1 0     
+## 
+## Standardized Within-Group Residuals:
+##          Min           Q1          Med           Q3          Max 
+## -4.135868506 -0.651586784 -0.001947138  0.594334324  3.671830628 
+## 
+## Number of Observations: 11182
+## Number of Groups: 
+##          g g.0 %in% g 
+##          1          1</code></pre>
+<div class="sourceCode" id="cb687"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb687-1"><a href="glmms.html#cb687-1" tabindex="-1"></a><span class="fu">summary</span>(fm1<span class="sc">$</span>gam)</span></code></pre></div>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## temp ~ s(doy, bs = &quot;cc&quot;) + s(time)
+## 
+## Parametric coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  61.0989     0.1635   373.6   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##           edf Ref.df      F p-value    
+## s(doy)  7.438      8 839.69  &lt;2e-16 ***
+## s(time) 1.000      1  40.51  &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =  0.762   
+##   Scale est. = 56.6      n = 11182</code></pre>
+<div class="sourceCode" id="cb689"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb689-1"><a href="glmms.html#cb689-1" tabindex="-1"></a><span class="fu">plot</span>(fm1<span class="sc">$</span>gam)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-1.png" width="672" /><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-29-2.png" width="672" /></p>
+<p>Intriguingly, but not surprisingly, the fit to the within-year trend clearly shows that the spring warm-up in Raleigh is decidedly more gradual than the fall cool-down. Fall in the Piedmont is ever fleeting.</p>
+<p>Less substantially, but still interestingly, the estimate of the correlation between temperature anomalies on consecutive days is <span class="math inline">\(\approx\)</span> 0.68, which matches experience.</p>
+<p>The best-fitting smoothing spline for the among-year trend is linear. Let’s replace the smoothing spline by a linear term so that it is easier to extract the slope, which will now be contained in the <code>lme</code> portion.</p>
+<div class="sourceCode" id="cb690"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb690-1"><a href="glmms.html#cb690-1" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> <span class="fu">gamm</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>) <span class="sc">+</span> time, <span class="at">data =</span> rdu, <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> yr))</span>
+<span id="cb690-2"><a href="glmms.html#cb690-2" tabindex="-1"></a></span>
+<span id="cb690-3"><a href="glmms.html#cb690-3" tabindex="-1"></a><span class="fu">summary</span>(fm2<span class="sc">$</span>lme)</span></code></pre></div>
+<pre><code>## Linear mixed-effects model fit by maximum likelihood
+##   Data: strip.offset(mf) 
+##        AIC      BIC    logLik
+##   69853.65 69890.26 -34921.83
+## 
+## Random effects:
+##  Formula: ~Xr - 1 | g
+##  Structure: pdIdnot
+##              Xr1      Xr2      Xr3      Xr4      Xr5      Xr6      Xr7      Xr8
+## StdDev: 1.856608 1.856608 1.856608 1.856608 1.856608 1.856608 1.856608 1.856608
+##         Residual
+## StdDev: 7.523295
+## 
+## Correlation Structure: AR(1)
+##  Formula: ~1 | g/yr 
+##  Parameter estimate(s):
+##       Phi 
+## 0.6845958 
+## Fixed effects:  y ~ X - 1 
+##                 Value Std.Error    DF   t-value p-value
+## X(Intercept) 59.29523 0.3272265 11180 181.20547       0
+## Xtime         0.00032 0.0000506 11180   6.36501       0
+##  Correlation: 
+##       X(Int)
+## Xtime -0.866
+## 
+## Standardized Within-Group Residuals:
+##          Min           Q1          Med           Q3          Max 
+## -4.135878917 -0.651585309 -0.001948106  0.594336225  3.671840351 
+## 
+## Number of Observations: 11182
+## Number of Groups: 1</code></pre>
+<p>The temperature trend is estimated as an increase of 3.22^{-4} <span class="math inline">\(^\circ\)</span>F per day. That equates to a trend of 0.1176 <span class="math inline">\(^\circ\)</span>F per year, or 1.176 per decade. Yikes!</p>
+<p>To see the effect of the AR(1) correlation structure, let’s compare our model fit to one that doesn’t account for autocorrelated errors.</p>
+<div class="sourceCode" id="cb692"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb692-1"><a href="glmms.html#cb692-1" tabindex="-1"></a>fm1a <span class="ot">&lt;-</span> <span class="fu">gam</span>(temp <span class="sc">~</span> <span class="fu">s</span>(doy, <span class="at">bs =</span> <span class="st">&quot;cc&quot;</span>) <span class="sc">+</span> <span class="fu">s</span>(time), <span class="at">data =</span> rdu)</span>
+<span id="cb692-2"><a href="glmms.html#cb692-2" tabindex="-1"></a></span>
+<span id="cb692-3"><a href="glmms.html#cb692-3" tabindex="-1"></a><span class="fu">plot</span>(fm1a)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<div class="sourceCode" id="cb693"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb693-1"><a href="glmms.html#cb693-1" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-31-2.png" width="672" /></p>
+<p>Without the autocorrelated errors, both smoothing splines are quite a bit wigglier. The confidence intervals around the fit are also too small. Both indicate overfitting. Accounting for the serial correlations in the errors has provided a substantially improved description of the trends in the data.</p>
+<p>The temperature increase in the RDU data is hard to believe. As a sanity check, we can plot the average recorded temperature for all (nearly) complete years from 1995–2024. (We say nearly complete because some years have occasional missing values.)</p>
+<div class="sourceCode" id="cb694"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb694-1"><a href="glmms.html#cb694-1" tabindex="-1"></a>yr_avg <span class="ot">&lt;-</span> <span class="fu">with</span>(<span class="fu">subset</span>(rdu, yr <span class="sc">&lt;</span> <span class="dv">2025</span>), <span class="fu">aggregate</span>(temp, <span class="fu">list</span>(yr), <span class="at">FUN =</span> mean))  </span>
+<span id="cb694-2"><a href="glmms.html#cb694-2" tabindex="-1"></a><span class="fu">names</span>(yr_avg) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span>, <span class="st">&quot;avg_temp&quot;</span>)</span>
+<span id="cb694-3"><a href="glmms.html#cb694-3" tabindex="-1"></a><span class="fu">with</span>(yr_avg, <span class="fu">plot</span>(avg_temp <span class="sc">~</span> year))</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+<p>These data are a little odd because the source of the data changes after 2020 (and the two sources don’t completely agree for temperature data before 2020). The data for 2023–24 are so anomalous that it makes one wonder if something about the measurement device changed. Even prior to 2023, though, the trend in average annual temperature is clear.</p>
+</div>
+<div id="gammgamm4" class="section level3 hasAnchor" number="8.3.2">
+<h3><span class="header-section-number">8.3.2</span> gamm::gamm4<a href="glmms.html#gammgamm4" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Finally, we will use <code>gamm4::gamm4</code> to fit a new model to the tick data from <span class="citation">Elston et al. (<a href="#ref-elston2001">2001</a>)</span>, this time using a smoothing spline to estimate the effect of elevation on tick abundance. Like <code>mgcv::gamm</code>, <code>gamm4::gamm4</code> returns models with two compoments: one called <code>mer</code> that contains output from the portion of the model that invokes <code>lme4::(g)lmer</code>, and one called <code>gam</code> that contains the smoothing terms.</p>
+<div class="sourceCode" id="cb695"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb695-1"><a href="glmms.html#cb695-1" tabindex="-1"></a><span class="fu">require</span>(gamm4)</span>
+<span id="cb695-2"><a href="glmms.html#cb695-2" tabindex="-1"></a></span>
+<span id="cb695-3"><a href="glmms.html#cb695-3" tabindex="-1"></a>fm4  <span class="ot">&lt;-</span> <span class="fu">gamm4</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> <span class="fu">s</span>(elev.z), <span class="at">random =</span> <span class="sc">~</span> (<span class="dv">1</span> <span class="sc">|</span> loc) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> brood) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> index), </span>
+<span id="cb695-4"><a href="glmms.html#cb695-4" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb695-5"><a href="glmms.html#cb695-5" tabindex="-1"></a>             <span class="at">data =</span> tick)</span>
+<span id="cb695-6"><a href="glmms.html#cb695-6" tabindex="-1"></a></span>
+<span id="cb695-7"><a href="glmms.html#cb695-7" tabindex="-1"></a><span class="fu">summary</span>(fm4<span class="sc">$</span>mer)</span></code></pre></div>
+<pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: poisson  ( log )
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   1796.5   1828.5   -890.3   1780.5      395 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.6123 -0.5536 -0.1486  0.2849  2.4430 
+## 
+## Random effects:
+##  Groups Name        Variance  Std.Dev. 
+##  index  (Intercept) 2.932e-01 0.5415175
+##  brood  (Intercept) 5.625e-01 0.7499952
+##  loc    (Intercept) 2.796e-01 0.5287786
+##  Xr     s(elev.z)   1.359e-08 0.0001166
+## Number of obs: 403, groups:  index, 403; brood, 118; loc, 63; Xr, 8
+## 
+## Fixed effects:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## X(Intercept)    0.3727     0.1964   1.898 0.057694 .  
+## Xyr96           1.1805     0.2381   4.958 7.14e-07 ***
+## Xyr97          -0.9787     0.2628  -3.724 0.000196 ***
+## Xs(elev.z)Fx1  -0.8533     0.1235  -6.910 4.84e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Correlation of Fixed Effects:
+##             X(Int) Xyr96  Xyr97 
+## Xyr96       -0.728              
+## Xyr97       -0.610  0.514       
+## Xs(lv.z)Fx1  0.011  0.048  0.047</code></pre>
+<div class="sourceCode" id="cb697"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb697-1"><a href="glmms.html#cb697-1" tabindex="-1"></a><span class="fu">summary</span>(fm4<span class="sc">$</span>gam)</span></code></pre></div>
+<pre><code>## 
+## Family: poisson 
+## Link function: log 
+## 
+## Formula:
+## ticks ~ yr + s(elev.z)
+## 
+## Parametric coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)   0.3727     0.1904   1.958 0.050278 .  
+## yr96          1.1805     0.2356   5.010 5.44e-07 ***
+## yr97         -0.9787     0.2630  -3.722 0.000198 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##           edf Ref.df Chi.sq p-value    
+## s(elev.z)   1      1  48.03  &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =  0.156   
+## glmer.ML = 220.92  Scale est. = 1         n = 403</code></pre>
+<div class="sourceCode" id="cb699"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb699-1"><a href="glmms.html#cb699-1" tabindex="-1"></a><span class="fu">plot</span>(fm4<span class="sc">$</span>gam)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
+<p>Our best fitting model continues to contain a linear association between elevation and tick abundance. Again, it is interesting to compare this fit to one without the random effects for brood or location, and to see how the absence of these random effects produces a substantially different (and presumably much over-fit) relationship between elevation and tick abundance.</p>
+<div class="sourceCode" id="cb700"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb700-1"><a href="glmms.html#cb700-1" tabindex="-1"></a>fm5  <span class="ot">&lt;-</span> <span class="fu">gam</span>(ticks <span class="sc">~</span> yr <span class="sc">+</span> <span class="fu">s</span>(elev.z), </span>
+<span id="cb700-2"><a href="glmms.html#cb700-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb700-3"><a href="glmms.html#cb700-3" tabindex="-1"></a>              <span class="at">data =</span> tick)</span>
+<span id="cb700-4"><a href="glmms.html#cb700-4" tabindex="-1"></a></span>
+<span id="cb700-5"><a href="glmms.html#cb700-5" tabindex="-1"></a><span class="fu">plot</span>(fm5)</span></code></pre></div>
+<p><img src="08-GEEandGLMMandGAMM_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+
+</div>
+</div>
+</div>
+<h3>Bibliography<a href="bibliography.html#bibliography" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-elston2001" class="csl-entry">
+Elston, DA, Robert Moss, T Boulinier, C Arrowsmith, and Xavier Lambin. 2001. <span>“Analysis of Aggregation, a Worked Example: Numbers of Ticks on Red Grouse Chicks.”</span> <em>Parasitology</em> 122 (5): 563–69.
+</div>
+<div id="ref-fox2015" class="csl-entry">
+Fox, Gordon A, Simoneta Negrete-Yankelevich, and Vinicio J Sosa. 2015. <em>Ecological Statistics: Contemporary Theory and Application</em>. Oxford University Press, USA.
+</div>
+<div id="ref-pinheiro2000" class="csl-entry">
+Pinheiro, José, and Douglas Bates. 2000. <em>Mixed-Effects Models in <span>S</span> and <span>S-PLUS</span></em>. Springer.
+</div>
+<div id="ref-wood2017generalized" class="csl-entry">
+Wood, Simon N. 2017. <em>Generalized Additive Models: An Introduction with r</em>. CRC press.
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="9">
+<li id="fn9"><p>This analysis is inspired by and modeled after a comparable analysis in section 7.7.2 of <span class="citation">Wood (<a href="#ref-wood2017generalized">2017</a>)</span>. The first portion of these data were downloaded from Kelly Kissock’s website at the University of Dayton, although that website no longer seems to be maintained. The more recent data were downloaded from NOAA’s Climate Data Online (CDO) portal, <a href="https://www.ncdc.noaa.gov/cdo-web/search" class="uri">https://www.ncdc.noaa.gov/cdo-web/search</a> .<a href="glmms.html#fnref9" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="generalized-linear-models.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="bibliography.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "serif",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "section"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

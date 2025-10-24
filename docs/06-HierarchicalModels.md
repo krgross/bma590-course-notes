@@ -4,15 +4,13 @@
 
 ## One-factor layout: Dyestuff data
 
+### Comparing fixed vs. random effects
+
 
 
 We will illustrate the basic ideas of hierarchical models with the `Dyestuff` data contained in `lme4`.  According to @bates2012lme4, these data originally appeared in Davies (1947), and "are described in Davies and Goldsmith (1972, Table 6.3, p. 131) ... as coming from 'an investigation to find out how much the variation from batch to batch in the quality of an intermediate product contributes to the variation in the yield of the dyestuff made from it'".  The data consist of 6 batches, each of which gives rise to 5 observations. 
 
 Preparatory work:
-
-``` r
-require(lme4)
-```
 
 ```
 ## Loading required package: lme4
@@ -21,6 +19,7 @@ require(lme4)
 ```
 ## Loading required package: Matrix
 ```
+
 
 ``` r
 data(Dyestuff)
@@ -41,7 +40,7 @@ summary(Dyestuff)
 with(Dyestuff, stripchart(Yield ~ Batch, pch = 16))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 
 To develop some notation, let $i = 1, \ldots, 6$ index the batches, let $j = 1, \ldots, 5$ index the observations within each batch, and let $y_{ij}$ denote observation $j$ from batch $i$.
 
@@ -72,8 +71,8 @@ require(nlme)
 ```
 
 ``` r
-fm2 <- gls(Yield ~ 1, data = Dyestuff, correlation = corCompSymm(form = ~ 1 | Batch))
-summary(fm2)
+fm1 <- gls(Yield ~ 1, data = Dyestuff, correlation = corCompSymm(form = ~ 1 | Batch))
+summary(fm1)
 ```
 
 ```
@@ -103,7 +102,7 @@ summary(fm2)
 
 The most salient components of this output are the estimate of the overall mean, and the estimate of the within-batch correlation ($\hat{\rho} = 0.42$).
 
-Now we will fit a hierarchical model that includes a random effect for the batch.  We can write the model as
+Now we will fit a random-effects, or variance-components, model that includes a random effect for the batch.  We can write the model as
 \begin{align}
 y_{ij} & \sim \mathcal{N}(B_i, \sigma_\varepsilon^2) \\
 B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma_B^2).
@@ -111,8 +110,8 @@ B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma_B^2).
 
 
 ``` r
-fm3 <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
-summary(fm3)
+fm2 <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
+summary(fm2)
 ```
 
 ```
@@ -151,7 +150,7 @@ var.B / (var.B + var.eps)
 To obtain the conditional modes (BLUPs) of the batch-level random effect, we can use the command `ranef`:
 
 ``` r
-ranef(fm3)
+ranef(fm2)
 ```
 
 ```
@@ -169,7 +168,7 @@ ranef(fm3)
 The conditional modes given here correspond to the differences between the mean for each batch and the overall mean ($\mu$).   To convert these to best guesses for the mean of each batch, we have to the overall mean back.  This can be done by using the command `fixef` to extract the lone fixed-effect estimate from the model:
 
 ``` r
-(batch.conditional.modes <- (fixef(fm3) + ranef(fm3)$Batch$`(Intercept)`))
+(batch.conditional.modes <- (fixef(fm2) + ranef(fm2)$Batch$`(Intercept)`))
 ```
 
 ```
@@ -190,20 +189,6 @@ It is informative to compare the conditional models for each batch to the sample
 
 Now plot the sample means against the conditional modes:
 
-
-``` r
-cbind(batch.means, batch.conditional.modes)
-```
-
-```
-##   batch.means batch.conditional.modes
-## A        1505                1509.893
-## B        1528                1527.891
-## C        1564                1556.062
-## D        1498                1504.415
-## E        1600                1584.233
-## F        1470                1482.505
-```
 
 
 ``` r
@@ -226,8 +211,8 @@ To conduct inferences about the parameters in the hierarchical model, `lme4::lme
 
 
 ``` r
-fm3ML <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff, REML = FALSE)
-summary(fm3ML)
+fm2ML <- lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff, REML = FALSE)
+summary(fm2ML)
 ```
 
 ```
@@ -257,7 +242,7 @@ Switching to ML has decreased our estimate of the batch-level variance, and decr
 
 
 ``` r
-pr <- profile(fm3ML)
+pr <- profile(fm2ML)
 lattice::xyplot(pr)
 ```
 
@@ -346,8 +331,8 @@ require(lmerTest)
 ```
 
 ``` r
-fm5 <- lmerTest::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
-summary(fm5)
+fm3 <- lmerTest::lmer(Yield ~ 1 + (1 | Batch), data = Dyestuff)
+summary(fm3)
 ```
 
 ```
@@ -392,7 +377,7 @@ Finally, we can also obtain prediction intervals on the conditional modes of the
 
 
 ``` r
-lattice::dotplot(ranef(fm3, condVar = TRUE))
+lattice::dotplot(ranef(fm2, condVar = TRUE))
 ```
 
 ```
@@ -402,9 +387,9 @@ lattice::dotplot(ranef(fm3, condVar = TRUE))
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 
 
-## Bayesian analysis
+### Bayesian analysis
 
-The mixed-model formulation is our first encounter with a hierarchical model.  One often hears the phrase "Bayesian hierarchical model" in ecology.  It is important to realize that not all Bayesian models are hierarchical, and not all hierarchical models are Bayesian.  Indeed, we have seen examples of both: none of the Bayesian examples that we have seen in earlier chapters were hierarchical, and the mixed-model analysis of the Dyestuff data is a hierarchical model analyzed from a frequentist perspective.  However, we can certainly analyze hierarchical models from a Bayesian perspective as well, leading to a Bayesian hierarchical model.  
+The variance-components model is our first encounter with a hierarchical model.  One often hears the phrase "Bayesian hierarchical model" in ecology.  It is important to realize that not all Bayesian models are hierarchical, and not all hierarchical models are Bayesian.  Indeed, we have seen examples of both: none of the Bayesian examples that we have seen in earlier chapters were hierarchical, and the mixed-model analysis of the Dyestuff data is a hierarchical model analyzed from a frequentist perspective.  However, we can certainly analyze hierarchical models from a Bayesian perspective as well, leading to a Bayesian hierarchical model.  
 
 The above paragraph begs the question: What defines a hierarchical model?  One can find definitions in the literature, though it isn't clear to me that any of these definitions are fully precise, although I may just be ignorant.  As best I can tell, a hierarchical model is one that includes so-called "latent" variables.  Latent variables are unobservable quantities on which the data depend, that in turn are related to model parameters via a statistical model.  This "layered" construction of the model (observables depend on latent variables, and latent variables depend on model parameters) gives rise to the "hierarchy" that gives hierarchical models their name.
 
@@ -473,8 +458,8 @@ dyestuff.model <- function() {
   
   mu ~ dnorm (0.0, 1E-6)  # prior for the overall mean
   
-  tau_eps ~ dgamma(.1, .1)
-  tauB    ~ dgamma(.1, .1)
+  tau_eps ~ dgamma(.01, .01)  # ok here because these are precisions
+  tauB    ~ dgamma(.01, .01)
   
   sd_eps <- pow(tau_eps, -1/2)
   sdB    <- pow(tauB, -1/2)
@@ -490,14 +475,13 @@ jags.inits <- function(){
   list("mu" = rnorm(1, .01), "tauB" = dexp(1, 1), "tau_eps" = dexp(1, 1))
 }
 
-set.seed(1)
-
 jagsfit <- jags(data               = jags.data, 
                 inits              = jags.inits, 
                 parameters.to.save = jags.params,
                 model.file         = dyestuff.model,
                 n.chains           = 3,
-                n.iter             = 1e5)
+                n.iter             = 1e5,
+                jags.seed          = 1)
 ```
 
 ```
@@ -521,29 +505,29 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp0Y6f62/model3304c6539f8", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpuoAJSf/model2fe81a0d2e26", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.34 secs
+##  n.sims = 3000 iterations saved. Running time = 0.54 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.686  19.332 1474.441 1501.079 1515.075 1527.207 1548.378 1.001
-## B[2]     1526.920  19.084 1490.881 1514.551 1526.882 1538.502 1566.481 1.001
-## mu       1526.644  20.320 1483.504 1515.818 1527.076 1538.074 1567.462 1.003
-## sdB        36.782  25.641    0.481   20.352   35.033   49.224   95.307 1.006
-## sd_eps     53.651   9.262   38.914   47.164   52.396   58.987   75.790 1.001
-## deviance  323.666   6.500  314.954  318.451  321.889  328.567  336.638 1.002
+## B[1]     1513.857  20.795 1471.744 1500.463 1514.986 1528.088 1553.024 1.001
+## B[2]     1527.611  19.464 1488.674 1514.942 1528.057 1540.091 1565.572 1.001
+## mu       1526.523  22.174 1481.835 1514.688 1526.490 1538.849 1569.127 1.001
+## sdB        40.087  26.551    0.258   23.899   37.837   53.370  102.336 1.009
+## sd_eps     53.730   9.192   39.068   47.231   52.490   58.840   75.004 1.002
+## deviance  323.317   6.328  314.996  318.377  321.606  326.868  336.886 1.001
 ##          n.eff
 ## B[1]      3000
 ## B[2]      3000
 ## mu        3000
-## sdB        450
-## sd_eps    3000
-## deviance  1600
+## sdB        660
+## sd_eps    1700
+## deviance  2500
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 21.1 and DIC = 344.8
+## pV = 20.0 and DIC = 343.3
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -568,13 +552,11 @@ densityplot(jagsfit.mcmc)
 
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-7.png" width="672" />
 
-As of this writing, there are some aspects of the output that I don't understand.  The traceplots show that one chain starts far away from the region of high posterior density and then rapidly converges to it. This behavior seems to persist regardless of how long the burn-in period is, which doesn't make sense to me.  I also do not understand why `densityplot` produces a 6-by-1 stack of panels instead of a more useful layout.  
-
 One especially appealing aspect of analyzing this model from a Bayesian perspective is that there is no awkwardness in analyzing the posterior distributions of the latent variables, namely, the batch-specific means.  From the frequentist perspective, it is somewhat awkward (though not prohibitively so) to define the conditional modes (BLUPs).  We also lack straightforward methods for quantifying the uncertainty in these conditional modes.  From the Bayesian viewpoint, this awkwardness disappears, because the distinction between model parameters and latent variables vanishes.  Both are simply unobserved quantities.  Consequently, it is natural to summarize our posterior knowledge about the latent variables by their (marginal) posterior distributions, in the same way that we use marginal posteriors to summarize our inferences about the model parameters.
 
-## Negative within-group correlations
+### Negative within-group correlations
 
-The hierarchical model formulation, regardless of whether analyzed from a frequentist or Bayesian perspective, is just a model.  All models are wrong, but some models are useful.  One can encounter grouped data where the hierarchical formulation is not useful.  To illustrate, we consider the `Dyestuff2` data provided in `lme4`.  These are synthetic (fake) data that have been created by Box & Tiao (1973) for the sake of illustration.  The Dyestuff2 data have the same structure as the original Dyestuff data, that is, 5 observations from each of 6 batches.
+The hierarchical model formulation, regardless of whether analyzed from a frequentist or Bayesian perspective, is just a model.  All models are wrong, but some models are useful.  One can encounter grouped data where the hierarchical formulation is not useful.  To illustrate, we consider the `Dyestuff2` data provided in `lme4`.  These are synthetic (fake) data that have been created by @box1973 for the sake of illustration.  The Dyestuff2 data have the same structure as the original Dyestuff data, that is, 5 observations from each of 6 batches.
 
 
 ``` r
@@ -671,7 +653,7 @@ summary(fm6)
 ## boundary (singular) fit: see help('isSingular')
 ```
 
-The estimate of the among-batch variance, $\sigma^2_B$, is 0. The warning generated by R tells us that our fit is singular: one of the estimated parameters lies on the boundary of its possible values.  To quote Bates (2012+, using our notation):
+The estimate of the among-batch variance, $\sigma^2_B$, is 0. The warning generated by R tells us that our fit is singular: one of the estimated parameters lies on the boundary of its possible values.  To quote @bates2012lme4 (using our notation):
 
 > "An estimate of 0 for $\sigma_B$ does not mean that there is no variation between the groups.  Indeed, ... there is some small amount of variability between the groups.  The estimate, $\hat{\sigma}_B=0$, simply indicates that the level of 'between-group' variability is not sufficient to warrant incorporating random effects in the model.
 
@@ -679,15 +661,230 @@ The estimate of the among-batch variance, $\sigma^2_B$, is 0. The warning genera
 
 Can you think of any ecological mechanisms that might give rise to negative within-group correlations?
 
+## Industrial melanism data {#moth-mm}
+
+The data we analyze here come from a famous ecological study investigating predation on light and dark colored moths along an urban-rural transect outside of Liverpool, England. We will examine several approaches to analyzing these data.  The original source for these data is @bishop1972; I obtained them from @ramsey2002. These data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  
+
+Although simple, these data contain many features that complicate their analysis:
+
+* Observations from the same location are (positively) correlated, presumably because the predation pressure varies from one location to the next.
+* The responses are grouped binomial responses with varying group size (that is, varying numbers of moths placed on trees) at each location.
+
+Accommodating both the non-independence (due to the pairing) and the non-normality of these data requires a more sophisticated approach that we will discuss [later](#glmms).  Here, we will use the empirical logit of the proportion of moths removed to create a response variable that is close enough to normality to justify normal-based approaches.  We will focus on using mixed models to accommodate the correlations among observations from the same location.
+
+In notation, let $i=1,2$ index the two color morphs, let $j = 1, \ldots, 7$ index the locations, let $y_{ij}$ give the number of moths removed, let $n_{ij}$ give the number of moths placed, and let $x_j$ give the distance of station $j$ from Liverpool.  Here, we will study the model 
+\[
+\mathrm{logit}(y_{ij} / n_{ij}) = a_i + b_i x_j + \varepsilon_{ij} 
+\]
+which regresses the log odds of moth removal against distance from Liverpool, with different intercepts and slopes for each color morph.  We are most interested in learning about the difference $b_1 - b_2$, which quantifies how the relationship between log odds of removal and distance differs between the two color morphs, and determining whether there is evidence that this difference $\neq 0$.  
+
+The issue at hand is that the observation-level errors---the $\varepsilon_{ij}$'s---from the same location are likely to be positively correlated.
+
+<!-- Alternatively, we might prefer to consider the quantity $e^{b_1 - b_2} = e^{b_1} / e^{b_2}$, which tells us how the odds ratio for removal changes between the two morphs as distance increases.  This odds ratio is a bit closer to something that we can mentall grasp.  In terms of the odds ratio, we are interested in learning if the odds ratio $\neq 1$. -->
+
+Because there are only two observations per station (that is, the data are paired) one approach is simply to regress the difference of the empirical logits vs.\ distance.  That is, if we define $l_j = \mathrm{logit}(y_{1j} / n_{1j})$ as the log odds of removal for light moths at location $j$, $d_j = \mathrm{logit}(y_{2j} / n_{2j})$ as the log odds of removal for dark moths at location $j$, and $\delta_j = d_j - l_j$ as the difference in the log odds of removal between dark and light moths at location $j$, then we can fit the model
+\[
+\delta_j = a + b x_j + \varepsilon_j 
+\]
+as a simple regression.  We try this approach first and use it as a benchmark.  The data set used here is reformatted to include one record for each of the 7 stations.
+
+
+``` r
+moth2 <- read.table("data/moth2.txt", head = TRUE, stringsAsFactors = TRUE)
+
+head(moth2, n = 3)
+```
+
+```
+##   location distance morph l.placed l.removed d.placed d.removed
+## 1       sp      0.0 light       56        17       56        14
+## 2       ef      7.2 light       80        28       80        20
+## 3       ha     24.1 light       52        18       52        22
+```
+
+``` r
+elogit <- function(x) log(x / (1 - x))
+
+moth2$elogit.diff <- with(moth2, elogit(d.removed / d.placed) - elogit(l.removed / l.placed))
+
+fm1 <- lm(elogit.diff ~ distance, data = moth2)
+
+with(moth2, plot(elogit.diff ~ distance,
+                xlab = "distance from city center (km)",
+                ylab = "difference in log odds of removal, dark - light"))
+
+abline(h = 0, lty = "dashed")
+abline(fm1)
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-1.png" width="384" />
+
+``` r
+summary(fm1)
+```
+
+```
+## 
+## Call:
+## lm(formula = elogit.diff ~ distance, data = moth2)
+## 
+## Residuals:
+##        1        2        3        4        5        6        7 
+##  0.10557 -0.30431  0.03501  0.26395 -0.09387  0.29714 -0.30349 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)   
+## (Intercept) -0.373830   0.192503  -1.942  0.10980   
+## distance     0.027579   0.005997   4.599  0.00585 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.2698 on 5 degrees of freedom
+## Multiple R-squared:  0.8088,	Adjusted R-squared:  0.7706 
+## F-statistic: 21.15 on 1 and 5 DF,  p-value: 0.005846
+```
+
+``` r
+confint(fm1)
+```
+
+```
+##                   2.5 %     97.5 %
+## (Intercept) -0.86867531 0.12101544
+## distance     0.01216371 0.04299419
+```
+
+While the model has answered our primary question, this approach is clearly limited to models with only two treatments.  If there had been three or more moth morphs, simply taking differences would not have worked so nicely.  
+
+An alternative approach that would work just as well for three or more groups is to use a random effect to capture the differences among the locations.  In notation, we will fit the model
+\[
+\mathrm{logit}(y_{ij} / n_{ij}) = a_i + b_i x_j + L_j + \varepsilon_{ij} 
+\]
+where $L_j\sim \mathcal{N}(0, \sigma^2_L)$ are location-level random effects, and $\varepsilon_{ij}\sim \mathcal{N}(0, \sigma^2_\varepsilon)$ are observation-level random effects. Here's the fit.
+
+``` r
+moth <- read.table("data/moth.txt", head = TRUE, stringsAsFactors = TRUE)
+
+moth$logit_removed <- with(moth, elogit(removed / placed))
+
+mm1 <- lme4::lmer(logit_removed ~ distance * morph + (1 | location), data = moth)
+summary(mm1)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: logit_removed ~ distance * morph + (1 | location)
+##    Data: moth
+## 
+## REML criterion at convergence: 22.6
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.2662 -0.5662  0.1830  0.4088  0.9045 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  location (Intercept) 0.07639  0.2764  
+##  Residual             0.03639  0.1907  
+## Number of obs: 14, groups:  location, 7
+## 
+## Fixed effects:
+##                      Estimate Std. Error t value
+## (Intercept)         -1.123346   0.239648  -4.687
+## distance             0.018190   0.007465   2.437
+## morphlight           0.373830   0.192503   1.942
+## distance:morphlight -0.027579   0.005997  -4.599
+## 
+## Correlation of Fixed Effects:
+##             (Intr) distnc mrphlg
+## distance    -0.848              
+## morphlight  -0.402  0.341       
+## dstnc:mrphl  0.341 -0.402 -0.848
+```
+
+A visualization:
+
+``` r
+with(moth, plot(logit_removed ~ distance, type = "n"))
+with(subset(moth, morph == "dark"), points(logit_removed ~ distance, pch = 16))
+with(subset(moth, morph == "light"), points(logit_removed ~ distance, pch = 1))
+
+abline(a = -1.1233, b = 0.01819) # dark fit
+abline(a = -1.1233 + 0.3738, b = 0.01819 - 0.02758, lty = "dashed")  # light fit
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-25-1.png" width="672" />
+
+To test for the significance of the difference in slopes, we use `lmerTest::lmer`:
+
+``` r
+mm1a <- lmerTest::lmer(logit_removed ~ distance * morph + (1 | location), data = moth)
+summary(mm1a)
+```
+
+```
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: logit_removed ~ distance * morph + (1 | location)
+##    Data: moth
+## 
+## REML criterion at convergence: 22.6
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -1.2662 -0.5662  0.1830  0.4088  0.9045 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  location (Intercept) 0.07639  0.2764  
+##  Residual             0.03639  0.1907  
+## Number of obs: 14, groups:  location, 7
+## 
+## Fixed effects:
+##                      Estimate Std. Error        df t value Pr(>|t|)   
+## (Intercept)         -1.123346   0.239648  6.854778  -4.687  0.00237 **
+## distance             0.018190   0.007465  6.854778   2.437  0.04571 * 
+## morphlight           0.373830   0.192503  5.000000   1.942  0.10980   
+## distance:morphlight -0.027579   0.005997  5.000000  -4.599  0.00585 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr) distnc mrphlg
+## distance    -0.848              
+## morphlight  -0.402  0.341       
+## dstnc:mrphl  0.341 -0.402 -0.848
+```
+
+In this simple case, the df for the $t$-statistic associated with the difference in slopes is indisputable, and `lmerTest::lmer` returns the same $p$-value as the paired analysis.
+
+For what it's worth, we can also extract conditional modes for the random effects of each of the locations:
+
+``` r
+ranef(mm1)
+```
+
+```
+## $location
+##    (Intercept)
+## cm  0.02991727
+## ef  0.03709012
+## ha  0.28858612
+## ll  0.02644813
+## lo -0.46001114
+## pw  0.10062376
+## sp -0.02265426
+## 
+## with conditional variances for "location"
+```
+
 ## Random coefficient models: RIKZ data
 
-So-called random coefficient models are popular modeling structures in ecology.  Random-coefficient models are useful when data are grouped, like the Dyestuff data.  However, unlike the Dyestuff data, random-coefficient models refer to scenarios where the statistical model that we want to entertain within each group is more complex than just a simple random sample with a group-specific mean.
-
-To illustrate random-coefficient models, we will consider the RIKZ data from @zuur2009.  These data were first analyzed in an earlier textbook (@zuur2007analysing).  @zuur2009 (p. 101) describe the data as follows:
+Random-coefficient models are those in which the random-effect for each group applies not just to the overall mean response from that group (the "intercept") but to a parameter that characterizes a particular feature of the data from that group, such as a regression slope.  To illustrate random-coefficient models, we will consider the RIKZ data from @zuur2009.  These data were first analyzed in an earlier textbook (@zuur2007analysing).  @zuur2009 (p. 101) describe the data as follows:
 
 > "@zuur2007analysing used marine benthic data from nine inter-tidal areas along the Dutch coast. The data were collected by the Dutch institute RIKZ in the summer of 2002. In each inter-tidal area (denoted by ‘beach’), five samples were taken, and the macro-fauna and abiotic variables were measured. ... The underlying question for these data is whether there is a relationship between species richness, exposure, and NAP (the height of a sampling station compared to mean tidal level). Exposure is an index composed of the following elements: wave action, length of the surf zone, slope, grain size, and the depth of the anaerobic layer."
 
-In other words, there are 9 beaches, and 5 samples from each beach.  The response, measured at each sample, is the macrofaunal species richness.  There are two covariates: NAP, which is a sample-level covariate, and exposure, which is a beach-level covariate.  Because species richness is a count variable and includes the occasional zero (and because we have not yet discussed hierarchical models for non-Gaussian responses) we will use the square-root of richness as a variance-stabilizing transformation.  Using the square root of species richness as the response has the added benefit of making our analysis different from the analysis in Zuur et al. (2009).
+That is, there are 9 beaches, and 5 samples from each beach.  The response, measured at each sample, is the macrofaunal species richness.  There are two covariates: NAP, which is a sample-level covariate, and exposure, which is a beach-level covariate.  Because species richness is a count variable and includes the occasional zero (and because we have not yet discussed hierarchical models for non-Gaussian responses) we will use the square-root of richness as a variance-stabilizing transformation.  Using the square root of species richness as the response has the added benefit of making our analysis different from the analysis in Zuur et al. (2009).
 
 We are going to analyze these data exhaustively, considering various approaches for their analysis and comparing the pros and cons.  In our first pass, we will ignore the exposure covariate, and seek only to model the relationship between species richness and NAP.  Once that analysis is complete, we will circle back and consider how the analysis changes when we consider the beach-level covariate as well.
 
@@ -703,14 +900,14 @@ rikz <- read.table("data/RIKZ.txt", head = T)
 with(rikz, plot(Richness ~ NAP, pch = Beach))  # raw response; note the non-constant variance
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
 ``` r
 with(rikz, plot(sqrt(Richness) ~ NAP, pch = Beach))  # transformation stabilizes the variance
 legend("topright", leg = 1:9, pch = 1:9)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-23-2.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-28-2.png" width="672" />
 
 
 ``` r
@@ -852,7 +1049,7 @@ for(i in 1:9){
 }
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-33-1.png" width="672" />
 
 
 Continuing with the fixed-effects analysis, we might also consider a model in which the relationship between NAP and species richness varies among beaches.  In other words, we might fit a model with a beach-by-NAP interaction.  This model is
@@ -956,7 +1153,7 @@ for(i in 1:9){
 }
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 
 #### Using random-effects for among-beach differences
@@ -1042,7 +1239,7 @@ for(i in 1:9){
 }
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-41-1.png" width="672" />
 
 Though it's subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.
 
@@ -1213,7 +1410,7 @@ with(conditional.modes, points(slope ~ intercept, pch = 1:9))
 points(fixef(fm3)[1], fixef(fm3)[2], pch = 16, col = "red", cex = 2)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-42-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-47-1.png" width="672" />
 
 Note, again, that the conditional modes of the intercepts and slopes have shrunk (sometimes substantially) back towards the population means of each.  The population means of the intercept and slope are shown by the red dot on the right-hand panel.  Finally, we visualize the model by plotting beach-specific "fits":
 
@@ -1231,7 +1428,7 @@ for(i in 1:9){
 abline(a = fixef(fm3)[1], b = fixef(fm3)[2], col = "red", lwd = 2)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-43-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-48-1.png" width="672" />
 
 ### Adding a beach-level covariate
 
@@ -1550,7 +1747,7 @@ for (i in 1:length(high.beaches)) {
 }
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-49-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-54-1.png" width="672" />
 
 <!-- Finally, we'll fit a model in which the slope does not depend on exposure, just for comparison.  That is, we entertain the model -->
 <!-- \begin{align*} -->
@@ -1823,7 +2020,7 @@ We see that only the linear trend of the nitrogen treatment is significant.  Let
 with(oats, plot(Y ~ N))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-54-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-59-1.png" width="672" />
 
 ### Crossed random effects
 
@@ -1895,7 +2092,7 @@ confint(pp.golf)
 lattice::xyplot(pp.golf, absVal = TRUE)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-56-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-61-1.png" width="672" />
 
 
 We can also extract the conditional modes for the players and rounds.
@@ -1941,7 +2138,7 @@ with(player.stats, stripchart(mode ~ as.factor(rds), method = "jitter", ylab = "
                               xlab = "conditional mode", pch = 1))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-58-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-63-1.png" width="672" />
 
 Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were "cut".  We might infer that these players played above their abilities on days 1 and 2.
 

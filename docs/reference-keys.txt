@@ -32,8 +32,10 @@ temporal-serial-correlation
 spatial-data
 hierarchical-mixed-models
 one-factor-layout-dyestuff-data
+comparing-fixed-vs.-random-effects
 bayesian-analysis
 negative-within-group-correlations
+moth-mm
 random-coefficient-models-rikz-data
 analysis-without-beach-level-covariate
 using-fixed-effects-for-among-beach-differences
@@ -55,10 +57,10 @@ zero-truncated-models
 zero-inflated-models
 zero-altered-or-hurdle-models
 generalized-additive-models-gams
-generalized-linear-mixed-models
-example-1-industrial-melanism-data
-gees
 glmms
+example-1-industrial-melanism-data-continued
+gees
+glmms-1
 bayesian-fit
 example-2-ticks-on-red-grouse
 GAMMs

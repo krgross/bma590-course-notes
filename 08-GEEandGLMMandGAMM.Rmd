@@ -1,51 +1,23 @@
-# Generalized linear mixed models
+# Generalized linear mixed models {#glmms}
 
 ```{r echo = FALSE}
 setwd("C:/Users/krgross/Documents/GitHub/bma590-course-notes/")
 ```
 
-## Example 1: Industrial melanism data
+## Example 1: Industrial melanism data, continued
 
-We will examine several possible approaches to analyzing the industrial melanism data.  The original source for these data is @bishop1972; I obtained them from @ramsey2002. Recall that these data consist of paired binomial responses with two covariates: distance from Liverpool (a station-level covariate) and color morph (an observation-level covariate).  In notation, the model that we seek to fit is
+We first encountered the industrial melanism data when we studied [mixed models](#moth-mm).  There, we fit models that accounted for the correlation among observations from the same location, but we didn't fully accommodate the non-normal nature of the responses.  If we can accommodate the fact that the responses are binomially distributed, then we can account for the fact that differing numbers of moths were placed at the different stations---a fact that our previous approach ignores.  To account for the correlated, binomial nature of the responses, we shall  fit the model 
 \begin{align*}
 y_{ij} & \sim \mathrm{Binom}(p_{ij}, n_{ij})\\
 \mathrm{logit}(p_{ij}) & = \eta_{ij} \\
 \eta_{ij} & = a_i + b_i x_j + L_j \\
 L_j & \sim \mathcal{N}(0, \sigma^2_L)
 \end{align*}
-where $i=1,2$ indexes the two color morphs, $j = 1, \ldots, 7$ indexes the stations, $y_{ij}$ is the number of moths removed, $n_{ij}$ is the number of moths placed, and let $x_j$ is the distance of the station from Liverpool.  We are most interested in learning about the difference $b_1 - b_2$, which quantifies how the relationship between log odds of removal and distance differs between the two color morphs, and determining whether there is evidence that this difference $\neq 0$.  Alternatively, we might prefer to consider the quantity $e^{b_1 - b_2} = e^{b_1} / e^{b_2}$, which tells us how the odds ratio for removal changes between the two morphs as distance increases.  This odds ratio is a bit closer to something that we can mentall grasp.  In terms of the odds ratio, we are interested in learning if the odds ratio $\neq 1$.
-
-Before proceeding, we note that one approach is simply to regress the difference of the empirical logits vs.\ distance.  This reduces the problem to a simple regression.  We try this approach first and use it as a benchmark.  The data set used here is reformatted to include one record for each of the 7 stations.
-
-```{r fig.width = 4}
-moth2 <- read.table("data/moth2.txt", head = TRUE, stringsAsFactors = TRUE)
-
-head(moth2, n = 3)
-
-elogit <- function(x) log(x / (1 - x))
-
-moth2$elogit.diff <- with(moth2, elogit(d.removed / d.placed) - elogit(l.removed / l.placed))
-
-fm1 <- lm(elogit.diff ~ distance, data = moth2)
-
-with(moth2, plot(elogit.diff ~ distance,
-                xlab = "distance from city center (km)",
-                ylab = "difference in log odds of removal, dark - light"))
-
-abline(h = 0, lty = "dashed")
-abline(fm1)
-
-summary(fm1)
-confint(fm1)
-```
-
-This approach tells us that the difference in log-odds slopes (defined as dark morph - light morph) is `r round(coef(fm1)['distance'], 4)`, with a 95\% confidence interval of (0.012, 0.043).   This corresponds to an odds ratio of `r round(exp(coef(fm1)['distance']), 4)`, with a 95\% confidence interval of (1.012, 1.044).  In other words, with every additional km from the city center, the odds ratio for a dark moth's removal vs.\ a light moth's removal increases by about 2.8\%.
-
-The major disadvantage to the approach above is that it doesn't account for the fact that differing numbers of moths were placed at the different stations.  We could try to account for this with a weighted regression, but it's not clear what the weights should be.  We were also fortunate in the sense that there were no instances of either none or all of the moths being removed at a particular station, which would have led to an infinite empirical logit.
+continuing to use the notation scheme that we developed [previously](#moth-mm).
 
 ### GEEs
 
-Next we try a GEE with a compound symmetry ("exchangable") correlation structure imposed on the pair of measurements at each station.  Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure.  We fit the model using `geepack::geeglm`. 
+First we try a GEE with a compound symmetry ("exchangable") correlation structure imposed on the pair of measurements at each station.  Because there are only two data records for each station, there is no loss of generality in assuming this correlation structure.  We fit the model using `geepack::geeglm`. 
 
 ```{r warning = FALSE}
 require(geepack)
@@ -196,7 +168,7 @@ moth.model <- function() {
    b[1] ~ dnorm (0.0, 1E-6)       # prior for slope
    b[2] ~ dnorm (0.0, 1E-6)       # prior for slope
    
-   tau_L   ~ dexp(1)    # prior for location-level random effect
+   tau_L   ~ dgamma(.01, .01)    # prior for location-level random effect
    
    sd_L   <- pow(tau_L, -1/2)
    
