@@ -38,8 +38,8 @@ negative-within-group-correlations
 moth-mm
 random-coefficient-models-rikz-data
 analysis-without-beach-level-covariate
-using-fixed-effects-for-among-beach-differences
-using-random-effects-for-among-beach-differences
+using-fixed-effects-for-differences-among-beaches
+using-random-effects-for-differences-among-beaches
 adding-a-beach-level-covariate
 nested-and-crossed-random-effects
 nested-random-effects

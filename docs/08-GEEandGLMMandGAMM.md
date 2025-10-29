@@ -239,7 +239,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.318814
+## [1] 0.3188265
 ```
 
 ``` r
@@ -273,7 +273,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3502591
+## [1] 0.3505072
 ```
 
 ``` r
@@ -517,7 +517,13 @@ B_{ijk} & \sim \mathcal{N}(0, \sigma^2_B) \\
 ``` r
 require(lme4)
 require(lattice)
+```
 
+```
+## Loading required package: lattice
+```
+
+``` r
 tick <- read.table("data/tick.txt", head = T)
 
 names(tick) <- c("index", "ticks", "brood", "elevation", "yr", "loc")
@@ -739,6 +745,29 @@ We will fit a model that is the sum of two splines: a cyclic spine to capture th
 
 ``` r
 require(mgcv)
+```
+
+```
+## Loading required package: mgcv
+```
+
+```
+## Loading required package: nlme
+```
+
+```
+## 
+## Attaching package: 'nlme'
+```
+
+```
+## The following object is masked from 'package:lme4':
+## 
+##     lmList
+```
+
+```
+## This is mgcv 1.9-3. For overview type 'help("mgcv-package")'.
 ```
 
 ``` r

@@ -207,7 +207,7 @@ abline(a = 0, b = 1)
 
 The conditional modes are "shrunken" towards the global mean relative to the sample means.  Why is this so?
 
-To conduct inferences about the parameters in the hierarchical model, `lme4::lmer` offers likelihood profiling. This is the same idea that we encountered when we were using the likelihood to calculate profile-based confidence intervals earlier in the course.  `lme4::lmer` does all its profiling on the ML fit, so we begin by refitting our hierarchical model using ML.  To do so, set the optional argument `REML` to `FALSE`.
+To conduct inferences about the parameters in the hierarchical model, `lme4::lmer` offers likelihood profiling. This is the same idea that we encountered when we were using the likelihood to calculate profile-based confidence intervals earlier in the course.  `lme4::lmer` does all its profiling on the ML fit, so we begin by refitting our hierarchical model using ML.  To do so, set the optional argument `REML` to `FALSE`.  
 
 
 ``` r
@@ -238,7 +238,7 @@ summary(fm2ML)
 ## (Intercept)  1527.50      17.69   86.33
 ```
 
-Switching to ML has decreased our estimate of the batch-level variance, and decreased it by quite a bit.  To construct profile-based intervals, we use the `lme4::profile` function.  We will use the `xyplot` function from the `lattice` package to display the profiles.
+Switching to ML has decreased our estimate of the batch-level variance, and decreased it by quite a bit.  To construct profile-based intervals, we use the `lme4::profile` function.^[Note that you can actually use the `profile` function on the REML fit, but in that case the `profile` function will first refit the model using ML.  So, `profile` will return profiles of the ML fit, regardless of whether it is given a model fit with REML or a model fit with ML.]  We will use the `xyplot` function from the `lattice` package to display the profiles.
 
 
 ``` r
@@ -275,7 +275,7 @@ lattice::xyplot(pr, absVal = TRUE)
 
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-14-1.png" width="672" />
 
-The purpose of using a signed square root is to turn these V-shaped plots into straight lines.  Straight lines are useful in turn because if the profile log likelihood is actually quadratic, then the zeta plot will yield a perfectly straight line, and thus a local approximation to the confidence interval will be appropriate.  If the zeta-plot is non-linear, then the confidence interval becomes more asymmetric, and a local approximation fares more poorly.
+The purpose of using a signed square root is to turn the U-shaped plots of profile likelihoods into V-shaped plots.  Some might argue that V-shaped plots are useful because it makes it easier to detect the asymmetries between the left and right halves of the plot.  
 
 (Start reading again if you skipped the above detail).  There is an interesting detail to the zeta-plots.  Consider the zeta-plot for $\sigma_1$ (the standard deviation of the batch-level random effects), and try to find the lower limit of a 99\% confidence interval.  You'll notice that the zeta-plot hits 0 (the lowest possible value for a standard deviation) before the interval is completed.  Thus, the lower limit of this interval is 0:
 
@@ -299,10 +299,9 @@ lattice::splom(pr)
 ```
 
 <img src="06-HierarchicalModels_files/figure-html/dyestuff bivariate confidence regions-1.png" width="672" />
+Panels above the diagonal show bivariate, profile-based confidence regions for each pair of parameters.  Within each panel, we see 50\%, 80\%, 90\%, 95\%, and 99\% confidence regions.    The panels show, for example, that the estimate of the observation-level standard deviation is slightly negatively correlated with the estimate of the batch-level standard deviation.  Panels below the diagonal show the same plots on the $\zeta$ scale.  See @bates2012lme4 \S 1.5.3 for a detailed description of how to interpret these plots.
 
-Panels above the diagonal show bivariate, profile-based confidence regions for each pair of parameters.  Within each panel, we see 50\%, 80\%, 90\%, 95\%, and 99\% confidence regions.  (You should be able to figure out which is which.)  The panels show, for example, that the estimate of the observation-level standard deviation is slightly negatively correlated with the estimate of the batch-level standard deviation.  Panels below the diagonal show the same plots on the $\zeta$ scale.  See Bates (2012+) \S 1.5.3 for a detailed description of how to interpret these plots.
-
-There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters.  Famously, `lme4::lmer` does not provide degrees of freedom for the estimates of the fixed effects.  The package `lmerTest` uses the Satterthwaite approximation to estimate these df.
+There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters.  [Famously,](https://stat.ethz.ch/pipermail/r-help/2006-May/094765.html) `lme4::lmer` does not provide degrees of freedom for the estimates of the fixed effects.  The package `lmerTest` uses the Satterthwaite approximation to estimate these df.
 
 
 ``` r
@@ -505,29 +504,29 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpuoAJSf/model2fe81a0d2e26", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmps1KbqQ/modeleb07cd0b58", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.54 secs
+##  n.sims = 3000 iterations saved. Running time = 0.27 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.857  20.795 1471.744 1500.463 1514.986 1528.088 1553.024 1.001
-## B[2]     1527.611  19.464 1488.674 1514.942 1528.057 1540.091 1565.572 1.001
-## mu       1526.523  22.174 1481.835 1514.688 1526.490 1538.849 1569.127 1.001
-## sdB        40.087  26.551    0.258   23.899   37.837   53.370  102.336 1.009
-## sd_eps     53.730   9.192   39.068   47.231   52.490   58.840   75.004 1.002
-## deviance  323.317   6.328  314.996  318.377  321.606  326.868  336.886 1.001
+## B[1]     1513.872  20.303 1472.626 1500.502 1514.921 1527.773 1550.837 1.001
+## B[2]     1527.503  19.358 1490.060 1515.171 1527.514 1540.065 1567.047 1.002
+## mu       1526.325  22.113 1481.649 1514.332 1526.353 1538.703 1569.894 1.001
+## sdB        39.444  27.557    0.334   22.184   37.243   52.405  100.621 1.012
+## sd_eps     53.857   9.466   39.149   46.926   52.716   59.435   75.175 1.001
+## deviance  323.430   6.399  314.767  318.503  321.758  327.380  336.708 1.004
 ##          n.eff
 ## B[1]      3000
-## B[2]      3000
+## B[2]      1400
 ## mu        3000
-## sdB        660
-## sd_eps    1700
-## deviance  2500
+## sdB        500
+## sd_eps    2500
+## deviance   590
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 20.0 and DIC = 343.3
+## pV = 20.4 and DIC = 343.8
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -919,29 +918,15 @@ rikz$fBeach <- as.factor(rikz$Beach)
 
 ### Analysis without beach-level covariate
 
-#### Using fixed effects for among-beach differences
+#### Using fixed effects for differences among beaches
 
-To develop some notation for modeling, let $i=1, \ldots, 9$ index the different beaches, let $j = 1, \ldots, 5$ index the different samples at each beach, let $y_{ij}$ be the square root of the species richness at sample $j$ at beach $i$, and let $x_{ij}$ be the NAP covariate at sample $j$ at beach $i$.
+To develop some notation for modeling, let $i=1, \ldots, 9$ index the beaches, let $j = 1, \ldots, 5$ index the samples at each beach, let $y_{ij}$ be the square root of the species richness at sample $j$ at beach $i$, and let $x_{ij}$ be the NAP covariate at sample $j$ at beach $i$.
 
 In a standard linear models course, we would identify this as a two-factor design with a categorical factor (the beaches) and a numerical factor (NAP).   Suppose we wish to characterize the relationship between NAP and (the square root of) species richness, while controlling for differences among the beaches.  To do so, we might entertain the additive model
-\begin{align*}
-y_{ij} & = a_i + b x_{ij} + \varepsilon_{ij} \\
-\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2). 
-\end{align*}
-
-As usual, there are several different ways in which we could write the same model.  We might instead write
-\begin{align*}
-y_{ij} & = \mu_{ij} + \varepsilon_{ij} \\
-\mu_{ij} & = a_i + b x_{ij} \\
-\varepsilon_{ij} & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2)
-\end{align*}
-
-to emphasize that the mean of each observation ($\mu_{ij}$) is equal to the sum of a beach-level intercept ($a_i$) and a common slope times the NAP value ($b x_{ij}$).  Alternatively, we might write
 \begin{equation}
 y_{ij} \sim \mathcal{N}(a_i + b x_{ij}, \sigma_\varepsilon^2). 
 \end{equation}
-
-In any case, the model states that each observation is drawn independently from a Gaussian distribution.  The fitted value (or mean) for each datum is determined by a regression line with beach-specific intercepts and a common slope.  (The additive model has the same structure has a parallel-lines ANCOVA.) The error variance is the same for all observations.
+where $a_i$ is the intercept for beach $i$ and $b$ is the common slope that associates the NAP value with the response for all beaches.  The error variance is the same for all observations.
 
 Let's fit the model and see what it yields.  
 
@@ -1017,7 +1002,7 @@ anova(fm0)
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
-Finally, we can visualize the model by plotting each of the beach-specific fits.  We'll use the R trick of re-fitting the model without the intercept to obtain the beach-specific intercepts directly as model parameters, instead of having to back out those intercepts from the contrasts.  
+Finally, we can visualize the model by plotting each of the beach-specific fits.  We'll use the R trick of re-fitting the model without the intercept to obtain the beach-specific intercepts directly as model parameters, instead of having to compute those intercepts from the contrasts.  
 
 
 ``` r
@@ -1156,15 +1141,15 @@ for(i in 1:9){
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 
-#### Using random-effects for among-beach differences
+#### Using random-effects for differences among beaches
 
 Now let's use random effects to capture the differences among beaches.  A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection.  We'll start with the additive model again, so that the random beach effect only affects the intercept.  Using the notational style of mixed modeling, we could write our model as
 \begin{align*}
-y_{ij} & \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2)  \\
-A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2).
+y_{ij} & \sim \mathcal{N}(a + A_i + b x_{ij}, \sigma_\varepsilon^2)  \\
+A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_a^2).
 \end{align*}
 
-Here, the $A_i$'s are the random beach-level intercept.  
+Here, $a$ is the average intercept across beaches, and the $A_i$'s are random offsets that capture how the intercept for beach $i$ differs from the average value $a$.  
 
 We'll fit the model using `lmerTest::lmer`.
 
@@ -1243,11 +1228,12 @@ for(i in 1:9){
 
 Though it's subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.
 
-Now let's consider a model that includes both separate intercepts and slopes for each beach, while continuing to model the among-beach differences in both with random effects.  In other words, we'll fit a "random coefficients" model with random intercepts and slopes for each beach. We have two options here.  Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent.  To write the first model in mixed-model notation, we might write
+Now let's consider a model that includes both separate intercepts and slopes for each beach, while continuing to model the differences among beaches in both with random effects.  In other words, we'll fit a "random coefficients" model with random intercepts and slopes for each beach. We have two options here.  Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent.  To write the first model in mixed-model notation, we might write
 \begin{align*}
-y_{ij} & \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
-\left(\begin{array}{c} A \\ B \end{array} \right)_i & \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right).
+y_{ij} & \sim \mathcal{N}(a + A_i + (b + B_i) x_{ij}, \sigma_\varepsilon^2) \\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i & \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} 0 \\ 0 \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right).
 \end{align*}
+Here the parameter $b$ gives the average slope (for all beaches in the population of beaches form which these beaches were sampled), and the $B_i$ are random offsets that capture how the slope of beach $i$ differs from the average slope $b$. 
 
 To fit the model using `lmerTest::lmer`, we use
 
@@ -1311,9 +1297,9 @@ Interestingly, both the LRT and ANOVA suggest that the random-coefficients model
 
 Alternatively, we could try a model with independent random effects for intercepts and slopes.  This model is
 \begin{align*}
-y_{ij} & \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
-A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma^2_A) \\
-B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B).
+y_{ij} & \sim \mathcal{N}(a + A_i + (b + B_i) x_{ij}, \sigma_\varepsilon^2) \\
+A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
+B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 \end{align*}
 
 To fit it in R, we use
@@ -1432,7 +1418,7 @@ abline(a = fixef(fm3)[1], b = fixef(fm3)[2], col = "red", lwd = 2)
 
 ### Adding a beach-level covariate
 
-Finally, we consider the effect of exposure, a beach-level covariate.  Exposure is coded in the data set as a numerical predictor.  However, there are only three unique values: 8, 10, and 11 (and only one beach has exposure level 8).  We will follow Zuur et al.\ (2009) in treating exposure as a binary predictor, grouping the beaches with exposure levels 8 and 10 together as low exposure beaches.
+Now consider the effect of exposure, a beach-level covariate.  Exposure is coded in the data set as a numerical predictor.  However, there are only three unique values: 8, 10, and 11 (and only one beach has exposure level 8).  We will follow Zuur et al.\ (2009) in treating exposure as a binary predictor, grouping the beaches with exposure levels 8 and 10 together as low exposure beaches.
 
 
 ``` r
@@ -1484,7 +1470,7 @@ summary(rikz)
 
 We will consider a model in which we use separate distributions of random intercepts for the the low- and high-exposure beaches.  To fit this model, we will need to embellish our notation.  Now, let $i=1, 2$ index the exposure level of the beaches.  Let $j=1,\ldots, n_i$ index the replicate beaches within each exposure level.  Let $k=1, \ldots, 5$ index the samples at each beach.  
 
-Here we see an interesting consequence of our decision to model the differences among the beaches with either a fixed or random effect.  **In order to draw inferences about the effect of low vs.\ high exposure, we must use a random effect for the beach-to-beach differences.** This makes sense when we reflect upon it.  In order to draw inferences about low vs.\ high exposure, we have to envision separate populations of low and high exposure beaches, and construe the beaches in this experiment as two separate random samples from those populations.  If instead we treat the beach-to-beach differences with fixed effects, then we are effectively saying that these are the only low- and high-exposure beaches that we care about.  Therefore, in the fixed-effects formulation, these nine beaches are our two populations, and there is no inference to be done. 
+Here we see an interesting consequence of our decision to model the differences among the beaches with either a fixed or random effect.  **In order to draw inferences about the effect of low vs.\ high exposure, we must use a random effect for the differences among beaches.** This makes sense when we reflect upon it.  In order to draw inferences about low vs.\ high exposure, we have to envision separate populations of low- and high-exposure beaches, and regard the beaches in this experiment as two separate random samples from those populations.  If instead we treat the differences among beaches with fixed effects, then we are effectively saying that these are the only low- and high-exposure beaches that we care about.  Therefore, in the fixed-effects formulation, these nine beaches are our two populations, and there are no inferences to draw. 
 
 As above, we will consider a series of three models with various specifications of the random effect.  We will consider:
 
@@ -1496,10 +1482,10 @@ Initially, we fit a model with richly specified fixed effects.  In this case, th
 
 These models can be written and fit as follows.  The random-intercepts model is
 \begin{align*}
-y_{ijk} & \sim \mathcal{N}(A_{ij} + b_i x_{ijk}, \sigma_\varepsilon^2)\\
-A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A).
+y_{ijk} & \sim \mathcal{N}(a_i + A_{ij} + b_i x_{ijk}, \sigma_\varepsilon^2)\\
+A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A).
 \end{align*}
-We fit this model in R with the code
+Here the parameters $(a_i, b_i)$ give the (average) intercept and slope for beaches with exposure level $i$.  The $A_{ij}$ are random offsets that capture how the intercept of beach $j$ for exposure level $i$ differs from the average intercept for beaches in exposure level $i$.  We fit this model in R with the code
 
 ``` r
 fm4 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 | fBeach), data = rikz) 
@@ -1540,12 +1526,16 @@ summary(fm4)
 ## fExp11:NAP  0.115 -0.212 -0.664
 ```
 
-The model with independent intercepts and slopes can be written as 
+There's a lot of output to process here.  For the moment, we'll focus on selecting an appropriate model for the structure of the random effects.  Once we've done that, then we'll circle back and decipher the (presumably more interesting and more relevant) fixed effects that tell us about the effects of beach exposure and NAP on the response.
+
+Proceeding in our series of models with increasingly complicated random effects, next we will consider a model where the slopes (of the NAP covariate) also differ among the beaches within each exposure-level group.  This model writes as 
 \begin{align*}
-y_{ijk} & \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
-A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A) \\
-B_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(b_i, \sigma^2_B) .
+y_{ijk} & \sim \mathcal{N}(a_i + A_{ij} + (b_i + B_{ij}) x_{ijk}, \sigma_\varepsilon^2)\\
+A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
+B_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) .
 \end{align*}
+In this model, the newly added $B_{ij}$ are random offsets that capture how the slope of beach $j$ for exposure level $i$ differs from the average slope for beaches in exposure level $i$. 
+
 We fit this model with the code
 
 ``` r
@@ -1589,10 +1579,10 @@ summary(fm5)
 ## fExp11:NAP  0.041 -0.090 -0.666
 ```
 
-The model with possibly correlated random intercepts and slopes can be written as
+Finally, consider a model in which the random intercepts and slopes are correlated.  This model writes as
 \begin{align*}
-y_{ijk} & \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
-\left(\begin{array}{c} A \\ B \end{array} \right)_i & \sim \mathcal{N}_2 \left(\left(\begin{array}{c} a_i \\ b_i \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right).
+y_{ijk} & \sim \mathcal{N}((a_i + A_{ij}) + (b_i + B_{ij}) x_{ijk}, \sigma_\varepsilon^2)\\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i & \sim \mathcal{N}_2 \left(\left(\begin{array}{c} 0 \\ 0 \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right).
 \end{align*}
 
 We fit the model in R as follows
@@ -1659,7 +1649,7 @@ anova(fm4, fm5, fm6)
 ## fm6    8 96.373 110.83 -40.186    80.373 0.0454  1     0.8312
 ```
 
-Both AIC and the LRT suggest that the model with only random intercepts provides the most parsimonious fit.  Let's take a closer look at that fit
+Both AIC and the LRT suggest that the model with only random intercepts provides the most parsimonious fit.  Let's take a closer look at that model:
 
 
 ``` r
@@ -1700,7 +1690,7 @@ summary(fm4)
 ## fExp11:NAP  0.115 -0.212 -0.664
 ```
 
-We can analyze the fixed-effects as follows.  Based on the contrasts R has used, the low exposure beaches are the baseline; thus the values for the "Intercept" and "NAP" coefficients give the intercept and slope for low-exposure beaches.  The values of the "fExp11" and "fExp11:NAP" coefficients (resp.) give the differences of the intercepts and slopes (resp.) between the high vs.\ low exposure beaches.  Thus the negative value of the "NAP" coefficient suggests that species richness declines as NAP increases at low-exposure beaches.  The positive coefficient for the "fExp11:NAP" interaction suggests that species richness declines more gradually with increasing NAP at high-exposure beaches as compared to low-exposure beaches.  Because we have analyzed the square-root transform of the response, it is hard to assign any biological meaning to the magnitudes of the coefficients.  This is one downside of using a transformation to stabilize the variance in the response.
+We can analyze the fixed-effects as follows.  Based on the contrasts R has used, the low exposure beaches are the baseline; thus the values for the "Intercept" and "NAP" coefficients give the intercept and slope for low-exposure beaches.  The values of the "fExp11" and "fExp11:NAP" coefficients give the differences of the intercepts and slopes  between the high vs.\ low exposure beaches.  Thus the negative value of the "NAP" coefficient suggests that species richness declines as NAP increases at low-exposure beaches.  The positive coefficient for the "fExp11:NAP" interaction suggests that species richness declines more gradually with increasing NAP at high-exposure beaches as compared to low-exposure beaches.  Because we have analyzed the square-root transform of the response, it is hard to assign any biological meaning to the magnitudes of the coefficients.  This is one downside of using a transformation to stabilize the variance in the response.
 
 
 We'll visualize the model with a plot.  

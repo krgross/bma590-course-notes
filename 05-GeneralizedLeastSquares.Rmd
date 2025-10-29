@@ -319,7 +319,7 @@ with(Wheat2, plot(x = longitude, y = latitude,
                   pch = as.numeric(Block)))
 ```
 
-Our goal is simply to characterizes the differences in mean yield among the 56 varieties while accounting for possible spatial correlations.  We begin by fitting a simple one-factor ANOVA model and inspecting the residuals.  First, we will use the `plot_ly` function to generate a three-dimensional view of the residuals.  This 3D plot can be rotated in R, although the rotation is not possible in this Rbook.  
+Our goal is simply to characterizes the differences in mean yield among the 56 varieties while accounting for possible spatial correlations.  We begin by fitting a simple one-factor ANOVA model and inspecting the residuals.  First, we will use the `plot_ly` function to generate a three-dimensional view of the residuals.  This 3D plot can be rotated in R, although the rotation is not possible in this Gitbook.  
 
 ```{r}
 fm1 <- nlme::gls(yield ~ variety, data = Wheat2)

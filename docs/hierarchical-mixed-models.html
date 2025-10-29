@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2025-10-24" />
+<meta name="date" content="2025-10-29" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -435,7 +435,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma_B^2).
 ## Fixed effects:
 ##             Estimate Std. Error t value
 ## (Intercept)  1527.50      17.69   86.33</code></pre>
-<p>Switching to ML has decreased our estimate of the batch-level variance, and decreased it by quite a bit. To construct profile-based intervals, we use the <code>lme4::profile</code> function. We will use the <code>xyplot</code> function from the <code>lattice</code> package to display the profiles.</p>
+<p>Switching to ML has decreased our estimate of the batch-level variance, and decreased it by quite a bit. To construct profile-based intervals, we use the <code>lme4::profile</code> function.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> We will use the <code>xyplot</code> function from the <code>lattice</code> package to display the profiles.</p>
 <div class="sourceCode" id="cb420"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb420-1"><a href="hierarchical-mixed-models.html#cb420-1" tabindex="-1"></a>pr <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm2ML)</span>
 <span id="cb420-2"><a href="hierarchical-mixed-models.html#cb420-2" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pr)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
@@ -451,7 +451,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma_B^2).
 <p>Here is a bit more about the logic behind zeta plots (feel free to skip this paragraph if you wish). Recall that negative log-likelihood profiles are convex and approximately quadratic. Plotting the LRT statistic instead of the likelihood itself has the effect of placing the nadir of these curves at 0, instead of at the value of the negative log-likelihood. Taking the square root of the LRT statistic converts a quadratic curve (a u-shape) into a linear one (a v-shape). We can see this v-shape by using the optional argument <code>absVal = TRUE</code>:</p>
 <div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="hierarchical-mixed-models.html#cb423-1" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pr, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
-<p>The purpose of using a signed square root is to turn these V-shaped plots into straight lines. Straight lines are useful in turn because if the profile log likelihood is actually quadratic, then the zeta plot will yield a perfectly straight line, and thus a local approximation to the confidence interval will be appropriate. If the zeta-plot is non-linear, then the confidence interval becomes more asymmetric, and a local approximation fares more poorly.</p>
+<p>The purpose of using a signed square root is to turn the U-shaped plots of profile likelihoods into V-shaped plots. Some might argue that V-shaped plots are useful because it makes it easier to detect the asymmetries between the left and right halves of the plot.</p>
 <p>(Start reading again if you skipped the above detail). There is an interesting detail to the zeta-plots. Consider the zeta-plot for <span class="math inline">\(\sigma_1\)</span> (the standard deviation of the batch-level random effects), and try to find the lower limit of a 99% confidence interval. You’ll notice that the zeta-plot hits 0 (the lowest possible value for a standard deviation) before the interval is completed. Thus, the lower limit of this interval is 0:</p>
 <div class="sourceCode" id="cb424"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb424-1"><a href="hierarchical-mixed-models.html#cb424-1" tabindex="-1"></a><span class="fu">confint</span>(pr, <span class="at">level =</span> <span class="fl">0.99</span>)</span></code></pre></div>
 <pre><code>##                  0.5 %     99.5 %
@@ -461,9 +461,9 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma_B^2).
 <p>Although we are not much in the habit of conducting hypothesis tests in this course, we would conclude that we would fail to reject the null hypothesis that the batch-level variance equals 0 with a 99% level test.</p>
 <p>We can also obtain bivariate confidence regions from the profile likelihood using the <code>lattice::splom</code> command.</p>
 <div class="sourceCode" id="cb426"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb426-1"><a href="hierarchical-mixed-models.html#cb426-1" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">splom</span>(pr)</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/dyestuff%20bivariate%20confidence%20regions-1.png" width="672" /></p>
-<p>Panels above the diagonal show bivariate, profile-based confidence regions for each pair of parameters. Within each panel, we see 50%, 80%, 90%, 95%, and 99% confidence regions. (You should be able to figure out which is which.) The panels show, for example, that the estimate of the observation-level standard deviation is slightly negatively correlated with the estimate of the batch-level standard deviation. Panels below the diagonal show the same plots on the <span class="math inline">\(\zeta\)</span> scale. See Bates (2012+) 1.5.3 for a detailed description of how to interpret these plots.</p>
-<p>There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters. Famously, <code>lme4::lmer</code> does not provide degrees of freedom for the estimates of the fixed effects. The package <code>lmerTest</code> uses the Satterthwaite approximation to estimate these df.</p>
+<p><img src="06-HierarchicalModels_files/figure-html/dyestuff%20bivariate%20confidence%20regions-1.png" width="672" />
+Panels above the diagonal show bivariate, profile-based confidence regions for each pair of parameters. Within each panel, we see 50%, 80%, 90%, 95%, and 99% confidence regions. The panels show, for example, that the estimate of the observation-level standard deviation is slightly negatively correlated with the estimate of the batch-level standard deviation. Panels below the diagonal show the same plots on the <span class="math inline">\(\zeta\)</span> scale. See <span class="citation">Bates (<a href="#ref-bates2012lme4">2012+</a>)</span> 1.5.3 for a detailed description of how to interpret these plots.</p>
+<p>There is a second approach to calculating confidence intervals and/or conducting hypothesis tests for fixed-effect parameters. <a href="https://stat.ethz.ch/pipermail/r-help/2006-May/094765.html">Famously,</a> <code>lme4::lmer</code> does not provide degrees of freedom for the estimates of the fixed effects. The package <code>lmerTest</code> uses the Satterthwaite approximation to estimate these df.</p>
 <div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb427-1"><a href="hierarchical-mixed-models.html#cb427-1" tabindex="-1"></a><span class="fu">require</span>(lmerTest)</span></code></pre></div>
 <pre><code>## Loading required package: lmerTest</code></pre>
 <pre><code>## 
@@ -579,29 +579,29 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb449-1"><a href="hierarchical-mixed-models.html#cb449-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpuoAJSf/model2fe81a0d2e26&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/Rtmps1KbqQ/modeleb07cd0b58&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.54 secs
+##  n.sims = 3000 iterations saved. Running time = 0.27 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.857  20.795 1471.744 1500.463 1514.986 1528.088 1553.024 1.001
-## B[2]     1527.611  19.464 1488.674 1514.942 1528.057 1540.091 1565.572 1.001
-## mu       1526.523  22.174 1481.835 1514.688 1526.490 1538.849 1569.127 1.001
-## sdB        40.087  26.551    0.258   23.899   37.837   53.370  102.336 1.009
-## sd_eps     53.730   9.192   39.068   47.231   52.490   58.840   75.004 1.002
-## deviance  323.317   6.328  314.996  318.377  321.606  326.868  336.886 1.001
+## B[1]     1513.872  20.303 1472.626 1500.502 1514.921 1527.773 1550.837 1.001
+## B[2]     1527.503  19.358 1490.060 1515.171 1527.514 1540.065 1567.047 1.002
+## mu       1526.325  22.113 1481.649 1514.332 1526.353 1538.703 1569.894 1.001
+## sdB        39.444  27.557    0.334   22.184   37.243   52.405  100.621 1.012
+## sd_eps     53.857   9.466   39.149   46.926   52.716   59.435   75.175 1.001
+## deviance  323.430   6.399  314.767  318.503  321.758  327.380  336.708 1.004
 ##          n.eff
 ## B[1]      3000
-## B[2]      3000
+## B[2]      1400
 ## mu        3000
-## sdB        660
-## sd_eps    1700
-## deviance  2500
+## sdB        500
+## sd_eps    2500
+## deviance   590
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 20.0 and DIC = 343.3
+## pV = 20.4 and DIC = 343.8
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
 <div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="hierarchical-mixed-models.html#cb451-1" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)  </span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-2.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-3.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-4.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-5.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-6.png" width="672" /></p>
@@ -873,25 +873,14 @@ where <span class="math inline">\(L_j\sim \mathcal{N}(0, \sigma^2_L)\)</span> ar
 <span id="cb480-4"><a href="hierarchical-mixed-models.html#cb480-4" tabindex="-1"></a>rikz<span class="sc">$</span>fBeach <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(rikz<span class="sc">$</span>Beach)</span></code></pre></div>
 <div id="analysis-without-beach-level-covariate" class="section level3 hasAnchor" number="6.3.1">
 <h3><span class="header-section-number">6.3.1</span> Analysis without beach-level covariate<a href="hierarchical-mixed-models.html#analysis-without-beach-level-covariate" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div id="using-fixed-effects-for-among-beach-differences" class="section level4 hasAnchor" number="6.3.1.1">
-<h4><span class="header-section-number">6.3.1.1</span> Using fixed effects for among-beach differences<a href="hierarchical-mixed-models.html#using-fixed-effects-for-among-beach-differences" class="anchor-section" aria-label="Anchor link to header"></a></h4>
-<p>To develop some notation for modeling, let <span class="math inline">\(i=1, \ldots, 9\)</span> index the different beaches, let <span class="math inline">\(j = 1, \ldots, 5\)</span> index the different samples at each beach, let <span class="math inline">\(y_{ij}\)</span> be the square root of the species richness at sample <span class="math inline">\(j\)</span> at beach <span class="math inline">\(i\)</span>, and let <span class="math inline">\(x_{ij}\)</span> be the NAP covariate at sample <span class="math inline">\(j\)</span> at beach <span class="math inline">\(i\)</span>.</p>
+<div id="using-fixed-effects-for-differences-among-beaches" class="section level4 hasAnchor" number="6.3.1.1">
+<h4><span class="header-section-number">6.3.1.1</span> Using fixed effects for differences among beaches<a href="hierarchical-mixed-models.html#using-fixed-effects-for-differences-among-beaches" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>To develop some notation for modeling, let <span class="math inline">\(i=1, \ldots, 9\)</span> index the beaches, let <span class="math inline">\(j = 1, \ldots, 5\)</span> index the samples at each beach, let <span class="math inline">\(y_{ij}\)</span> be the square root of the species richness at sample <span class="math inline">\(j\)</span> at beach <span class="math inline">\(i\)</span>, and let <span class="math inline">\(x_{ij}\)</span> be the NAP covariate at sample <span class="math inline">\(j\)</span> at beach <span class="math inline">\(i\)</span>.</p>
 <p>In a standard linear models course, we would identify this as a two-factor design with a categorical factor (the beaches) and a numerical factor (NAP). Suppose we wish to characterize the relationship between NAP and (the square root of) species richness, while controlling for differences among the beaches. To do so, we might entertain the additive model
-<span class="math display">\[\begin{align*}
-y_{ij} &amp; = a_i + b x_{ij} + \varepsilon_{ij} \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2).
-\end{align*}\]</span></p>
-<p>As usual, there are several different ways in which we could write the same model. We might instead write
-<span class="math display">\[\begin{align*}
-y_{ij} &amp; = \mu_{ij} + \varepsilon_{ij} \\
-\mu_{ij} &amp; = a_i + b x_{ij} \\
-\varepsilon_{ij} &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_\varepsilon^2)
-\end{align*}\]</span></p>
-<p>to emphasize that the mean of each observation (<span class="math inline">\(\mu_{ij}\)</span>) is equal to the sum of a beach-level intercept (<span class="math inline">\(a_i\)</span>) and a common slope times the NAP value (<span class="math inline">\(b x_{ij}\)</span>). Alternatively, we might write
 <span class="math display">\[\begin{equation}
 y_{ij} \sim \mathcal{N}(a_i + b x_{ij}, \sigma_\varepsilon^2).
-\end{equation}\]</span></p>
-<p>In any case, the model states that each observation is drawn independently from a Gaussian distribution. The fitted value (or mean) for each datum is determined by a regression line with beach-specific intercepts and a common slope. (The additive model has the same structure has a parallel-lines ANCOVA.) The error variance is the same for all observations.</p>
+\end{equation}\]</span>
+where <span class="math inline">\(a_i\)</span> is the intercept for beach <span class="math inline">\(i\)</span> and <span class="math inline">\(b\)</span> is the common slope that associates the NAP value with the response for all beaches. The error variance is the same for all observations.</p>
 <p>Let’s fit the model and see what it yields.</p>
 <div class="sourceCode" id="cb481"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb481-1"><a href="hierarchical-mixed-models.html#cb481-1" tabindex="-1"></a>fm0 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fBeach <span class="sc">+</span> NAP, <span class="at">data =</span> rikz)</span>
 <span id="cb481-2"><a href="hierarchical-mixed-models.html#cb481-2" tabindex="-1"></a><span class="fu">summary</span>(fm0)</span></code></pre></div>
@@ -945,7 +934,7 @@ y_{ij} \sim \mathcal{N}(a_i + b x_{ij}, \sigma_\varepsilon^2).
 ## Residuals 35 12.111  0.3460                      
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Finally, we can visualize the model by plotting each of the beach-specific fits. We’ll use the R trick of re-fitting the model without the intercept to obtain the beach-specific intercepts directly as model parameters, instead of having to back out those intercepts from the contrasts.</p>
+<p>Finally, we can visualize the model by plotting each of the beach-specific fits. We’ll use the R trick of re-fitting the model without the intercept to obtain the beach-specific intercepts directly as model parameters, instead of having to compute those intercepts from the contrasts.</p>
 <div class="sourceCode" id="cb487"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb487-1"><a href="hierarchical-mixed-models.html#cb487-1" tabindex="-1"></a>fm0.temp <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fBeach <span class="sc">+</span> NAP <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> rikz)</span>
 <span id="cb487-2"><a href="hierarchical-mixed-models.html#cb487-2" tabindex="-1"></a><span class="fu">coef</span>(fm0.temp)</span></code></pre></div>
 <pre><code>##    fBeach1    fBeach2    fBeach3    fBeach4    fBeach5    fBeach6    fBeach7 
@@ -1043,14 +1032,14 @@ y_{ij} &amp; \sim \mathcal{N}(a_i + b_i x_{ij}, \sigma_\varepsilon^2).
 <span id="cb496-9"><a href="hierarchical-mixed-models.html#cb496-9" tabindex="-1"></a>}</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
 </div>
-<div id="using-random-effects-for-among-beach-differences" class="section level4 hasAnchor" number="6.3.1.2">
-<h4><span class="header-section-number">6.3.1.2</span> Using random-effects for among-beach differences<a href="hierarchical-mixed-models.html#using-random-effects-for-among-beach-differences" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<div id="using-random-effects-for-differences-among-beaches" class="section level4 hasAnchor" number="6.3.1.2">
+<h4><span class="header-section-number">6.3.1.2</span> Using random-effects for differences among beaches<a href="hierarchical-mixed-models.html#using-random-effects-for-differences-among-beaches" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>Now let’s use random effects to capture the differences among beaches. A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection. We’ll start with the additive model again, so that the random beach effect only affects the intercept. Using the notational style of mixed modeling, we could write our model as
 <span class="math display">\[\begin{align*}
-y_{ij} &amp; \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2)  \\
-A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2).
+y_{ij} &amp; \sim \mathcal{N}(a + A_i + b x_{ij}, \sigma_\varepsilon^2)  \\
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_a^2).
 \end{align*}\]</span></p>
-<p>Here, the <span class="math inline">\(A_i\)</span>’s are the random beach-level intercept.</p>
+<p>Here, <span class="math inline">\(a\)</span> is the average intercept across beaches, and the <span class="math inline">\(A_i\)</span>’s are random offsets that capture how the intercept for beach <span class="math inline">\(i\)</span> differs from the average value <span class="math inline">\(a\)</span>.</p>
 <p>We’ll fit the model using <code>lmerTest::lmer</code>.</p>
 <div class="sourceCode" id="cb497"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb497-1"><a href="hierarchical-mixed-models.html#cb497-1" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
 <span id="cb497-2"><a href="hierarchical-mixed-models.html#cb497-2" tabindex="-1"></a></span>
@@ -1104,11 +1093,12 @@ A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2).
 <span id="cb501-13"><a href="hierarchical-mixed-models.html#cb501-13" tabindex="-1"></a>}</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
 <p>Though it’s subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.</p>
-<p>Now let’s consider a model that includes both separate intercepts and slopes for each beach, while continuing to model the among-beach differences in both with random effects. In other words, we’ll fit a “random coefficients” model with random intercepts and slopes for each beach. We have two options here. Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent. To write the first model in mixed-model notation, we might write
+<p>Now let’s consider a model that includes both separate intercepts and slopes for each beach, while continuing to model the differences among beaches in both with random effects. In other words, we’ll fit a “random coefficients” model with random intercepts and slopes for each beach. We have two options here. Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent. To write the first model in mixed-model notation, we might write
 <span class="math display">\[\begin{align*}
-y_{ij} &amp; \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
-\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right).
-\end{align*}\]</span></p>
+y_{ij} &amp; \sim \mathcal{N}(a + A_i + (b + B_i) x_{ij}, \sigma_\varepsilon^2) \\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} 0 \\ 0 \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right).
+\end{align*}\]</span>
+Here the parameter <span class="math inline">\(b\)</span> gives the average slope (for all beaches in the population of beaches form which these beaches were sampled), and the <span class="math inline">\(B_i\)</span> are random offsets that capture how the slope of beach <span class="math inline">\(i\)</span> differs from the average slope <span class="math inline">\(b\)</span>.</p>
 <p>To fit the model using <code>lmerTest::lmer</code>, we use</p>
 <div class="sourceCode" id="cb502"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb502-1"><a href="hierarchical-mixed-models.html#cb502-1" tabindex="-1"></a>fm2 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
 <span id="cb502-2"><a href="hierarchical-mixed-models.html#cb502-2" tabindex="-1"></a><span class="fu">summary</span>(fm2)</span></code></pre></div>
@@ -1153,9 +1143,9 @@ y_{ij} &amp; \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
 <p>Interestingly, both the LRT and ANOVA suggest that the random-coefficients model does not provide a statistically significant improvement over the random-intercepts model. In other words, we cannot reject the null hypothesis that <span class="math inline">\(\sigma_B^2 = 0\)</span>.</p>
 <p>Alternatively, we could try a model with independent random effects for intercepts and slopes. This model is
 <span class="math display">\[\begin{align*}
-y_{ij} &amp; \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
-A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma^2_A) \\
-B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B).
+y_{ij} &amp; \sim \mathcal{N}(a + A_i + (b + B_i) x_{ij}, \sigma_\varepsilon^2) \\
+A_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
+B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 \end{align*}\]</span></p>
 <p>To fit it in R, we use</p>
 <div class="sourceCode" id="cb507"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb507-1"><a href="hierarchical-mixed-models.html#cb507-1" tabindex="-1"></a>fm3 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)</span>
@@ -1238,7 +1228,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B).
 </div>
 <div id="adding-a-beach-level-covariate" class="section level3 hasAnchor" number="6.3.2">
 <h3><span class="header-section-number">6.3.2</span> Adding a beach-level covariate<a href="hierarchical-mixed-models.html#adding-a-beach-level-covariate" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>Finally, we consider the effect of exposure, a beach-level covariate. Exposure is coded in the data set as a numerical predictor. However, there are only three unique values: 8, 10, and 11 (and only one beach has exposure level 8). We will follow Zuur et al. (2009) in treating exposure as a binary predictor, grouping the beaches with exposure levels 8 and 10 together as low exposure beaches.</p>
+<p>Now consider the effect of exposure, a beach-level covariate. Exposure is coded in the data set as a numerical predictor. However, there are only three unique values: 8, 10, and 11 (and only one beach has exposure level 8). We will follow Zuur et al. (2009) in treating exposure as a binary predictor, grouping the beaches with exposure levels 8 and 10 together as low exposure beaches.</p>
 <div class="sourceCode" id="cb516"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb516-1"><a href="hierarchical-mixed-models.html#cb516-1" tabindex="-1"></a><span class="co"># create an &#39;exposure&#39; factor, with two levels: low and high</span></span>
 <span id="cb516-2"><a href="hierarchical-mixed-models.html#cb516-2" tabindex="-1"></a></span>
 <span id="cb516-3"><a href="hierarchical-mixed-models.html#cb516-3" tabindex="-1"></a><span class="fu">with</span>(rikz, <span class="fu">table</span>(fBeach, Exposure))</span></code></pre></div>
@@ -1275,7 +1265,7 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B).
 ##  6      : 5          
 ##  (Other):15</code></pre>
 <p>We will consider a model in which we use separate distributions of random intercepts for the the low- and high-exposure beaches. To fit this model, we will need to embellish our notation. Now, let <span class="math inline">\(i=1, 2\)</span> index the exposure level of the beaches. Let <span class="math inline">\(j=1,\ldots, n_i\)</span> index the replicate beaches within each exposure level. Let <span class="math inline">\(k=1, \ldots, 5\)</span> index the samples at each beach.</p>
-<p>Here we see an interesting consequence of our decision to model the differences among the beaches with either a fixed or random effect. <strong>In order to draw inferences about the effect of low vs. high exposure, we must use a random effect for the beach-to-beach differences.</strong> This makes sense when we reflect upon it. In order to draw inferences about low vs. high exposure, we have to envision separate populations of low and high exposure beaches, and construe the beaches in this experiment as two separate random samples from those populations. If instead we treat the beach-to-beach differences with fixed effects, then we are effectively saying that these are the only low- and high-exposure beaches that we care about. Therefore, in the fixed-effects formulation, these nine beaches are our two populations, and there is no inference to be done.</p>
+<p>Here we see an interesting consequence of our decision to model the differences among the beaches with either a fixed or random effect. <strong>In order to draw inferences about the effect of low vs. high exposure, we must use a random effect for the differences among beaches.</strong> This makes sense when we reflect upon it. In order to draw inferences about low vs. high exposure, we have to envision separate populations of low- and high-exposure beaches, and regard the beaches in this experiment as two separate random samples from those populations. If instead we treat the differences among beaches with fixed effects, then we are effectively saying that these are the only low- and high-exposure beaches that we care about. Therefore, in the fixed-effects formulation, these nine beaches are our two populations, and there are no inferences to draw.</p>
 <p>As above, we will consider a series of three models with various specifications of the random effect. We will consider:</p>
 <ul>
 <li>A model with random intercepts for the beaches but common slopes within each exposure group</li>
@@ -1285,10 +1275,10 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B).
 <p>Initially, we fit a model with richly specified fixed effects. In this case, this will mean that the average slope and intercept will vary between the exposure groups.</p>
 <p>These models can be written and fit as follows. The random-intercepts model is
 <span class="math display">\[\begin{align*}
-y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + b_i x_{ijk}, \sigma_\varepsilon^2)\\
-A_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A).
+y_{ijk} &amp; \sim \mathcal{N}(a_i + A_{ij} + b_i x_{ijk}, \sigma_\varepsilon^2)\\
+A_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A).
 \end{align*}\]</span>
-We fit this model in R with the code</p>
+Here the parameters <span class="math inline">\((a_i, b_i)\)</span> give the (average) intercept and slope for beaches with exposure level <span class="math inline">\(i\)</span>. The <span class="math inline">\(A_{ij}\)</span> are random offsets that capture how the intercept of beach <span class="math inline">\(j\)</span> for exposure level <span class="math inline">\(i\)</span> differs from the average intercept for beaches in exposure level <span class="math inline">\(i\)</span>. We fit this model in R with the code</p>
 <div class="sourceCode" id="cb520"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb520-1"><a href="hierarchical-mixed-models.html#cb520-1" tabindex="-1"></a>fm4 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach), <span class="at">data =</span> rikz) </span>
 <span id="cb520-2"><a href="hierarchical-mixed-models.html#cb520-2" tabindex="-1"></a><span class="fu">summary</span>(fm4)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
@@ -1322,13 +1312,15 @@ We fit this model in R with the code</p>
 ## fExp11     -0.661              
 ## NAP        -0.174  0.115       
 ## fExp11:NAP  0.115 -0.212 -0.664</code></pre>
-<p>The model with independent intercepts and slopes can be written as
+<p>There’s a lot of output to process here. For the moment, we’ll focus on selecting an appropriate model for the structure of the random effects. Once we’ve done that, then we’ll circle back and decipher the (presumably more interesting and more relevant) fixed effects that tell us about the effects of beach exposure and NAP on the response.</p>
+<p>Proceeding in our series of models with increasingly complicated random effects, next we will consider a model where the slopes (of the NAP covariate) also differ among the beaches within each exposure-level group. This model writes as
 <span class="math display">\[\begin{align*}
-y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
-A_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A) \\
-B_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(b_i, \sigma^2_B) .
+y_{ijk} &amp; \sim \mathcal{N}(a_i + A_{ij} + (b_i + B_{ij}) x_{ijk}, \sigma_\varepsilon^2)\\
+A_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
+B_{ij}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) .
 \end{align*}\]</span>
-We fit this model with the code</p>
+In this model, the newly added <span class="math inline">\(B_{ij}\)</span> are random offsets that capture how the slope of beach <span class="math inline">\(j\)</span> for exposure level <span class="math inline">\(i\)</span> differs from the average slope for beaches in exposure level <span class="math inline">\(i\)</span>.</p>
+<p>We fit this model with the code</p>
 <div class="sourceCode" id="cb522"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb522-1"><a href="hierarchical-mixed-models.html#cb522-1" tabindex="-1"></a>fm5 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> fBeach) <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> NAP <span class="sc">|</span> fBeach),</span>
 <span id="cb522-2"><a href="hierarchical-mixed-models.html#cb522-2" tabindex="-1"></a>                      <span class="at">data =</span> rikz) </span>
 <span id="cb522-3"><a href="hierarchical-mixed-models.html#cb522-3" tabindex="-1"></a><span class="fu">summary</span>(fm5)</span></code></pre></div>
@@ -1364,10 +1356,10 @@ We fit this model with the code</p>
 ## fExp11     -0.663              
 ## NAP        -0.062  0.041       
 ## fExp11:NAP  0.041 -0.090 -0.666</code></pre>
-<p>The model with possibly correlated random intercepts and slopes can be written as
+<p>Finally, consider a model in which the random intercepts and slopes are correlated. This model writes as
 <span class="math display">\[\begin{align*}
-y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
-\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \sim \mathcal{N}_2 \left(\left(\begin{array}{c} a_i \\ b_i \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right).
+y_{ijk} &amp; \sim \mathcal{N}((a_i + A_{ij}) + (b_i + B_{ij}) x_{ijk}, \sigma_\varepsilon^2)\\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i &amp; \sim \mathcal{N}_2 \left(\left(\begin{array}{c} 0 \\ 0 \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{array} \right) \right).
 \end{align*}\]</span></p>
 <p>We fit the model in R as follows</p>
 <div class="sourceCode" id="cb524"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb524-1"><a href="hierarchical-mixed-models.html#cb524-1" tabindex="-1"></a>fm6 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(<span class="fu">sqrt</span>(Richness) <span class="sc">~</span> fExp <span class="sc">*</span> NAP <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> NAP<span class="sc">|</span> fBeach), <span class="at">data =</span> rikz)  </span>
@@ -1416,7 +1408,7 @@ y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
 ## fm4    6 94.275 105.11 -41.137    82.275                     
 ## fm5    7 94.418 107.06 -40.209    80.418 1.8565  1     0.1730
 ## fm6    8 96.373 110.83 -40.186    80.373 0.0454  1     0.8312</code></pre>
-<p>Both AIC and the LRT suggest that the model with only random intercepts provides the most parsimonious fit. Let’s take a closer look at that fit</p>
+<p>Both AIC and the LRT suggest that the model with only random intercepts provides the most parsimonious fit. Let’s take a closer look at that model:</p>
 <div class="sourceCode" id="cb529"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb529-1"><a href="hierarchical-mixed-models.html#cb529-1" tabindex="-1"></a><span class="fu">summary</span>(fm4)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
@@ -1449,7 +1441,7 @@ y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
 ## fExp11     -0.661              
 ## NAP        -0.174  0.115       
 ## fExp11:NAP  0.115 -0.212 -0.664</code></pre>
-<p>We can analyze the fixed-effects as follows. Based on the contrasts R has used, the low exposure beaches are the baseline; thus the values for the “Intercept” and “NAP” coefficients give the intercept and slope for low-exposure beaches. The values of the “fExp11” and “fExp11:NAP” coefficients (resp.) give the differences of the intercepts and slopes (resp.) between the high vs. low exposure beaches. Thus the negative value of the “NAP” coefficient suggests that species richness declines as NAP increases at low-exposure beaches. The positive coefficient for the “fExp11:NAP” interaction suggests that species richness declines more gradually with increasing NAP at high-exposure beaches as compared to low-exposure beaches. Because we have analyzed the square-root transform of the response, it is hard to assign any biological meaning to the magnitudes of the coefficients. This is one downside of using a transformation to stabilize the variance in the response.</p>
+<p>We can analyze the fixed-effects as follows. Based on the contrasts R has used, the low exposure beaches are the baseline; thus the values for the “Intercept” and “NAP” coefficients give the intercept and slope for low-exposure beaches. The values of the “fExp11” and “fExp11:NAP” coefficients give the differences of the intercepts and slopes between the high vs. low exposure beaches. Thus the negative value of the “NAP” coefficient suggests that species richness declines as NAP increases at low-exposure beaches. The positive coefficient for the “fExp11:NAP” interaction suggests that species richness declines more gradually with increasing NAP at high-exposure beaches as compared to low-exposure beaches. Because we have analyzed the square-root transform of the response, it is hard to assign any biological meaning to the magnitudes of the coefficients. This is one downside of using a transformation to stabilize the variance in the response.</p>
 <p>We’ll visualize the model with a plot.</p>
 <div class="sourceCode" id="cb531"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb531-1"><a href="hierarchical-mixed-models.html#cb531-1" tabindex="-1"></a>a0 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm4)[<span class="dv">1</span>]  <span class="co"># mean intercept for low-exposure beaches</span></span>
 <span id="cb531-2"><a href="hierarchical-mixed-models.html#cb531-2" tabindex="-1"></a>b0 <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fm4)[<span class="dv">2</span>]  <span class="co"># mean slope for low-exposure beaches</span></span>
@@ -1809,6 +1801,12 @@ Zuur, Alain F, Elena N Ieno, and Graham M Smith. 2007. <em>Analysing Ecological 
 <div id="ref-zuur2009" class="csl-entry">
 Zuur, Alain F, Elena N Ieno, Neil J Walker, Anatoly A Saveliev, Graham M Smith, et al. 2009. <em>Mixed Effects Models and Extensions in Ecology with <span>R</span></em>. Vol. 574. Springer.
 </div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="6">
+<li id="fn6"><p>Note that you can actually use the <code>profile</code> function on the REML fit, but in that case the <code>profile</code> function will first refit the model using ML. So, <code>profile</code> will return profiles of the ML fit, regardless of whether it is given a model fit with REML or a model fit with ML.<a href="hierarchical-mixed-models.html#fnref6" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
             </section>
 
