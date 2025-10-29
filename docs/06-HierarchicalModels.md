@@ -504,23 +504,23 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmps1KbqQ/modeleb07cd0b58", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIpHhtc/model660053a84548", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.27 secs
+##  n.sims = 3000 iterations saved. Running time = 0.25 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.872  20.303 1472.626 1500.502 1514.921 1527.773 1550.837 1.001
-## B[2]     1527.503  19.358 1490.060 1515.171 1527.514 1540.065 1567.047 1.002
-## mu       1526.325  22.113 1481.649 1514.332 1526.353 1538.703 1569.894 1.001
-## sdB        39.444  27.557    0.334   22.184   37.243   52.405  100.621 1.012
-## sd_eps     53.857   9.466   39.149   46.926   52.716   59.435   75.175 1.001
-## deviance  323.430   6.399  314.767  318.503  321.758  327.380  336.708 1.004
+## B[1]     1513.247  20.479 1472.884 1499.810 1514.125 1527.235 1551.187 1.001
+## B[2]     1527.902  19.080 1490.006 1515.525 1527.734 1540.384 1564.629 1.001
+## mu       1526.691  21.976 1482.187 1514.682 1526.899 1539.177 1570.325 1.001
+## sdB        39.874  27.756    0.296   23.216   36.980   52.779  103.705 1.001
+## sd_eps     53.708   9.197   39.591   47.070   52.521   58.821   74.797 1.001
+## deviance  323.392   6.387  314.849  318.434  321.706  327.377  336.749 1.001
 ##          n.eff
 ## B[1]      3000
-## B[2]      1400
+## B[2]      3000
 ## mu        3000
-## sdB        500
-## sd_eps    2500
-## deviance   590
+## sdB       3000
+## sd_eps    3000
+## deviance  3000
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
@@ -1143,13 +1143,23 @@ for(i in 1:9){
 
 #### Using random-effects for differences among beaches
 
-Now let's use random effects to capture the differences among beaches.  A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection.  We'll start with the additive model again, so that the random beach effect only affects the intercept.  Using the notational style of mixed modeling, we could write our model as
+Now let's use random effects to capture the differences among beaches.  A random effect is appropriate if we want to treat these beaches as a representative sample from a larger collection of beaches, and draw inferences about this larger collection.  We'll start with the additive model again, so that the random beach effect only affects the intercept.  
+
+Before we fit the model, it's worth taking a moment to compare two different styles of writing the model.  We could write the model as 
+\begin{align*}
+y_{ij} & \sim \mathcal{N}(A_i + b x_{ij}, \sigma_\varepsilon^2)  \\
+A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma_a^2).
+\end{align*}
+Here, $A_i$ is the intercept for beach $i$, and these beach-specific intercepts are assumed to be drawn from a distribution of beach-specific intercepts with mean $a$ and variance $\sigma_a^2$.
+
+Alternatively, the same model can be written as 
 \begin{align*}
 y_{ij} & \sim \mathcal{N}(a + A_i + b x_{ij}, \sigma_\varepsilon^2)  \\
 A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma_a^2).
 \end{align*}
+In this second style, $A_i$ is the offset for beach $i$ that tells how the intercept for beach $i$ differs from the mean intercept, $a$.  These beach-level offsets are assumed to be drawn from a distribution of beach-specific offsets with mean $0$ and variance $\sigma_a^2$. 
 
-Here, $a$ is the average intercept across beaches, and the $A_i$'s are random offsets that capture how the intercept for beach $i$ differs from the average value $a$.  
+I find the first style of writing the model a bit cleaner, and will use it here and below.  The first style of writing is also closer to the logic of hierarchical models and the associated Bayesian formulation.  The second style of writing the model is closer to the model syntax in `lme4`, which typically represents all random effects as being drawn from normal distributions with mean $0$.  Regardless, the model is the same regardless of which style is used to write it.
 
 We'll fit the model using `lmerTest::lmer`.
 
@@ -1189,8 +1199,6 @@ summary(fm1)
 ## NAP -0.162
 ```
 
-Note that the random-intercepts model includes the parameter $a$, which is the average intercept across the population of beaches.  This is the parameter listed as "(Intercept)" in the fixed-effects portion of the model output above.  The model with fixed-effect for the beach-level intercepts has no such parameter.  This makes sense, because that model did not envision a larger population of beaches.
-
 We can go further by finding the conditional modes of the intercepts for each beach.  
 
 
@@ -1203,7 +1211,7 @@ We can go further by finding the conditional modes of the intercepts for each be
 ## [9] 2.241556
 ```
 
-In particular, note the conditional mode for the intercept for beach 1, which is 2.871.  This conditional mode is shrunken back towards the average intercept, compared to the intercept for this beach in the fixed-effects model.
+The conditional mode for the intercept for beach 1 is 2.871, which is shrunken back towards the average intercept, compared to the intercept for this beach in the fixed-effects model.
 
 To visualize the model, we will again make a plot that shows the conditional modes of the fit for each beach.  We can also add a line for the average relationship across the population of beaches.
 
@@ -1228,12 +1236,12 @@ for(i in 1:9){
 
 Though it's subtle, notice again that the implied fits for each beach have been shrunken back to the overall mean.
 
-Now let's consider a model that includes both separate intercepts and slopes for each beach, while continuing to model the differences among beaches in both with random effects.  In other words, we'll fit a "random coefficients" model with random intercepts and slopes for each beach. We have two options here.  Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can insist that the random intercepts and slopes are independent.  To write the first model in mixed-model notation, we might write
+Now let's consider a model that includes separate intercepts and slopes for each beach, while continuing to model the differences among beaches in both with random effects.  In other words, we'll fit a "random coefficients" model with random intercepts and slopes for each beach. We have two options here.  Either we can allow for the random intercept and slope for each beach to be a draw from a bivariate normal distribution with possible correlations, or we can treat the random intercepts and slopes as independent.  To write the first model in mixed-model notation, we might write
 \begin{align*}
-y_{ij} & \sim \mathcal{N}(a + A_i + (b + B_i) x_{ij}, \sigma_\varepsilon^2) \\
-\left(\begin{array}{c} A \\ B \end{array} \right)_i & \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} 0 \\ 0 \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right).
+y_{ij} & \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i & \stackrel{\text{iid}}{\sim} \mathcal{N}_2 \left(\left(\begin{array}{c} a \\ b \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right).
 \end{align*}
-Here the parameter $b$ gives the average slope (for all beaches in the population of beaches form which these beaches were sampled), and the $B_i$ are random offsets that capture how the slope of beach $i$ differs from the average slope $b$. 
+Here the $B_i$ gives the slope for beach $i$, and the pair $(A, B)_i$ is drawn from a bivarate Gaussian distribution with mean $(a,b)$. 
 
 To fit the model using `lmerTest::lmer`, we use
 
@@ -1295,11 +1303,11 @@ anova(fm1, fm2)
 
 Interestingly, both the LRT and ANOVA suggest that the random-coefficients model does not provide a statistically significant improvement over the random-intercepts model.  In other words, we cannot reject the null hypothesis that $\sigma_B^2 = 0$.
 
-Alternatively, we could try a model with independent random effects for intercepts and slopes.  This model is
+Alternatively, we could try a model with independent random intercepts and slopes.  This model is
 \begin{align*}
-y_{ij} & \sim \mathcal{N}(a + A_i + (b + B_i) x_{ij}, \sigma_\varepsilon^2) \\
-A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
-B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
+y_{ij} & \sim \mathcal{N}(A_i + B_i x_{ij}, \sigma_\varepsilon^2) \\
+A_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(a, \sigma^2_A) \\
+B_i & \stackrel{\text{iid}}{\sim} \mathcal{N}(b, \sigma^2_B).
 \end{align*}
 
 To fit it in R, we use
@@ -1470,7 +1478,7 @@ summary(rikz)
 
 We will consider a model in which we use separate distributions of random intercepts for the the low- and high-exposure beaches.  To fit this model, we will need to embellish our notation.  Now, let $i=1, 2$ index the exposure level of the beaches.  Let $j=1,\ldots, n_i$ index the replicate beaches within each exposure level.  Let $k=1, \ldots, 5$ index the samples at each beach.  
 
-Here we see an interesting consequence of our decision to model the differences among the beaches with either a fixed or random effect.  **In order to draw inferences about the effect of low vs.\ high exposure, we must use a random effect for the differences among beaches.** This makes sense when we reflect upon it.  In order to draw inferences about low vs.\ high exposure, we have to envision separate populations of low- and high-exposure beaches, and regard the beaches in this experiment as two separate random samples from those populations.  If instead we treat the differences among beaches with fixed effects, then we are effectively saying that these are the only low- and high-exposure beaches that we care about.  Therefore, in the fixed-effects formulation, these nine beaches are our two populations, and there are no inferences to draw. 
+Here we see an interesting consequence of our decision to model the differences among the beaches with either a fixed or random effect.  **To draw inferences about the effect of low vs.\ high exposure, we must use a random effect for the differences among beaches.** This makes sense when we reflect upon it.  In order to draw inferences about low vs.\ high exposure, we have to envision separate populations of low- and high-exposure beaches, and regard the beaches in this experiment as two separate random samples from those populations.  If instead we treat the differences among beaches with fixed effects, then we are effectively saying that these are the only low- and high-exposure beaches that we care about.  Therefore, in the fixed-effects formulation, these nine beaches are our two populations, and there are no inferences to draw. 
 
 As above, we will consider a series of three models with various specifications of the random effect.  We will consider:
 
@@ -1482,10 +1490,10 @@ Initially, we fit a model with richly specified fixed effects.  In this case, th
 
 These models can be written and fit as follows.  The random-intercepts model is
 \begin{align*}
-y_{ijk} & \sim \mathcal{N}(a_i + A_{ij} + b_i x_{ijk}, \sigma_\varepsilon^2)\\
-A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A).
+y_{ijk} & \sim \mathcal{N}(A_{ij} + b_i x_{ijk}, \sigma_\varepsilon^2)\\
+A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A).
 \end{align*}
-Here the parameters $(a_i, b_i)$ give the (average) intercept and slope for beaches with exposure level $i$.  The $A_{ij}$ are random offsets that capture how the intercept of beach $j$ for exposure level $i$ differs from the average intercept for beaches in exposure level $i$.  We fit this model in R with the code
+Here, $A_{ij}$ gives the intercept for beach $j$ with exposure level $i$.  These beach-level intercepts are drawn from a Gaussian distribution with mean $a_i$.  The parameters $b_i$ give the slope for beaches with exposure level $i$.   We fit this model in R with the code
 
 ``` r
 fm4 <- lmerTest::lmer(sqrt(Richness) ~ fExp * NAP + (1 | fBeach), data = rikz) 
@@ -1526,15 +1534,15 @@ summary(fm4)
 ## fExp11:NAP  0.115 -0.212 -0.664
 ```
 
-There's a lot of output to process here.  For the moment, we'll focus on selecting an appropriate model for the structure of the random effects.  Once we've done that, then we'll circle back and decipher the (presumably more interesting and more relevant) fixed effects that tell us about the effects of beach exposure and NAP on the response.
+There's a lot of output to process here.  For the moment, we'll focus on selecting an appropriate model for the structure of the random effects.  Once we've done that, then we'll circle back and decipher the (presumably more interesting and more relevant) fixed-effects components of the model.
 
 Proceeding in our series of models with increasingly complicated random effects, next we will consider a model where the slopes (of the NAP covariate) also differ among the beaches within each exposure-level group.  This model writes as 
 \begin{align*}
-y_{ijk} & \sim \mathcal{N}(a_i + A_{ij} + (b_i + B_{ij}) x_{ijk}, \sigma_\varepsilon^2)\\
-A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
-B_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) .
+y_{ijk} & \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
+A_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(a_i, \sigma^2_A) \\
+B_{ij}  & \stackrel{\text{iid}}{\sim} \mathcal{N}(b_i, \sigma^2_B) .
 \end{align*}
-In this model, the newly added $B_{ij}$ are random offsets that capture how the slope of beach $j$ for exposure level $i$ differs from the average slope for beaches in exposure level $i$. 
+In this model, the newly added $B_{ij}$ give the slope of beach $j$ for exposure level $i$. 
 
 We fit this model with the code
 
@@ -1581,8 +1589,8 @@ summary(fm5)
 
 Finally, consider a model in which the random intercepts and slopes are correlated.  This model writes as
 \begin{align*}
-y_{ijk} & \sim \mathcal{N}((a_i + A_{ij}) + (b_i + B_{ij}) x_{ijk}, \sigma_\varepsilon^2)\\
-\left(\begin{array}{c} A \\ B \end{array} \right)_i & \sim \mathcal{N}_2 \left(\left(\begin{array}{c} 0 \\ 0 \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right).
+y_{ijk} & \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
+\left(\begin{array}{c} A \\ B \end{array} \right)_i & \sim \mathcal{N}_2 \left(\left(\begin{array}{c} a_i \\ b_i \end{array} \right), \left(\begin{array}{cc} \sigma_A^2 & \sigma_{AB} \\ \sigma_{AB} & \sigma_B^2 \end{array} \right) \right).
 \end{align*}
 
 We fit the model in R as follows
