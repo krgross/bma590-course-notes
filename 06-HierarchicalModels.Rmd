@@ -19,7 +19,7 @@ Preparatory work:
 require(lme4)
 ```
 
-```{r}
+```{r, fig.alt = "Stripchart showing dyestuff data"}
 data(Dyestuff)
 summary(Dyestuff)
 with(Dyestuff, stripchart(Yield ~ Batch, pch = 16))
@@ -866,8 +866,11 @@ B_j  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 
 In this model, $\mu$ is the average score, $A_i$ are the player-level random effects, $B_j$ are the day-level random effects, and $\varepsilon_{ij}$ are the observation-level errors.  Note that because each player played at most once in each day, there is no possibility to separate a possible player-by-day interaction (also a random effect) from the observation-level error.  If the players had played multiple rounds in a given day, we could have tried to separate the player-by-day random effect from the observation-level error.  We fit the model in `lmerTest::lmer`.
 
-```{r}
+```{r echo = FALSE}
 rm(list = ls())
+```
+
+```{r}
 golf <- read.table("data/golf.txt", head = T)
 
 fm1 <- lmerTest::lmer(score ~ 1 + (1 | player) + (1 | round), data = golf)
@@ -912,3 +915,76 @@ knitr::include_graphics("images/sports-comic.png", dpi = 100)
 ```
 
 Thanks to xkcd for the perspective.
+
+### An ecological example with both crossed and nested random effects
+
+M. Kirchner and E. Youngsteadt conducted the following study to examine the thermal tolerance of several ant species.  Five sites were selected.  At each of the five sites, up to three oak trees were sampled. Ant nests were sampled from each of the trees.  Nests were scored with respect to the species of ant and the habitat in which the nest was found (arboreal or terrestrial).  For each nest, the thermal tolerance of five ants was measured.  The response that we consider here, `ct_max`, is the average maximum thermal tolerance of these five ants.  (Thus there is one data record per nest.)
+
+In this analysis, we restrict our attention to the habitat specialists, that is, those species that were found either only in arboreal habitats or only in terrestrial habitats.^[The actual data includes one habitat generalist species that occurs in both arboreal and terrestrial habitats.  Including that species complicates the anlysis substantially, so we restrict our attention to the habitat specialists.]  The investigators are interested in characterizing the difference between the average thermal tolerance of arboreal species vs.\ the average thermal tolerance of terrestrial species.
+
+```{r echo = FALSE}
+rm(list = ls())
+```
+
+```{r}
+ant <- read.csv("data/ant.csv", head = T, stringsAsFactors = T)
+
+ant_s <- droplevels(subset(ant, genus_species != "Brachyponera chinensis"))  # exclude the generalist
+ant_s <- ant_s[, c(2, 3, 5, 6, 8)]  # remove irrelevant variables
+names(ant_s) <- c("site", "tree", "habitat", "species", "ct_max")
+summary(ant_s)
+```
+
+For this analysis, we use random effects to capture the differences among sites and the differences among trees at each site.  The trees are nested within the sites.  (Each tree occurs at one and only one site, but most sites have several trees.)  We also use random effects to capture the differences among the species, regarding the species as a representative sample of all arboreal and of all terrestrial ant species.  Although most species are absent from most sites, some species occur at multiple sites, and thus the species random effect is crossed with the site and tree random effects.
+
+The differences between the habitats are modeled with a fixed effect, because the researchers are specifically interested in these two habitats.
+
+Here is some brief data exploration that shows how many nests of each species were found at each site.
+
+```{r}
+with(ant_s, table(species, site))
+```
+
+To visualize the data, we will compute the raw average thermal tolerance for each species.
+```{r}
+s_data <- with(ant_s, aggregate(ct_max, list(habitat, species), FUN = mean))  # note the rows are sorted alphabetically by species
+names(s_data) <- c("habitat", "species", "avg")
+with(s_data, stripchart(avg ~ habitat, pch = 16))
+```
+Now fit the model with the desired structure.
+
+```{r}
+fm1 <- lme4::lmer(ct_max ~ habitat + (1 | site) + (1 | site:tree) + (1 | species),
+                  data = ant_s)
+
+summary(fm1)
+```
+
+The two most interesting parameters are the estimate of the difference in mean responses between the two habitats ($-2.30$) and the standard deviation of the species-level variance ($1.84$).  The estimate of the tree-level variance is 0, indicating that two measurements from the same tree are no more strongly correlated than two measurements from different trees at the same site.  Retaining the random effect for the tree doesn't impact the rest of the fit, so we'll retain it.
+
+To visualize the model fit, we can compute blups for each species
+
+```{r}
+s_data$blup <- ranef(fm1)$species[, 1] + coef(summary(fm1))[1, 1] + ifelse(s_data$habitat == "terrestrial", coef(summary(fm1))[2, 1], 0)
+with(s_data, stripchart(blup ~ habitat, pch = 16))
+```
+
+Note that the blups are not too different from the raw averages. (The shrinkage here is small because the estimate of the species-level variance is large.)
+
+To draw inferences about the parameters of interest, we can profile.
+```{r}
+pr <- profile(fm1)
+lattice::xyplot(pr, absVal = T)
+confint(pr)
+```
+
+Note that the 95% CI for the difference between the habitats (labeled `habitatterrestrial`) does not overlap 0.  Thus the difference between the two habitats is significant at the 5% level.
+
+Alternative, we can use `lmerTest` to generate a $p$ value of unknown validity.
+
+```{r}
+fm1b <- lmerTest::lmer(ct_max ~ habitat + (1 | site) + (1 | site:tree) + (1 | species),
+                       data = ant_s)
+
+summary(fm1b)
+```

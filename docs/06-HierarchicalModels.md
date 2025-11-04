@@ -40,7 +40,7 @@ summary(Dyestuff)
 with(Dyestuff, stripchart(Yield ~ Batch, pch = 16))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-3-1.png" alt="Stripchart showing dyestuff data" width="672" />
 
 To develop some notation, let $i = 1, \ldots, 6$ index the batches, let $j = 1, \ldots, 5$ index the observations within each batch, and let $y_{ij}$ denote observation $j$ from batch $i$.
 
@@ -504,29 +504,29 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpIpHhtc/model660053a84548", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpUJqmEv/model4b487ff4100", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.25 secs
+##  n.sims = 3000 iterations saved. Running time = 0.44 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.247  20.479 1472.884 1499.810 1514.125 1527.235 1551.187 1.001
-## B[2]     1527.902  19.080 1490.006 1515.525 1527.734 1540.384 1564.629 1.001
-## mu       1526.691  21.976 1482.187 1514.682 1526.899 1539.177 1570.325 1.001
-## sdB        39.874  27.756    0.296   23.216   36.980   52.779  103.705 1.001
-## sd_eps     53.708   9.197   39.591   47.070   52.521   58.821   74.797 1.001
-## deviance  323.392   6.387  314.849  318.434  321.706  327.377  336.749 1.001
+## B[1]     1513.194  20.319 1472.343 1499.447 1513.729 1527.249 1551.232 1.003
+## B[2]     1527.681  19.140 1490.016 1515.359 1527.773 1539.989 1566.275 1.003
+## mu       1526.577  22.212 1482.090 1514.725 1527.319 1538.673 1569.023 1.005
+## sdB        41.042  26.628    0.443   25.897   38.471   52.631  103.215 1.004
+## sd_eps     53.327   8.787   38.996   46.954   52.151   58.556   73.670 1.002
+## deviance  322.783   5.943  314.789  318.279  321.279  326.020  335.652 1.004
 ##          n.eff
-## B[1]      3000
-## B[2]      3000
+## B[1]       760
+## B[2]       870
 ## mu        3000
-## sdB       3000
-## sd_eps    3000
-## deviance  3000
+## sdB        780
+## sd_eps    1100
+## deviance   640
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 20.4 and DIC = 343.8
+## pV = 17.6 and DIC = 340.4
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -2034,8 +2034,9 @@ B_j  & \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 In this model, $\mu$ is the average score, $A_i$ are the player-level random effects, $B_j$ are the day-level random effects, and $\varepsilon_{ij}$ are the observation-level errors.  Note that because each player played at most once in each day, there is no possibility to separate a possible player-by-day interaction (also a random effect) from the observation-level error.  If the players had played multiple rounds in a given day, we could have tried to separate the player-by-day random effect from the observation-level error.  We fit the model in `lmerTest::lmer`.
 
 
+
+
 ``` r
-rm(list = ls())
 golf <- read.table("data/golf.txt", head = T)
 
 fm1 <- lmerTest::lmer(score ~ 1 + (1 | player) + (1 | round), data = golf)
@@ -2090,7 +2091,7 @@ confint(pp.golf)
 lattice::xyplot(pp.golf, absVal = TRUE)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-61-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-62-1.png" width="672" />
 
 
 We can also extract the conditional modes for the players and rounds.
@@ -2136,10 +2137,226 @@ with(player.stats, stripchart(mode ~ as.factor(rds), method = "jitter", ylab = "
                               xlab = "conditional mode", pch = 1))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-63-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-64-1.png" width="672" />
 
 Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were "cut".  We might infer that these players played above their abilities on days 1 and 2.
 
 ![](images/sports-comic.png)<!-- -->
 
 Thanks to xkcd for the perspective.
+
+### An ecological example with both crossed and nested random effects
+
+M. Kirchner and E. Youngsteadt conducted the following study to examine the thermal tolerance of several ant species.  Five sites were selected.  At each of the five sites, up to three oak trees were sampled. Ant nests were sampled from each of the trees.  Nests were scored with respect to the species of ant and the habitat in which the nest was found (arboreal or terrestrial).  For each nest, the thermal tolerance of five ants was measured.  The response that we consider here, `ct_max`, is the average maximum thermal tolerance of these five ants.  (Thus there is one data record per nest.)
+
+In this analysis, we restrict our attention to the habitat specialists, that is, those species that were found either only in arboreal habitats or only in terrestrial habitats.^[The actual data includes one habitat generalist species that occurs in both arboreal and terrestrial habitats.  Including that species complicates the anlysis substantially, so we restrict our attention to the habitat specialists.]  The investigators are interested in characterizing the difference between the average thermal tolerance of arboreal species vs.\ the average thermal tolerance of terrestrial species.
+
+
+
+
+``` r
+ant <- read.csv("data/ant.csv", head = T, stringsAsFactors = T)
+
+ant_s <- droplevels(subset(ant, genus_species != "Brachyponera chinensis"))  # exclude the generalist
+ant_s <- ant_s[, c(2, 3, 5, 6, 8)]  # remove irrelevant variables
+names(ant_s) <- c("site", "tree", "habitat", "species", "ct_max")
+summary(ant_s)
+```
+
+```
+##   site     tree           habitat                        species  
+##  ER1:10   QA4:11   arboreal   :17   Aphaenogaster rudis s.l. : 8  
+##  ER2:14   QA5:23   terrestrial:39   Formica subsericea       : 8  
+##  FL2: 7   QA6:22                    Camponotus castaneus     : 7  
+##  UM1:15                             Crematogaster vermiculata: 6  
+##  UM2:10                             Camponotus chromaiodes   : 4  
+##                                     Crematogaster ashmeadi   : 4  
+##                                     (Other)                  :19  
+##      ct_max     
+##  Min.   :42.20  
+##  1st Qu.:43.09  
+##  Median :44.26  
+##  Mean   :44.86  
+##  3rd Qu.:46.35  
+##  Max.   :49.20  
+## 
+```
+
+For this analysis, we use random effects to capture the differences among sites and the differences among trees at each site.  The trees are nested within the sites.  (Each tree occurs at one and only one site, but most sites have several trees.)  We also use random effects to capture the differences among the species, regarding the species as a representative sample of all arboreal and of all terrestrial ant species.  Although most species are absent from most sites, some species occur at multiple sites, and thus the species random effect is crossed with the site and tree random effects.
+
+The differences between the habitats are modeled with a fixed effect, because the researchers are specifically interested in these two habitats.
+
+Here is some brief data exploration that shows how many nests of each species were found at each site.
+
+
+``` r
+with(ant_s, table(species, site))
+```
+
+```
+##                              site
+## species                       ER1 ER2 FL2 UM1 UM2
+##   Aphaenogaster mariae          0   0   2   0   0
+##   Aphaenogaster rudis s.l.      3   3   0   2   0
+##   Aphaenogaster tennesseensis   1   0   0   0   0
+##   Camponotus americanus         0   0   0   1   0
+##   Camponotus castaneus          1   2   2   0   2
+##   Camponotus chromaiodes        1   2   1   0   0
+##   Camponotus nearcticus         0   1   1   1   0
+##   Camponotus pennsylvanicus     1   0   0   0   0
+##   Crematogaster ashmeadi        0   1   0   3   0
+##   Crematogaster vermiculata     0   0   0   0   6
+##   Formica subsericea            1   3   1   1   2
+##   Lasius americanus             0   0   0   3   0
+##   Monomorium minimum            0   1   0   0   0
+##   Nylanderia faisonensis        1   0   0   1   0
+##   Prenolepis imparis            0   1   0   0   0
+##   Solenopsis molesta s.l.       0   0   0   2   0
+##   Temnothorax curvispinosus     1   0   0   0   0
+##   Temnothorax schaumii          0   0   0   1   0
+```
+
+To visualize the data, we will compute the raw average thermal tolerance for each species.
+
+``` r
+s_data <- with(ant_s, aggregate(ct_max, list(habitat, species), FUN = mean))  # note the rows are sorted alphabetically by species
+names(s_data) <- c("habitat", "species", "avg")
+with(s_data, stripchart(avg ~ habitat, pch = 16))
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-69-1.png" width="672" />
+Now fit the model with the desired structure.
+
+
+``` r
+fm1 <- lme4::lmer(ct_max ~ habitat + (1 | site) + (1 | site:tree) + (1 | species),
+                  data = ant_s)
+```
+
+```
+## boundary (singular) fit: see help('isSingular')
+```
+
+``` r
+summary(fm1)
+```
+
+```
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: ct_max ~ habitat + (1 | site) + (1 | site:tree) + (1 | species)
+##    Data: ant_s
+## 
+## REML criterion at convergence: 158.3
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -2.52842 -0.46347 -0.02458  0.46006  2.19640 
+## 
+## Random effects:
+##  Groups    Name        Variance Std.Dev.
+##  species   (Intercept) 3.3820   1.8390  
+##  site:tree (Intercept) 0.0000   0.0000  
+##  site      (Intercept) 0.1644   0.4054  
+##  Residual              0.3506   0.5921  
+## Number of obs: 56, groups:  species, 18; site:tree, 12; site, 5
+## 
+## Fixed effects:
+##                    Estimate Std. Error t value
+## (Intercept)         46.3859     0.7930   58.49
+## habitatterrestrial  -2.3022     0.9473   -2.43
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## hbtttrrstrl -0.793
+## optimizer (nloptwrap) convergence code: 0 (OK)
+## boundary (singular) fit: see help('isSingular')
+```
+
+The two most interesting parameters are the estimate of the difference in mean responses between the two habitats ($-2.30$) and the standard deviation of the species-level variance ($1.84$).  The estimate of the tree-level variance is 0, indicating that two measurements from the same tree are no more strongly correlated than two measurements from different trees at the same site.  Retaining the random effect for the tree doesn't impact the rest of the fit, so we'll retain it.
+
+To visualize the model fit, we can compute blups for each species
+
+
+``` r
+s_data$blup <- ranef(fm1)$species[, 1] + coef(summary(fm1))[1, 1] + ifelse(s_data$habitat == "terrestrial", coef(summary(fm1))[2, 1], 0)
+with(s_data, stripchart(blup ~ habitat, pch = 16))
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-71-1.png" width="672" />
+
+Note that the blups are not too different from the raw averages. (The shrinkage here is small because the estimate of the species-level variance is large.)
+
+To draw inferences about the parameters of interest, we can profile.
+
+``` r
+pr <- profile(fm1)
+lattice::xyplot(pr, absVal = T)
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-72-1.png" width="672" />
+
+``` r
+confint(pr)
+```
+
+```
+##                           2.5 %     97.5 %
+## .sig01              1.237329013  2.5573015
+## .sig02              0.000000000  0.6505234
+## .sig03              0.003573586  1.0558260
+## .sigma              0.474974242  0.7698552
+## (Intercept)        44.834426004 47.9327950
+## habitatterrestrial -4.153908536 -0.4335560
+```
+
+Note that the 95% CI for the difference between the habitats (labeled `habitatterrestrial`) does not overlap 0.  Thus the difference between the two habitats is significant at the 5% level.
+
+Alternative, we can use `lmerTest` to generate a $p$ value of unknown validity.
+
+
+``` r
+fm1b <- lmerTest::lmer(ct_max ~ habitat + (1 | site) + (1 | site:tree) + (1 | species),
+                       data = ant_s)
+```
+
+```
+## boundary (singular) fit: see help('isSingular')
+```
+
+``` r
+summary(fm1b)
+```
+
+```
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: ct_max ~ habitat + (1 | site) + (1 | site:tree) + (1 | species)
+##    Data: ant_s
+## 
+## REML criterion at convergence: 158.3
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -2.52842 -0.46347 -0.02458  0.46006  2.19640 
+## 
+## Random effects:
+##  Groups    Name        Variance Std.Dev.
+##  species   (Intercept) 3.3820   1.8390  
+##  site:tree (Intercept) 0.0000   0.0000  
+##  site      (Intercept) 0.1644   0.4054  
+##  Residual              0.3506   0.5921  
+## Number of obs: 56, groups:  species, 18; site:tree, 12; site, 5
+## 
+## Fixed effects:
+##                    Estimate Std. Error      df t value Pr(>|t|)    
+## (Intercept)         46.3859     0.7930 16.6776   58.49   <2e-16 ***
+## habitatterrestrial  -2.3022     0.9473 15.3755   -2.43   0.0278 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             (Intr)
+## hbtttrrstrl -0.793
+## optimizer (nloptwrap) convergence code: 0 (OK)
+## boundary (singular) fit: see help('isSingular')
+```

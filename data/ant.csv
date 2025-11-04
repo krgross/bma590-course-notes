@@ -1,0 +1,89 @@
+nest_code,site,tree,nest,stratum,genus_species,tree_code,ct_max,ct_min,breadth
+ER1-QA6-AN1,ER1,QA6,AN1,arboreal,Camponotus pennsylvanicus,ER1-QA6,46.63333333333333,5.733333333333333,40.9
+ER1-QA6-GN1,ER1,QA6,GN1,terrestrial,Aphaenogaster tennesseensis,ER1-QA6,42.4,5.46,36.94
+ER1-QA6-GN11,ER1,QA6,GN11,terrestrial,Aphaenogaster rudis s.l.,ER1-QA6,42.2,5.1,37.1
+ER1-QA6-GN12,ER1,QA6,GN12,terrestrial,Camponotus chromaiodes,ER1-QA6,45.38,3.72,41.660000000000004
+ER1-QA6-GN16,ER1,QA6,GN16,terrestrial,Camponotus castaneus,ER1-QA6,43.55,3.0999999999999996,40.449999999999996
+ER1-QA6-GN17,ER1,QA6,GN17,terrestrial,Formica subsericea,ER1-QA6,46.25,2.6666666666666665,43.583333333333336
+ER1-QA6-GN18,ER1,QA6,GN18,terrestrial,Nylanderia faisonensis,ER1-QA6,44.666666666666664,5.85,38.81666666666666
+ER1-QA6-GN19,ER1,QA6,GN19,terrestrial,Temnothorax curvispinosus,ER1-QA6,47.9,5.033333333333333,42.86666666666667
+ER1-QA6-GN3,ER1,QA6,GN3,terrestrial,Aphaenogaster rudis s.l.,ER1-QA6,42.2,8.05,34.150000000000006
+ER1-QA6-GN9,ER1,QA6,GN9,terrestrial,Aphaenogaster rudis s.l.,ER1-QA6,42.68,4.8,37.88
+ER2-QA4-AN1,ER2,QA4,AN1,arboreal,Brachyponera chinensis,ER2-QA4,40.58,7.04,33.54
+ER2-QA4-AN3,ER2,QA4,AN3,arboreal,Brachyponera chinensis,ER2-QA4,40.4,6.76,33.64
+ER2-QA4-GN1,ER2,QA4,GN1,terrestrial,Formica subsericea,ER2-QA4,45.24,7.64,37.6
+ER2-QA4-GN11,ER2,QA4,GN11,terrestrial,Aphaenogaster rudis s.l.,ER2-QA4,43.1,6.54,36.56
+ER2-QA4-GN2,ER2,QA4,GN2,terrestrial,Aphaenogaster rudis s.l.,ER2-QA4,43.92,7,36.92
+ER2-QA4-GN3,ER2,QA4,GN3,terrestrial,Brachyponera chinensis,ER2-QA4,40.4,6.62,33.78
+ER2-QA4-GN4,ER2,QA4,GN4,terrestrial,Brachyponera chinensis,ER2-QA4,40.58,8.78,31.799999999999997
+ER2-QA4-GN8,ER2,QA4,GN8,terrestrial,Brachyponera chinensis,ER2-QA4,40.4,7.6,32.8
+ER2-QA5-AN1,ER2,QA5,AN1,arboreal,Crematogaster ashmeadi,ER2-QA5,49.2,5,44.2
+ER2-QA5-GN14,ER2,QA5,GN14,terrestrial,Camponotus chromaiodes,ER2-QA5,44.14,3.14,41
+ER2-QA5-GN15,ER2,QA5,GN15,terrestrial,Prenolepis imparis,ER2-QA5,42.349999999999994,4.2,38.14999999999999
+ER2-QA5-GN5,ER2,QA5,GN5,terrestrial,Brachyponera chinensis,ER2-QA5,40.02,7.359999999999999,32.660000000000004
+ER2-QA5-GN9,ER2,QA5,GN9,terrestrial,Brachyponera chinensis,ER2-QA5,39.92,6.1,33.82
+ER2-QA6-AN1,ER2,QA6,AN1,arboreal,Camponotus nearcticus,ER2-QA6,46.7,7.25,39.45
+ER2-QA6-GN11,ER2,QA6,GN11,terrestrial,Monomorium minimum,ER2-QA6,48.225,8.66,39.565
+ER2-QA6-GN12,ER2,QA6,GN12,terrestrial,Camponotus chromaiodes,ER2-QA6,42.63333333333333,3.8666666666666667,38.766666666666666
+ER2-QA6-GN2,ER2,QA6,GN2,terrestrial,Formica subsericea,ER2-QA6,46.1,3.3800000000000003,42.72
+ER2-QA6-GN3,ER2,QA6,GN3,terrestrial,Camponotus castaneus,ER2-QA6,43,8.649999999999999,34.35
+ER2-QA6-GN7,ER2,QA6,GN7,terrestrial,Aphaenogaster rudis s.l.,ER2-QA6,43.08,4.8,38.28
+ER2-QA6-GN8,ER2,QA6,GN8,terrestrial,Camponotus castaneus,ER2-QA6,43.349999999999994,2.1,41.24999999999999
+ER2-QA6-GN9,ER2,QA6,GN9,terrestrial,Formica subsericea,ER2-QA6,45.7,5.1,40.6
+FL2-QA4-AN1,FL2,QA4,AN1,arboreal,Aphaenogaster mariae,FL2-QA4,43.4,8.24,35.16
+FL2-QA4-GN1,FL2,QA4,GN1,terrestrial,Brachyponera chinensis,FL2-QA4,40,5.3,34.7
+FL2-QA4-GN3,FL2,QA4,GN3,terrestrial,Camponotus castaneus,FL2-QA4,43.025,4.766666666666667,38.25833333333333
+FL2-QA4-GN6,FL2,QA4,GN6,terrestrial,Brachyponera chinensis,FL2-QA4,40.42,6.38,34.04
+FL2-QA4-GN7,FL2,QA4,GN7,terrestrial,Camponotus chromaiodes,FL2-QA4,43.55,3.75,39.8
+FL2-QA5-AN1,FL2,QA5,AN1,arboreal,Aphaenogaster mariae,FL2-QA5,43.18,11.1,32.08
+FL2-QA5-GN1,FL2,QA5,GN1,terrestrial,Brachyponera chinensis,FL2-QA5,40.1,7.4399999999999995,32.660000000000004
+FL2-QA5-GN4,FL2,QA5,GN4,terrestrial,Brachyponera chinensis,FL2-QA5,40.2,6.34,33.86
+FL2-QA5-GN5,FL2,QA5,GN5,terrestrial,Camponotus castaneus,FL2-QA5,42.440000000000005,3.9000000000000004,38.540000000000006
+FL2-QA6-AN1,FL2,QA6,AN1,arboreal,Brachyponera chinensis,FL2-QA6,40,6.44,33.56
+FL2-QA6-AN2,FL2,QA6,AN2,arboreal,Brachyponera chinensis,FL2-QA6,40.300000000000004,6.26,34.040000000000006
+FL2-QA6-AN3,FL2,QA6,AN3,arboreal,Camponotus nearcticus,FL2-QA6,45.04,6.78,38.26
+FL2-QA6-GN1,FL2,QA6,GN1,terrestrial,Formica subsericea,FL2-QA6,44.260000000000005,8.65,35.61000000000001
+FL2-QA6-GN2,FL2,QA6,GN2,terrestrial,Brachyponera chinensis,FL2-QA6,39.58,6.04,33.54
+FL2-QA6-GN5,FL2,QA6,GN5,terrestrial,Brachyponera chinensis,FL2-QA6,40.1,6.26,33.84
+UM1-QA4-AN1,UM1,QA4,AN1,arboreal,Brachyponera chinensis,UM1-QA4,39.8,9.6,30.199999999999996
+UM1-QA4-AN1,UM1,QA4,AN1,arboreal,Camponotus nearcticus,UM1-QA4,45.4,4.4,41
+UM1-QA4-AN2,UM1,QA4,AN2,arboreal,Crematogaster ashmeadi,UM1-QA4,47.65,5.36,42.29
+UM1-QA4-GN1,UM1,QA4,GN1,terrestrial,Brachyponera chinensis,UM1-QA4,39.8,7.42,32.379999999999995
+UM1-QA4-GN10,UM1,QA4,GN10,terrestrial,Brachyponera chinensis,UM1-QA4,39.8,7.78,32.019999999999996
+UM1-QA4-GN3,UM1,QA4,GN3,terrestrial,Camponotus americanus,UM1-QA4,42.24,3.3,38.940000000000005
+UM1-QA4-GN5,UM1,QA4,GN5,terrestrial,Brachyponera chinensis,UM1-QA4,40.44,7.04,33.4
+UM1-QA4-GN6,UM1,QA4,GN6,terrestrial,Brachyponera chinensis,UM1-QA4,39.519999999999996,6.4,33.12
+UM1-QA4-GN9,UM1,QA4,GN9,terrestrial,Brachyponera chinensis,UM1-QA4,39.8,8.78,31.019999999999996
+UM1-QA5-AN1,UM1,QA5,AN1,arboreal,Crematogaster ashmeadi,UM1-QA5,48.16,5.2,42.959999999999994
+UM1-QA5-AN2,UM1,QA5,AN2,arboreal,Crematogaster ashmeadi,UM1-QA5,48.74,5.24,43.5
+UM1-QA5-GN1,UM1,QA5,GN1,terrestrial,Brachyponera chinensis,UM1-QA5,41,6.36,34.64
+UM1-QA5-GN11,UM1,QA5,GN11,terrestrial,Aphaenogaster rudis s.l.,UM1-QA5,42.92,4.76,38.160000000000004
+UM1-QA5-GN12,UM1,QA5,GN12,terrestrial,Aphaenogaster rudis s.l.,UM1-QA5,43.5,5.2,38.3
+UM1-QA5-GN14,UM1,QA5,GN14,terrestrial,Lasius americanus,UM1-QA5,44.26,6.7,37.559999999999995
+UM1-QA5-GN19,UM1,QA5,GN19,terrestrial,Brachyponera chinensis,UM1-QA5,40.64,6.92,33.72
+UM1-QA5-GN2,UM1,QA5,GN2,terrestrial,Solenopsis molesta s.l.,UM1-QA5,44.8,8.933333333333334,35.86666666666666
+UM1-QA5-GN5,UM1,QA5,GN5,terrestrial,Lasius americanus,UM1-QA5,43.35,4.975,38.375
+UM1-QA5-GN7,UM1,QA5,GN7,terrestrial,Nylanderia faisonensis,UM1-QA5,44.019999999999996,6.24,37.779999999999994
+UM1-QA5-GN9,UM1,QA5,GN9,terrestrial,Lasius americanus,UM1-QA5,43.26,5.52,37.739999999999995
+UM1-QA5-GN9,UM1,QA5,GN9,terrestrial,Solenopsis molesta s.l.,UM1-QA5,45.22,8.799999999999999,36.42
+UM1-QA6-AN1,UM1,QA6,AN1,arboreal,Temnothorax schaumii,UM1-QA6,46.04,6.739999999999999,39.3
+UM1-QA6-GN1,UM1,QA6,GN1,terrestrial,Formica subsericea,UM1-QA6,45.575,3.85,41.725
+UM1-QA6-GN4,UM1,QA6,GN4,terrestrial,Brachyponera chinensis,UM1-QA6,40.3,5.699999999999999,34.599999999999994
+UM1-QA6-GN6,UM1,QA6,GN6,terrestrial,Brachyponera chinensis,UM1-QA6,40.300000000000004,6.133333333333333,34.16666666666667
+UM2-QA4-GN2,UM2,QA4,GN2,terrestrial,Brachyponera chinensis,UM2-QA4,39.84,9.639999999999999,30.200000000000003
+UM2-QA4-GN5,UM2,QA4,GN5,terrestrial,Brachyponera chinensis,UM2-QA4,40.36,8.84,31.52
+UM2-QA4-GN6,UM2,QA4,GN6,terrestrial,Formica subsericea,UM2-QA4,44,8.82,35.18
+UM2-QA4-GN7,UM2,QA4,GN7,terrestrial,Formica subsericea,UM2-QA4,44.9,7.3,37.6
+UM2-QA5-AN2,UM2,QA5,AN2,arboreal,Crematogaster vermiculata,UM2-QA5,47.56,4.22,43.34
+UM2-QA5-AN3,UM2,QA5,AN3,arboreal,Crematogaster vermiculata,UM2-QA5,48.4,4.8999999999999995,43.5
+UM2-QA5-AN4,UM2,QA5,AN4,arboreal,Crematogaster vermiculata,UM2-QA5,47.96,5.26,42.7
+UM2-QA5-AN5,UM2,QA5,AN5,arboreal,Crematogaster vermiculata,UM2-QA5,47.76,5.266666666666667,42.49333333333333
+UM2-QA5-AN6,UM2,QA5,AN6,arboreal,Crematogaster vermiculata,UM2-QA5,47.94,4.42,43.519999999999996
+UM2-QA5-AN7,UM2,QA5,AN7,arboreal,Crematogaster vermiculata,UM2-QA5,47.54,3.44,44.1
+UM2-QA5-GN11,UM2,QA5,GN11,terrestrial,Brachyponera chinensis,UM2-QA5,39.98,5.24,34.739999999999995
+UM2-QA5-GN16,UM2,QA5,GN16,terrestrial,Brachyponera chinensis,UM2-QA5,40.04,6.12,33.92
+UM2-QA5-GN3,UM2,QA5,GN3,terrestrial,Brachyponera chinensis,UM2-QA5,40.14,6.02,34.120000000000005
+UM2-QA5-GN5,UM2,QA5,GN5,terrestrial,Camponotus castaneus,UM2-QA5,42.44,2.68,39.76
+UM2-QA5-GN6,UM2,QA5,GN6,terrestrial,Camponotus castaneus,UM2-QA5,42.92,3.3,39.620000000000005
+UM2-QA5-GN7,UM2,QA5,GN7,terrestrial,Brachyponera chinensis,UM2-QA5,40.04,5.26,34.78
+UM2-QA5-GN8,UM2,QA5,GN8,terrestrial,Brachyponera chinensis,UM2-QA5,40.04,5.92,34.12

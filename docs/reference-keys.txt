@@ -44,6 +44,7 @@ adding-a-beach-level-covariate
 nested-and-crossed-random-effects
 nested-random-effects
 crossed-random-effects
+an-ecological-example-with-both-crossed-and-nested-random-effects
 generalized-linear-models
 glms-the-big-picture
 poisson-regression

@@ -1,7 +1,7 @@
 --- 
 title: "Applied statistical analysis of non-normal and/or correlated data"
 author: "Kevin Gross"
-date: "2025-10-29"
+date: "2025-11-04"
 output: 
   bookdown::gitbook:
     config:
@@ -44,7 +44,7 @@ The *likelihood function* is the mathematical object that underlies many of the 
 
 ## Mathematical basics
 
-The mathematical expression for a likelihood function is identical to the mathematical expression that one would use to find the probability mass or density associated with a particular value of a random variable.  For example, suppose that we have a very simple data set that consists of only one observation from a Poisson distribution.  Let $X$ denote the value of the single data point, and let $\lambda$ denote the parameter of the Poisson distribution.  In a probability class, we learn that we can find the probability mass associated with any particular value of $X$ using the formula
+The mathematical expression for a likelihood^[Fisher's original description of likelihood is still edifying.  Writing in the context of an unknown binomial parameter $p$, he writes (@fisher1922mathematical): "We must return to the actual fact that one value of $p$, of the frequency of which we know nothing, would yield the observed result three times as frequently as would another value of $p$. If we need a word to characterize this relative property of different values of $p$, I suggest that we may speak without confusion of the *likelihood* of one value of $p$ being thrice the likelihood of another, bearing always in mind that likelihood is not here used loosely as a synonym of probability, but simply to express the relative frequencies with which such values of the hypothetical quantity $p$ would in fact yield the observed sample." (original emphasis)] function is identical to the mathematical expression that one would use to find the probability mass or density associated with a particular value of a random variable.  For example, suppose that we have a very simple data set that consists of only one observation from a Poisson distribution.  Let $X$ denote the value of the single data point, and let $\lambda$ denote the parameter of the Poisson distribution.  In a probability class, we learn that we can find the probability mass associated with any particular value of $X$ using the formula
 \[
 \Pr{X=x; \lambda} = \dfrac{e^{-\lambda} \lambda^x}{x!}.
 \]

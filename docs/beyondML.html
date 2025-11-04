@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2025-10-29" />
+<meta name="date" content="2025-11-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -235,6 +235,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="6.4.1" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#nested-random-effects"><i class="fa fa-check"></i><b>6.4.1</b> Nested random effects</a></li>
 <li class="chapter" data-level="6.4.2" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#crossed-random-effects"><i class="fa fa-check"></i><b>6.4.2</b> Crossed random effects</a></li>
+<li class="chapter" data-level="6.4.3" data-path="hierarchical-mixed-models.html"><a href="hierarchical-mixed-models.html#an-ecological-example-with-both-crossed-and-nested-random-effects"><i class="fa fa-check"></i><b>6.4.3</b> An ecological example with both crossed and nested random effects</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="7" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html"><i class="fa fa-check"></i><b>7</b> Generalized linear models</a>
@@ -318,7 +319,7 @@ div.csl-indent {
 <span id="cb67-18"><a href="beyondML.html#cb67-18" tabindex="-1"></a></span>
 <span id="cb67-19"><a href="beyondML.html#cb67-19" tabindex="-1"></a><span class="fu">plot</span>(ll.vals <span class="sc">~</span> lambda.vals, <span class="at">xlab =</span> <span class="st">&quot;lambda&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;negative log likelihood&quot;</span>, <span class="at">type =</span> <span class="st">&quot;l&quot;</span>)</span></code></pre></div>
 <p><img src="02-LikelihoodConfideceRegions_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<p>To find an asymptotic confidence interval for <span class="math inline">\(\lambda\)</span> with confidence level <span class="math inline">\(100 \times (1-\alpha)\%\)</span>, we want to find all the values of <span class="math inline">\(\lambda\)</span> for which the negative log-likelihood is no greater than <span class="math inline">\(\frac{1}{2}\chi^2_1(1-\alpha)\)</span> larger than the negative log-likelihood at the MLE.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> By <span class="math inline">\(\chi^2_1(1-\alpha)\)</span>, we mean <span class="math inline">\(1-\alpha\)</span> quantile of a <span class="math inline">\(\chi^2_1\)</span> distribution, which can be found with the function <code>qchisq</code> in R. The code below uses the function <code>uniroot</code> to find the upper and lower bounds of a 95% CI for <span class="math inline">\(\lambda\)</span>.</p>
+<p>To find an asymptotic confidence interval for <span class="math inline">\(\lambda\)</span> with confidence level <span class="math inline">\(100 \times (1-\alpha)\%\)</span>, we want to find all the values of <span class="math inline">\(\lambda\)</span> for which the negative log-likelihood is no greater than <span class="math inline">\(\frac{1}{2}\chi^2_1(1-\alpha)\)</span> larger than the negative log-likelihood at the MLE.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> By <span class="math inline">\(\chi^2_1(1-\alpha)\)</span>, we mean <span class="math inline">\(1-\alpha\)</span> quantile of a <span class="math inline">\(\chi^2_1\)</span> distribution, which can be found with the function <code>qchisq</code> in R. The code below uses the function <code>uniroot</code> to find the upper and lower bounds of a 95% CI for <span class="math inline">\(\lambda\)</span>.</p>
 <div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="beyondML.html#cb68-1" tabindex="-1"></a>cutoff.ll <span class="ot">&lt;-</span> <span class="fu">horse.neg.ll</span>(<span class="fl">0.7</span>) <span class="sc">+</span> <span class="fu">qchisq</span>(<span class="fl">0.95</span>, <span class="at">df =</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">2</span></span>
 <span id="cb68-2"><a href="beyondML.html#cb68-2" tabindex="-1"></a></span>
 <span id="cb68-3"><a href="beyondML.html#cb68-3" tabindex="-1"></a><span class="co"># recreate the plot and add a line</span></span>
@@ -1122,8 +1123,8 @@ Kendall, Maurice George, and Alan Stuart. 1979. <em>The Advanced Theory of Stati
 </div>
 <div class="footnotes">
 <hr />
-<ol start="4">
-<li id="fn4"><p>See section 6.4.1.1 of Bolker to see how this follows from a result about the likelihood ratio.<a href="beyondML.html#fnref4" class="footnote-back">↩︎</a></p></li>
+<ol start="5">
+<li id="fn5"><p>See section 6.4.1.1 of Bolker to see how this follows from a result about the likelihood ratio.<a href="beyondML.html#fnref5" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
             </section>
