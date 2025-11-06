@@ -458,6 +458,10 @@ LRTs and information criteria have complementary strengths and weaknesses.  LRTs
 
 On the other hand, information criteria provide a penalized goodness-of-fit measure that can be used to compare many models at once.  Information criteria produce a ranking of model fits, and thus a best-fitting model.  The downside to information criteria is that there are no hard and fast guidelines to determine when one model provides a significantly better fit than another. The properties of information criteria are also less well understood than the properties of LRTs.
 
+I also can't resist quoting @wood2017generalized here, who says (p. 110):
+
+> In some quarters AIC has acquired cult status as the one true way to model selection, in a similar way to $p$-values, somewhat earlier.  This is unfortunate nonsense.  Like $p$-values, AIC is useful as a rough and ready quantitative aid to selecting between models, nothing more.
+
 To illustrate both, we will use the study of cone production by fir trees studied in $\S$ 6.6 of Bolker.  These data are originally from work by Dodd and Silvertown.  The data are much richer than we will examine here.  Like Bolker, we will focus on whether the relationship between tree size (as measured by diameter at breast height, or dbh) and the number of cones produces differs between populations that "have experienced wave-like die-offs" and those that have not.
 
 First some preparatory work to import and assemble the data:

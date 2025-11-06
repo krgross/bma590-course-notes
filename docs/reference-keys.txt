@@ -58,6 +58,7 @@ zero-truncated-models
 zero-inflated-models
 zero-altered-or-hurdle-models
 generalized-additive-models-gams
+further-reading
 glmms
 example-1-industrial-melanism-data-continued
 gees

@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2025-11-04" />
+<meta name="date" content="2025-11-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -258,6 +258,7 @@ div.csl-indent {
 <li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
 </ul></li>
 <li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
+<li class="chapter" data-level="7.6" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#further-reading"><i class="fa fa-check"></i><b>7.6</b> Further reading</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="glmms.html"><a href="glmms.html"><i class="fa fa-check"></i><b>8</b> Generalized linear mixed models</a>
 <ul>
@@ -764,6 +765,10 @@ where <span class="math inline">\(\hat{\phi}\)</span> is the MLE of <span class=
 <p>Obtaining a parsimonious statistical description of data often requires arbitrating between competing model fits. Likelihood provides two tools for comparing models: likelihood ratio tests (LRTs) and information criteria. Of the latter, the best known information criterion is due to Akaike, and takes the name AIC. (Akaike didn’t name AIC after himself; he used AIC to refer to “An information criterion”. In his honor, the acronym is now largely taken to stand for “Akaike’s information criterion”.)</p>
 <p>LRTs and information criteria have complementary strengths and weaknesses. LRTs are direct, head-to-head comparisons of nested models. By “nested”, we mean that one model can be obtained as a special case of the other. The “reduced”, or less flexible (and thus more parsimonious) model plays the role of the null hypothesis, and the “full”, or more flexible (and thus less parsimonious) model plays the role of the alternative hypothesis. The LRT then formally evaluates whether the improvement in fit offered by the full model is statistically significant, that is, greater than what we would expect merely by chance.</p>
 <p>On the other hand, information criteria provide a penalized goodness-of-fit measure that can be used to compare many models at once. Information criteria produce a ranking of model fits, and thus a best-fitting model. The downside to information criteria is that there are no hard and fast guidelines to determine when one model provides a significantly better fit than another. The properties of information criteria are also less well understood than the properties of LRTs.</p>
+<p>I also can’t resist quoting <span class="citation">Wood (<a href="#ref-wood2017generalized">2017</a>)</span> here, who says (p. 110):</p>
+<blockquote>
+<p>In some quarters AIC has acquired cult status as the one true way to model selection, in a similar way to <span class="math inline">\(p\)</span>-values, somewhat earlier. This is unfortunate nonsense. Like <span class="math inline">\(p\)</span>-values, AIC is useful as a rough and ready quantitative aid to selecting between models, nothing more.</p>
+</blockquote>
 <p>To illustrate both, we will use the study of cone production by fir trees studied in <span class="math inline">\(\S\)</span> 6.6 of Bolker. These data are originally from work by Dodd and Silvertown. The data are much richer than we will examine here. Like Bolker, we will focus on whether the relationship between tree size (as measured by diameter at breast height, or dbh) and the number of cones produces differs between populations that “have experienced wave-like die-offs” and those that have not.</p>
 <p>First some preparatory work to import and assemble the data:</p>
 <div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb132-1"><a href="beyondML.html#cb132-1" tabindex="-1"></a><span class="fu">require</span>(emdbook)</span>
@@ -1119,6 +1124,9 @@ Bolker, Benjamin M. 2008. <em>Ecological Models and Data in <span>R</span></em>.
 </div>
 <div id="ref-kendall1979" class="csl-entry">
 Kendall, Maurice George, and Alan Stuart. 1979. <em>The Advanced Theory of Statistics. Vol. 2: Inference and Relationship</em>. 4th ed. London: Griffin.
+</div>
+<div id="ref-wood2017generalized" class="csl-entry">
+Wood, Simon N. 2017. <em>Generalized Additive Models: An Introduction with r</em>. CRC press.
 </div>
 </div>
 <div class="footnotes">

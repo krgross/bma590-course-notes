@@ -504,29 +504,29 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpUJqmEv/model4b487ff4100", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpK6WyXP/model4a6071ea672c", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
 ##  n.sims = 3000 iterations saved. Running time = 0.44 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.194  20.319 1472.343 1499.447 1513.729 1527.249 1551.232 1.003
-## B[2]     1527.681  19.140 1490.016 1515.359 1527.773 1539.989 1566.275 1.003
-## mu       1526.577  22.212 1482.090 1514.725 1527.319 1538.673 1569.023 1.005
-## sdB        41.042  26.628    0.443   25.897   38.471   52.631  103.215 1.004
-## sd_eps     53.327   8.787   38.996   46.954   52.151   58.556   73.670 1.002
-## deviance  322.783   5.943  314.789  318.279  321.279  326.020  335.652 1.004
+## B[1]     1513.528  20.411 1471.477 1500.314 1514.067 1527.210 1551.228 1.002
+## B[2]     1528.073  19.401 1489.789 1515.638 1527.804 1540.220 1566.151 1.001
+## mu       1527.516  22.870 1481.055 1515.319 1527.766 1539.431 1573.819 1.001
+## sdB        40.246  28.771    0.273   23.756   36.907   53.089  107.322 1.004
+## sd_eps     53.479   9.197   39.036   46.866   52.272   58.933   74.608 1.001
+## deviance  323.264   6.229  314.945  318.447  321.721  326.858  336.351 1.002
 ##          n.eff
-## B[1]       760
-## B[2]       870
+## B[1]      1600
+## B[2]      3000
 ## mu        3000
-## sdB        780
-## sd_eps    1100
-## deviance   640
+## sdB       1000
+## sd_eps    3000
+## deviance  2000
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 17.6 and DIC = 340.4
+## pV = 19.4 and DIC = 342.7
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 

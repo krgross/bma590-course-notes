@@ -1,7 +1,7 @@
 --- 
 title: "Applied statistical analysis of non-normal and/or correlated data"
 author: "Kevin Gross"
-date: "2025-11-04"
+date: "2025-11-06"
 output: 
   bookdown::gitbook:
     config:

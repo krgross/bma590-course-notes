@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2025-11-04" />
+<meta name="date" content="2025-11-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -258,6 +258,7 @@ div.csl-indent {
 <li class="chapter" data-level="7.4.3" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#zero-altered-or-hurdle-models"><i class="fa fa-check"></i><b>7.4.3</b> Zero-altered, or “hurdle”, models</a></li>
 </ul></li>
 <li class="chapter" data-level="7.5" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#generalized-additive-models-gams"><i class="fa fa-check"></i><b>7.5</b> Generalized additive models (GAMs)</a></li>
+<li class="chapter" data-level="7.6" data-path="generalized-linear-models.html"><a href="generalized-linear-models.html#further-reading"><i class="fa fa-check"></i><b>7.6</b> Further reading</a></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="glmms.html"><a href="glmms.html"><i class="fa fa-check"></i><b>8</b> Generalized linear mixed models</a>
 <ul>
@@ -295,7 +296,7 @@ div.csl-indent {
 <div id="header">
 <h1 class="title">Applied statistical analysis of non-normal and/or correlated data</h1>
 <p class="author"><em>Kevin Gross</em></p>
-<p class="date"><em>2025-11-04</em></p>
+<p class="date"><em>2025-11-06</em></p>
 </div>
 <div id="ML" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Maximum likelihood estimation<a href="index.html#ML" class="anchor-section" aria-label="Anchor link to header"></a></h1>
@@ -725,6 +726,9 @@ Fitting proceeds in the usual way. Note that we supply starting values on the tr
 <div id="ref-bolker2008" class="csl-entry">
 Bolker, Benjamin M. 2008. <em>Ecological Models and Data in <span>R</span></em>. Princeton University Press.
 </div>
+<div id="ref-fisher1922mathematical" class="csl-entry">
+Fisher, Ronald A. 1922. <span>“On the Mathematical Foundations of Theoretical Statistics.”</span> <em>Philosophical Transactions of the Royal Society of London. Series A, Containing Papers of a Mathematical or Physical Character</em> 222 (594-604): 309–68.
+</div>
 <div id="ref-vonesh2005compensatory" class="csl-entry">
 Vonesh, James R, and Benjamin M Bolker. 2005. <span>“Compensatory Larval Responses Shift Trade-Offs Associated with Predator-Induced Hatching Plasticity.”</span> <em>Ecology</em> 86 (6): 1580–91.
 </div>
@@ -732,7 +736,7 @@ Vonesh, James R, and Benjamin M Bolker. 2005. <span>“Compensatory Larval Respo
 <div class="footnotes">
 <hr />
 <ol start="1">
-<li id="fn1"><p>Fisher’s original description of likelihood is still edifying. Writing in the context of an unknown binomial parameter <span class="math inline">\(p\)</span>, he writes (<span class="citation">(<a href="#ref-fisher1922mathematical"><strong>fisher1922mathematical?</strong></a>)</span>): “We must return to the actual fact that one value of <span class="math inline">\(p\)</span>, of the frequency of which we know nothing, would yield the observed result three times as frequently as would another value of <span class="math inline">\(p\)</span>. If we need a word to characterize this relative property of different values of <span class="math inline">\(p\)</span>, I suggest that we may speak without confusion of the <em>likelihood</em> of one value of <span class="math inline">\(p\)</span> being thrice the likelihood of another, bearing always in mind that likelihood is not here used loosely as a synonym of probability, but simply to express the relative frequencies with which such values of the hypothetical quantity <span class="math inline">\(p\)</span> would in fact yield the observed sample.” (original emphasis)<a href="index.html#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>Fisher’s original description of likelihood is still edifying. Writing in the context of an unknown binomial parameter <span class="math inline">\(p\)</span>, he writes (<span class="citation">Fisher (<a href="#ref-fisher1922mathematical">1922</a>)</span>): “We must return to the actual fact that one value of <span class="math inline">\(p\)</span>, of the frequency of which we know nothing, would yield the observed result three times as frequently as would another value of <span class="math inline">\(p\)</span>. If we need a word to characterize this relative property of different values of <span class="math inline">\(p\)</span>, I suggest that we may speak without confusion of the <em>likelihood</em> of one value of <span class="math inline">\(p\)</span> being thrice the likelihood of another, bearing always in mind that likelihood is not here used loosely as a synonym of probability, but simply to express the relative frequencies with which such values of the hypothetical quantity <span class="math inline">\(p\)</span> would in fact yield the observed sample.” (original emphasis)<a href="index.html#fnref1" class="footnote-back">↩︎</a></p></li>
 <li id="fn2"><p>Recall that when we refer to a data set as a “simple random sample”, we mean that the data are independent and identically distributed. That is, they are independent draws from the same underlying probability distribution.<a href="index.html#fnref2" class="footnote-back">↩︎</a></p></li>
 <li id="fn3"><p>In <code>R</code>, we can find the smallest positive value that meets the IEEE technical standard using <code>.Machine$double.xmin</code>. Although <code>R</code> may show answers for computations involving values less than this value, those computations are not trustworthy and may generate strange results.<a href="index.html#fnref3" class="footnote-back">↩︎</a></p></li>
 <li id="fn4"><p>The upper bound on <span class="math inline">\(a\)</span> is odd and possibly confusing. In standard predation models, there is no upper bound on <span class="math inline">\(a\)</span>. The reason why we have an upper bound on <span class="math inline">\(a\)</span> in this case is because we’ve taken the usual functional expression for Type II predation — which gives a predation <em>rate</em> — and re-interpreted it as the <em>number</em> of tadpoles eaten over a finite time interval. This was probably never a great idea to begin with, and now we are seeing the cost. The <span class="math inline">\(a \leq 1\)</span> constraint arises in this case because the number of tadpoles eaten in this experiment can’t exceed the number that were originally placed in the experimental mesocosm. This emphasizes that we’re really only using the Type II functional response here for pedagogical convenience. If we really wanted to learn something about the underlying predation <em>rate</em>, then we have to account for the prey depletion over the course of the experiment, as <span class="citation">Vonesh and Bolker (<a href="#ref-vonesh2005compensatory">2005</a>)</span> do in their study.<a href="index.html#fnref4" class="footnote-back">↩︎</a></p></li>
