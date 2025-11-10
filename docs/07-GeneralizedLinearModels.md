@@ -640,7 +640,7 @@ We generally distinguish between two types of data with binary responses: Data i
 
 ### Individual binary responses: TB in boar
 
-To illustrate individual binary data, we will use a data set analyzed by @zuur2009 in their Ch. 10.  As explained by Zuur et al., these data describe the incidence of "tuberculosis-like lesions in wild boar *Sus scrofa*" in southern Spain, and were originally collected by @vicente2006wild.  The potential explanatory variables in the data set include a measure of the animal's size, it's sex, and a grouping into one of four age classes.
+To illustrate individual binary data, we will use a data set analyzed in Ch. 10 of @zuur2009.  As explained there, these data describe the incidence of "tuberculosis-like lesions in wild boar *Sus scrofa*" in southern Spain, and were originally collected by @vicente2006wild.  The potential explanatory variables in the data set include a measure of the animal's size, it's sex, and a grouping into one of four age classes.
 
 Preparatory work:
 
@@ -729,7 +729,7 @@ lines(x   = new.data$length,
 
 Regression coefficients in logistic regression can be a bit hard to interpret.  One interpretation flows from exponentiating the regression coefficient to obtain an odds ratio.  For the boar data, the regression coefficient of 0.0335 corresponds to an odds ratio of $e^{0.0335}$ = 1.034.  This means that for two boars that differ by one cm in length, the larger boar's odds of having a TB-like lesion will be 1.034 times the smaller boar's odds of having such a lesion.  
 
-Overdispersion is typically not an issue with individual binary response data.  Nonetheless, the pseudo-$R^2$ here is fairly low.  We can try the probit and complementary log-log links to see if we obtain a better fit:
+The pseudo-$R^2$ here is fairly low.  (As Ben Bolker [says](https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#overdispersion), overdispersion can't be estimated with individual binary responses, and consequently it usually isn't relevant.) We can try the probit and complementary log-log links to see if we obtain a better fit:
 
 
 ``` r
@@ -873,7 +873,7 @@ summary(fm3)
 ## 
 ## Number of Fisher Scoring iterations: 4
 ```
-A second option is to use so-called ``exact'' methods for inference.  There doesn't appear to be a good package available for implementing these methods in R.  Other software packages might be necessary. 
+A second option is to use so-called "exact" methods for inference.  There doesn't appear to be a good package available for implementing these methods in R.  Other software packages might be necessary. 
 
 ### Grouped binary data: TB in red deer
 

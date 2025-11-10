@@ -588,7 +588,7 @@ Finally, let's compare the conditional modes for the intercepts and slopes from 
 ```
 
 Let's make a scatterplot that compares the fixed-effect estimates to the conditional modes.
-```{r fig.height = 3}
+```{r fig.height = 4}
 par(mfrow = c(1, 2))
 with(fixed.params, plot(slope ~ intercept, main = "fixed-effects fit", pch = 1:9))
 with(fixed.params, plot(slope ~ intercept, main = "conditional modes", type = "n"))
@@ -734,6 +734,33 @@ for (i in 1:length(high.beaches)) {
   
   abline(a = a0 + a1 + c.mode[high.beaches[i], 1], b = b0 + b1, col = "blue", lty = "dotted")
 }
+```
+
+As a last flourish, even though we have ruled out models with a random effect for the beaches, it's still informative to see how the shrinkage plays out in those models.  Here are the conditional modes of the intercept and slopes for the model with independent intercepts and slopes (`fm5`) above, color-coded by the beach's exposure level:
+```{r fig.height = 4}
+par(mfrow = c(1, 2))
+
+with(fixed.params, plot(slope ~ intercept, main = "fixed-effects fit", type = "n"))
+with(fixed.params[low.beaches, ], points(slope ~ intercept, pch = low.beaches, col = "red"))
+with(fixed.params[high.beaches, ], points(slope ~ intercept, pch = high.beaches, col = "blue"))
+
+legend("bottomleft", col = c("red", "blue"), pch = 16, leg = c("low", "high"))
+
+with(fixed.params, plot(slope ~ intercept, main = "conditional modes", type = "n"))
+
+conditional.modes.low <- data.frame(beach = low.beaches, 
+                                    intercept = fixef(fm5)["(Intercept)"] + ranef(fm5)$fBeach$`(Intercept)`[low.beaches], 
+                                    slope     = fixef(fm5)["NAP"] + ranef(fm5)$fBeach$`NAP`[low.beaches])
+
+conditional.modes.high <- data.frame(beach = high.beaches, 
+                                     intercept = fixef(fm5)["(Intercept)"] + fixef(fm5)["fExp11"] + ranef(fm5)$fBeach$`(Intercept)`[high.beaches], 
+                                     slope = fixef(fm5)["NAP"] + fixef(fm5)["fExp11:NAP"] + ranef(fm5)$fBeach$`NAP`[high.beaches])
+
+with(conditional.modes.low, points(slope ~ intercept, pch = low.beaches, col = "red"))
+with(conditional.modes.high, points(slope ~ intercept, pch = high.beaches, col = "blue"))
+
+points(fixef(fm5)["(Intercept)"], fixef(fm5)["NAP"], pch = 16, col = "red", cex = 2)
+points(fixef(fm5)["(Intercept)"] + fixef(fm5)["fExp11"],fixef(fm5)["NAP"] + fixef(fm5)["fExp11:NAP"], pch = 16, col = "blue", cex = 2)
 ```
 
 <!-- Finally, we'll fit a model in which the slope does not depend on exposure, just for comparison.  That is, we entertain the model -->

@@ -504,29 +504,29 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpK6WyXP/model4a6071ea672c", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSSij12/model20fc31927764", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.44 secs
+##  n.sims = 3000 iterations saved. Running time = 0.48 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.528  20.411 1471.477 1500.314 1514.067 1527.210 1551.228 1.002
-## B[2]     1528.073  19.401 1489.789 1515.638 1527.804 1540.220 1566.151 1.001
-## mu       1527.516  22.870 1481.055 1515.319 1527.766 1539.431 1573.819 1.001
-## sdB        40.246  28.771    0.273   23.756   36.907   53.089  107.322 1.004
-## sd_eps     53.479   9.197   39.036   46.866   52.272   58.933   74.608 1.001
-## deviance  323.264   6.229  314.945  318.447  321.721  326.858  336.351 1.002
+## B[1]     1513.631  20.231 1471.283 1499.935 1514.682 1527.592 1550.754 1.001
+## B[2]     1527.720  19.488 1488.551 1515.797 1527.451 1539.246 1567.505 1.001
+## mu       1526.379  21.314 1482.536 1514.950 1526.401 1538.284 1569.024 1.001
+## sdB        38.868  26.648    0.243   21.745   36.584   52.500   99.655 1.001
+## sd_eps     54.118   9.197   39.638   47.410   52.933   59.810   75.858 1.001
+## deviance  323.634   6.366  315.031  318.496  322.035  328.214  336.401 1.001
 ##          n.eff
-## B[1]      1600
+## B[1]      3000
 ## B[2]      3000
 ## mu        3000
-## sdB       1000
+## sdB       3000
 ## sd_eps    3000
-## deviance  2000
+## deviance  3000
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 19.4 and DIC = 342.7
+## pV = 20.3 and DIC = 343.9
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -1747,6 +1747,36 @@ for (i in 1:length(high.beaches)) {
 
 <img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-54-1.png" width="672" />
 
+As a last flourish, even though we have ruled out models with a random effect for the beaches, it's still informative to see how the shrinkage plays out in those models.  Here are the conditional modes of the intercept and slopes for the model with independent intercepts and slopes (`fm5`) above, color-coded by the beach's exposure level:
+
+``` r
+par(mfrow = c(1, 2))
+
+with(fixed.params, plot(slope ~ intercept, main = "fixed-effects fit", type = "n"))
+with(fixed.params[low.beaches, ], points(slope ~ intercept, pch = low.beaches, col = "red"))
+with(fixed.params[high.beaches, ], points(slope ~ intercept, pch = high.beaches, col = "blue"))
+
+legend("bottomleft", col = c("red", "blue"), pch = 16, leg = c("low", "high"))
+
+with(fixed.params, plot(slope ~ intercept, main = "conditional modes", type = "n"))
+
+conditional.modes.low <- data.frame(beach = low.beaches, 
+                                    intercept = fixef(fm5)["(Intercept)"] + ranef(fm5)$fBeach$`(Intercept)`[low.beaches], 
+                                    slope     = fixef(fm5)["NAP"] + ranef(fm5)$fBeach$`NAP`[low.beaches])
+
+conditional.modes.high <- data.frame(beach = high.beaches, 
+                                     intercept = fixef(fm5)["(Intercept)"] + fixef(fm5)["fExp11"] + ranef(fm5)$fBeach$`(Intercept)`[high.beaches], 
+                                     slope = fixef(fm5)["NAP"] + fixef(fm5)["fExp11:NAP"] + ranef(fm5)$fBeach$`NAP`[high.beaches])
+
+with(conditional.modes.low, points(slope ~ intercept, pch = low.beaches, col = "red"))
+with(conditional.modes.high, points(slope ~ intercept, pch = high.beaches, col = "blue"))
+
+points(fixef(fm5)["(Intercept)"], fixef(fm5)["NAP"], pch = 16, col = "red", cex = 2)
+points(fixef(fm5)["(Intercept)"] + fixef(fm5)["fExp11"],fixef(fm5)["NAP"] + fixef(fm5)["fExp11:NAP"], pch = 16, col = "blue", cex = 2)
+```
+
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-55-1.png" width="672" />
+
 <!-- Finally, we'll fit a model in which the slope does not depend on exposure, just for comparison.  That is, we entertain the model -->
 <!-- \begin{align*} -->
 <!-- y_{ijk} & = A_{ij} + b x_{ijk} + \varepsilon_{ijk} \\ -->
@@ -2018,7 +2048,7 @@ We see that only the linear trend of the nitrogen treatment is significant.  Let
 with(oats, plot(Y ~ N))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-59-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-60-1.png" width="672" />
 
 ### Crossed random effects
 
@@ -2091,7 +2121,7 @@ confint(pp.golf)
 lattice::xyplot(pp.golf, absVal = TRUE)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-62-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-63-1.png" width="672" />
 
 
 We can also extract the conditional modes for the players and rounds.
@@ -2137,7 +2167,7 @@ with(player.stats, stripchart(mode ~ as.factor(rds), method = "jitter", ylab = "
                               xlab = "conditional mode", pch = 1))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-64-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-65-1.png" width="672" />
 
 Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were "cut".  We might infer that these players played above their abilities on days 1 and 2.
 
@@ -2224,7 +2254,7 @@ names(s_data) <- c("habitat", "species", "avg")
 with(s_data, stripchart(avg ~ habitat, pch = 16))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-69-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-70-1.png" width="672" />
 Now fit the model with the desired structure.
 
 
@@ -2282,7 +2312,7 @@ s_data$blup <- ranef(fm1)$species[, 1] + coef(summary(fm1))[1, 1] + ifelse(s_dat
 with(s_data, stripchart(blup ~ habitat, pch = 16))
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-71-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-72-1.png" width="672" />
 
 Note that the blups are not too different from the raw averages. (The shrinkage here is small because the estimate of the species-level variance is large.)
 
@@ -2293,7 +2323,7 @@ pr <- profile(fm1)
 lattice::xyplot(pr, absVal = T)
 ```
 
-<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-72-1.png" width="672" />
+<img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-73-1.png" width="672" />
 
 ``` r
 confint(pr)

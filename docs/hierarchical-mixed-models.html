@@ -23,7 +23,7 @@
 <meta name="author" content="Kevin Gross" />
 
 
-<meta name="date" content="2025-11-06" />
+<meta name="date" content="2025-11-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -581,29 +581,29 @@ B_i &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(\mu, \sigma^2_B) \\
 <p>Note also that we have only asked for the posterior draws for the latent means of the first two batches, <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span>. This is merely to keep the output small for this example. We could of course ask for the means of the other batches as well.</p>
 <p>Let’s have a look at the output:</p>
 <div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb449-1"><a href="hierarchical-mixed-models.html#cb449-1" tabindex="-1"></a><span class="fu">print</span>(jagsfit)</span></code></pre></div>
-<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpK6WyXP/model4a6071ea672c&quot;, fit using jags,
+<pre><code>## Inference for Bugs model at &quot;C:/Users/krgross/AppData/Local/Temp/RtmpSSij12/model20fc31927764&quot;, fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.44 secs
+##  n.sims = 3000 iterations saved. Running time = 0.48 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.528  20.411 1471.477 1500.314 1514.067 1527.210 1551.228 1.002
-## B[2]     1528.073  19.401 1489.789 1515.638 1527.804 1540.220 1566.151 1.001
-## mu       1527.516  22.870 1481.055 1515.319 1527.766 1539.431 1573.819 1.001
-## sdB        40.246  28.771    0.273   23.756   36.907   53.089  107.322 1.004
-## sd_eps     53.479   9.197   39.036   46.866   52.272   58.933   74.608 1.001
-## deviance  323.264   6.229  314.945  318.447  321.721  326.858  336.351 1.002
+## B[1]     1513.631  20.231 1471.283 1499.935 1514.682 1527.592 1550.754 1.001
+## B[2]     1527.720  19.488 1488.551 1515.797 1527.451 1539.246 1567.505 1.001
+## mu       1526.379  21.314 1482.536 1514.950 1526.401 1538.284 1569.024 1.001
+## sdB        38.868  26.648    0.243   21.745   36.584   52.500   99.655 1.001
+## sd_eps     54.118   9.197   39.638   47.410   52.933   59.810   75.858 1.001
+## deviance  323.634   6.366  315.031  318.496  322.035  328.214  336.401 1.001
 ##          n.eff
-## B[1]      1600
+## B[1]      3000
 ## B[2]      3000
 ## mu        3000
-## sdB       1000
+## sdB       3000
 ## sd_eps    3000
-## deviance  2000
+## deviance  3000
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 19.4 and DIC = 342.7
+## pV = 20.3 and DIC = 343.9
 ## DIC is an estimate of expected predictive error (lower deviance is better).</code></pre>
 <div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="hierarchical-mixed-models.html#cb451-1" tabindex="-1"></a><span class="fu">traceplot</span>(jagsfit)  </span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-2.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-3.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-4.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-5.png" width="672" /><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-21-6.png" width="672" /></p>
@@ -1492,6 +1492,31 @@ y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
 <span id="cb531-38"><a href="hierarchical-mixed-models.html#cb531-38" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> a0 <span class="sc">+</span> a1 <span class="sc">+</span> c.mode[high.beaches[i], <span class="dv">1</span>], <span class="at">b =</span> b0 <span class="sc">+</span> b1, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lty =</span> <span class="st">&quot;dotted&quot;</span>)</span>
 <span id="cb531-39"><a href="hierarchical-mixed-models.html#cb531-39" tabindex="-1"></a>}</span></code></pre></div>
 <p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-54-1.png" width="672" /></p>
+<p>As a last flourish, even though we have ruled out models with a random effect for the beaches, it’s still informative to see how the shrinkage plays out in those models. Here are the conditional modes of the intercept and slopes for the model with independent intercepts and slopes (<code>fm5</code>) above, color-coded by the beach’s exposure level:</p>
+<div class="sourceCode" id="cb532"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb532-1"><a href="hierarchical-mixed-models.html#cb532-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb532-2"><a href="hierarchical-mixed-models.html#cb532-2" tabindex="-1"></a></span>
+<span id="cb532-3"><a href="hierarchical-mixed-models.html#cb532-3" tabindex="-1"></a><span class="fu">with</span>(fixed.params, <span class="fu">plot</span>(slope <span class="sc">~</span> intercept, <span class="at">main =</span> <span class="st">&quot;fixed-effects fit&quot;</span>, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>))</span>
+<span id="cb532-4"><a href="hierarchical-mixed-models.html#cb532-4" tabindex="-1"></a><span class="fu">with</span>(fixed.params[low.beaches, ], <span class="fu">points</span>(slope <span class="sc">~</span> intercept, <span class="at">pch =</span> low.beaches, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>))</span>
+<span id="cb532-5"><a href="hierarchical-mixed-models.html#cb532-5" tabindex="-1"></a><span class="fu">with</span>(fixed.params[high.beaches, ], <span class="fu">points</span>(slope <span class="sc">~</span> intercept, <span class="at">pch =</span> high.beaches, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>))</span>
+<span id="cb532-6"><a href="hierarchical-mixed-models.html#cb532-6" tabindex="-1"></a></span>
+<span id="cb532-7"><a href="hierarchical-mixed-models.html#cb532-7" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;bottomleft&quot;</span>, <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;red&quot;</span>, <span class="st">&quot;blue&quot;</span>), <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">leg =</span> <span class="fu">c</span>(<span class="st">&quot;low&quot;</span>, <span class="st">&quot;high&quot;</span>))</span>
+<span id="cb532-8"><a href="hierarchical-mixed-models.html#cb532-8" tabindex="-1"></a></span>
+<span id="cb532-9"><a href="hierarchical-mixed-models.html#cb532-9" tabindex="-1"></a><span class="fu">with</span>(fixed.params, <span class="fu">plot</span>(slope <span class="sc">~</span> intercept, <span class="at">main =</span> <span class="st">&quot;conditional modes&quot;</span>, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>))</span>
+<span id="cb532-10"><a href="hierarchical-mixed-models.html#cb532-10" tabindex="-1"></a></span>
+<span id="cb532-11"><a href="hierarchical-mixed-models.html#cb532-11" tabindex="-1"></a>conditional.modes.low <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">beach =</span> low.beaches, </span>
+<span id="cb532-12"><a href="hierarchical-mixed-models.html#cb532-12" tabindex="-1"></a>                                    <span class="at">intercept =</span> <span class="fu">fixef</span>(fm5)[<span class="st">&quot;(Intercept)&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm5)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>[low.beaches], </span>
+<span id="cb532-13"><a href="hierarchical-mixed-models.html#cb532-13" tabindex="-1"></a>                                    <span class="at">slope     =</span> <span class="fu">fixef</span>(fm5)[<span class="st">&quot;NAP&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm5)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">NAP</span><span class="st">`</span>[low.beaches])</span>
+<span id="cb532-14"><a href="hierarchical-mixed-models.html#cb532-14" tabindex="-1"></a></span>
+<span id="cb532-15"><a href="hierarchical-mixed-models.html#cb532-15" tabindex="-1"></a>conditional.modes.high <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">beach =</span> high.beaches, </span>
+<span id="cb532-16"><a href="hierarchical-mixed-models.html#cb532-16" tabindex="-1"></a>                                     <span class="at">intercept =</span> <span class="fu">fixef</span>(fm5)[<span class="st">&quot;(Intercept)&quot;</span>] <span class="sc">+</span> <span class="fu">fixef</span>(fm5)[<span class="st">&quot;fExp11&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm5)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>[high.beaches], </span>
+<span id="cb532-17"><a href="hierarchical-mixed-models.html#cb532-17" tabindex="-1"></a>                                     <span class="at">slope =</span> <span class="fu">fixef</span>(fm5)[<span class="st">&quot;NAP&quot;</span>] <span class="sc">+</span> <span class="fu">fixef</span>(fm5)[<span class="st">&quot;fExp11:NAP&quot;</span>] <span class="sc">+</span> <span class="fu">ranef</span>(fm5)<span class="sc">$</span>fBeach<span class="sc">$</span><span class="st">`</span><span class="at">NAP</span><span class="st">`</span>[high.beaches])</span>
+<span id="cb532-18"><a href="hierarchical-mixed-models.html#cb532-18" tabindex="-1"></a></span>
+<span id="cb532-19"><a href="hierarchical-mixed-models.html#cb532-19" tabindex="-1"></a><span class="fu">with</span>(conditional.modes.low, <span class="fu">points</span>(slope <span class="sc">~</span> intercept, <span class="at">pch =</span> low.beaches, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>))</span>
+<span id="cb532-20"><a href="hierarchical-mixed-models.html#cb532-20" tabindex="-1"></a><span class="fu">with</span>(conditional.modes.high, <span class="fu">points</span>(slope <span class="sc">~</span> intercept, <span class="at">pch =</span> high.beaches, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>))</span>
+<span id="cb532-21"><a href="hierarchical-mixed-models.html#cb532-21" tabindex="-1"></a></span>
+<span id="cb532-22"><a href="hierarchical-mixed-models.html#cb532-22" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">fixef</span>(fm5)[<span class="st">&quot;(Intercept)&quot;</span>], <span class="fu">fixef</span>(fm5)[<span class="st">&quot;NAP&quot;</span>], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span>
+<span id="cb532-23"><a href="hierarchical-mixed-models.html#cb532-23" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">fixef</span>(fm5)[<span class="st">&quot;(Intercept)&quot;</span>] <span class="sc">+</span> <span class="fu">fixef</span>(fm5)[<span class="st">&quot;fExp11&quot;</span>],<span class="fu">fixef</span>(fm5)[<span class="st">&quot;NAP&quot;</span>] <span class="sc">+</span> <span class="fu">fixef</span>(fm5)[<span class="st">&quot;fExp11:NAP&quot;</span>], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-55-1.png" width="672" /></p>
 <!-- Finally, we'll fit a model in which the slope does not depend on exposure, just for comparison.  That is, we entertain the model -->
 <!-- \begin{align*} -->
 <!-- y_{ijk} & = A_{ij} + b x_{ijk} + \varepsilon_{ijk} \\ -->
@@ -1537,14 +1562,14 @@ y_{ijk} &amp; \sim \mathcal{N}(A_{ij} + B_{ij} x_{ijk}, \sigma_\varepsilon^2)\\
 <p>The yield of oats from a split-plot field trial using three varieties and four levels of manurial treatment. The experiment was laid out in 6 blocks of 3 main plots, each split into 4 sub-plots. The varieties were applied to the main plots and the manurial treatments to the sub-plots.</p>
 </blockquote>
 <p>Let’s first take a look at the data.</p>
-<div class="sourceCode" id="cb532"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb532-1"><a href="hierarchical-mixed-models.html#cb532-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb532-2"><a href="hierarchical-mixed-models.html#cb532-2" tabindex="-1"></a></span>
-<span id="cb532-3"><a href="hierarchical-mixed-models.html#cb532-3" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
-<span id="cb532-4"><a href="hierarchical-mixed-models.html#cb532-4" tabindex="-1"></a><span class="fu">require</span>(lme4)</span>
-<span id="cb532-5"><a href="hierarchical-mixed-models.html#cb532-5" tabindex="-1"></a><span class="fu">require</span>(lmerTest)</span>
-<span id="cb532-6"><a href="hierarchical-mixed-models.html#cb532-6" tabindex="-1"></a></span>
-<span id="cb532-7"><a href="hierarchical-mixed-models.html#cb532-7" tabindex="-1"></a><span class="fu">data</span>(oats)</span>
-<span id="cb532-8"><a href="hierarchical-mixed-models.html#cb532-8" tabindex="-1"></a><span class="fu">summary</span>(oats)</span></code></pre></div>
+<div class="sourceCode" id="cb533"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb533-1"><a href="hierarchical-mixed-models.html#cb533-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb533-2"><a href="hierarchical-mixed-models.html#cb533-2" tabindex="-1"></a></span>
+<span id="cb533-3"><a href="hierarchical-mixed-models.html#cb533-3" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb533-4"><a href="hierarchical-mixed-models.html#cb533-4" tabindex="-1"></a><span class="fu">require</span>(lme4)</span>
+<span id="cb533-5"><a href="hierarchical-mixed-models.html#cb533-5" tabindex="-1"></a><span class="fu">require</span>(lmerTest)</span>
+<span id="cb533-6"><a href="hierarchical-mixed-models.html#cb533-6" tabindex="-1"></a></span>
+<span id="cb533-7"><a href="hierarchical-mixed-models.html#cb533-7" tabindex="-1"></a><span class="fu">data</span>(oats)</span>
+<span id="cb533-8"><a href="hierarchical-mixed-models.html#cb533-8" tabindex="-1"></a><span class="fu">summary</span>(oats)</span></code></pre></div>
 <pre><code>##    B                V           N            Y        
 ##  I  :12   Golden.rain:24   0.0cwt:18   Min.   : 53.0  
 ##  II :12   Marvellous :24   0.2cwt:18   1st Qu.: 86.0  
@@ -1560,13 +1585,13 @@ B_k  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B) \\
 W_{ik}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W).
 \end{align}\]</span></p>
 <p>Here, <span class="math inline">\(\mu_{ij}\)</span> is the average response for the combination of variety <span class="math inline">\(i\)</span> and manure treatment <span class="math inline">\(j\)</span>; the <span class="math inline">\(B_k\)</span> are the random effects for the blocks, the <span class="math inline">\(W_{ik}\)</span> are the whole-plot errors, and the <span class="math inline">\(\varepsilon_{ijk}\)</span> are the split-plot (observation-level) errors. We proceed to fit the model using <code>lmerTest::lmer</code>. A key to the coding here is to notice that each combination of block and variety uniquely specifies one of the 18 whole plots. (In other words, variety is not replicated within the blocks.) Therefore, we can code the whole-plot random effect as <code>(1 | B : V)</code>, which creats a random effect for each unique combination of block and variety. The rest of the model coding is straightforward.</p>
-<div class="sourceCode" id="cb534"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb534-1"><a href="hierarchical-mixed-models.html#cb534-1" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B <span class="sc">:</span> V), <span class="at">data =</span> oats)</span>
-<span id="cb534-2"><a href="hierarchical-mixed-models.html#cb534-2" tabindex="-1"></a></span>
-<span id="cb534-3"><a href="hierarchical-mixed-models.html#cb534-3" tabindex="-1"></a><span class="co"># for nested random effects, lmer provides the coding shortcut  </span></span>
-<span id="cb534-4"><a href="hierarchical-mixed-models.html#cb534-4" tabindex="-1"></a></span>
-<span id="cb534-5"><a href="hierarchical-mixed-models.html#cb534-5" tabindex="-1"></a>fm1a <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B <span class="sc">/</span> V), <span class="at">data =</span> oats)</span>
-<span id="cb534-6"><a href="hierarchical-mixed-models.html#cb534-6" tabindex="-1"></a></span>
-<span id="cb534-7"><a href="hierarchical-mixed-models.html#cb534-7" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb535"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb535-1"><a href="hierarchical-mixed-models.html#cb535-1" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B <span class="sc">:</span> V), <span class="at">data =</span> oats)</span>
+<span id="cb535-2"><a href="hierarchical-mixed-models.html#cb535-2" tabindex="-1"></a></span>
+<span id="cb535-3"><a href="hierarchical-mixed-models.html#cb535-3" tabindex="-1"></a><span class="co"># for nested random effects, lmer provides the coding shortcut  </span></span>
+<span id="cb535-4"><a href="hierarchical-mixed-models.html#cb535-4" tabindex="-1"></a></span>
+<span id="cb535-5"><a href="hierarchical-mixed-models.html#cb535-5" tabindex="-1"></a>fm1a <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B <span class="sc">/</span> V), <span class="at">data =</span> oats)</span>
+<span id="cb535-6"><a href="hierarchical-mixed-models.html#cb535-6" tabindex="-1"></a></span>
+<span id="cb535-7"><a href="hierarchical-mixed-models.html#cb535-7" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: Y ~ V * N + (1 | B) + (1 | B:V)
@@ -1627,7 +1652,7 @@ W_{ik}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W).
 ## VVctry:N0.4                
 ## VMrvll:N0.6  0.250         
 ## VVctry:N0.6  0.500   0.500</code></pre>
-<div class="sourceCode" id="cb536"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb536-1"><a href="hierarchical-mixed-models.html#cb536-1" tabindex="-1"></a><span class="fu">anova</span>(fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb537"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb537-1"><a href="hierarchical-mixed-models.html#cb537-1" tabindex="-1"></a><span class="fu">anova</span>(fm1)</span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Satterthwaite&#39;s method
 ##      Sum Sq Mean Sq NumDF DenDF F value    Pr(&gt;F)    
 ## V     526.1   263.0     2    10  1.4853    0.2724    
@@ -1637,13 +1662,13 @@ W_{ik}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W).
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>We proceed to analyze the fixed effects in the usual fashion, noting first that the variety-by-nitrogen interaction is not significant. We then proceed to inspect the <span class="math inline">\(F\)</span>-tests of the fixed effects, and see that the marginal means for the manure treatment are significantly different, but there are no significant differences among the marginal means for the three varieties.</p>
 <p>Note that it would be incorrect to have coded the model as</p>
-<div class="sourceCode" id="cb538"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb538-1"><a href="hierarchical-mixed-models.html#cb538-1" tabindex="-1"></a>fm1.wrong <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> V), <span class="at">data =</span> oats)</span></code></pre></div>
+<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb539-1"><a href="hierarchical-mixed-models.html#cb539-1" tabindex="-1"></a>fm1.wrong <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> V), <span class="at">data =</span> oats)</span></code></pre></div>
 <p>as this would have treated the random effects for block and variety as crossed, not nested.</p>
 <p>To complete the analysis, we should notice that the levels of the nitrogen treatment correspond to equally spaced values of a numerical covariate. We can thus extract the polynomial trends by assigning polynomial contrasts to the nitrogen treatment.</p>
-<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb539-1"><a href="hierarchical-mixed-models.html#cb539-1" tabindex="-1"></a><span class="fu">contrasts</span>(oats<span class="sc">$</span>N) <span class="ot">&lt;-</span> <span class="fu">contr.poly</span>(<span class="at">n =</span> <span class="dv">4</span>)</span>
-<span id="cb539-2"><a href="hierarchical-mixed-models.html#cb539-2" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span>  (<span class="dv">1</span> <span class="sc">|</span> B) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B <span class="sc">:</span> V), <span class="at">data =</span> oats)</span>
-<span id="cb539-3"><a href="hierarchical-mixed-models.html#cb539-3" tabindex="-1"></a></span>
-<span id="cb539-4"><a href="hierarchical-mixed-models.html#cb539-4" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb540-1"><a href="hierarchical-mixed-models.html#cb540-1" tabindex="-1"></a><span class="fu">contrasts</span>(oats<span class="sc">$</span>N) <span class="ot">&lt;-</span> <span class="fu">contr.poly</span>(<span class="at">n =</span> <span class="dv">4</span>)</span>
+<span id="cb540-2"><a href="hierarchical-mixed-models.html#cb540-2" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(Y <span class="sc">~</span> V <span class="sc">*</span> N <span class="sc">+</span>  (<span class="dv">1</span> <span class="sc">|</span> B) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> B <span class="sc">:</span> V), <span class="at">data =</span> oats)</span>
+<span id="cb540-3"><a href="hierarchical-mixed-models.html#cb540-3" tabindex="-1"></a></span>
+<span id="cb540-4"><a href="hierarchical-mixed-models.html#cb540-4" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: Y ~ V * N + (1 | B) + (1 | B:V)
@@ -1705,8 +1730,8 @@ W_{ik}  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_W).
 ## VMrvlls:N.C  0.000       
 ## VVictry:N.C  0.000  0.500</code></pre>
 <p>We see that only the linear trend of the nitrogen treatment is significant. Let’s make a quick plot to visualize this effect.</p>
-<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb541-1"><a href="hierarchical-mixed-models.html#cb541-1" tabindex="-1"></a><span class="fu">with</span>(oats, <span class="fu">plot</span>(Y <span class="sc">~</span> N))</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-59-1.png" width="672" /></p>
+<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb542-1"><a href="hierarchical-mixed-models.html#cb542-1" tabindex="-1"></a><span class="fu">with</span>(oats, <span class="fu">plot</span>(Y <span class="sc">~</span> N))</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-60-1.png" width="672" /></p>
 </div>
 <div id="crossed-random-effects" class="section level3 hasAnchor" number="6.4.2">
 <h3><span class="header-section-number">6.4.2</span> Crossed random effects<a href="hierarchical-mixed-models.html#crossed-random-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -1718,11 +1743,11 @@ A_i  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_A) \\
 B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 \end{align}\]</span></p>
 <p>In this model, <span class="math inline">\(\mu\)</span> is the average score, <span class="math inline">\(A_i\)</span> are the player-level random effects, <span class="math inline">\(B_j\)</span> are the day-level random effects, and <span class="math inline">\(\varepsilon_{ij}\)</span> are the observation-level errors. Note that because each player played at most once in each day, there is no possibility to separate a possible player-by-day interaction (also a random effect) from the observation-level error. If the players had played multiple rounds in a given day, we could have tried to separate the player-by-day random effect from the observation-level error. We fit the model in <code>lmerTest::lmer</code>.</p>
-<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb542-1"><a href="hierarchical-mixed-models.html#cb542-1" tabindex="-1"></a>golf <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/golf.txt&quot;</span>, <span class="at">head =</span> T)</span>
-<span id="cb542-2"><a href="hierarchical-mixed-models.html#cb542-2" tabindex="-1"></a></span>
-<span id="cb542-3"><a href="hierarchical-mixed-models.html#cb542-3" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(score <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> player) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> round), <span class="at">data =</span> golf)</span>
-<span id="cb542-4"><a href="hierarchical-mixed-models.html#cb542-4" tabindex="-1"></a></span>
-<span id="cb542-5"><a href="hierarchical-mixed-models.html#cb542-5" tabindex="-1"></a><span class="fu">summary</span>(fm1)  <span class="co"># comparison of the std devs of the random effects is interesting</span></span></code></pre></div>
+<div class="sourceCode" id="cb543"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb543-1"><a href="hierarchical-mixed-models.html#cb543-1" tabindex="-1"></a>golf <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">&quot;data/golf.txt&quot;</span>, <span class="at">head =</span> T)</span>
+<span id="cb543-2"><a href="hierarchical-mixed-models.html#cb543-2" tabindex="-1"></a></span>
+<span id="cb543-3"><a href="hierarchical-mixed-models.html#cb543-3" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(score <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> player) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> round), <span class="at">data =</span> golf)</span>
+<span id="cb543-4"><a href="hierarchical-mixed-models.html#cb543-4" tabindex="-1"></a></span>
+<span id="cb543-5"><a href="hierarchical-mixed-models.html#cb543-5" tabindex="-1"></a><span class="fu">summary</span>(fm1)  <span class="co"># comparison of the std devs of the random effects is interesting</span></span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: score ~ 1 + (1 | player) + (1 | round)
@@ -1747,19 +1772,19 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>It is interesting to compare the standard deviations of the random effects. It is also interesting to use the profile function to see the asymmetry in the confidence intervals for these standard deviations.</p>
-<div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb544-1"><a href="hierarchical-mixed-models.html#cb544-1" tabindex="-1"></a>pp.golf <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm1)</span>
-<span id="cb544-2"><a href="hierarchical-mixed-models.html#cb544-2" tabindex="-1"></a></span>
-<span id="cb544-3"><a href="hierarchical-mixed-models.html#cb544-3" tabindex="-1"></a><span class="fu">confint</span>(pp.golf)</span></code></pre></div>
+<div class="sourceCode" id="cb545"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb545-1"><a href="hierarchical-mixed-models.html#cb545-1" tabindex="-1"></a>pp.golf <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm1)</span>
+<span id="cb545-2"><a href="hierarchical-mixed-models.html#cb545-2" tabindex="-1"></a></span>
+<span id="cb545-3"><a href="hierarchical-mixed-models.html#cb545-3" tabindex="-1"></a><span class="fu">confint</span>(pp.golf)</span></code></pre></div>
 <pre><code>##                  2.5 %    97.5 %
 ## .sig01       0.0000000  1.551145
 ## .sig02       0.8129721  3.837297
 ## .sigma       3.0513011  3.666234
 ## (Intercept) 72.2434040 76.265786</code></pre>
-<div class="sourceCode" id="cb546"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb546-1"><a href="hierarchical-mixed-models.html#cb546-1" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pp.golf, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-62-1.png" width="672" /></p>
+<div class="sourceCode" id="cb547"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb547-1"><a href="hierarchical-mixed-models.html#cb547-1" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pp.golf, <span class="at">absVal =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-63-1.png" width="672" /></p>
 <p>We can also extract the conditional modes for the players and rounds.</p>
-<div class="sourceCode" id="cb547"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb547-1"><a href="hierarchical-mixed-models.html#cb547-1" tabindex="-1"></a>player.modes <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>player</span>
-<span id="cb547-2"><a href="hierarchical-mixed-models.html#cb547-2" tabindex="-1"></a><span class="fu">head</span>(player.modes)</span></code></pre></div>
+<div class="sourceCode" id="cb548"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb548-1"><a href="hierarchical-mixed-models.html#cb548-1" tabindex="-1"></a>player.modes <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>player</span>
+<span id="cb548-2"><a href="hierarchical-mixed-models.html#cb548-2" tabindex="-1"></a><span class="fu">head</span>(player.modes)</span></code></pre></div>
 <pre><code>##             (Intercept)
 ## Akiyoshi      0.3983034
 ## Aphibarnrat  -0.3069054
@@ -1767,7 +1792,7 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 ## Babcock       0.1920115
 ## Baddeley     -0.1925652
 ## Berger       -0.4212456</code></pre>
-<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb549-1"><a href="hierarchical-mixed-models.html#cb549-1" tabindex="-1"></a>(round.modes <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>round)</span></code></pre></div>
+<div class="sourceCode" id="cb550"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb550-1"><a href="hierarchical-mixed-models.html#cb550-1" tabindex="-1"></a>(round.modes <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>round)</span></code></pre></div>
 <pre><code>##     (Intercept)
 ## rd1   1.7211234
 ## rd2  -0.9012137
@@ -1775,13 +1800,13 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 ## rd4  -1.9860945</code></pre>
 <p>According to Wikipedia, on day 1 “conditions were extremely difficult as gusty winds hung around all day with sunny skies, making the course firm and fast.” This corresponds with the large conditional mode for round 1.</p>
 <p>Finally, it is interesting to compare the conditional modes for the players who qualified to play in rounds 3 and 4, vs. the players who were “cut”.</p>
-<div class="sourceCode" id="cb551"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb551-1"><a href="hierarchical-mixed-models.html#cb551-1" tabindex="-1"></a>player.stats <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">name =</span> <span class="fu">row.names</span>(player.modes),</span>
-<span id="cb551-2"><a href="hierarchical-mixed-models.html#cb551-2" tabindex="-1"></a>                           <span class="at">mode =</span> player.modes[, <span class="dv">1</span>],</span>
-<span id="cb551-3"><a href="hierarchical-mixed-models.html#cb551-3" tabindex="-1"></a>                           <span class="at">rds  =</span> <span class="fu">with</span>(golf, <span class="fu">as.numeric</span>(<span class="fu">table</span>(player))))</span>
-<span id="cb551-4"><a href="hierarchical-mixed-models.html#cb551-4" tabindex="-1"></a></span>
-<span id="cb551-5"><a href="hierarchical-mixed-models.html#cb551-5" tabindex="-1"></a><span class="fu">with</span>(player.stats, <span class="fu">stripchart</span>(mode <span class="sc">~</span> <span class="fu">as.factor</span>(rds), <span class="at">method =</span> <span class="st">&quot;jitter&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;rounds played&quot;</span>, </span>
-<span id="cb551-6"><a href="hierarchical-mixed-models.html#cb551-6" tabindex="-1"></a>                              <span class="at">xlab =</span> <span class="st">&quot;conditional mode&quot;</span>, <span class="at">pch =</span> <span class="dv">1</span>))</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-64-1.png" width="672" /></p>
+<div class="sourceCode" id="cb552"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb552-1"><a href="hierarchical-mixed-models.html#cb552-1" tabindex="-1"></a>player.stats <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">name =</span> <span class="fu">row.names</span>(player.modes),</span>
+<span id="cb552-2"><a href="hierarchical-mixed-models.html#cb552-2" tabindex="-1"></a>                           <span class="at">mode =</span> player.modes[, <span class="dv">1</span>],</span>
+<span id="cb552-3"><a href="hierarchical-mixed-models.html#cb552-3" tabindex="-1"></a>                           <span class="at">rds  =</span> <span class="fu">with</span>(golf, <span class="fu">as.numeric</span>(<span class="fu">table</span>(player))))</span>
+<span id="cb552-4"><a href="hierarchical-mixed-models.html#cb552-4" tabindex="-1"></a></span>
+<span id="cb552-5"><a href="hierarchical-mixed-models.html#cb552-5" tabindex="-1"></a><span class="fu">with</span>(player.stats, <span class="fu">stripchart</span>(mode <span class="sc">~</span> <span class="fu">as.factor</span>(rds), <span class="at">method =</span> <span class="st">&quot;jitter&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;rounds played&quot;</span>, </span>
+<span id="cb552-6"><a href="hierarchical-mixed-models.html#cb552-6" tabindex="-1"></a>                              <span class="at">xlab =</span> <span class="st">&quot;conditional mode&quot;</span>, <span class="at">pch =</span> <span class="dv">1</span>))</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-65-1.png" width="672" /></p>
 <p>Interestingly, some players who qualified to play in rounds 3 and 4 ended up with higher (worse) conditional modes than some of the players who were “cut”. We might infer that these players played above their abilities on days 1 and 2.</p>
 <p><img src="images/sports-comic.png" /><!-- --></p>
 <p>Thanks to xkcd for the perspective.</p>
@@ -1790,12 +1815,12 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 <h3><span class="header-section-number">6.4.3</span> An ecological example with both crossed and nested random effects<a href="hierarchical-mixed-models.html#an-ecological-example-with-both-crossed-and-nested-random-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>M. Kirchner and E. Youngsteadt conducted the following study to examine the thermal tolerance of several ant species. Five sites were selected. At each of the five sites, up to three oak trees were sampled. Ant nests were sampled from each of the trees. Nests were scored with respect to the species of ant and the habitat in which the nest was found (arboreal or terrestrial). For each nest, the thermal tolerance of five ants was measured. The response that we consider here, <code>ct_max</code>, is the average maximum thermal tolerance of these five ants. (Thus there is one data record per nest.)</p>
 <p>In this analysis, we restrict our attention to the habitat specialists, that is, those species that were found either only in arboreal habitats or only in terrestrial habitats.<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> The investigators are interested in characterizing the difference between the average thermal tolerance of arboreal species vs. the average thermal tolerance of terrestrial species.</p>
-<div class="sourceCode" id="cb552"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb552-1"><a href="hierarchical-mixed-models.html#cb552-1" tabindex="-1"></a>ant <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/ant.csv&quot;</span>, <span class="at">head =</span> T, <span class="at">stringsAsFactors =</span> T)</span>
-<span id="cb552-2"><a href="hierarchical-mixed-models.html#cb552-2" tabindex="-1"></a></span>
-<span id="cb552-3"><a href="hierarchical-mixed-models.html#cb552-3" tabindex="-1"></a>ant_s <span class="ot">&lt;-</span> <span class="fu">droplevels</span>(<span class="fu">subset</span>(ant, genus_species <span class="sc">!=</span> <span class="st">&quot;Brachyponera chinensis&quot;</span>))  <span class="co"># exclude the generalist</span></span>
-<span id="cb552-4"><a href="hierarchical-mixed-models.html#cb552-4" tabindex="-1"></a>ant_s <span class="ot">&lt;-</span> ant_s[, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">8</span>)]  <span class="co"># remove irrelevant variables</span></span>
-<span id="cb552-5"><a href="hierarchical-mixed-models.html#cb552-5" tabindex="-1"></a><span class="fu">names</span>(ant_s) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;site&quot;</span>, <span class="st">&quot;tree&quot;</span>, <span class="st">&quot;habitat&quot;</span>, <span class="st">&quot;species&quot;</span>, <span class="st">&quot;ct_max&quot;</span>)</span>
-<span id="cb552-6"><a href="hierarchical-mixed-models.html#cb552-6" tabindex="-1"></a><span class="fu">summary</span>(ant_s)</span></code></pre></div>
+<div class="sourceCode" id="cb553"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb553-1"><a href="hierarchical-mixed-models.html#cb553-1" tabindex="-1"></a>ant <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/ant.csv&quot;</span>, <span class="at">head =</span> T, <span class="at">stringsAsFactors =</span> T)</span>
+<span id="cb553-2"><a href="hierarchical-mixed-models.html#cb553-2" tabindex="-1"></a></span>
+<span id="cb553-3"><a href="hierarchical-mixed-models.html#cb553-3" tabindex="-1"></a>ant_s <span class="ot">&lt;-</span> <span class="fu">droplevels</span>(<span class="fu">subset</span>(ant, genus_species <span class="sc">!=</span> <span class="st">&quot;Brachyponera chinensis&quot;</span>))  <span class="co"># exclude the generalist</span></span>
+<span id="cb553-4"><a href="hierarchical-mixed-models.html#cb553-4" tabindex="-1"></a>ant_s <span class="ot">&lt;-</span> ant_s[, <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">8</span>)]  <span class="co"># remove irrelevant variables</span></span>
+<span id="cb553-5"><a href="hierarchical-mixed-models.html#cb553-5" tabindex="-1"></a><span class="fu">names</span>(ant_s) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;site&quot;</span>, <span class="st">&quot;tree&quot;</span>, <span class="st">&quot;habitat&quot;</span>, <span class="st">&quot;species&quot;</span>, <span class="st">&quot;ct_max&quot;</span>)</span>
+<span id="cb553-6"><a href="hierarchical-mixed-models.html#cb553-6" tabindex="-1"></a><span class="fu">summary</span>(ant_s)</span></code></pre></div>
 <pre><code>##   site     tree           habitat                        species  
 ##  ER1:10   QA4:11   arboreal   :17   Aphaenogaster rudis s.l. : 8  
 ##  ER2:14   QA5:23   terrestrial:39   Formica subsericea       : 8  
@@ -1815,7 +1840,7 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 <p>For this analysis, we use random effects to capture the differences among sites and the differences among trees at each site. The trees are nested within the sites. (Each tree occurs at one and only one site, but most sites have several trees.) We also use random effects to capture the differences among the species, regarding the species as a representative sample of all arboreal and of all terrestrial ant species. Although most species are absent from most sites, some species occur at multiple sites, and thus the species random effect is crossed with the site and tree random effects.</p>
 <p>The differences between the habitats are modeled with a fixed effect, because the researchers are specifically interested in these two habitats.</p>
 <p>Here is some brief data exploration that shows how many nests of each species were found at each site.</p>
-<div class="sourceCode" id="cb554"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb554-1"><a href="hierarchical-mixed-models.html#cb554-1" tabindex="-1"></a><span class="fu">with</span>(ant_s, <span class="fu">table</span>(species, site))</span></code></pre></div>
+<div class="sourceCode" id="cb555"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb555-1"><a href="hierarchical-mixed-models.html#cb555-1" tabindex="-1"></a><span class="fu">with</span>(ant_s, <span class="fu">table</span>(species, site))</span></code></pre></div>
 <pre><code>##                              site
 ## species                       ER1 ER2 FL2 UM1 UM2
 ##   Aphaenogaster mariae          0   0   2   0   0
@@ -1837,15 +1862,15 @@ B_j  &amp; \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2_B).
 ##   Temnothorax curvispinosus     1   0   0   0   0
 ##   Temnothorax schaumii          0   0   0   1   0</code></pre>
 <p>To visualize the data, we will compute the raw average thermal tolerance for each species.</p>
-<div class="sourceCode" id="cb556"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb556-1"><a href="hierarchical-mixed-models.html#cb556-1" tabindex="-1"></a>s_data <span class="ot">&lt;-</span> <span class="fu">with</span>(ant_s, <span class="fu">aggregate</span>(ct_max, <span class="fu">list</span>(habitat, species), <span class="at">FUN =</span> mean))  <span class="co"># note the rows are sorted alphabetically by species</span></span>
-<span id="cb556-2"><a href="hierarchical-mixed-models.html#cb556-2" tabindex="-1"></a><span class="fu">names</span>(s_data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;habitat&quot;</span>, <span class="st">&quot;species&quot;</span>, <span class="st">&quot;avg&quot;</span>)</span>
-<span id="cb556-3"><a href="hierarchical-mixed-models.html#cb556-3" tabindex="-1"></a><span class="fu">with</span>(s_data, <span class="fu">stripchart</span>(avg <span class="sc">~</span> habitat, <span class="at">pch =</span> <span class="dv">16</span>))</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-69-1.png" width="672" />
+<div class="sourceCode" id="cb557"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb557-1"><a href="hierarchical-mixed-models.html#cb557-1" tabindex="-1"></a>s_data <span class="ot">&lt;-</span> <span class="fu">with</span>(ant_s, <span class="fu">aggregate</span>(ct_max, <span class="fu">list</span>(habitat, species), <span class="at">FUN =</span> mean))  <span class="co"># note the rows are sorted alphabetically by species</span></span>
+<span id="cb557-2"><a href="hierarchical-mixed-models.html#cb557-2" tabindex="-1"></a><span class="fu">names</span>(s_data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;habitat&quot;</span>, <span class="st">&quot;species&quot;</span>, <span class="st">&quot;avg&quot;</span>)</span>
+<span id="cb557-3"><a href="hierarchical-mixed-models.html#cb557-3" tabindex="-1"></a><span class="fu">with</span>(s_data, <span class="fu">stripchart</span>(avg <span class="sc">~</span> habitat, <span class="at">pch =</span> <span class="dv">16</span>))</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-70-1.png" width="672" />
 Now fit the model with the desired structure.</p>
-<div class="sourceCode" id="cb557"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb557-1"><a href="hierarchical-mixed-models.html#cb557-1" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(ct_max <span class="sc">~</span> habitat <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>tree) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> species),</span>
-<span id="cb557-2"><a href="hierarchical-mixed-models.html#cb557-2" tabindex="-1"></a>                  <span class="at">data =</span> ant_s)</span></code></pre></div>
+<div class="sourceCode" id="cb558"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb558-1"><a href="hierarchical-mixed-models.html#cb558-1" tabindex="-1"></a>fm1 <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(ct_max <span class="sc">~</span> habitat <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>tree) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> species),</span>
+<span id="cb558-2"><a href="hierarchical-mixed-models.html#cb558-2" tabindex="-1"></a>                  <span class="at">data =</span> ant_s)</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
-<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb559-1"><a href="hierarchical-mixed-models.html#cb559-1" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
+<div class="sourceCode" id="cb560"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb560-1"><a href="hierarchical-mixed-models.html#cb560-1" tabindex="-1"></a><span class="fu">summary</span>(fm1)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML [&#39;lmerMod&#39;]
 ## Formula: ct_max ~ habitat + (1 | site) + (1 | site:tree) + (1 | species)
 ##    Data: ant_s
@@ -1876,15 +1901,15 @@ Now fit the model with the desired structure.</p>
 ## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
 <p>The two most interesting parameters are the estimate of the difference in mean responses between the two habitats (<span class="math inline">\(-2.30\)</span>) and the standard deviation of the species-level variance (<span class="math inline">\(1.84\)</span>). The estimate of the tree-level variance is 0, indicating that two measurements from the same tree are no more strongly correlated than two measurements from different trees at the same site. Retaining the random effect for the tree doesn’t impact the rest of the fit, so we’ll retain it.</p>
 <p>To visualize the model fit, we can compute blups for each species</p>
-<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb561-1"><a href="hierarchical-mixed-models.html#cb561-1" tabindex="-1"></a>s_data<span class="sc">$</span>blup <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>species[, <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">ifelse</span>(s_data<span class="sc">$</span>habitat <span class="sc">==</span> <span class="st">&quot;terrestrial&quot;</span>, <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">2</span>, <span class="dv">1</span>], <span class="dv">0</span>)</span>
-<span id="cb561-2"><a href="hierarchical-mixed-models.html#cb561-2" tabindex="-1"></a><span class="fu">with</span>(s_data, <span class="fu">stripchart</span>(blup <span class="sc">~</span> habitat, <span class="at">pch =</span> <span class="dv">16</span>))</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-71-1.png" width="672" /></p>
+<div class="sourceCode" id="cb562"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb562-1"><a href="hierarchical-mixed-models.html#cb562-1" tabindex="-1"></a>s_data<span class="sc">$</span>blup <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fm1)<span class="sc">$</span>species[, <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">ifelse</span>(s_data<span class="sc">$</span>habitat <span class="sc">==</span> <span class="st">&quot;terrestrial&quot;</span>, <span class="fu">coef</span>(<span class="fu">summary</span>(fm1))[<span class="dv">2</span>, <span class="dv">1</span>], <span class="dv">0</span>)</span>
+<span id="cb562-2"><a href="hierarchical-mixed-models.html#cb562-2" tabindex="-1"></a><span class="fu">with</span>(s_data, <span class="fu">stripchart</span>(blup <span class="sc">~</span> habitat, <span class="at">pch =</span> <span class="dv">16</span>))</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-72-1.png" width="672" /></p>
 <p>Note that the blups are not too different from the raw averages. (The shrinkage here is small because the estimate of the species-level variance is large.)</p>
 <p>To draw inferences about the parameters of interest, we can profile.</p>
-<div class="sourceCode" id="cb562"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb562-1"><a href="hierarchical-mixed-models.html#cb562-1" tabindex="-1"></a>pr <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm1)</span>
-<span id="cb562-2"><a href="hierarchical-mixed-models.html#cb562-2" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pr, <span class="at">absVal =</span> T)</span></code></pre></div>
-<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-72-1.png" width="672" /></p>
-<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb563-1"><a href="hierarchical-mixed-models.html#cb563-1" tabindex="-1"></a><span class="fu">confint</span>(pr)</span></code></pre></div>
+<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb563-1"><a href="hierarchical-mixed-models.html#cb563-1" tabindex="-1"></a>pr <span class="ot">&lt;-</span> <span class="fu">profile</span>(fm1)</span>
+<span id="cb563-2"><a href="hierarchical-mixed-models.html#cb563-2" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">xyplot</span>(pr, <span class="at">absVal =</span> T)</span></code></pre></div>
+<p><img src="06-HierarchicalModels_files/figure-html/unnamed-chunk-73-1.png" width="672" /></p>
+<div class="sourceCode" id="cb564"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb564-1"><a href="hierarchical-mixed-models.html#cb564-1" tabindex="-1"></a><span class="fu">confint</span>(pr)</span></code></pre></div>
 <pre><code>##                           2.5 %     97.5 %
 ## .sig01              1.237329013  2.5573015
 ## .sig02              0.000000000  0.6505234
@@ -1894,10 +1919,10 @@ Now fit the model with the desired structure.</p>
 ## habitatterrestrial -4.153908536 -0.4335560</code></pre>
 <p>Note that the 95% CI for the difference between the habitats (labeled <code>habitatterrestrial</code>) does not overlap 0. Thus the difference between the two habitats is significant at the 5% level.</p>
 <p>Alternative, we can use <code>lmerTest</code> to generate a <span class="math inline">\(p\)</span> value of unknown validity.</p>
-<div class="sourceCode" id="cb565"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb565-1"><a href="hierarchical-mixed-models.html#cb565-1" tabindex="-1"></a>fm1b <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(ct_max <span class="sc">~</span> habitat <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>tree) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> species),</span>
-<span id="cb565-2"><a href="hierarchical-mixed-models.html#cb565-2" tabindex="-1"></a>                       <span class="at">data =</span> ant_s)</span></code></pre></div>
+<div class="sourceCode" id="cb566"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb566-1"><a href="hierarchical-mixed-models.html#cb566-1" tabindex="-1"></a>fm1b <span class="ot">&lt;-</span> lmerTest<span class="sc">::</span><span class="fu">lmer</span>(ct_max <span class="sc">~</span> habitat <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site<span class="sc">:</span>tree) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> species),</span>
+<span id="cb566-2"><a href="hierarchical-mixed-models.html#cb566-2" tabindex="-1"></a>                       <span class="at">data =</span> ant_s)</span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
-<div class="sourceCode" id="cb567"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb567-1"><a href="hierarchical-mixed-models.html#cb567-1" tabindex="-1"></a><span class="fu">summary</span>(fm1b)</span></code></pre></div>
+<div class="sourceCode" id="cb568"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb568-1"><a href="hierarchical-mixed-models.html#cb568-1" tabindex="-1"></a><span class="fu">summary</span>(fm1b)</span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: ct_max ~ habitat + (1 | site) + (1 | site:tree) + (1 | species)
