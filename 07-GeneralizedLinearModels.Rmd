@@ -582,7 +582,7 @@ Notice the gigantic standard errors on some of the parameter estimates.  These l
 with(boar, table(tb, age, sex))
 ```
 
-Because none of the individuals with \texttt{sex = 1} and \texttt{age = 1} are infected, the likelihood surface flattens out as the parameter corresponding to this demographic group becomes increasingly negative.  (Formally speaking, the MLE of the log odds of infection for this group is $-\infty$, but no numerical optimization scheme will find this value.)  This phenomenon is known as "complete separation".  Although it's only the \texttt{sex = 1} and \texttt{age = 1} group that is problematic here, in this case that is the group that is coded as the baseline, so the parameters for all the other groups are defined relative to it, and thus are problematic as well.
+Because none of the individuals with `sex=1` and `age = 1` are infected, the likelihood surface flattens out as the parameter corresponding to this demographic group becomes increasingly negative.  (Formally speaking, the MLE of the log odds of infection for this group is $-\infty$, but no numerical optimization scheme will find this value.)  This phenomenon is known as "complete separation".  Although it's only the `sex=1` and `age = 1` group that is problematic here, in this case that is the group that is coded as the baseline, so the parameters for all the other groups are defined relative to it, and thus are problematic as well.
 
 There are several possible remedies here.  The first is to try to reduce the number of parameters in the model, perhaps by eliminating the interaction between sex and age class.
 ```{r}

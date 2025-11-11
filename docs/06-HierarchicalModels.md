@@ -504,29 +504,29 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpSSij12/model20fc31927764", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpgrXgIu/model1c1851b237d0", fit using jags,
 ##  3 chains, each with 1e+05 iterations (first 50000 discarded), n.thin = 50
-##  n.sims = 3000 iterations saved. Running time = 0.48 secs
+##  n.sims = 3000 iterations saved. Running time = 0.37 secs
 ##           mu.vect sd.vect     2.5%      25%      50%      75%    97.5%  Rhat
-## B[1]     1513.631  20.231 1471.283 1499.935 1514.682 1527.592 1550.754 1.001
-## B[2]     1527.720  19.488 1488.551 1515.797 1527.451 1539.246 1567.505 1.001
-## mu       1526.379  21.314 1482.536 1514.950 1526.401 1538.284 1569.024 1.001
-## sdB        38.868  26.648    0.243   21.745   36.584   52.500   99.655 1.001
-## sd_eps     54.118   9.197   39.638   47.410   52.933   59.810   75.858 1.001
-## deviance  323.634   6.366  315.031  318.496  322.035  328.214  336.401 1.001
+## B[1]     1512.658  20.557 1471.496 1498.804 1513.405 1527.080 1551.251 1.004
+## B[2]     1527.961  19.590 1488.330 1515.667 1528.091 1540.456 1567.262 1.001
+## mu       1527.013  22.416 1481.491 1514.937 1527.276 1539.335 1571.112 1.005
+## sdB        40.954  29.267    0.308   24.539   37.613   53.447  105.711 1.006
+## sd_eps     53.573   9.202   39.065   47.064   52.211   58.811   75.107 1.004
+## deviance  323.160   6.234  314.902  318.370  321.543  326.756  336.400 1.002
 ##          n.eff
-## B[1]      3000
+## B[1]       930
 ## B[2]      3000
 ## mu        3000
-## sdB       3000
-## sd_eps    3000
-## deviance  3000
+## sdB       1600
+## sd_eps     650
+## deviance  1200
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 20.3 and DIC = 343.9
+## pV = 19.4 and DIC = 342.6
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 

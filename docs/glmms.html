@@ -437,7 +437,7 @@ continuing to use the notation scheme that we developed <a href="hierarchical-mi
 <span id="cb667-4"><a href="glmms.html#cb667-4" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
 <div class="sourceCode" id="cb669"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb669-1"><a href="glmms.html#cb669-1" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
-<pre><code>## [1] 0.3187917</code></pre>
+<pre><code>## [1] 0.3187598</code></pre>
 <div class="sourceCode" id="cb671"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb671-1"><a href="glmms.html#cb671-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb671-2"><a href="glmms.html#cb671-2" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
 <span id="cb671-3"><a href="glmms.html#cb671-3" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
@@ -452,7 +452,7 @@ continuing to use the notation scheme that we developed <a href="hierarchical-mi
 <span id="cb672-4"><a href="glmms.html#cb672-4" tabindex="-1"></a>(conditional.mean <span class="ot">&lt;-</span> <span class="fu">inv.logit</span>(<span class="fu">dark.linpred.glmm</span>(<span class="dv">20</span>)))</span></code></pre></div>
 <pre><code>## [1] 0.3183597</code></pre>
 <div class="sourceCode" id="cb674"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb674-1"><a href="glmms.html#cb674-1" tabindex="-1"></a>(marginal.mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(prob.sample))</span></code></pre></div>
-<pre><code>## [1] 0.3500921</code></pre>
+<pre><code>## [1] 0.3499944</code></pre>
 <div class="sourceCode" id="cb676"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb676-1"><a href="glmms.html#cb676-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb676-2"><a href="glmms.html#cb676-2" tabindex="-1"></a><span class="fu">hist</span>(linpred.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;linear predictor&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
 <span id="cb676-3"><a href="glmms.html#cb676-3" tabindex="-1"></a><span class="fu">hist</span>(prob.sample, <span class="at">breaks =</span> <span class="dv">50</span>, <span class="at">xlab =</span> <span class="st">&quot;removal probability&quot;</span>, <span class="at">main =</span> <span class="st">&quot;&quot;</span>)</span>
