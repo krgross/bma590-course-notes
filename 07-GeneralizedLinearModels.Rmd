@@ -127,6 +127,24 @@ For this fit, the residual deviance suggests a small amount of overdispersion.  
 fm3 <- glm(matings ~ age, family = quasipoisson(link = "identity"), data = elephant)  
 
 summary(fm3)
+```
+
+Let's note two things about this fit.  First, the dispersion parameter is estimated by the sum of the squared Pearson residuals, divided by the associated df.  (I can't tell you why the computation here is based on the squared Pearson residuals instead of the squared deviance residuals.)
+
+```{r}
+(dispersion.estimate <- sum(residuals(fm2, type = "pearson")^2) / 39)
+```
+
+Second, note that the quasi-Poisson fit generates the same parameter estimates as the Poisson fit.  The standard errors, however, are larger.  In fact, the standard errors increase by an amount that is exactly equal to the square root of the estimated dispersion parameter, which in this case is about 6%.
+
+```{r}
+sqrt(dispersion.estimate)
+```
+
+Finally, note that the quasi-Poisson fit does not report an AIC.  This is because the quasi-Poisson distribution does not correspond to a likelihood for a legitimate probability distribution.  In other words, there is no such thing as a "quasi-Poisson" distribution.  While quasi-Poisson (and quasi-binomial) provide a valid scheme for estimating parameters and computing their standard errors, they are not MLEs of any well-defined likelihood, and thus AIC is not available.^[Decades ago, some enterprising souls (@lebreton1992modeling) guessed at a version of AIC for quasi-likelihood, which has come to be known as QAIC.  Although a few later studies showed that QAIC performed well in small simulations (e.g., @anderson1994aic), to my knowledge, no one has ever provided a formal, rigorous justification of QAIC, or even anything close to it. (Ben Bolker rightly says that QAIC requires "heroic assumptions".)  Be warned: QAIC is essentially a made-up quantity with hardly any justification in statistical theory. Use it at your own risk.]
+
+
+```{r}
 
 predict.fm3 <- predict(fm3, newdata = new.data, type = "response", se.fit = TRUE)
 
@@ -612,7 +630,7 @@ The data contain several possible covariates.  Here, we will just inspect the re
 ```{r}
 deer$DeerPropTB <- with(deer, DeerPosTB / DeerSampledTB)
 
-with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 16))
+with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 1, cex = 0.25 * sqrt(DeerSampledTB)))
 
 fm1 <- glm(cbind(DeerPosTB, DeerSampledTB - DeerPosTB) ~ ReedDeerIndex,
            family = binomial(link = "logit"),
@@ -643,7 +661,7 @@ new.data <- data.frame(ReedDeerIndex = seq(from = min(deer$ReedDeerIndex),
 predict.fm1 <- predict(fm1, newdata = new.data, type = "response", se.fit = TRUE)
 predict.fm2 <- predict(fm2, newdata = new.data, type = "response", se.fit = TRUE)
 
-with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 16))
+with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 1, cex = 0.25 * sqrt(DeerSampledTB)))
 
 lines(x = new.data$ReedDeerIndex, y = predict.fm1$fit)
 

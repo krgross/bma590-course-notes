@@ -244,6 +244,32 @@ summary(fm3)
 ## Number of Fisher Scoring iterations: 5
 ```
 
+Let's note two things about this fit.  First, the dispersion parameter is estimated by the sum of the squared Pearson residuals, divided by the associated df.  (I can't tell you why the computation here is based on the squared Pearson residuals instead of the squared deviance residuals.)
+
+
+``` r
+(dispersion.estimate <- sum(residuals(fm2, type = "pearson")^2) / 39)
+```
+
+```
+## [1] 1.126969
+```
+
+Second, note that the quasi-Poisson fit generates the same parameter estimates as the Poisson fit.  The standard errors, however, are larger.  In fact, the standard errors increase by an amount that is exactly equal to the square root of the estimated dispersion parameter, which in this case is about 6%.
+
+
+``` r
+sqrt(dispersion.estimate)
+```
+
+```
+## [1] 1.061588
+```
+
+Finally, note that the quasi-Poisson fit does not report an AIC.  This is because the quasi-Poisson distribution does not correspond to a likelihood for a legitimate probability distribution.  In other words, there is no such thing as a "quasi-Poisson" distribution.  While quasi-Poisson (and quasi-binomial) provide a valid scheme for estimating parameters and computing their standard errors, they are not MLEs of any well-defined likelihood, and thus AIC is not available.^[Decades ago, some enterprising souls (@lebreton1992modeling) guessed at a version of AIC for quasi-likelihood, which has come to be known as QAIC.  Although a few later studies showed that QAIC performed well in small simulations (e.g., @anderson1994aic), to my knowledge, no one has ever provided a formal, rigorous justification of QAIC, or even anything close to it. (Ben Bolker rightly says that QAIC requires "heroic assumptions".)  Be warned: QAIC is essentially a made-up quantity with barely any justification in statistical theory. Use it at your own risk.]
+
+
+
 ``` r
 predict.fm3 <- predict(fm3, newdata = new.data, type = "response", se.fit = TRUE)
 
@@ -261,7 +287,7 @@ lines(x   = new.data$age,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-10-1.png" width="672" />
 
 As an alternative, we could fit a model that uses a negative binomial distribution for the response.  Negative binomial distributions belong to the exponential family, so we can fit them using the GLM framework.  However, the authors of `glm` did not include a negative binomial family in their initial code.  Venables & Ripley's `MASS` package includes a program called `glm.nb` which is specifically designed for negative binomial responses.  `MASS::glm.nb` uses the parameterization familiar to ecologists, although they use the parameter $\theta$ instead of $k$.  So, in their notation, if $y \sim \mathrm{NB}(\mu, \theta)$, then $\mathrm{Var}(y) = \mu + \mu^2/\theta$.
 
@@ -325,7 +351,7 @@ lines(x   = new.data$age,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-11-1.png" width="672" />
 
 Notice that $\hat{\theta} = 15.8$, again indicating that the extra-Poisson variation is mild.  Notice also that the error bounds on the fitted curve are ever so slightly larger than the error bounds from the Poisson fit, and nearly identical to the error bounds from the quasi-Poisson fit.
 
@@ -725,7 +751,7 @@ lines(x   = new.data$length,
       lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-14-1.png" width="672" />
 
 Regression coefficients in logistic regression can be a bit hard to interpret.  One interpretation flows from exponentiating the regression coefficient to obtain an odds ratio.  For the boar data, the regression coefficient of 0.0335 corresponds to an odds ratio of $e^{0.0335}$ = 1.034.  This means that for two boars that differ by one cm in length, the larger boar's odds of having a TB-like lesion will be 1.034 times the smaller boar's odds of having such a lesion.  
 
@@ -768,7 +794,7 @@ legend("left",
        pch = 16)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-15-1.png" width="672" />
 
 The logit and probit links are nearly identical.  The complementary log-log link differs slightly, but the logit link is AIC-best.
 
@@ -893,10 +919,10 @@ The data contain several possible covariates.  Here, we will just inspect the re
 ``` r
 deer$DeerPropTB <- with(deer, DeerPosTB / DeerSampledTB)
 
-with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 16))
+with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 1, cex = 0.25 * sqrt(DeerSampledTB)))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
 ``` r
 fm1 <- glm(cbind(DeerPosTB, DeerSampledTB - DeerPosTB) ~ ReedDeerIndex,
@@ -974,7 +1000,7 @@ new.data <- data.frame(ReedDeerIndex = seq(from = min(deer$ReedDeerIndex),
 predict.fm1 <- predict(fm1, newdata = new.data, type = "response", se.fit = TRUE)
 predict.fm2 <- predict(fm2, newdata = new.data, type = "response", se.fit = TRUE)
 
-with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 16))
+with(deer, plot(DeerPropTB ~ ReedDeerIndex, pch = 1, cex = 0.25 * sqrt(DeerSampledTB)))
 
 lines(x = new.data$ReedDeerIndex, y = predict.fm1$fit)
 
@@ -1004,7 +1030,7 @@ lines(x   = new.data$ReedDeerIndex,
 legend("top", pch = 16, col = c("blue", "red"), leg = c("quasibinomial", "naive"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 
 <!-- We'll start with the standard logistic regression model for the industrial melanism data.  We are primarily interested in determining if the effect of color morph on removal rate changes with distance from Liverpool.  For grouped binary data, we need to specify both the number of "successes" and number of "failures" as the response variable in the model.  Here, we use `cbind` to create a two-column matrix with the number of "successes" (moths removed) in the first column, and the number of "failures" (moths not removed) in the second column.  See the help documentation for `glm` for more details. -->
 
@@ -1110,7 +1136,7 @@ with(corbet, barplot(species, names = ofreq,
                      ylab = "frequency"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-21-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-24-1.png" width="672" />
 
 We will fit a zero-truncated negative binomial distribution to these data, and compare the fitted zero-truncated distribution to the data.
 
@@ -1184,7 +1210,7 @@ mtext("length", side = 1, outer = T, line = 2)
 mtext("parasite intensity", side = 2, outer = T, line = 5, las = 0)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-25-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-28-1.png" width="672" />
 
 With ZI models, one can use separate model combinations of predictors for the two components.  Indeed, if we think of the two components as capturing two different natural processes, then there is no reason that the predictors should have the same affect on both components.  Following Zuur et al., however, we will start with a ZINB model that includes length, year, area, and an interaction between year and area for both components.  Because both components are generalized linear models, both include a link function.  Here, we will use the default logit link for the zero-inflation component and log link for the count component.
 
@@ -1372,7 +1398,7 @@ mtext("length", side = 1, outer = T, line = 2)
 mtext("parasite intensity", side = 2, outer = T, line = 6, las = 0)
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-33-1.png" width="672" />
 
 ### Zero-altered, or "hurdle", models
 
@@ -1488,7 +1514,7 @@ head(coral)
 with(coral, plot(jitter(mortality, amount = 0.02) ~ ln_area, xlab = "log area", ylab = "mortality"))
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 We fit a GAM with a binomial response, logit link, and use a smoothing spline to capture the relationship between log size and (the log odds of) mortality.  Recall that a smoothing spline determines the degree of smoothness by generalized cross-validation.
 
@@ -1547,7 +1573,7 @@ Note that the non-linearity in the fit is not just a consequence of converting t
 plot(x.vals, fm1.fit$fit, type = "l", xlab = "log size, x", ylab = "log odds of mortality, s(x)")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 
 
 We might also try a complementary log-log link.
@@ -1566,7 +1592,7 @@ lines(x.vals, inv.cloglog(fm2.fit$fit + 1.96 * fm2.fit$se.fit), col = "red", lty
 lines(x.vals, inv.cloglog(fm2.fit$fit - 1.96 * fm2.fit$se.fit), col = "red", lty = "dashed")
 ```
 
-<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+<img src="07-GeneralizedLinearModels_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 ``` r
 AIC(fm1, fm2)
