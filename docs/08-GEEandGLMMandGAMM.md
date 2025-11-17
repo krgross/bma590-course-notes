@@ -239,7 +239,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.3187909
+## [1] 0.318831
 ```
 
 ``` r
@@ -273,7 +273,7 @@ prob.sample <- inv.logit(linpred.sample)
 ```
 
 ```
-## [1] 0.35017
+## [1] 0.3500177
 ```
 
 ``` r

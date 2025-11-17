@@ -141,7 +141,7 @@ Second, note that the quasi-Poisson fit generates the same parameter estimates a
 sqrt(dispersion.estimate)
 ```
 
-Finally, note that the quasi-Poisson fit does not report an AIC.  This is because the quasi-Poisson distribution does not correspond to a likelihood for a legitimate probability distribution.  In other words, there is no such thing as a "quasi-Poisson" distribution.  While quasi-Poisson (and quasi-binomial) provide a valid scheme for estimating parameters and computing their standard errors, they are not MLEs of any well-defined likelihood, and thus AIC is not available.^[Decades ago, some enterprising souls (@lebreton1992modeling) guessed at a version of AIC for quasi-likelihood, which has come to be known as QAIC.  Although a few later studies showed that QAIC performed well in small simulations (e.g., @anderson1994aic), to my knowledge, no one has ever provided a formal, rigorous justification of QAIC, or even anything close to it. (Ben Bolker rightly says that QAIC requires "heroic assumptions".)  Be warned: QAIC is essentially a made-up quantity with hardly any justification in statistical theory. Use it at your own risk.]
+Finally, note that the quasi-Poisson fit does not report an AIC.  This is because the quasi-Poisson distribution does not correspond to a likelihood for a legitimate probability distribution.  In other words, there is no such thing as a "quasi-Poisson" distribution.  While quasi-Poisson (and quasi-binomial) provide a valid scheme for estimating parameters and computing their standard errors, they are not MLEs of any well-defined likelihood, and thus AIC is not available.^[Decades ago, some enterprising souls (@lebreton1992modeling) guessed at a version of AIC for quasi-likelihood, which has come to be known as QAIC.  Although a few later studies showed that QAIC performed well in small simulations (e.g., @anderson1994aic), to my knowledge, no one has ever provided a formal, rigorous justification of QAIC, or even anything close to it. (Ben Bolker rightly says that QAIC requires "heroic assumptions".)  Be warned: QAIC is a made-up quantity with hardly any justification in statistical theory. Use it at your own risk.]
 
 
 ```{r}
@@ -766,7 +766,7 @@ In count data, the frequency of zeros often differs from what the standard Poiss
 
 Zero-truncated distributions are simply those that condition on the count variable being greater than 0.  They are appropriate when the sampling procedure makes zeros unobservable.  Zero-truncated Poisson and negative binomial distributions are available as something of a side benefit the R library `VGAM` (an acronym for vector generalized additive models).  This package provides the function `vglm` (a version of `glm` that allows for vector-valued responses), which in turn accommodates the distribution families `pospoisson` and `posnegbinomial`.  The "pos" portion of each refers to the fact that the counts must be strictly positive.
 
-We illustrate the use of a zero-truncated distribution with a species-abundance data set for butterflies provided in the `VGAM` package.  The description of the data set in `VGAM` reads: "About 3300 individual butterflies were caught in Malaya by naturalist Corbet trapping butterflies. They were classified to about 500 species."  The data give the frequencies in a species abundance distribution.
+We illustrate the use of a zero-truncated distribution with a species-abundance data set for butterflies provided in the `VGAM` package.  The description of the data set in `VGAM` reads: "About 3300 individual butterflies were caught in Malaya by naturalist Corbet trapping butterflies. They were classified to about 500 species."^[However, the help documentation also says "Actually, 119 species had over 24 observed frequencies, so this could/should be appended to the data set." So these data are only a subset of the data that Corbet actually found.]  The data give the frequencies in a species abundance distribution.
 
 ```{r message = FALSE}
 require(VGAM)
@@ -781,7 +781,9 @@ with(corbet, barplot(species, names = ofreq,
                      ylab = "frequency"))
 ```
 
-We will fit a zero-truncated negative binomial distribution to these data, and compare the fitted zero-truncated distribution to the data.
+We would like fit a zero-truncated negative binomial distribution to these data, and compare the fitted zero-truncated distribution to the data.
+
+As of Nov. 2025, the `VGAM::vglm` routine throws a [known error](https://stackoverflow.com/questions/79702156/error-could-not-find-function-dposnegbin2-when-using-posnegbinomial-in-vgl) when fitting these data.  It shouldn't be hard to write code to maximize the likelihood directly, but I haven't had time to do so yet.
 
 <!-- NB: Something is weird here.  The ratio of the first two fitted probabilities is NOT the same as the ratio of the probability masses obtained by dnbinom evaluated at the parameter estimates.  Check into this. -->
 
