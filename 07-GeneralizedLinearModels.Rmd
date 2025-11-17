@@ -783,7 +783,205 @@ with(corbet, barplot(species, names = ofreq,
 
 We would like fit a zero-truncated negative binomial distribution to these data, and compare the fitted zero-truncated distribution to the data.
 
-As of Nov. 2025, the `VGAM::vglm` routine throws a [known error](https://stackoverflow.com/questions/79702156/error-could-not-find-function-dposnegbin2-when-using-posnegbinomial-in-vgl) when fitting these data.  It shouldn't be hard to write code to maximize the likelihood directly, but I haven't had time to do so yet.
+As of Nov. 2025, the `VGAM::vglm` routine throws a [known error](https://stackoverflow.com/questions/79702156/error-could-not-find-function-dposnegbin2-when-using-posnegbinomial-in-vgl) when fitting these data.  It shouldn't be hard to write code to maximize the likelihood directly.  Here's Gemini code for producing the fit:
+
+```{r zero-truncated-nb-gemini}
+# R code to fit a Zero-Truncated Negative Binomial (ZTNB) distribution
+# using only base R's 'optim' function.
+
+#' Calculate the Negative Log-Likelihood for a ZTNB
+#'
+#' This function calculates the total negative log-likelihood for a dataset
+#' given the parameters (mu, k) of the underlying (untruncated)
+#' negative binomial distribution.
+#'
+#' @param params A numeric vector c(mu, k)
+#' @param y A numeric vector of observed counts (y = 1, 2, 3, ...)
+#' @param freq A numeric vector of frequencies for each count
+#' @return The negative log-likelihood (a single numeric value)
+
+negLogLik_ZTNB <- function(params, y, freq) {
+    
+    mu <- params[1]
+    k <- params[2]
+
+    # Parameters must be positive.
+    # 'optim' with L-BFGS-B handles this, but as a safeguard:
+    if (mu <= 0 || k <= 0) {
+        return(1e9) # Return a large value
+    }
+
+    # 1. Calculate the probability of P(Y=0) from the *untruncated* NB
+    # dnbinom(x, size = k, mu = mu) is the base R function
+    p0 <- dnbinom(0, size = k, mu = mu)
+
+    # 2. Calculate the probability of P(Y > 0)
+    # We use log1p(-p0) which is log(1 - p0) for numerical stability
+    log_p_not_zero <- log1p(-p0)
+
+    # Stability check: if p0 is 1 (or very close), log(1-p0) is -Inf.
+    # This happens with bad parameters.
+    if (is.infinite(log_p_not_zero)) {
+        return(1e9)
+    }
+
+    # 3. Calculate the log-likelihood for each observed y (y=1, 2, 3...)
+    # The log-likelihood for a *single* ZTNB observation is:
+    # log(P(Y=y | Y>0)) = log( P(Y=y) / (1 - P(Y=0)) )
+    #                  = log(P(Y=y)) - log(1 - P(Y=0))
+    #
+    # We use log = TRUE for numerical stability.
+    log_probs_vec <- dnbinom(y, size = k, mu = mu, log = TRUE)
+
+    # 4. Calculate the total log-likelihood for the *entire* dataset
+    # This is the sum of weighted log-likelihoods.
+    # LL = SUM( freq[i] * (log(P(y[i])) - log(1 - P(0))) )
+    #
+    # By algebra, this is:
+    # LL = SUM( freq[i] * log(P(y[i])) ) - SUM( freq[i] * log(1 - P(0)) )
+    # LL = SUM( freq[i] * log(P(y[i])) ) - N * log(1 - P(0))
+    # where N is the total number of species.
+    
+    N <- sum(freq)
+    sum_weighted_log_probs <- sum(freq * log_probs_vec)
+    
+    total_log_lik <- sum_weighted_log_probs - N * log_p_not_zero
+    
+    # 6. Return the NEGATIVE log-likelihood for minimization
+    # optim() minimizes, so we return -LL
+    return(-total_log_lik)
+}
+
+#' Fit ZTNB using Base R's optim
+#'
+#' Main wrapper function to find the MLEs for mu and k.
+#'
+#' @param y_counts The vector of counts (e.g., corbet$ofreq)
+#' @param y_freqs The vector of frequencies (e.g., corbet$species)
+#' @return A list containing the optimization results.
+fit_ztnb_base <- function(y_counts, y_freqs) {
+    
+    # 1. Get starting values for mu and k
+    # We use the method of moments on the *observed* (truncated) data
+    # as a rough approximation.
+    obs_mean <- weighted.mean(y_counts, y_freqs)
+    
+    # Calculate weighted variance
+    obs_var <- sum(y_freqs * (y_counts - obs_mean)^2) / (sum(y_freqs) - 1)
+
+    # For a standard NB (not ZTNB), k = mu^2 / (Var - mu)
+    # This is just a starting guess.
+    mu_start <- obs_mean
+    k_start <- if (obs_var > mu_start) {
+        mu_start^2 / (obs_var - mu_start)
+    } else {
+        1.0 # Default to 1 if variance is not > mean
+    }
+    
+    start_params <- c(mu = mu_start, k = k_start)
+    
+    # 2. Run the optimization
+    # We use "L-BFGS-B" method, which allows box constraints (lower bounds)
+    # This is crucial as mu and k *must* be positive.
+    
+    optim_result <- optim(
+        par = start_params,
+        fn = negLogLik_ZTNB,
+        # Pass additional arguments to negLogLik_ZTNB
+        y = y_counts,
+        freq = y_freqs,
+        # Use L-BFGS-B for bounded optimization
+        method = "L-BFGS-B",
+        # Set lower bounds for mu and k
+        lower = c(1e-6, 1e-6)
+    )
+    
+    # 3. Format and return the results
+    if (optim_result$convergence != 0) {
+        warning("Optimization may not have converged. Code: ", 
+                optim_result$convergence)
+    }
+    
+    estimates <- optim_result$par
+    names(estimates) <- c("mu", "k")
+    
+    return(list(
+        estimates = estimates,
+        log_likelihood = -optim_result$value, # Return the actual LL
+        convergence = optim_result
+    ))
+}
+# 3. Run the fitting function
+#    ofreq = the count (y)
+#    species = the frequency (freq)
+fit <- fit_ztnb_base(y_counts = corbet$ofreq, y_freqs = corbet$species)
+
+print(fit$estimates)
+```
+
+Here's a plot of the fit compared to the empirical frequency distribution:
+```{r echo = FALSE}
+# --- PLOTTING CODE ---
+
+# 1. Get MLEs from the fit
+mu_mle <- fit$estimates["mu"]
+k_mle <- fit$estimates["k"]
+
+# 2. Get the full range of observed counts
+max_y <- max(corbet$ofreq)
+y_range <- 1:max_y
+
+# 3. Calculate Empirical Probabilities
+N_total <- sum(corbet$species)
+# Create a full vector, including 0s for unobserved counts (e.g., y=23)
+emp_probs_full <- rep(0, max_y)
+emp_probs_full[corbet$ofreq] <- corbet$species / N_total
+
+# 4. Calculate Fitted Probabilities for the ZTNB
+# P(Y=0) for the underlying untruncated NB
+p0 <- dnbinom(0, size = k_mle, mu = mu_mle)
+
+# Probabilities for y = 1, 2, ..., max_y
+# P(Y=y | Y>0) = P(Y=y) / (1 - P(0))
+fitted_probs_full <- dnbinom(y_range, size = k_mle, mu = mu_mle) / (1 - p0)
+
+# 5. Create the Plot
+# Set a plot limit (x-axis) to see the main distribution.
+# The 'corbet' data has long tails that can skew the visual.
+plot_limit <- 30 # Adjust as needed
+y_range_plot <- 1:plot_limit
+
+# Open a new graphics window (optional, but good practice)
+if(dev.cur() == 1) dev.new() # Avoid overwriting other plots
+
+# Plot the empirical probabilities as a histogram
+plot(y_range_plot, emp_probs_full[y_range_plot], 
+     type = "h", # 'h' for histogram-like vertical lines
+     lwd = 3,
+     col = "blue",
+     xlab = "Number of Individuals (y)",
+     ylab = "Probability / Proportion",
+     main = "Corbet Data: Empirical vs. Fitted ZTNB Model",
+     ylim = c(0, max(emp_probs_full, fitted_probs_full)),
+     xlim = c(0, plot_limit + 1)
+)
+
+# Overlay the fitted probabilities as points
+points(y_range_plot, fitted_probs_full[y_range_plot], 
+       col = "red",
+       pch = 19, # Solid circles
+       cex = 0.8
+)
+
+# Add a legend
+legend("topright", 
+       legend = c("Empirical Data", "Fitted ZTNB Probabilities"),
+       col = c("blue", "red"),
+       pch = c(NA, 19),      # No point for the line
+       lwd = c(3, NA),       # Line width for the 'h' plot
+       bty = "n"             # No box around legend
+)
+```
 
 <!-- NB: Something is weird here.  The ratio of the first two fitted probabilities is NOT the same as the ratio of the probability masses obtained by dnbinom evaluated at the parameter estimates.  Check into this. -->
 
@@ -808,7 +1006,7 @@ rm(list = ls())
 
 ### Zero-inflated models
 
-As the name suggests, zero-inflated (henceforth ZI) models are appropriate when zeros are more frequent than the distribution of the non-zero counts would suggest.  ZI models have two components.  In the "zero-inflation" component, a logistic regression (or some other generalized linear model for a binary response) captures whether the response is a "false" zero or a realization from a proper count distribution.  In the "count" component, a generalized linear model for count data (such as Poisson regression) is used to model the distribution of the non-false-zero counts.  The ZI model can be motivated by envisioning that the data arise from a combination of two separate mechanisms: a first mechanism that determines whether or not the count is a "false" zero, and a second that determines the count if it is not a false zero.  In ecology, the zero-inflation component might correspond to (true) presence vs.\ absence, and the count component might correspond to the detected intensity conditional on presence.
+As the name suggests, zero-inflated (henceforth ZI) models are appropriate when zeros are more frequent than the distribution of the non-zero counts would suggest.  ZI models have two components.  In the "zero-inflation" component, a logistic regression (or some other generalized linear model for a binary response) captures whether the response is a "structural" zero or a realization from a proper count distribution.  In the "count" component, a generalized linear model for count data (such as Poisson regression) is used to model the distribution of the non-false-zero counts.  The ZI model can be motivated by envisioning that the data arise from a combination of two separate mechanisms: a first mechanism that determines whether or not the count is a "structural" zero, and a second that determines the count if it is not a structural zero.  In ecology, the zero-inflation component might correspond to (true) presence vs.\ absence, and the count component might correspond to the detected intensity conditional on presence.
 
 To illustrate ZI models, we will use the cod parasite data described in $\S$ 11.3.2 of @zuur2009.  These data are counts of the number of trypanosome blood parasites in individual cod, and were initially reported in Hemmingsen et al.\ (2005).  First we load the data and do some housekeeping.
 
@@ -872,7 +1070,7 @@ cod.nb.fm2 <- zeroinfl(formula.2, data  = cod, dist = "negbin")
 summary(cod.nb.fm2)
 ```
 
-There's a lot of output here to process.  One observation we might make is that there seems to be a strongly significant negative association between length and both the probability of a false zero in the first model component, and the parasite abundance in the second model component.  To visualize the model, we might plot the fitted probability of a false zero vs.\ length for each combination of area and year, and then plot the fitted intensity (mean) of the count process vs.\ length, also for each combination of area and year.  See Ch. 11 of Zuur et al.\ for such plots.
+There's a lot of output here to process.  One observation we might make is that there seems to be a strongly significant negative association between length and both the probability of a structural zero in the first model component, and the parasite abundance in the second model component.  To visualize the model, we might plot the fitted probability of a structural zero vs.\ length for each combination of area and year, and then plot the fitted intensity (mean) of the count process vs.\ length, also for each combination of area and year.  See Ch. 11 of Zuur et al.\ for such plots.
 
 Alternatively, we might merge the two model components to generate predicted values as a function of length for each year and area.  The library `pscl` provides methods to extract predicted values directly; see the help documentation for `pscl::predict.zeroinfl`.  We use that method here to generate predicted mean parasite counts (merging the zero-inflation and count components) for each combination of year and area.  In the plot below, bear in mind that because the data are shown on a log scale, the fitted line will not necessarily pass through the center of the plotted data cloud.
 
@@ -906,7 +1104,7 @@ Zero-altered (ZA) models, also known as hurdle models, are similar to ZI models 
 
 The analysis path for ZA models is the same as it is for ZI models.  The two components of the model can be contemplated independently of one another, and either a zero-truncated Poisson or negative binomial distribution can be used for the count component.
 
-The `pscl` library contains the `hurdle` function for fitting ZA modes.  However, in ZA models, the two components are entirely separate from one another, so one doesn't really need additional specialized software.  ZA models could be fit just as readily by bolting together a logistic regression for the hurdle component with a model for zero-truncated responses in the count component.  This is not true for ZI models, though.  For ZI models, the estimated proportion of false zeros affects the estimate of the intensity for the non-false-zero counts, so the two components cannot be fit separately from one another.
+The `pscl` library contains the `hurdle` function for fitting ZA modes.  However, in ZA models, the two components are entirely separate from one another, so one doesn't really need additional specialized software.  ZA models could be fit just as readily by bolting together a logistic regression for the hurdle component with a model for zero-truncated responses in the count component.  This is not true for ZI models, though.  For ZI models, the estimated proportion of structural zeros affects the estimate of the intensity for the non-structural-zero counts, so the two components cannot be fit separately from one another.
 
 We will use the cod parasite data to illustrate hurdle models also.  This is something of an artificial example, however, because the fact that some infected fish will probably yield samples with zero counts suggests that a ZI model has a more natural ecological interpretation.  We will proceed directly to the final model chosen by Zuur et al., which includes additive effects of length, year, and area in the intensity component, and an interaction between area and year (but no effect of length) in the hurdle component.
 

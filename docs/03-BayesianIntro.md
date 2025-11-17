@@ -225,18 +225,18 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpsH7sBZ/model247c6a9922aa", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp8k1Ue7/modelbec620174d1", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved. Running time = 1.06 secs
+##  n.sims = 3750 iterations saved. Running time = 0.28 secs
 ##          mu.vect sd.vect    2.5%     25%     50%     75%   97.5%  Rhat n.eff
-## lambda     0.701   0.050   0.608   0.667   0.700   0.732   0.802 1.001  3800
-## deviance 629.291   1.409 628.310 628.411 628.744 629.616 633.318 1.003  2700
+## lambda     0.702    0.05   0.605   0.669   0.702   0.734   0.802 1.003   830
+## deviance 629.309    1.45 628.310 628.406 628.734 629.603 633.372 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 1.0 and DIC = 630.3
+## pV = 1.1 and DIC = 630.4
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -251,12 +251,12 @@ summary(mcmc.output)
 
 ```
 ##     deviance         lambda      
-##  Min.   :628.3   Min.   :0.5299  
-##  1st Qu.:628.4   1st Qu.:0.6666  
-##  Median :628.7   Median :0.7000  
-##  Mean   :629.3   Mean   :0.7009  
-##  3rd Qu.:629.6   3rd Qu.:0.7322  
-##  Max.   :642.2   Max.   :0.8925
+##  Min.   :628.3   Min.   :0.5420  
+##  1st Qu.:628.4   1st Qu.:0.6686  
+##  Median :628.7   Median :0.7020  
+##  Mean   :629.3   Mean   :0.7021  
+##  3rd Qu.:629.6   3rd Qu.:0.7340  
+##  Max.   :642.2   Max.   :0.9035
 ```
 
 ``` r
@@ -264,7 +264,7 @@ median(mcmc.output$lambda)
 ```
 
 ```
-## [1] 0.6999577
+## [1] 0.7019854
 ```
 
 ``` r
@@ -273,7 +273,7 @@ quantile(mcmc.output$lambda, c(.025, .975))
 
 ```
 ##      2.5%     97.5% 
-## 0.6084378 0.8024517
+## 0.6046801 0.8018922
 ```
 
 We can also use the `lattice` package to construct smoothed estimates of the posterior density:
@@ -391,21 +391,21 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpsH7sBZ/model247c1745e00", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp8k1Ue7/modelbec1cb93c62", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved. Running time = 0.07 secs
+##  n.sims = 3750 iterations saved. Running time = 0.09 secs
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        -0.302   3.425 -7.217 -2.494 -0.313  1.952  6.412 1.001  3800
-## b1         0.212   0.043  0.129  0.184  0.212  0.239  0.297 1.001  3800
-## sigma      1.031   0.206  0.721  0.887  1.004  1.141  1.504 1.002  1400
-## tau        1.045   0.384  0.442  0.768  0.991  1.270  1.922 1.002  1400
-## deviance  42.777   2.610 39.803 40.875 42.101 43.989 49.600 1.002  1900
+## b0        -0.350   3.312 -6.730 -2.419 -0.397  1.760  6.437 1.001  3800
+## b1         0.212   0.041  0.128  0.186  0.213  0.238  0.292 1.001  3800
+## sigma      1.027   0.202  0.728  0.884  0.996  1.135  1.484 1.002  1600
+## tau        1.051   0.380  0.454  0.776  1.009  1.280  1.889 1.002  1600
+## deviance  42.683   2.536 39.795 40.833 42.055 43.778 48.991 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
 ## 
 ## DIC info (using the rule: pV = var(deviance)/2)
-## pV = 3.4 and DIC = 46.2
+## pV = 3.2 and DIC = 45.9
 ## DIC is an estimate of expected predictive error (lower deviance is better).
 ```
 
@@ -425,19 +425,19 @@ summary(mcmc.output)
 
 ```
 ##        b0                 b1             deviance         sigma       
-##  Min.   :-13.3175   Min.   :0.04825   Min.   :39.57   Min.   :0.5721  
-##  1st Qu.: -2.4943   1st Qu.:0.18428   1st Qu.:40.88   1st Qu.:0.8873  
-##  Median : -0.3134   Median :0.21219   Median :42.10   Median :1.0044  
-##  Mean   : -0.3016   Mean   :0.21190   Mean   :42.78   Mean   :1.0313  
-##  3rd Qu.:  1.9521   3rd Qu.:0.23896   3rd Qu.:43.99   3rd Qu.:1.1410  
-##  Max.   : 13.2191   Max.   :0.38026   Max.   :60.32   Max.   :2.3231  
+##  Min.   :-15.2480   Min.   :0.01851   Min.   :39.56   Min.   :0.5993  
+##  1st Qu.: -2.4191   1st Qu.:0.18620   1st Qu.:40.83   1st Qu.:0.8840  
+##  Median : -0.3970   Median :0.21317   Median :42.06   Median :0.9956  
+##  Mean   : -0.3498   Mean   :0.21235   Mean   :42.68   Mean   :1.0270  
+##  3rd Qu.:  1.7601   3rd Qu.:0.23798   3rd Qu.:43.78   3rd Qu.:1.1353  
+##  Max.   : 14.7852   Max.   :0.39641   Max.   :60.32   Max.   :2.5445  
 ##       tau        
-##  Min.   :0.1853  
-##  1st Qu.:0.7681  
-##  Median :0.9913  
-##  Mean   :1.0451  
-##  3rd Qu.:1.2701  
-##  Max.   :3.0555
+##  Min.   :0.1545  
+##  1st Qu.:0.7758  
+##  Median :1.0088  
+##  Mean   :1.0512  
+##  3rd Qu.:1.2797  
+##  Max.   :2.7847
 ```
 
 Now we'll coerce the data frame `mcmc.output` to an MCMC object, and pass it to `HPDinterval`:
@@ -447,12 +447,12 @@ HPDinterval(as.mcmc(mcmc.output))
 ```
 
 ```
-##               lower     upper
-## b0       -7.3254386  6.230272
-## b1        0.1296216  0.296966
-## deviance 39.5689455 47.836613
-## sigma     0.6637684  1.420490
-## tau       0.3623849  1.809780
+##               lower      upper
+## b0       -6.9087208  6.2065346
+## b1        0.1300963  0.2928857
+## deviance 39.5573546 47.5412899
+## sigma     0.7095035  1.4475313
+## tau       0.4259233  1.8335818
 ## attr(,"Probability")
 ## [1] 0.9498667
 ```
@@ -487,7 +487,7 @@ summary(avg.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   16.40   17.49   17.71   17.71   17.93   19.21
+##   16.14   17.48   17.70   17.70   17.92   19.23
 ```
 
 ``` r
@@ -496,7 +496,7 @@ quantile(avg.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 16.99957 18.38397
+## 17.05462 18.36755
 ```
 
 We could use the `density` function to get a quick idea of the shape of the distribution:
@@ -507,7 +507,7 @@ plot(density(avg.chirps.85))
 
 <img src="03-BayesianIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
-Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.71, and a central 95\% credible interval is (17, 18.38).
+Thus, we might say that the posterior mean for the average number of chirps at 85 F is 17.7, and a central 95\% credible interval is (17.05, 18.37).
 
 Finally, we can use the posterior samples to estimate the uncertainty in a future observation.  When we use a posterior distribution to estimate the distribution of a future observation, we refer to it as a posterior predictive distribution.  The posterior predictive distribution must also include the error around the regression line.  We can estimate the posterior predictive distribution as follows.  Suppose we denote sample $i$ from the posterior as $\beta_{0, i}$, $\beta_{1, i}$, and $\sigma_i$.  Then for each posterior sample we will generate a new hypothetical observation $y_i^\star$ by sampling from a Gaussian distribution with mean equal to $\beta_{0,i} + \beta_{1,i} x $ and standard deviation $\sigma_i$, where $x = 85$.  The distribution of the $y_i^*$'s then gives the posterior predictive distribution that we seek.
 
@@ -526,7 +526,7 @@ summary(new.chirps.85)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   12.81   16.98   17.67   17.68   18.40   22.80
+##   13.81   16.96   17.68   17.69   18.42   22.71
 ```
 
 ``` r
@@ -535,10 +535,10 @@ quantile(new.chirps.85, probs = c(.025, 0.975))
 
 ```
 ##     2.5%    97.5% 
-## 15.52555 19.83585
+## 15.44595 19.95870
 ```
 
-Thus, the posterior predictive distribution has a central 95\% credible interval of (15.53, 19.84).
+Thus, the posterior predictive distribution has a central 95\% credible interval of (15.45, 19.96).
 
 Although it hasn't caused any difficulty here, the slope and intercept are strongly negatively correlated in the posterior.  We can visualize this posterior correlation:
 
@@ -560,9 +560,9 @@ cor(mcmc.output[, -c(3:4)])
 
 ```
 ##              b0          b1         tau
-## b0   1.00000000 -0.99690632  0.01657078
-## b1  -0.99690632  1.00000000 -0.01633131
-## tau  0.01657078 -0.01633131  1.00000000
+## b0   1.00000000 -0.99674380  0.01804623
+## b1  -0.99674380  1.00000000 -0.01940148
+## tau  0.01804623 -0.01940148  1.00000000
 ```
 
 Thus we estimate that the intercept and slope have a posterior correlation of -0.997.
@@ -612,15 +612,15 @@ print(jagsfit)
 ```
 
 ```
-## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/RtmpsH7sBZ/model247c49e36f92", fit using jags,
+## Inference for Bugs model at "C:/Users/krgross/AppData/Local/Temp/Rtmp8k1Ue7/modelbec562924ed", fit using jags,
 ##  3 chains, each with 5000 iterations (first 2500 discarded), n.thin = 2
-##  n.sims = 3750 iterations saved. Running time = 0.05 secs
+##  n.sims = 3750 iterations saved. Running time = 0.04 secs
 ##          mu.vect sd.vect   2.5%    25%    50%    75%  97.5%  Rhat n.eff
-## b0        16.660   0.269 16.137 16.485 16.659 16.823 17.197 1.002  2600
-## b1         0.212   0.042  0.132  0.185  0.212  0.239  0.294 1.001  3600
-## sigma      1.031   0.206  0.719  0.886  1.002  1.141  1.519 1.003   970
-## tau        1.048   0.392  0.433  0.769  0.996  1.273  1.932 1.003   970
-## deviance  42.728   2.623 39.805 40.815 42.093 43.899 49.389 1.001  2800
+## b0        16.651   0.271 16.093 16.477 16.653 16.829 17.190 1.001  3300
+## b1         0.211   0.042  0.128  0.185  0.211  0.238  0.297 1.001  3800
+## sigma      1.032   0.208  0.725  0.886  1.000  1.139  1.538 1.001  3800
+## tau        1.045   0.380  0.423  0.771  1.001  1.275  1.905 1.001  3800
+## deviance  42.760   2.624 39.809 40.843 42.045 43.947 49.740 1.001  3800
 ## 
 ## For each parameter, n.eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor (at convergence, Rhat=1).
@@ -654,10 +654,10 @@ cor(mcmc.output[, -c(3:4)])
 ```
 
 ```
-##               b0           b1           tau
-## b0   1.000000000 0.0085304227 -0.0220817032
-## b1   0.008530423 1.0000000000  0.0008229041
-## tau -0.022081703 0.0008229041  1.0000000000
+##              b0          b1         tau
+## b0   1.00000000 -0.01742193  0.01887981
+## b1  -0.01742193  1.00000000 -0.01964896
+## tau  0.01887981 -0.01964896  1.00000000
 ```
 
 ## rstanarm
@@ -709,8 +709,8 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 1).
 ## Chain 1: 
-## Chain 1: Gradient evaluation took 0.000149 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 1.49 seconds.
+## Chain 1: Gradient evaluation took 5.7e-05 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.57 seconds.
 ## Chain 1: Adjust your expectations accordingly!
 ## Chain 1: 
 ## Chain 1: 
@@ -727,15 +727,15 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.027 seconds (Warm-up)
-## Chain 1:                0.07 seconds (Sampling)
-## Chain 1:                0.097 seconds (Total)
+## Chain 1:  Elapsed Time: 0.024 seconds (Warm-up)
+## Chain 1:                0.044 seconds (Sampling)
+## Chain 1:                0.068 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 2).
 ## Chain 2: 
-## Chain 2: Gradient evaluation took 1.1e-05 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.11 seconds.
+## Chain 2: Gradient evaluation took 9e-06 seconds
+## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.09 seconds.
 ## Chain 2: Adjust your expectations accordingly!
 ## Chain 2: 
 ## Chain 2: 
@@ -752,15 +752,15 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.049 seconds (Warm-up)
-## Chain 2:                0.025 seconds (Sampling)
-## Chain 2:                0.074 seconds (Total)
+## Chain 2:  Elapsed Time: 0.034 seconds (Warm-up)
+## Chain 2:                0.052 seconds (Sampling)
+## Chain 2:                0.086 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 3).
 ## Chain 3: 
-## Chain 3: Gradient evaluation took 8e-06 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.08 seconds.
+## Chain 3: Gradient evaluation took 1.9e-05 seconds
+## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.19 seconds.
 ## Chain 3: Adjust your expectations accordingly!
 ## Chain 3: 
 ## Chain 3: 
@@ -777,15 +777,15 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.021 seconds (Warm-up)
-## Chain 3:                0.035 seconds (Sampling)
-## Chain 3:                0.056 seconds (Total)
+## Chain 3:  Elapsed Time: 0.026 seconds (Warm-up)
+## Chain 3:                0.023 seconds (Sampling)
+## Chain 3:                0.049 seconds (Total)
 ## Chain 3: 
 ## 
 ## SAMPLING FOR MODEL 'continuous' NOW (CHAIN 4).
 ## Chain 4: 
-## Chain 4: Gradient evaluation took 1.6e-05 seconds
-## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.16 seconds.
+## Chain 4: Gradient evaluation took 1.2e-05 seconds
+## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.12 seconds.
 ## Chain 4: Adjust your expectations accordingly!
 ## Chain 4: 
 ## Chain 4: 
@@ -802,9 +802,9 @@ stanarm.cricket.fit <- stan_glm(chirps ~ temp.ctr, data = cricket, family = gaus
 ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
 ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
 ## Chain 4: 
-## Chain 4:  Elapsed Time: 0.039 seconds (Warm-up)
-## Chain 4:                0.023 seconds (Sampling)
-## Chain 4:                0.062 seconds (Total)
+## Chain 4:  Elapsed Time: 0.032 seconds (Warm-up)
+## Chain 4:                0.022 seconds (Sampling)
+## Chain 4:                0.054 seconds (Total)
 ## Chain 4:
 ```
 
